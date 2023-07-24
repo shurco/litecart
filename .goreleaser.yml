@@ -1,0 +1,87 @@
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X "main.version={{.Version}}"
+      - -s -w -X "main.gitCommit={{.ShortCommit}}"
+      - -s -w -X "main.buildDate={{.Date}}"
+    main: ./cmd/main.go
+    binary: litecart
+
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    files:
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+brews:
+  - repository:
+      owner: shurco
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/shurco/litecart
+    description: "LiteCart - a very easy cart for selling digital products with Stripe payment."
+    license: "MIT"
+
+upx:
+  - enabled: false
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - init
+      - "^.*?ci:"
+      - "^.*?test:"
+      - "^.*?build(deps):"
+      - "^.*?build:"
+      - "README"
+      - "Up"
+      - "merge conflict"
+      - Bump
+      - Small fix
+      - Update
+      - Updating
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: Dependency updates
+      regexp: '^.*?(feat|fix)\(deps\)!?:.+$'
+      order: 300
+    - title: "New Features"
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 100
+    - title: "Security updates"
+      regexp: '^.*?sec(\([[:word:]]+\))??!?:.+$'
+      order: 150
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 200
+    - title: "Documentation updates"
+      regexp: ^.*?doc(\([[:word:]]+\))??!?:.+$
+      order: 400
+    - title: "Build process updates"
+      regexp: ^.*?build(\([[:word:]]+\))??!?:.+$
+      order: 400
+    - title: Other work
+      order: 9999
