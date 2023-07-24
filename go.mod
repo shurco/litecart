@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/pressly/goose/v3 v3.13.4
 	github.com/rs/zerolog v1.29.1
-	github.com/stripe/stripe-go/v74 v74.26.0
+	github.com/stripe/stripe-go/v74 v74.27.0
 	golang.org/x/crypto v0.11.0
 	modernc.org/sqlite v1.24.0
 )
