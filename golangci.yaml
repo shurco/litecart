@@ -7,9 +7,6 @@ run:
   #   vendor$, third_party$, testdata$, examples$, Godeps$, builtin$
   skip-dirs-use-default: true
 
-service:
-  golangci-lint-version: 1.48.0
-
 linters:
   disable-all: true
   enable:
