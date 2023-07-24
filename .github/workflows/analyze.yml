@@ -1,0 +1,62 @@
+name: "analyze"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+  schedule:
+    - cron: '34 10 * * 2'
+
+jobs:
+  cancel-previous-runs:
+    name: Cancel previous runs
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.commits[0].message, '[skip ci]') && !contains(github.event.commits[0].message, '[ci skip]')"
+    steps:
+      - uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.commits[0].message, '[skip ci]') && !contains(github.event.commits[0].message, '[ci skip]')"
+    needs: cancel-previous-runs
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'go' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+      if: ${{ matrix.language == 'go' }}
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+      timeout-minutes: 10
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+      if: ${{ matrix.language != 'go' }}
+      timeout-minutes: 30
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
