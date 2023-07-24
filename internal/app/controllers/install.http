@@ -1,0 +1,24 @@
+@host = http://localhost:8080
+
+###
+# @name install
+POST {{host}}/api/install
+Content-Type: application/json
+
+{
+    "email":"user@site.com",
+    "password":"123456789ASDFGzxcvb"
+}
+
+
+###
+# @name install2
+POST {{host}}/api/install
+Content-Type: application/json
+
+{
+    "email":"user@site.com",
+    "password":"123456789ASDFGzxcvb",
+    "domain":"site.com",
+    "stripe_secret":"sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
+}

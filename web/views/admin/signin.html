@@ -1,0 +1,55 @@
+<div id="app">
+  <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-lg text-center">
+      <h1 class="text-2xl font-bold sm:text-3xl">👨‍🎨 Admin sign in</h1>
+    </div>
+
+    <v-form @submit="onSubmit" v-slot="{ errors }" class="mx-auto mb-0 mt-8 max-w-md space-y-4">
+      {# template "admin/components/form/input" (arr "email" "email" "required|email" "Email" "email") #}
+      {# template "admin/components/form/input" (arr "password" "password" "required|min:6" "Password" "password") #}
+
+      {# template "admin/components/form/button" (arr "submit" "Login" "row" "") #}  
+    </v-form>
+  </div>
+</div>
+
+<script>
+  Vue.createApp({
+    data() {
+      return {
+        resp: ref(null),
+        state: ref({
+          email: '',
+          password: '',
+        }),
+      };
+    },
+
+    components: {
+      VForm: Form,
+      VField: Field,
+    },
+
+    methods: {
+      async onSubmit() {
+        const response = await fetch('/api/sign/in', {
+          credentials: "include",
+          method: 'POST',
+          body: JSON.stringify(this.state),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+        this.resp = await response.json();
+        if (!this.resp.success) {
+          this.$toast.open({
+            message: this.resp.result,
+            type: 'error',
+          });
+        } else {
+          window.location.href = "/_";
+        }
+      },
+    },
+  }).use(VueToast.ToastPlugin).mount("#app");
+</script>

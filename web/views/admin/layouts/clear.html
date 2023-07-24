@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/assets/js/vue.js?v=3.3.4"></script>
+  <script src="/assets/js/vee-validate/main.js?v=4.10.7"></script>
+  <script src="/assets/js/vee-validate/rules.js?v=4.10.7"></script>
+  <script src="/assets/js/notification.js?v=3.1.1"></script>
+  <script src="/assets/js/main.js" type="module"></script>
+  <link href="/assets/css/notification.css?v=3.1.1" rel="stylesheet">
+  <link href="/assets/css/style.css" rel="stylesheet">
+  <script>
+    const { onMounted, onUpdated, onUnmounted, ref, getCurrentInstance } = Vue;
+    const { defineRule, Form, Field } = VeeValidate;
+    const { required, email, min } = VeeValidateRules;
+
+    defineRule('required', required);
+    defineRule('email', email);
+    defineRule('min', min);
+  </script>
+</head>
+
+<body>
+  {# embed #}
+</body>
+
+</html>

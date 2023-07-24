@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# The following line uses the `uname` command to get the machine's architecture and assigns it to the variable `ARCH`.
+ARCH=$(uname -m)
+case $ARCH in
+i386) ARCH="386" ;;
+i686) ARCH="386" ;;
+x86_64) ARCH="amd64" ;;
+esac
+
+# The following line uses the `uname` command to get the name of the operating system and assigns it to the variable `OS`.
+# return Linux, Darwin, Windows
+OS=$(uname -s)
+
+# Init color
+COLOR_GREY=$(tput setaf 0)
+COLOR_RED=$(tput setaf 1)
+COLOR_GREEN=$(tput setaf 2)
+COLOR_YELLOW=$(tput setaf 3)
+COLOR_RESET=$(tput sgr0)
+
+GOPATH=$(go env GOPATH)
+GOBIN=$(go env GOPATH)/bin
+
+DATE=$(date '+%Y-%m-%d-%H:%M:%S')
+GIT_COMMIT=$(git rev-parse --short HEAD)
+GIT_DIRTY=$(test -n "$(git status --porcelain)" && echo "+CHANGES" || true)
+GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null)
+VERSION=${GIT_TAG#*v}
+
+maybe_sudo() {
+  if [ "$(id -u)" -ne 0 ]; then
+    sudo "$@"
+  else
+    "$@"
+  fi
+}
+
+# This function checks if the architecture of the system running the script is supported.
+support_arch() {
+  if [ "$ARCH" != "amd64" ]; then
+    print_answer "ERROR" red
+    echo "unsupported architecture: $ARCH"
+    exit 1
+  fi
+}
+
+generate_password() {
+  tr -cd 'a-zA-Z0-9!#$%&()*+?@[]^_' </dev/urandom |
+    fold -w 32 |
+    head -n 1
+}
+
+# This function retrieves the latest release of a GitHub repository using its API.
+get_latest_release() {
+  echo $(curl --silent "https://api.github.com/repos/$1/releases/latest" |
+    grep '"tag_name":' |
+    sed -E 's/.*"([^"]+)".*/\1/')
+}
+
+command_exists() {
+  command -v "$@" >/dev/null 2>&1
+}
+
+print_answer() {
+  local COLOR="$COLOR_RESET"
+  for flag in "$@"; do
+    case $flag in
+    grey) COLOR=$COLOR_GREY ;;
+    green) COLOR=$COLOR_GREEN ;;
+    yellow) COLOR=$COLOR_YELLOW ;;
+    red) COLOR=$COLOR_RED ;;
+    esac
+  done
+  echo "${COLOR}$1${COLOR_RESET}" >&2
+}
+
+print_header() {
+  printf "%.45s " "$@ ........................................"
+}
+
+print_help() {
+  printf "%.20s " "${COLOR_GREEN}$1${COLOR_RESET}                       "
+  echo "$2" >&2
+}
+
+parse_yaml() {
+  local prefix=$2
+  local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @ | tr @ '\034')
+  sed -ne "s|,$s\]$s\$|]|" \
+    -e ":1;s|^\($s\)\($w\)$s:$s\[$s\(.*\)$s,$s\(.*\)$s\]|\1\2: [\3]\n\1  - \4|;t1" \
+    -e "s|^\($s\)\($w\)$s:$s\[$s\(.*\)$s\]|\1\2:\n\1  - \3|;p" $1 |
+    sed -ne "s|,$s}$s\$|}|" \
+      -e ":1;s|^\($s\)-$s{$s\(.*\)$s,$s\($w\)$s:$s\(.*\)$s}|\1- {\2}\n\1  \3: \4|;t1" \
+      -e "s|^\($s\)-$s{$s\(.*\)$s}|\1-\n\1  \2|;p" |
+    sed -ne "s|^\($s\):|\1|" \
+      -e "s|^\($s\)-$s[\"']\(.*\)[\"']$s\$|\1$fs$fs\2|p" \
+      -e "s|^\($s\)-$s\(.*\)$s\$|\1$fs$fs\2|p" \
+      -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+      -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" |
+    awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]; idx[i]=0}}
+      if(length($2)== 0){  vname[indent]= ++idx[indent] };
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) { vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, vname[indent], $3);
+      }
+   }'
+}

@@ -1,0 +1,38 @@
+<div id="app">
+  <h1>{{count}}</h1>
+  <button @click="increment">Increment</button>
+</div>
+
+<script>
+  Vue.createApp({
+    data() {
+      return {
+        count: ref(0),
+      };
+    },
+
+    methods: {
+      increment() {
+        this.count++
+      },
+    },
+    setup(props, context) {
+      onMounted(() => {
+        console.info("App mounted!");
+        console.info("Vue version", app.version);
+        console.info("app", app);
+        console.info("props", props);
+        console.info("context", context);
+        console.info("getCurrentInstance()", getCurrentInstance());
+        let _this = getCurrentInstance().withProxy;
+        console.info("this", _this);
+      });
+      onUpdated(() => {
+        console.info("App updated!");
+      });
+      onUnmounted(() => {
+        console.info("App unmounted!");
+      });
+    }
+  }).mount("#app");
+</script>

@@ -1,0 +1,90 @@
+<div id="app">
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Products</h1>
+    </div>
+    <div>
+      {# template "admin/components/form/button" (arr "submit" "Add" "" "productAdd") #}
+    </div>
+  </div>
+
+  <div class="mx-auto">
+    <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+      <thead class="text-left">
+        <tr>
+          <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            Name
+          </th>
+          <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            Date of Birth
+          </th>
+          <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            Role
+          </th>
+          <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            Salary
+          </th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-200">
+        <tr>
+          <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            John Doe
+          </td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">24/05/1995</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">Web Developer</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">$120,000</td>
+        </tr>
+
+        <tr>
+          <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            Jane Doe
+          </td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">04/11/1980</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">Web Designer</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">$100,000</td>
+        </tr>
+
+        <tr>
+          <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+            Gary Barlow
+          </td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">24/05/1995</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">Singer</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">$20,000</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  Vue.createApp({
+    methods: {
+      productAdd() {
+        window.location.href = "/_/products/add";
+      },
+    },
+
+    setup(props, context) {
+      onMounted(() => {
+        console.info("App mounted!");
+        console.info("Vue version", app.version);
+        console.info("app", app);
+        console.info("props", props);
+        console.info("context", context);
+        console.info("getCurrentInstance()", getCurrentInstance());
+        let _this = getCurrentInstance().withProxy;
+        console.info("this", _this);
+      });
+      onUpdated(() => {
+        console.info("App updated!");
+      });
+      onUnmounted(() => {
+        console.info("App unmounted!");
+      });
+    }
+  }).mount("#app");
+</script>

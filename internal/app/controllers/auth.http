@@ -1,0 +1,37 @@
+@host = http://localhost:8080
+
+###
+# @name signin
+POST {{host}}/api/sign/in
+Content-Type: application/json
+
+{
+    "email":"user@site.com",
+    "password":"123456789ASDFGzxcvb"
+}
+
+###
+# @name signin_bad2
+POST {{host}}/api/sign/in
+Content-Type: application/json
+
+{
+    "email":"user@site.com",
+    "password":"123456789"
+}
+
+###
+# @name signin_bad3
+POST {{host}}/api/sign/in
+Content-Type: application/json
+
+{
+    "email":"user@site.com",
+    "password":""
+}
+
+###
+# @name signout
+POST {{host}}/api/sign/out
+Authorization: Bearer {{signin.response.body.result}}
+

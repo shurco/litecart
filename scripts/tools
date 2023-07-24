@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+#set -e
+
+ROOT_PATH="$(git rev-parse --show-toplevel)"
+source ${ROOT_PATH}/scripts/_helper
+
+support_arch
+
+case "$OS" in
+Darwin)
+  brew install goose golangci-lint yq sqlite3
+  ;;
+Linux)
+  if ! [ -d ${ROOT_PATH}/.vscode/tmp ]; then
+    mkdir ${ROOT_PATH}/.vscode/tmp
+  fi
+
+  print_header "Install/Update sqlite3"
+  sudo apt-get install sqlite3 -y >/dev/null 2>&1
+  print_answer "SUCCESS" green
+
+  print_header "Install/Update golangci-lint"
+  GOLINTER_LATEST=$(get_latest_release "golangci/golangci-lint")
+  wget "https://github.com/golangci/golangci-lint/releases/download/${GOLINTER_LATEST}/golangci-lint-${GOLINTER_LATEST#*v}-linux-amd64.tar.gz" -4 -q -O ${ROOT_PATH}/.vscode/tmp/golangci-lint.tar.gz
+  tar --no-same-owner -xzf ${ROOT_PATH}/.vscode/tmp/golangci-lint.tar.gz -C ${ROOT_PATH}/.vscode/tmp
+  install "${ROOT_PATH}/.vscode/tmp/golangci-lint-${GOLINTER_LATEST#*v}-linux-amd64/golangci-lint" "$HOME/.local/bin"
+  print_answer "SUCCESS" green
+
+  print_header "Install/Update goose"
+  go install github.com/pressly/goose/v3/cmd/goose@latest >/dev/null 2>&1
+  print_answer "SUCCESS" green
+
+  print_header "Install/Update yq"
+  wget "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -4 -q -O ${ROOT_PATH}/.vscode/tmp/yq
+  install "${ROOT_PATH}/.vscode/tmp/yq" "$HOME/.local/bin"
+  print_answer "SUCCESS" green
+
+  rm -rf ${ROOT_PATH}/.vscode/tmp
+
+  source ~/.profile
+  ;;
+*)
+  print_header "Install/Update tools"
+  print_answer "ERROR" red
+  echo "Unsupported OS: $OS"
+  exit
+  ;;
+esac

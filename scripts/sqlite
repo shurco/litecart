@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+#set -e
+
+ROOT_PATH="$(git rev-parse --show-toplevel)"
+source ${ROOT_PATH}/scripts/_helper
+
+
+if ! [ -d "${ROOT_PATH}/cmd/lc_base" ]; then
+  mkdir "${ROOT_PATH}/cmd/lc_base"
+
+  if ! [ -f "${ROOT_PATH}/cmd/lc_base/data.db" ]; then
+    sqlite3 "${ROOT_PATH}/cmd/lc_base/data.db" "PRAGMA auto_vacuum;"
+  fi
+fi
+
+sqlite3 "${ROOT_PATH}/cmd/lc_base/data.db" "VACUUM;"

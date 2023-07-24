@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+#set -e
+
+ROOT_PATH="$(git rev-parse --show-toplevel)"
+source ${ROOT_PATH}/scripts/_helper
+
+MIGRATION_DIR=${ROOT_PATH}/internal/app/migrations
+DB_POSTFIX="goose_db_version"
+MIGRATION=$1
+GOOSE_ACTION=$2
+
+if ! [ -d "${ROOT_PATH}/cmd/lc_base" ]; then
+  mkdir "${ROOT_PATH}/cmd/lc_base"
+
+  if ! [ -f "${ROOT_PATH}/cmd/lc_base/data.db" ]; then
+    sqlite3 "${ROOT_PATH}/cmd/lc_base/data.db" "PRAGMA auto_vacuum;"
+  fi
+fi
+
+run_goose() {
+  arr_goose=("create" "up" "up1" "down" "down1" "redo" "status")
+  if [[ " ${arr_goose[@]} " =~ " $1 " ]]; then
+    GOOSE_CMD="goose -dir $MIGRATION_DIR -table $DB_POSTFIX sqlite3 ${ROOT_PATH}/cmd/lc_base/data.db"
+
+    case "$1" in
+    "create") OTPUT=$($GOOSE_CMD create migration_name sql 2>&1) ;;
+    "up") OTPUT=$($GOOSE_CMD up 2>&1) ;;
+    "up1") OTPUT=$($GOOSE_CMD up-by-one 2>&1) ;;
+    "down") OTPUT=$($GOOSE_CMD reset 2>&1) ;;
+    "down1") OTPUT=$($GOOSE_CMD down 2>&1) ;;
+    "redo") OTPUT=$($GOOSE_CMD redo 2>&1) ;;
+    "status") OTPUT=$($GOOSE_CMD status 2>&1) ;;
+    esac
+
+    rm -rf ${ROOT_PATH}/.vscode/migrate_tmp
+
+    print_answer "SUCCESS" green
+    if [ -n "${OTPUT}" ]; then
+      echo "${OTPUT}"
+      echo
+    fi
+  else
+    if [ -d ${ROOT_PATH}/.vscode/migrate_tmp ]; then
+      rm -rf ${ROOT_PATH}/.vscode/migrate_tmp
+    fi
+    print_answer "ERROR" red
+    echo "Parameters not passed"
+    echo
+    echo "$0 <command> [option...]"
+    echo
+    echo "command:"
+    print_help "<empty>" "Core version"
+    print_help test "Test version"
+    print_help dev "Development fixtures"
+    echo
+    echo "option:"
+    print_help create "Core version"
+    print_help up "Migrate the DB to the most recent version available"
+    print_help up1 "Migrate the DB up by 1"
+    print_help down "Roll back all migrations"
+    print_help down1 "Roll back the version by 1"
+    print_help redo "Re-run the latest migration"
+    print_help status "Dump the migration status for the current DB"
+  fi
+}
+
+if [[ $MIGRATION == "test" ]]; then
+  print_header "Migrations sql $MIGRATION:$GOOSE_ACTION"
+
+  if [ "$MIGRATION" == "test" ]; then
+    if ! [ -d ${ROOT_PATH}/.vscode/migrate_tmp ]; then
+      mkdir ${ROOT_PATH}/.vscode/migrate_tmp
+    fi
+    for file_migrate in $(find ${ROOT_PATH} -path '*/fixtures/migration/*' | sort -r); do
+      cp "$file_migrate" ${ROOT_PATH}/.vscode/migrate_tmp/
+    done
+    MIGRATION_DIR=${ROOT_PATH}/.vscode/migrate_tmp
+    DB_POSTFIX=${DB_POSTFIX}"_test"
+  fi
+  run_goose $GOOSE_ACTION
+elif [[ $MIGRATION == "dev" ]]; then
+  arr_goose=(up down)
+  if [[ " ${arr_goose[@]} " =~ " $GOOSE_ACTION " ]]; then
+    SOURCE=${BASH_SOURCE[0]}
+    if [ $GOOSE_ACTION == "up" ]; then
+      if ! [ -d ${ROOT_PATH}/cmd/uploads]; then
+        mkdir ${ROOT_PATH}/cmd/uploads
+        cp ${ROOT_PATH}/fixtures/images/* ${ROOT_PATH}/cmd/uploads
+      fi
+      
+      $SOURCE up
+      $SOURCE test up
+    elif [ $GOOSE_ACTION == "down" ]; then
+      if [ -d ${ROOT_PATH}/cmd/uploads ]; then
+        rm -rf ${ROOT_PATH}/cmd/uploads
+      fi
+
+      $SOURCE test down
+      $SOURCE down
+    fi
+  else
+    print_header "Migrations sql"
+    print_answer "ERROR" red
+    echo "Parameters not passed"
+    echo
+    echo "Use next command:"
+    print_help up "Run all available migrations"
+    print_help down "Delete all migrations from database"
+    exit
+  fi
+else
+  print_header "Migrations sql"
+  run_goose $MIGRATION
+fi

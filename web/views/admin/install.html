@@ -1,0 +1,57 @@
+<div id="app">
+  <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-lg text-center">
+      <h1 class="text-2xl font-bold sm:text-3xl">This is the first run! 🎉</h1>
+      <p class="mt-4 text-gray-500">To get started - fill in the following fields</p>
+    </div>
+
+    <v-form @submit="onSubmit" v-slot="{ errors }" class="mx-auto mb-0 mt-8 max-w-md space-y-4">
+      {# template "admin/components/form/input" (arr "email" "email" "required|email" "Email" "email") #}
+      {# template "admin/components/form/input" (arr "password" "password" "required|min:6" "Password" "password") #}
+      <hr />
+      {# template "admin/components/form/input" (arr "domain" "text" "required" "Domain" "domain") #}
+      {# template "admin/components/form/input" (arr "stripe_secret" "text" "required|min:100" "Stripe secret key" "key") #}
+
+      {# template "admin/components/form/button" (arr "submit" "Create my cart" "row" "") #}
+    </v-form>
+  </div>
+</div>
+
+<script>
+  Vue.createApp({
+    data() {
+      return {
+        resp: ref(null),
+        state: ref({
+          email: '',
+          password: '',
+          domain: '',
+          stripe_secret: '',
+        }),
+      };
+    },
+
+    components: {
+      VForm: Form,
+      VField: Field,
+    },
+
+    methods: {
+      async onSubmit() {
+        const response = await fetch('/api/install', {
+          method: 'POST',
+          body: JSON.stringify(this.state),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+
+        this.resp = await response.json();
+
+        if (this.resp.success) {
+          window.location.href = "/_/signin";
+        }
+      },
+    },
+  }).mount("#app");
+</script>

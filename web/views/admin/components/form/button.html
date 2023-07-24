@@ -1,0 +1,22 @@
+{# $buttonType := index . 0 #}
+{# $buttonSpan := index . 1 #}
+{# $buttonIco := index . 2 #}
+{# $buttonFunc := index . 3 #}
+
+<button
+  class="group relative inline-flex items-center overflow-hidden rounded bg-indigo-600 px-8 py-3 text-white active:bg-indigo-500 {# if $buttonIco #}focus:outline-none focus:ring{# end #}"
+  type="{# $buttonType #}" {# if $buttonFunc #} @click="{# $buttonFunc #}" {# end #}>
+
+  {# if eq $buttonIco "row" #}
+  <span class="absolute -start-full transition-all group-hover:start-4">
+    <svg class="h-5 w-5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+      stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    </svg>
+  </span>
+  {# end #}
+
+  <span class="text-sm font-medium {# if $buttonIco #}transition-all group-hover:ms-4{# end #}">
+    {# $buttonSpan #}
+  </span>
+</button>

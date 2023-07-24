@@ -1,0 +1,48 @@
+<div id="app">
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Product update</h1>
+    </div>
+  </div>
+
+  <div class="mx-auto">
+    123
+  </div>
+
+</div>
+
+<script>
+  Vue.createApp({
+    data() {
+      return {
+        resp: ref(null),
+        state: ref({
+          email: '',
+        }),
+      };
+    },
+
+    components: {
+      VForm: Form,
+      VField: Field,
+    },
+
+    methods: {
+      async onSubmit() {
+        const response = await fetch('/api/product', {
+          method: 'PATCH',
+          body: JSON.stringify(this.state),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+
+        this.resp = await response.json();
+
+        if (this.resp.success) {
+          window.location.href = "/_";
+        }
+      },
+    },
+  }).mount("#app");
+</script>
