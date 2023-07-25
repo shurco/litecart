@@ -38,7 +38,7 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     homepage: https://github.com/shurco/litecart
-    description: "LiteCart - a very easy cart for selling digital products with Stripe payment."
+    description: "LiteCart - Open Source realtime cart in 1 file"
     license: "MIT"
 
 upx:

@@ -7,7 +7,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/cmd",
-      "args": ["-s"]
+      "args": ["serve"]
     },
   ]
 }

@@ -15,6 +15,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/pressly/goose/v3 v3.13.4
 	github.com/rs/zerolog v1.29.1
+	github.com/spf13/cobra v1.7.0
 	github.com/stripe/stripe-go/v74 v74.27.0
 	golang.org/x/crypto v0.11.0
 	modernc.org/sqlite v1.24.0
@@ -27,6 +28,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gofiber/template v1.8.2 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
@@ -36,6 +38,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.48.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
