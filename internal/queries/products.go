@@ -1,4 +1,4 @@
-package app
+package queries
 
 /*
 func (b *Base) GetStripeProducts() []models.Product {

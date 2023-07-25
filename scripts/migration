@@ -5,7 +5,7 @@
 ROOT_PATH="$(git rev-parse --show-toplevel)"
 source ${ROOT_PATH}/scripts/_helper
 
-MIGRATION_DIR=${ROOT_PATH}/internal/app/migrations
+MIGRATION_DIR=${ROOT_PATH}/internal/migrations
 DB_POSTFIX="goose_db_version"
 MIGRATION=$1
 GOOSE_ACTION=$2

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/shurco/litecart/internal/app/models"
+	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/crypto"
 )
 

@@ -2,14 +2,12 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/shurco/litecart/internal/app/queries"
-	"github.com/shurco/litecart/internal/core"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
 // SiteRoutes is ...
-func SiteRoutes(c *core.Core, q *queries.Base) {
-	route := c.Fiber.Group("/")
+func SiteRoutes(c *fiber.App) {
+	route := c.Group("/")
 
 	route.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("site/index", fiber.Map{

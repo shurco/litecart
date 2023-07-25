@@ -4,8 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/shurco/litecart/internal/app"
-	"github.com/shurco/litecart/internal/core"
+	app "github.com/shurco/litecart/internal"
 )
 
 var (
@@ -15,7 +14,7 @@ var (
 )
 
 func main() {
-	flags := core.Flags{
+	flags := app.Flags{
 		Serve: true,
 	}
 

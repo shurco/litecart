@@ -4,12 +4,18 @@ import (
 	"database/sql"
 	"strconv"
 
-	"github.com/shurco/litecart/internal/core"
 	"github.com/shurco/litecart/pkg/jwtutil"
+	"github.com/stripe/stripe-go/v74/client"
 )
 
 type SettingQueries struct {
 	*sql.DB
+}
+
+type Stripe struct {
+	SecretKey  string
+	WebhookKey string
+	Client     *client.API
 }
 
 // IsInstalled is ...
@@ -97,8 +103,8 @@ func (q *SettingQueries) SettingJWT() (*jwtutil.Setting, error) {
 }
 
 // SettingStripe is ...
-func (q *SettingQueries) SettingStripe() (*core.Stripe, error) {
-	settings := &core.Stripe{}
+func (q *SettingQueries) SettingStripe() (*Stripe, error) {
+	settings := &Stripe{}
 
 	query := `SELECT "key", "value" FROM "setting" WHERE "key" IN (?, ?)`
 	rows, err := q.DB.Query(query, "stripe_secret_key", "stripe_webhook_secret_key")

@@ -3,16 +3,20 @@ package middleware
 import (
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/shurco/litecart/pkg/webutil"
-
 	jwtMiddleware "github.com/gofiber/contrib/jwt"
+	"github.com/gofiber/fiber/v2"
+
+	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/webutil"
 )
 
 // JWTProtected is ...
-func JWTProtected(secret string) func(*fiber.Ctx) error {
+func JWTProtected() func(*fiber.Ctx) error {
+	db := queries.DB()
+	settingJWT, _ := db.SettingJWT()
+
 	config := jwtMiddleware.Config{
-		SigningKey:   jwtMiddleware.SigningKey{Key: []byte(secret)},
+		SigningKey:   jwtMiddleware.SigningKey{Key: []byte(settingJWT.Secret)},
 		ContextKey:   "jwt",
 		ErrorHandler: jwtError,
 		TokenLookup:  "cookie:token",

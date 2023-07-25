@@ -1,8 +1,9 @@
-package core
+package queries
 
 import (
-	"database/sql"
 	"embed"
+
+	"database/sql"
 	"fmt"
 
 	"github.com/pressly/goose/v3"
@@ -10,7 +11,15 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func (b *Core) InitDB(dbPath string, migrations embed.FS) (*sql.DB, error) {
+var db *Base
+
+type Base struct {
+	AuthQueries
+	InstallQueries
+	SettingQueries
+}
+
+func InitDB(dbPath string, migrations embed.FS) (*sql.DB, error) {
 	if !fsutil.IsFile(dbPath) {
 		// create db
 		if _, err := fsutil.OpenFile(dbPath, fsutil.FsCWFlags, 0666); err != nil {
@@ -44,4 +53,23 @@ func Migrate(dbPath string, migrations embed.FS) error {
 		return err
 	}
 	return nil
+}
+
+func InitQueries(embed embed.FS) error {
+	// init database
+	sqlite, err := InitDB("./lc_base/data.db", embed)
+	if err != nil {
+		return err
+	}
+
+	db = &Base{
+		AuthQueries:    AuthQueries{DB: sqlite},
+		InstallQueries: InstallQueries{DB: sqlite},
+		SettingQueries: SettingQueries{DB: sqlite},
+	}
+	return nil
+}
+
+func DB() *Base {
+	return db
 }
