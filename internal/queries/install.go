@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/shurco/litecart/internal/models"
-	"github.com/shurco/litecart/pkg/crypto"
+	"github.com/shurco/litecart/pkg/security"
 )
 
 type InstallQueries struct {
@@ -36,8 +36,8 @@ func (q *InstallQueries) Install(i *models.Install) error {
 	}
 	defer stmt.Close()
 
-	password := crypto.GeneratePassword(i.Password)
-	jwt_secret, err := crypto.NewToken(password)
+	password := security.GeneratePassword(i.Password)
+	jwt_secret, err := security.NewToken(password)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (q *InstallQueries) Install(i *models.Install) error {
 		"installed":         "true",
 		"domain":            i.Domain,
 		"email":             i.Email,
-		"password":          crypto.GeneratePassword(i.Password),
+		"password":          security.GeneratePassword(i.Password),
 		"jwt_secret":        jwt_secret,
 		"stripe_secret_key": i.StripeSecret,
 	}

@@ -1,4 +1,4 @@
-package crypto
+package security
 
 import (
 	"crypto/md5"
