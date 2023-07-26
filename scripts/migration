@@ -84,7 +84,7 @@ elif [[ $MIGRATION == "dev" ]]; then
   if [[ " ${arr_goose[@]} " =~ " $GOOSE_ACTION " ]]; then
     SOURCE=${BASH_SOURCE[0]}
     if [ $GOOSE_ACTION == "up" ]; then
-      if ! [ -d ${ROOT_PATH}/cmd/uploads]; then
+      if ! [ -d ${ROOT_PATH}/cmd/uploads ]; then
         mkdir ${ROOT_PATH}/cmd/uploads
         cp ${ROOT_PATH}/fixtures/images/* ${ROOT_PATH}/cmd/uploads
       fi
