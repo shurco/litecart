@@ -6,7 +6,7 @@ export default {
   props: {
     color: {
       type: String,
-      default: 'indigo'
+      required: true
     },
     name: {
       type: String,
@@ -17,7 +17,7 @@ export default {
 
   template: `<button
   class="group relative inline-flex items-center overflow-hidden rounded px-8 py-3 text-white"
-  :class="color ? 'bg-'+color+'-600 active:bg-'+color+'-500' : 'bg-green-600 active:bg-indigo-500', ico ? 'focus:outline-none focus:ring' : ''">
+  :class="color ? 'bg-'+color+'-600 active:bg-'+color+'-500' : 'bg-green-600 active:bg-'+color+'-500', ico ? 'focus:outline-none focus:ring' : ''">
 
   <span class="absolute -start-full transition-all group-hover:start-4" v-if="ico==='row'">
     <svg class="h-5 w-5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
