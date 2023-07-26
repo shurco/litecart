@@ -21,15 +21,15 @@ INSERT INTO  "product" ("id", "name", "desc", "url") VALUES
 ('ktorsk0xj8w5zab', 'name7', 'description7', 'url7'),
 ('6bn739vrvfp6zaw', 'name8', 'description8', 'url8');
 
-INSERT INTO  "product_price" ("stripe_id", "product_id", "currency", "amount") VALUES 
-('price_1NU6CfBDuthUZlLWNncOPN53', 'fv6c9s9cqzf36sc', 'EUR', 2000),
-('price_1NU6CfBDuthUZlLWNncOPN54', 'xrtb1b919t2nuj9', 'USD', 2100),
-('price_1NU6CfBDuthUZlLWNncOPN55', '7mweb67t8xv9pzx', 'EUR', 2200),
-('price_1NU6CfBDuthUZlLWNncOPN56', 'k4pkxqhn4p0xhoc', 'USD', 2300),
-('price_1NU6CfBDuthUZlLWNncOPN57', '2wdx6k7b3lywc2o', 'EUR', 2400),
-('price_1NU6CfBDuthUZlLWNncOPN58', 'zlfpc6b17gte0ot', 'USD', 2500),
-('price_1NU6CfBDuthUZlLWNncOPN59', 'ktorsk0xj8w5zab', 'EUR', 2600),
-('price_1NU6CfBDuthUZlLWNncOPN50', '6bn739vrvfp6zaw', 'USD', 2700);
+INSERT INTO  "product_price" ("id", "stripe_id", "product_id", "currency", "amount") VALUES 
+('ohrozxu47cwnaup', 'price_1NU6CfBDuthUZlLWNncOPN53', 'fv6c9s9cqzf36sc', 'EUR', 2000),
+('nvhdb52ogpzc4q6', 'price_1NU6CfBDuthUZlLWNncOPN54', 'xrtb1b919t2nuj9', 'USD', 2100),
+('k0k2ulegp96s34t', 'price_1NU6CfBDuthUZlLWNncOPN55', '7mweb67t8xv9pzx', 'EUR', 2200),
+('eyv2sngy7l5kc87', 'price_1NU6CfBDuthUZlLWNncOPN56', 'k4pkxqhn4p0xhoc', 'USD', 2300),
+('peepx4wzppbq1v0', 'price_1NU6CfBDuthUZlLWNncOPN57', '2wdx6k7b3lywc2o', 'EUR', 2400),
+('vry3k3za3t5zswq', 'price_1NU6CfBDuthUZlLWNncOPN58', 'zlfpc6b17gte0ot', 'USD', 2500),
+('joyc7vc5bc2o8tj', 'price_1NU6CfBDuthUZlLWNncOPN59', 'ktorsk0xj8w5zab', 'EUR', 2600),
+('0xtws4xeiet56ze', 'price_1NU6CfBDuthUZlLWNncOPN50', '6bn739vrvfp6zaw', 'USD', 2700);
 
 INSERT INTO  "product_image" ("id", "product_id", "name", "ext") VALUES 
 ('dj9bae53oob0ukj', 'fv6c9s9cqzf36sc', '0f8e7e98-1639-40a3-97f6-0aac15538d88', 'webp'),
@@ -51,7 +51,7 @@ INSERT INTO  "product_metadata" ("id", "product_id", "key", "value") VALUES
 ('yj35lgpdanrdxon', 'ktorsk0xj8w5zab', 'key1', 'value1'),('nguodxo6vnkmbh4', 'ktorsk0xj8w5zab', 'key2', 'value2'),('h3xqgc7o0ks2two', 'ktorsk0xj8w5zab', 'key3', 'value3'),('8iamc5q76q3n4t5', 'ktorsk0xj8w5zab', 'key4', 'value4'),('hjjvjg1wqgo9xoo', 'ktorsk0xj8w5zab', 'key5', 'value5'),('mvctgiy4r29ys7n', 'ktorsk0xj8w5zab', 'key6', 'value6'),
 ('mw26utpx9ho602r', '6bn739vrvfp6zaw', 'key1', 'value1'),('r9i4urxzkcn9jfp', '6bn739vrvfp6zaw', 'key2', 'value2'),('7qzji1llq0tj8vg', '6bn739vrvfp6zaw', 'key3', 'value3'),('mqsd5ihner42cft', '6bn739vrvfp6zaw', 'key4', 'value4'),('ke128cyd7kd5fsm', '6bn739vrvfp6zaw', 'key5', 'value5'),('l5ix9iqmlidyks4', '6bn739vrvfp6zaw', 'key6', 'value6');
 
-INSERT INTO  "product_atribute" ("id", "product_id", "name") VALUES 
+INSERT INTO  "product_attribute" ("id", "product_id", "name") VALUES 
 ('tbluns4k4ckd6br', 'fv6c9s9cqzf36sc', 'atribute1'), ('smtduvncjx72e94', 'fv6c9s9cqzf36sc', 'atribute2'), ('evfcn53551vke38', 'fv6c9s9cqzf36sc', 'atribute3'), 
 ('8qihprkwzdk9zbg', 'xrtb1b919t2nuj9', 'atribute1'), ('d06xyilf4wvntch', 'xrtb1b919t2nuj9', 'atribute2'), ('t1uxvw33clal4k2', 'xrtb1b919t2nuj9', 'atribute3'), 
 ('zf6mciqeeo9mujo', '7mweb67t8xv9pzx', 'atribute1'), ('6va59toeiwilqnh', '7mweb67t8xv9pzx', 'atribute2'), ('brsvtc4yiwzoyza', '7mweb67t8xv9pzx', 'atribute3'), 
@@ -60,14 +60,11 @@ INSERT INTO  "product_atribute" ("id", "product_id", "name") VALUES
 ('992tws7udqhu2pa', 'zlfpc6b17gte0ot', 'atribute1'), ('48tqcpqk5acodi5', 'zlfpc6b17gte0ot', 'atribute2'), ('p3lcl2wg1oadkti', 'zlfpc6b17gte0ot', 'atribute3'), 
 ('w5f4dmiw262bi3v', 'ktorsk0xj8w5zab', 'atribute1'), ('5zlzo1mjldwa98i', 'ktorsk0xj8w5zab', 'atribute2'), ('1f7hs3869cxabfu', 'ktorsk0xj8w5zab', 'atribute3'), 
 ('r44p3e4m6bnxec6', '6bn739vrvfp6zaw', 'atribute1'), ('wwkzdmz1ludk22v', '6bn739vrvfp6zaw', 'atribute2'), ('2hwv6ynr1gl3678', '6bn739vrvfp6zaw', 'atribute3');
-
-
-
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM "product_atribute";
+DELETE FROM "product_attribute";
 DELETE FROM "product_metadata";
 DELETE FROM "product_image";
 DELETE FROM "product_price";

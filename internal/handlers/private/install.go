@@ -22,8 +22,7 @@ func Install(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	err := db.Install(request)
-	if err != nil {
+	if err := db.Install(request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 

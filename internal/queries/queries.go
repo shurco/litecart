@@ -17,6 +17,7 @@ type Base struct {
 	AuthQueries
 	InstallQueries
 	SettingQueries
+	ProductQueries
 }
 
 func InitDB(dbPath string, migrations embed.FS) (*sql.DB, error) {
@@ -66,6 +67,7 @@ func InitQueries(embed embed.FS) error {
 		AuthQueries:    AuthQueries{DB: sqlite},
 		InstallQueries: InstallQueries{DB: sqlite},
 		SettingQueries: SettingQueries{DB: sqlite},
+		ProductQueries: ProductQueries{DB: sqlite},
 	}
 	return nil
 }

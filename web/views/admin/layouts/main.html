@@ -12,7 +12,7 @@
   <link href="/assets/css/notification.css?v=3.1.1" rel="stylesheet">
   <link href="/assets/css/style.css" rel="stylesheet">
   <script>
-    const { onMounted, onUpdated, onUnmounted, ref, watch, getCurrentInstance, components } = Vue;
+    const { onMounted, onUpdated, onUnmounted, ref, watch, getCurrentInstance, components, directives } = Vue;
     const { defineRule, Form, Field } = VeeValidate;
     const { required, email, min } = VeeValidateRules;
 
@@ -42,19 +42,13 @@
           <ul>
             <li>
               <a href="/_/products"
-                class="flex items-center px-6 text-sm font-medium text-gray-500 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "products" #}bg-gray-100{# else #}bg-white{# end #}">Products</a>
-            </li>
-
-            <li>
-              <a href="/_/invoices"
-                class="flex items-center px-6 text-sm font-medium text-gray-500 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "invoices" #}bg-gray-100{# else #}bg-white{# end #}">Invoices</a>
+                class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "products" #}bg-gray-100{# else #}bg-white{# end #}">Products</a>
             </li>
 
             <li>
               <a href="/_/settings"
-                class="flex items-center px-6 text-sm font-medium text-gray-500 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "settings" #}bg-gray-100{# else #}bg-white{# end #}">Settings</a>
+                class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "settings" #}bg-gray-100{# else #}bg-white{# end #}">Settings</a>
             </li>
-
           </ul>
         </div>
 

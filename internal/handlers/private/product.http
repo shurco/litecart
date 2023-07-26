@@ -1,0 +1,28 @@
+@host = http://localhost:8080
+
+###
+# @name signin
+POST {{host}}/api/sign/in
+Content-Type: application/json
+
+{
+    "email":"user@site.com",
+    "password":"123456789ASDFGzxcvb"
+}
+
+
+###
+# @name products
+GET {{host}}/api/products
+Authorization: Bearer {{signin.response.body.result}}
+
+###
+# @name fake_product
+GET {{host}}/api/products/123456789012345
+Authorization: Bearer {{signin.response.body.result}}
+
+###
+# @name product
+GET {{host}}/api/products/fv6c9s9cqzf36sc
+Authorization: Bearer {{signin.response.body.result}}
+

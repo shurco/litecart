@@ -13,13 +13,9 @@ type HTTPResponse struct {
 
 // Response is a takes in a Fiber context object, an HTTP status code, a message string and some data.
 func Response(c *fiber.Ctx, status int, message string, data any) error {
-	var success bool
-	if status == fiber.StatusOK {
-		success = true
-	}
 	if len(message) > 0 {
 		return c.Status(status).JSON(HTTPResponse{
-			Success: success,
+			Success: status == fiber.StatusOK,
 			Message: message,
 			Result:  data,
 		})
@@ -35,7 +31,7 @@ func StatusOK(c *fiber.Ctx, message string, data any) error {
 
 // StatusNotFound is ...
 func StatusNotFound(c *fiber.Ctx) error {
-	return Response(c, fiber.StatusNotFound, "Not Found", "Not found")
+	return Response(c, fiber.StatusNotFound, "Not Found", nil)
 }
 
 // StatusBadRequest is ...

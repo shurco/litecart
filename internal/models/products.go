@@ -14,7 +14,8 @@ type Product struct {
 }
 
 type Price struct {
-	ID       string `json:"id" validate:"required"`
+	ID       string `json:"id"`
+	StripeID string `json:"stripe_id" validate:"required"`
 	Currency string `json:"currency" validate:"required"`
 	Amount   int    `json:"amount" validate:"required"`
 }

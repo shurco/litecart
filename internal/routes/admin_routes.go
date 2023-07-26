@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/shurco/litecart/internal/middleware"
+	"github.com/shurco/litecart/internal/queries"
 )
 
 // AdminRoutes is ...
@@ -18,34 +19,17 @@ func AdminRoutes(c *fiber.App) {
 		return c.Render("admin/signin", nil, "admin/layouts/clear")
 	})
 
-	route.Get("/", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/index", fiber.Map{
-			"Title": "Hello, World!",
-		}, "admin/layouts/main")
-	})
-
 	// product section
-	product := route.Group("/products", middleware.JWTProtected())
-	product.Get("/", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/products", fiber.Map{
-			"Menu": "products",
-		}, "admin/layouts/main")
-	})
-	product.Get("/add", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/products_add", fiber.Map{
-			"Menu": "products",
-		}, "admin/layouts/main")
-	})
-	product.Get("/update", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/products_update", fiber.Map{
-			"Menu": "products",
-		}, "admin/layouts/main")
-	})
+	route.Get("/products", middleware.JWTProtected(), func(c *fiber.Ctx) error {
+		db := queries.DB()
+		products, err := db.ListProducts()
+		if err != nil {
+			return err
+		}
 
-	// invoice section
-	route.Get("/invoices", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/invoices", fiber.Map{
-			"Menu": "invoices",
+		return c.Render("admin/products", fiber.Map{
+			"Products": products,
+			"Menu":     "products",
 		}, "admin/layouts/main")
 	})
 
@@ -55,5 +39,4 @@ func AdminRoutes(c *fiber.App) {
 			"Menu": "settings",
 		}, "admin/layouts/main")
 	})
-
 }

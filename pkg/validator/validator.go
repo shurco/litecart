@@ -9,24 +9,30 @@ import (
 	enMsg "github.com/go-playground/validator/v10/translations/en"
 )
 
-// Struct is ...
-func Struct(input interface{}) *map[string]string {
-	validate := validator.New()
+var (
+	validate   *validator.Validate
+	translator ut.Translator
+)
 
+func init() {
+	validate = validator.New()
 	en := en.New()
-	translator, _ := ut.New(en, en).GetTranslator("en")
+	translator, _ = ut.New(en, en).GetTranslator("en")
 	enMsg.RegisterDefaultTranslations(validate, translator)
+}
 
+// Struct is ...
+func Struct(input interface{}) map[string]string {
 	if err := validate.Struct(input); err != nil {
-		return buildTranslatedErrorMessages(err.(validator.ValidationErrors), translator)
+		return buildTranslatedErrorMessages(err.(validator.ValidationErrors))
 	}
 	return nil
 }
 
-func buildTranslatedErrorMessages(err validator.ValidationErrors, translator ut.Translator) *map[string]string {
+func buildTranslatedErrorMessages(err validator.ValidationErrors) map[string]string {
 	errors := make(map[string]string)
 	for _, err := range err {
 		errors[strings.ToLower(err.Field())] = err.Translate(translator)
 	}
-	return &errors
+	return errors
 }

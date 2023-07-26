@@ -33,10 +33,11 @@ CREATE TABLE "product" (
 	"desc" 		TEXT NOT NULL,
 	"url" 		TEXT UNIQUE NOT NULL,
 	"created" TIMESTAMP DEFAULT (datetime('now')),
-	"updated" TIMESTAMP
+	"updated" TIMESTAMP DEFAULT (datetime('now'))
 );
 
 CREATE TABLE "product_price" (
+	"id" 		    	TEXT PRIMARY KEY NOT NULL,
 	"stripe_id" 	TEXT NOT NULL,
 	"product_id" 	TEXT NOT NULL,
 	"currency" 		TEXT NOT NULL,
@@ -60,7 +61,7 @@ CREATE TABLE "product_metadata" (
 	FOREIGN KEY ("product_id") REFERENCES "product"("id") ON UPDATE CASCADE
 );
 
-CREATE TABLE "product_atribute" (
+CREATE TABLE "product_attribute" (
 	"id" 					TEXT PRIMARY KEY NOT NULL,
 	"product_id" 	TEXT NOT NULL,
 	"name" 				TEXT NOT NULL,
@@ -71,7 +72,7 @@ CREATE TABLE "product_atribute" (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE "product_atribute";
+DROP TABLE "product_attribute";
 DROP TABLE "product_metadata";
 DROP TABLE "product_image";
 DROP TABLE "product_price";

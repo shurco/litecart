@@ -13,6 +13,7 @@ import (
 
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/redirect"
 	"github.com/gofiber/template/html/v2"
 
 	"github.com/shurco/litecart/internal/queries"
@@ -42,7 +43,6 @@ func NewApp() error {
 		log.Err(err).Send()
 		return err
 	}
-	db := queries.DB()
 
 	// web web server
 	var views *html.Engine
@@ -68,39 +68,23 @@ func NewApp() error {
 
 	app.Static("/_/components", "../web/views/admin/components")
 
-	app.Use(func(c *fiber.Ctx) error {
-		// init install
-		// TODO fix fatal error
-		if !db.IsInstalled() {
-			if c.Path() != "/_/install" && strings.Split(c.Path(), "/")[1] != "api" {
-				return c.Redirect("/_/install")
-			}
-		} else if c.Path() == "/_/install" {
-			return c.Redirect("/_")
-		}
-
-		// init main domain
-		if MainDomain == "" {
-			hostname := strings.Split(c.Hostname(), ".")
-			if len(hostname) > 2 {
-				hostname = hostname[1:]
-			}
-			MainDomain = strings.Join(hostname, ".")
-		}
-
-		// check subdomain
-		if len(c.Subdomains()) > 0 {
-			if !db.CheckSubdomain(c.Subdomains()[0]) && !DevMode {
-				return c.Redirect(fmt.Sprintf("%s://%s", c.Protocol(), MainDomain), fiber.StatusMovedPermanently)
-			}
-		}
-
-		return c.Next()
-	})
+	app.Use(DatabaseCheck)
+	app.Use(SubdomainCheck)
 
 	routes.SiteRoutes(app)
 	routes.AdminRoutes(app)
-	routes.ApiRoutes(app)
+
+	apiRoute := app.Group("/api")
+	routes.ApiPrivateRoutes(apiRoute)
+	routes.ApiPublicRoutes(apiRoute)
+
+	app.Use(redirect.New(redirect.Config{
+		Rules: map[string]string{
+			"/_": "/_/products",
+		},
+		StatusCode: 301,
+	}))
+
 	routes.NotFoundRoute(app)
 
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
@@ -113,4 +97,37 @@ func NewApp() error {
 	}
 
 	return nil
+}
+
+func DatabaseCheck(c *fiber.Ctx) error {
+	db := queries.DB()
+	if !db.IsInstalled() {
+		if c.Path() != "/_/install" && strings.Split(c.Path(), "/")[1] != "api" {
+			return c.Redirect("/_/install")
+		}
+	} else if c.Path() == "/_/install" {
+		return c.Redirect("/_")
+	}
+	return c.Next()
+}
+
+func SubdomainCheck(c *fiber.Ctx) error {
+	db := queries.DB()
+
+	/*
+		if MainDomain == "" {
+			hostname := strings.Split(c.Hostname(), ".")
+			if len(hostname) > 2 {
+				hostname = hostname[1:]
+			}
+			MainDomain = strings.Join(hostname, ".")
+		}
+	*/
+
+	if len(c.Subdomains()) > 0 {
+		if !db.CheckSubdomain(c.Subdomains()[0]) && !DevMode {
+			return c.Redirect(fmt.Sprintf("%s://%s", c.Protocol(), MainDomain), fiber.StatusMovedPermanently)
+		}
+	}
+	return c.Next()
 }

@@ -55,10 +55,9 @@ func SignIn(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:    "token",
-		Value:   token,
-		Expires: time.Now().Add(24 * time.Hour),
-		//HTTPOnly: true,
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
 		SameSite: "lax",
 	})
 
