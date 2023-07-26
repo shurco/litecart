@@ -26,14 +26,6 @@ func main() {
 		},
 	}
 
-	var versionCmd = &cobra.Command{
-		Use:   "version",
-		Short: "Version of litecart",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("LiteCart v%s (%s) from %s", version, gitCommit, buildDate)
-		},
-	}
-
 	var rootCmd = &cobra.Command{
 		Use:   "litecart",
 		Short: "LiteCart CLI",
@@ -44,15 +36,13 @@ func main() {
 		CompletionOptions: cobra.CompletionOptions{
 			DisableDefaultCmd: true,
 		},
+		Version: fmt.Sprintf("LiteCart v%s (%s) from %s", version, gitCommit, buildDate),
 	}
 	rootCmd.SetHelpCommand(&cobra.Command{
 		Use:    "no-help",
 		Hidden: true,
 	})
-
-	rootCmd.PersistentFlags().BoolP("help", "h", false, "Print usage")
-	rootCmd.PersistentFlags().Lookup("help").Hidden = true
-
-	rootCmd.AddCommand(serveCmd, versionCmd)
+	
+	rootCmd.AddCommand(serveCmd)
 	rootCmd.Execute()
 }
