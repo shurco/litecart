@@ -53,11 +53,6 @@ func NewApp() error {
 		views = html.NewFileSystem(http.Dir("../web/views"), ".html")
 	}
 	views.Delims("{#", "#}")
-	views.AddFunc(
-		"arr", func(els ...any) []any {
-			return els
-		},
-	)
 
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
@@ -71,11 +66,13 @@ func NewApp() error {
 	app.Static("/", "../web/public")
 	app.Static("/uploads", "./uploads")
 
+	app.Static("/_/components", "../web/views/admin/components")
+
 	app.Use(func(c *fiber.Ctx) error {
 		// init install
-		mainPath := strings.Split(c.Path(), "/")[1]
+		// TODO fix fatal error
 		if !db.IsInstalled() {
-			if c.Path() != "/_/install" && mainPath != "api" {
+			if c.Path() != "/_/install" && strings.Split(c.Path(), "/")[1] != "api" {
 				return c.Redirect("/_/install")
 			}
 		} else if c.Path() == "/_/install" {

@@ -6,19 +6,29 @@
     </div>
 
     <v-form @submit="onSubmit" v-slot="{ errors }" class="mx-auto mb-0 mt-8 max-w-md space-y-4">
-      {# template "admin/components/form/input" (arr "email" "email" "required|email" "Email" "email") #}
-      {# template "admin/components/form/input" (arr "password" "password" "required|min:6" "Password" "password") #}
+      <form-input v-model="state.email" :error="errors.email" id="email" type="email" rules="required|email" name="Email" ico="email"></form-input>
+      <form-input v-model="state.password" :error="errors.password" id="password" type="password" rules="required|min:6" name="Password" ico="password"></form-input>
       <hr />
-      {# template "admin/components/form/input" (arr "domain" "text" "required" "Domain" "domain") #}
-      {# template "admin/components/form/input" (arr "stripe_secret" "text" "required|min:100" "Stripe secret key" "key") #}
+      <form-input v-model="state.domain" :error="errors.domain" id="domain" type="text" rules="required" name="Domain" ico="domain"></form-input>
+      <form-input v-model="state.stripe_secret" :error="errors.stripe_secret" id="stripe_secret" type="text" rules="required|min:100" name="Stripe secret key" ico="key"></form-input>
 
-      {# template "admin/components/form/button" (arr "submit" "Create my cart" "row" "") #}
+      <form-button type="submit" name="Create my cart" color="green" ico="row" />
     </v-form>
   </div>
 </div>
 
-<script>
+<script type="module">
+  import FormInput from './components/form/input.js';
+  import FormButton from './components/form/button.js';
+  
   Vue.createApp({
+    components: {
+      FormInput,
+      FormButton,
+      VForm: Form,
+      VField: Field,
+    },
+
     data() {
       return {
         resp: ref(null),
@@ -29,11 +39,6 @@
           stripe_secret: '',
         }),
       };
-    },
-
-    components: {
-      VForm: Form,
-      VField: Field,
     },
 
     methods: {

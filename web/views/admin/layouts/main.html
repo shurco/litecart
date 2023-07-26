@@ -12,20 +12,62 @@
   <link href="/assets/css/notification.css?v=3.1.1" rel="stylesheet">
   <link href="/assets/css/style.css" rel="stylesheet">
   <script>
-    const { onMounted, onUpdated, onUnmounted, ref, getCurrentInstance } = Vue;
+    const { onMounted, onUpdated, onUnmounted, ref, watch, getCurrentInstance, components } = Vue;
     const { defineRule, Form, Field } = VeeValidate;
     const { required, email, min } = VeeValidateRules;
 
     defineRule('required', required);
     defineRule('email', email);
     defineRule('min', min);
+
+    Vue.createApp({
+      methods: {
+        async signOut() {
+          await fetch('/api/sign/out', {
+            method: 'POST',
+          });
+          window.location.href = "/_/signin";
+        },
+      },
+    }).mount("#menu");
   </script>
 </head>
 
 <body>
   <div class="flex">
     <div class="flex-none w-48">
-      {# template "admin/components/menu" . #}
+      <div class="flex h-screen flex-col justify-between border-e bg-white" id="menu">
+        <div class="py-6">
+
+          <ul>
+            <li>
+              <a href="/_/products"
+                class="flex items-center px-6 text-sm font-medium text-gray-500 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "products" #}bg-gray-100{# else #}bg-white{# end #}">Products</a>
+            </li>
+
+            <li>
+              <a href="/_/invoices"
+                class="flex items-center px-6 text-sm font-medium text-gray-500 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "invoices" #}bg-gray-100{# else #}bg-white{# end #}">Invoices</a>
+            </li>
+
+            <li>
+              <a href="/_/settings"
+                class="flex items-center px-6 text-sm font-medium text-gray-500 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "settings" #}bg-gray-100{# else #}bg-white{# end #}">Settings</a>
+            </li>
+
+          </ul>
+        </div>
+
+        <div class="sticky inset-x-0 bottom-0 border-t border-gray-100">
+          <a href="/" target="_blank"
+            class="flex items-center px-6 text-sm font-medium text-gray-500 bg-white p-4 hover:bg-green-50 hover:text-green-500">Open
+            site</a>
+
+          <a href="#"
+            class="flex items-center px-6 text-sm font-medium text-gray-500 bg-white p-4 hover:bg-red-50 hover:text-red-500"
+            @click="signOut">Logout</a>
+        </div>
+      </div>
     </div>
     <div class="flex-1 mt-5 mx-5">
       {# embed #}

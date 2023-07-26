@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Products</h1>
     </div>
     <div>
-      {# template "admin/components/form/button" (arr "submit" "Add" "" "productAdd") #}
+      <form-button type="submit" name="Add" color="green" ico="row" @click="productAdd" />
     </div>
   </div>
 
@@ -60,31 +60,20 @@
 
 </div>
 
-<script>
+<script type="module">
+  import FormButton from './components/form/button.js';
+
   Vue.createApp({
+    components: {
+      FormButton,
+    },
+
     methods: {
       productAdd() {
         window.location.href = "/_/products/add";
       },
     },
 
-    setup(props, context) {
-      onMounted(() => {
-        console.info("App mounted!");
-        console.info("Vue version", app.version);
-        console.info("app", app);
-        console.info("props", props);
-        console.info("context", context);
-        console.info("getCurrentInstance()", getCurrentInstance());
-        let _this = getCurrentInstance().withProxy;
-        console.info("this", _this);
-      });
-      onUpdated(() => {
-        console.info("App updated!");
-      });
-      onUnmounted(() => {
-        console.info("App unmounted!");
-      });
-    }
+
   }).mount("#app");
 </script>

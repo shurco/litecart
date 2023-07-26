@@ -1,5 +1,5 @@
 <div id="app">
-  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
+  <div class="grid grid-cols-1 gap-4 pb-4 lg:grid-cols-[1fr_120px] lg:gap-8">
     <div>
       <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Invoices</h1>
     </div>
@@ -11,27 +11,14 @@
 
 </div>
 
-<script>
+<script type="module">
   Vue.createApp({
-    methods: {},
+    methods: {
+      test() {
+        console.log("ok")
+      },
+    },
 
-    setup(props, context) {
-      onMounted(() => {
-        console.info("App mounted!");
-        console.info("Vue version", app.version);
-        console.info("app", app);
-        console.info("props", props);
-        console.info("context", context);
-        console.info("getCurrentInstance()", getCurrentInstance());
-        let _this = getCurrentInstance().withProxy;
-        console.info("this", _this);
-      });
-      onUpdated(() => {
-        console.info("App updated!");
-      });
-      onUnmounted(() => {
-        console.info("App unmounted!");
-      });
-    }
+    components: {},
   }).mount("#app");
 </script>
