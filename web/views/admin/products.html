@@ -8,6 +8,8 @@
     </div>
   </div>
 
+
+  {# if .Products #}
   <div class="mx-auto">
     <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
       <thead class="text-left ">
@@ -19,17 +21,19 @@
       </thead>
 
       <tbody class="divide-y divide-gray-200">
-        {# range .Products#}
+        {# range .Products #}
         <tr class="hover:bg-gray-100 active:bg-gray-100 cursor-pointer" @click="openDrawer('{# .ID #}', '{# .Name #}')">
           <td class="whitespace-nowrap px-4 py-2 text-gray-900">{# .Name #}</td>
           <td class="whitespace-nowrap px-4 py-2 text-gray-700">{# .URL #}</td>
-          <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ costFormat({# .Price.Amount #} ) }} {#.Price.Currency
-            #}</td>
+          <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ costFormat({# .Price.Amount #} ) }} {#.Price.Currency#}</td>
         </tr>
         {# end #}
       </tbody>
     </table>
   </div>
+  {# else #}
+  <div class="mx-auto">Add first product</div>
+  {# end #}
 
   <drawer :is-open="isDrawerOpen" max-width="700px" @close="closeDrawer" :title="productName">
     

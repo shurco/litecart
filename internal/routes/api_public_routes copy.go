@@ -7,13 +7,12 @@ import (
 )
 
 // ApiPublicRoutes is ...
-// route have path '/api'
-func ApiPublicRoutes(route fiber.Router) {
-	route.Get("/cart", func(c *fiber.Ctx) error {
+func ApiPublicRoutes(c *fiber.App) {
+	c.Get("/api/cart", func(c *fiber.Ctx) error {
 		return webutil.Response(c, fiber.StatusOK, "Cart", "ok")
 	})
 
-	route.Post("/checkout-session", func(c *fiber.Ctx) error {
+	c.Post("/api/checkout-session", func(c *fiber.Ctx) error {
 		return webutil.Response(c, fiber.StatusOK, "Checkout Session", "ok")
 	})
 }

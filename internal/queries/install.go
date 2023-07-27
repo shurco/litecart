@@ -25,12 +25,12 @@ func (q *InstallQueries) Install(i *models.Install) error {
 	defer tx.Rollback()
 
 	var installed bool
-	q.DB.QueryRow(`SELECT "value" FROM "setting" WHERE "key" = ?`, "installed").Scan(&installed)
+	q.DB.QueryRow(`SELECT value FROM setting WHERE key = ?`, "installed").Scan(&installed)
 	if installed {
 		return fmt.Errorf("%s", "Rejected because you have already installed and configured the cart")
 	}
 
-	stmt, err := tx.PrepareContext(ctx, `UPDATE "setting" SET "value" = ? WHERE "key" = ?`)
+	stmt, err := tx.PrepareContext(ctx, `UPDATE setting SET value = ? WHERE key = ?`)
 	if err != nil {
 		return err
 	}

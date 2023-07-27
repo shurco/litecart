@@ -2,6 +2,7 @@ package queries
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -16,9 +17,10 @@ func (q *ProductQueries) ListProducts() ([]models.Product, error) {
 	products := []models.Product{}
 
 	query := `
-			SELECT p."id", p."name", p."desc", p."url", strftime('%s', p."created"), pp."id", pp."stripe_id", pp."currency", pp."amount"
-      FROM "product" AS p
-      JOIN "product_price" AS pp ON p."id" = pp."product_id"`
+			SELECT product.id, product.name, product.desc, product.url, strftime('%s', product.created), price.id, price.stripe_id, price.currency, price.amount
+      FROM product
+      JOIN product_price AS price ON product.id = price.product_id
+		`
 
 	rows, err := q.DB.Query(query)
 	if err != nil {
@@ -59,25 +61,23 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 
 	query := `
 			SELECT 
-					"product"."name", 
-					"product"."desc", 
-					"product"."url", 
-					strftime('%s', "product"."created"), 
-					strftime('%s', "product"."updated"),
-					"product_price"."id",
-					"product_price"."stripe_id",
-					"product_price"."currency",
-					"product_price"."amount",
-					group_concat(DISTINCT "product_image"."name" || '.' || "product_image"."ext") as images,
-					group_concat(DISTINCT "product_metadata"."key" || ':' || "product_metadata"."value") as metadata,
-					group_concat(DISTINCT "product_attribute"."name") as attributes
-			FROM "product" 
-			LEFT JOIN "product_price" ON "product"."id" = "product_price"."product_id"
-			LEFT JOIN "product_image" ON "product"."id" = "product_image"."product_id"
-			LEFT JOIN "product_metadata" ON "product"."id" = "product_metadata"."product_id"
-			LEFT JOIN "product_attribute" ON "product"."id" = "product_attribute"."product_id"
-			WHERE "product"."id" = ?
-			GROUP BY "product"."id"
+					product.name, 
+					product.desc, 
+					product.url, 
+					product.metadata, 
+					product.attribute, 
+					strftime('%s', product.created), 
+					strftime('%s', product.updated),
+					product_price.id,
+					product_price.stripe_id,
+					product_price.currency,
+					product_price.amount,
+					group_concat(DISTINCT product_image.name || '.' || product_image.ext) as images
+			FROM product 
+			LEFT JOIN product_price ON product.id = product_price.product_id
+			LEFT JOIN product_image ON product.id = product_image.product_id
+			WHERE product.id = ?
+			GROUP BY product.id
 	`
 	var updated int64
 	var images, metadata, attributes string
@@ -87,6 +87,8 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 			&product.Name,
 			&product.Description,
 			&product.URL,
+			&metadata,
+			&attributes,
 			&product.Created,
 			&updated,
 			&product.Price.ID,
@@ -94,8 +96,6 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 			&product.Price.Currency,
 			&product.Price.Amount,
 			&images,
-			&metadata,
-			&attributes,
 		)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -112,18 +112,11 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 	}
 
 	if attributes != "" {
-		product.Attributes = strings.Split(attributes, ",")
+		json.Unmarshal([]byte(attributes), &product.Attributes)
 	}
 
 	if metadata != "" {
-		meta := strings.Split(metadata, ",")
-		product.Metadata = make(map[string]string, len(meta))
-		for _, kv := range meta {
-			parts := strings.SplitN(kv, ":", 2)
-			if len(parts) > 1 {
-				product.Metadata[parts[0]] = parts[1]
-			}
-		}
+		json.Unmarshal([]byte(metadata), &product.Metadata)
 	}
 
 	return product, nil

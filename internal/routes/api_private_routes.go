@@ -8,15 +8,14 @@ import (
 )
 
 // ApiPrivateRoutes is ...
-// route have path '/api'
-func ApiPrivateRoutes(route fiber.Router) {
-	route.Post("/install", handlers.Install)
+func ApiPrivateRoutes(c *fiber.App) {
+	c.Post("/api/install", handlers.Install)
 
-	sign := route.Group("/sign")
+	sign := c.Group("/api/sign")
 	sign.Post("/in", handlers.SignIn)
 	sign.Post("/out", middleware.JWTProtected(), handlers.SignOut)
 
-	product := route.Group("/products", middleware.JWTProtected())
+	product := c.Group("/api/products", middleware.JWTProtected())
 	product.Get("/:id<len(15)>", handlers.Product)
 	product.Post("/", handlers.AddProduct)
 	product.Patch("/", handlers.UpdateProduct)

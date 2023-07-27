@@ -73,9 +73,8 @@ func NewApp() error {
 	routes.SiteRoutes(app)
 	routes.AdminRoutes(app)
 
-	apiRoute := app.Group("/api")
-	routes.ApiPrivateRoutes(apiRoute)
-	routes.ApiPublicRoutes(apiRoute)
+	routes.ApiPrivateRoutes(app)
+	routes.ApiPublicRoutes(app)
 
 	routes.NotFoundRoute(app)
 

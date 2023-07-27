@@ -12,7 +12,7 @@ func NotFoundRoute(a *fiber.App) {
 	a.Use(func(c *fiber.Ctx) error {
 		path := strings.Split(c.Path(), "/")[1]
 		if path == "api" {
-			return webutil.Response(c, fiber.StatusNotFound, "Not Found", "Not found")
+			return webutil.Response(c, fiber.StatusNotFound, "Not Found", nil)
 		}
 		return c.Status(fiber.StatusNotFound).Render("error/404", fiber.Map{}, "site/layouts/clear")
 	})
