@@ -5,13 +5,13 @@
 ROOT_PATH="$(git rev-parse --show-toplevel)"
 source ${ROOT_PATH}/scripts/_helper
 
+LC_BASE_DIR="${ROOT_PATH}/cmd/lc_base"
+DB_FILE="${LC_BASE_DIR}/data.db"
 
-if ! [ -d "${ROOT_PATH}/cmd/lc_base" ]; then
-  mkdir "${ROOT_PATH}/cmd/lc_base"
+mkdir -p "${LC_BASE_DIR}"
 
-  if ! [ -f "${ROOT_PATH}/cmd/lc_base/data.db" ]; then
-    sqlite3 "${ROOT_PATH}/cmd/lc_base/data.db" "PRAGMA auto_vacuum;"
-  fi
+if ! [ -f "${DB_FILE}" ]; then
+  sqlite3 "${DB_FILE}" "PRAGMA auto_vacuum;"
 fi
 
-sqlite3 "${ROOT_PATH}/cmd/lc_base/data.db" "VACUUM;"
+sqlite3 "${DB_FILE}" "VACUUM;"

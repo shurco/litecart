@@ -20,47 +20,44 @@ type Base struct {
 	ProductQueries
 }
 
-func InitDB(dbPath string, migrations embed.FS) (*sql.DB, error) {
+func InitDB(dbPath string, migrations embed.FS) (db *sql.DB, err error) {
 	if !fsutil.IsFile(dbPath) {
 		// create db
-		if _, err := fsutil.OpenFile(dbPath, fsutil.FsCWFlags, 0666); err != nil {
-			return nil, err
+		if _, err = fsutil.OpenFile(dbPath, fsutil.FsCWFlags, 0666); err != nil {
+			return
 		}
 
 		// first migrate db
-		if err := Migrate(dbPath, migrations); err != nil {
-			return nil, err
+		if err = Migrate(dbPath, migrations); err != nil {
+			return
 		}
 	}
 
 	// connect to database
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
-	sqlite, err := sql.Open("sqlite", dsn)
-	if err != nil {
-		return nil, err
-	}
-	return sqlite, nil
+	db, err = sql.Open("sqlite", dsn)
+	return
 }
 
-func Migrate(dbPath string, migrations embed.FS) error {
+func Migrate(dbPath string, migrations embed.FS) (err error) {
 	goose.SetBaseFS(migrations)
-	db, err := goose.OpenDBWithDriver("sqlite", dbPath)
+	var db *sql.DB
+	db, err = goose.OpenDBWithDriver("sqlite", dbPath)
 	if err != nil {
-		return err
+		return
 	}
 	defer db.Close()
 
-	if err := goose.Up(db, "migrations"); err != nil {
-		return err
-	}
-	return nil
+	err = goose.Up(db, "migrations")
+	return
 }
 
-func InitQueries(embed embed.FS) error {
+func InitQueries(embed embed.FS) (err error) {
 	// init database
-	sqlite, err := InitDB("./lc_base/data.db", embed)
+	var sqlite *sql.DB
+	sqlite, err = InitDB("./lc_base/data.db", embed)
 	if err != nil {
-		return err
+		return
 	}
 
 	db = &Base{
@@ -69,9 +66,12 @@ func InitQueries(embed embed.FS) error {
 		SettingQueries: SettingQueries{DB: sqlite},
 		ProductQueries: ProductQueries{DB: sqlite},
 	}
-	return nil
+	return
 }
 
 func DB() *Base {
+	if db == nil {
+		db = &Base{}
+	}
 	return db
 }

@@ -13,7 +13,6 @@ import (
 
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/redirect"
 	"github.com/gofiber/template/html/v2"
 
 	"github.com/shurco/litecart/internal/queries"
@@ -77,13 +76,6 @@ func NewApp() error {
 	apiRoute := app.Group("/api")
 	routes.ApiPrivateRoutes(apiRoute)
 	routes.ApiPublicRoutes(apiRoute)
-
-	app.Use(redirect.New(redirect.Config{
-		Rules: map[string]string{
-			"/_": "/_/products",
-		},
-		StatusCode: 301,
-	}))
 
 	routes.NotFoundRoute(app)
 

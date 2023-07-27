@@ -7,6 +7,10 @@ source ${ROOT_PATH}/scripts/_helper
 
 print_header "Install/Update Golang"
 
+get_latest_go_version() {
+  wget -qO- "https://golang.org/dl/" | grep -v -E 'go[0-9\.]+(beta|rc)' | grep -E -o 'go[0-9\.]+' | grep -E -o '[0-9]\.[0-9]+(\.[0-9]+)?' | sort -V | uniq | tail -1
+}
+
 case "$OS" in
 Darwin*)
   brew install go
@@ -14,15 +18,13 @@ Darwin*)
 Linux*)
   support_arch
 
-  GO_RELEASE=$(wget -qO- "https://golang.org/dl/" | grep -v -E 'go[0-9\.]+(beta|rc)' | grep -E -o 'go[0-9\.]+' | grep -E -o '[0-9]\.[0-9]+(\.[0-9]+)?' | sort -V | uniq | tail -1)
+  GO_RELEASE=$(get_latest_go_version)
   GO_PATH="$HOME/go"
-
-  if [ ! -d ${GO_PATH} ]; then
-    maybe_sudo mkdir $GO_PATH
-    echo -e "\nexport PATH=\$PATH:${GO_PATH}/bin\n" >>~/.bashrc
-    echo -e "\nexport PATH=\$PATH:\$HOME/go/bin\n" >>~/.bashrc
-    source ~/.bashrc
-  fi
+  
+  maybe_sudo mkdir -p $GO_PATH
+  echo -e "\nexport PATH=\$PATH:${GO_PATH}/bin\nexport PATH=\$PATH:\$HOME/go/bin\n" >>~/.bashrc
+  source ~/.bashrc
+  
   curl --silent https://dl.google.com/go/go${GO_RELEASE}.linux-amd64.tar.gz | sudo tar -vxz --strip-components 1 -C ${GO_PATH} >/dev/null 2>&1
   ;;
 *)

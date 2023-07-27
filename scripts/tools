@@ -12,9 +12,7 @@ Darwin)
   brew install goose golangci-lint yq sqlite3
   ;;
 Linux)
-  if ! [ -d ${ROOT_PATH}/.vscode/tmp ]; then
-    mkdir ${ROOT_PATH}/.vscode/tmp
-  fi
+  mkdir -p ${ROOT_PATH}/.vscode/tmp
 
   print_header "Install/Update sqlite3"
   sudo apt-get install sqlite3 -y >/dev/null 2>&1
