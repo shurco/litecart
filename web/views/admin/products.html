@@ -8,7 +8,6 @@
     </div>
   </div>
 
-
   {# if .Products #}
   <div class="mx-auto">
     <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
@@ -17,15 +16,27 @@
           <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Name</th>
           <th class="whitespace-nowrap w-32 px-4 py-2 font-medium text-gray-900">URL</th>
           <th class="whitespace-nowrap w-32 px-4 py-2 font-medium text-gray-900">Price</th>
+          <th class="whitespace-nowrap w-32 px-4 py-2 font-medium text-gray-900"></th>
         </tr>
       </thead>
 
       <tbody class="divide-y divide-gray-200">
         {# range .Products #}
         <tr class="hover:bg-gray-100 active:bg-gray-100 cursor-pointer" @click="openDrawer('{# .ID #}', '{# .Name #}')">
-          <td class="whitespace-nowrap px-4 py-2 text-gray-900">{# .Name #}</td>
-          <td class="whitespace-nowrap px-4 py-2 text-gray-700">{# .URL #}</td>
-          <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ costFormat({# .Price.Amount #} ) }} {#.Price.Currency#}</td>
+          <td class="whitespace-nowrap px-4 py-2">
+            {# .Name #}
+            {# if eq .StripeID "" #}
+            <badge type="exclamation" class="bg-red-100  text-red-700">Stripe ID</badge>
+            {# end #}
+
+          </td>
+          <td class="whitespace-nowrap px-4 py-2">{# .URL #}</td>
+          <td class="whitespace-nowrap px-4 py-2">{{ costFormat({# .Price.Amount #} ) }}{#.Price.Currency#}</td>
+          <td class="whitespace-nowrap px-4 py-2">
+            <svg class="h-5 w-5">
+              <use xlink:href="/assets/img/sprite.svg#pencil-square" />
+            </svg>
+          </td>
         </tr>
         {# end #}
       </tbody>
@@ -36,9 +47,18 @@
   {# end #}
 
   <drawer :is-open="isDrawerOpen" max-width="700px" @close="closeDrawer" :title="productName">
-    
+
     <div class="flow-root">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
+
+        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+          <dt class="font-medium text-gray-900">Stripe ID</dt>
+          <dd class="text-gray-700 sm:col-span-2">
+            <badge type="exclamation" class="bg-red-100  text-red-700" v-if="productInfo.stripe_id==''">Stripe ID</badge>
+            <span v-else>{{ productInfo.stripe_id }}</span>
+          </dd>
+        </div>
+
         <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
           <dt class="font-medium text-gray-900">ID</dt>
           <dd class="text-gray-700 sm:col-span-2">{{ productInfo.id }}</dd>
@@ -109,11 +129,13 @@
 <script type="module">
   import FormButton from './components/form/button.js';
   import Drawer from './components/drawer.js';
+  import Badge from './components/badge.js';
 
   Vue.createApp({
     components: {
       FormButton,
       Drawer,
+      Badge,
     },
 
     data() {

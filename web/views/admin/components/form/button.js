@@ -19,10 +19,9 @@ export default {
   class="group relative inline-flex items-center overflow-hidden rounded px-8 py-3 text-white"
   :class="color ? 'bg-'+color+'-600 active:bg-'+color+'-500' : 'bg-green-600 active:bg-'+color+'-500', ico ? 'focus:outline-none focus:ring' : ''">
 
-  <span class="absolute -start-full transition-all group-hover:start-4" v-if="ico==='row'">
-    <svg class="h-5 w-5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-      stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+  <span class="absolute -start-full transition-all group-hover:start-4" v-if="ico">
+    <svg class="h-4 w-4">
+      <use xlink:href="/assets/img/sprite.svg#arrow-right" v-if="ico==='row'" />
     </svg>
   </span>
 
