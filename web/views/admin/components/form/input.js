@@ -65,10 +65,7 @@ export default {
 
     <span class="absolute inset-y-0 end-0 grid place-content-center px-4">
       <svg class="h-4 w-4" >
-        <use xlink:href="/assets/img/sprite.svg#at-symbol" :class="error? 'text-red-500' : 'text-gray-400'" v-if="ico==='email'" />
-        <use xlink:href="/assets/img/sprite.svg#finger-print" :class="error? 'text-red-500' : 'text-gray-400'" v-if="ico==='password'" />
-        <use xlink:href="/assets/img/sprite.svg#glob-alt" :class="error? 'text-red-500' : 'text-gray-400'" v-if="ico==='domain'" />
-        <use xlink:href="/assets/img/sprite.svg#key" :class="error? 'text-red-500' : 'text-gray-400'" v-if="ico==='key'" />
+        <use v-bind="{'xlink:href':'/assets/img/sprite.svg#'+ico}" :class="error? 'text-red-500' : 'text-gray-400'" />
       </svg>
     </span>
   </label>

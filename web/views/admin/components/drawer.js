@@ -1,4 +1,3 @@
-
 import FormButton from './form/button.js';
 
 export default {
@@ -96,12 +95,11 @@ export default {
         transitionDuration: \`200 ms\`,
         backgroundColor: backgroundColor,
       }">
-      <div class="pb-4">
+      <div class="pb-8">
         <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">{{ title }}</h2>
       </div>
       <slot />
-
-      <div class="pt-4">
+      <div class="pt-8">
         <slot name="footer">
           <form-button type="submit" name="Close" color="green" @click="closeDrawer" />
         </slot>
