@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/armon/go-proxyproto"
-	"github.com/rs/zerolog"
 
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +16,7 @@ import (
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/internal/routes"
 	"github.com/shurco/litecart/pkg/fsutil"
+	"github.com/shurco/litecart/pkg/logging"
 )
 
 //go:embed migrations/*.sql
@@ -31,7 +30,7 @@ var (
 // NewApp is ...
 func NewApp() error {
 	DevMode = true
-	log := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	log := logging.Log()
 
 	if err := fsutil.MkDirs(0775, "./uploads"); err != nil {
 		log.Err(err).Send()
@@ -72,10 +71,8 @@ func NewApp() error {
 
 	routes.SiteRoutes(app)
 	routes.AdminRoutes(app)
-
 	routes.ApiPrivateRoutes(app)
 	routes.ApiPublicRoutes(app)
-
 	routes.NotFoundRoute(app)
 
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
@@ -90,6 +87,7 @@ func NewApp() error {
 	return nil
 }
 
+/*
 func DatabaseCheck(c *fiber.Ctx) error {
 	db := queries.DB()
 	if !db.IsInstalled() {
@@ -97,6 +95,19 @@ func DatabaseCheck(c *fiber.Ctx) error {
 			return c.Redirect("/_/install")
 		}
 	} else if c.Path() == "/_/install" {
+		return c.Redirect("/_")
+	}
+	return c.Next()
+}
+*/
+
+func DatabaseCheck(c *fiber.Ctx) error {
+	db := queries.DB()
+	if !db.IsInstalled() {
+		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/api") {
+			return c.Redirect("/_/install")
+		}
+	} else if strings.HasPrefix(c.Path(), "/_/install") {
 		return c.Redirect("/_")
 	}
 	return c.Next()

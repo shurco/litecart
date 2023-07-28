@@ -10,8 +10,7 @@ import (
 // NotFoundRoute func for describe 404 Error route.
 func NotFoundRoute(a *fiber.App) {
 	a.Use(func(c *fiber.Ctx) error {
-		path := strings.Split(c.Path(), "/")[1]
-		if path == "api" {
+		if strings.HasPrefix(c.Path(), "/api") {
 			return webutil.Response(c, fiber.StatusNotFound, "Not Found", nil)
 		}
 		return c.Status(fiber.StatusNotFound).Render("error/404", fiber.Map{}, "site/layouts/clear")
