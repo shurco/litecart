@@ -20,37 +20,24 @@
     defineRule('required', required);
     defineRule('email', email);
     defineRule('min', min);
-
-    Vue.createApp({
-      methods: {
-        async signOut() {
-          await fetch('/api/sign/out', {
-            method: 'POST',
-          });
-          window.location.href = "/_/signin";
-        },
-      },
-    }).mount("#menu");
   </script>
 </head>
 
 <body>
   <div class="flex">
-    <div class="flex-none w-48">
+    <div class="flex-none w-48" id="menu">
       <div class="flex h-screen flex-col justify-between border-e bg-white" id="menu">
         <div class="py-6">
 
           <ul>
             <li>
-              <a href="/_/products"
-                class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "products" #}bg-gray-100{# else #}bg-white{# end #}">
+              <a href="/_/products" class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "products" #}bg-gray-100{# else #}bg-white{# end #}">
                 Products
               </a>
             </li>
 
             <li>
-              <a href="/_/settings"
-                class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "settings" #}bg-gray-100{# else #}bg-white{# end #}">
+              <a href="/_/settings" class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "settings" #}bg-gray-100{# else #}bg-white{# end #}">
                 Settings
               </a>
             </li>
@@ -58,8 +45,7 @@
         </div>
 
         <div class="sticky inset-x-0 bottom-0 border-t border-gray-100">
-          <a href="/" target="_blank"
-            class="flex items-center px-6 text-sm font-medium text-gray-500 bg-white p-4 hover:bg-green-50 hover:text-green-500">
+          <a href="/" target="_blank" class="flex items-center px-6 text-sm font-medium text-gray-500 bg-white p-4 hover:bg-green-50 hover:text-green-500">
             Open site
           </a>
 
@@ -73,6 +59,19 @@
       {# embed #}
     </div>
   </div>
+
+  <script>
+    Vue.createApp({
+      methods: {
+        async signOut() {
+          await fetch('/api/sign/out', {
+            method: 'POST',
+          });
+          window.location.href = "/_/signin";
+        },
+      },
+    }).mount("#menu");
+  </script>
 </body>
 
 </html>
