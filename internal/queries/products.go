@@ -17,7 +17,7 @@ func (q *ProductQueries) ListProducts() ([]models.Product, error) {
 	products := []models.Product{}
 
 	query := `
-			SELECT product.id, product.name, product.desc, product.url, strftime('%s', product.created), price.id, price.stripe_id, price.currency, price.amount
+			SELECT product.id, product.stripe_id, product.name, product.desc, product.url, strftime('%s', product.created), price.id, price.stripe_id, price.currency, price.amount
       FROM product
       JOIN product_price AS price ON product.id = price.product_id
 		`
@@ -30,7 +30,9 @@ func (q *ProductQueries) ListProducts() ([]models.Product, error) {
 
 	for rows.Next() {
 		product := models.Product{}
-		err := rows.Scan(&product.ID,
+		err := rows.Scan(
+			&product.ID,
+			&product.StripeID,
 			&product.Name,
 			&product.Description,
 			&product.URL,
@@ -61,6 +63,7 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 
 	query := `
 			SELECT 
+					product.stripe_id,
 					product.name, 
 					product.desc, 
 					product.url, 
@@ -79,11 +82,12 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 			WHERE product.id = ?
 			GROUP BY product.id
 	`
-	var updated int64
-	var images, metadata, attributes string
+	var stripeID, images, metadata, attributes sql.NullString
+	var updated sql.NullInt64
 
 	err := q.DB.QueryRow(query, id).
 		Scan(
+			&stripeID,
 			&product.Name,
 			&product.Description,
 			&product.URL,
@@ -103,20 +107,25 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 		}
 		return nil, err
 	}
-	if updated != product.Created {
-		product.Updated = updated
+
+	if stripeID.Valid {
+		product.StripeID = stripeID.String
 	}
 
-	if images != "" {
-		product.Images = strings.Split(images, ",")
+	if updated.Valid {
+		product.Updated = updated.Int64
 	}
 
-	if attributes != "" {
-		json.Unmarshal([]byte(attributes), &product.Attributes)
+	if images.Valid {
+		product.Images = strings.Split(images.String, ",")
 	}
 
-	if metadata != "" {
-		json.Unmarshal([]byte(metadata), &product.Metadata)
+	if attributes.Valid {
+		json.Unmarshal([]byte(attributes.String), &product.Attributes)
+	}
+
+	if metadata.Valid {
+		json.Unmarshal([]byte(metadata.String), &product.Metadata)
 	}
 
 	return product, nil

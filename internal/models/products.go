@@ -2,6 +2,7 @@ package models
 
 type Product struct {
 	ID          string            `json:"id"`
+	StripeID    string            `json:"stripe_id"`
 	Name        string            `json:"name" validate:"required"`
 	Description string            `json:"description" validate:"required"`
 	Price       Price             `json:"price"`

@@ -97,9 +97,9 @@ elif [[ $MIGRATION == "dev" ]]; then
       if [ -d "${UPLOADS_DIR}" ]; then
         rm -rf ${UPLOADS_DIR}
       fi
-      if [ -d "${LC_BASE_DIR}" ]; then
-        rm -rf ${LC_BASE_DIR}
-      fi
+      #if [ -d "${LC_BASE_DIR}" ]; then
+      #  rm -rf ${LC_BASE_DIR}
+      #fi
     fi
   else
     print_header "Migrations sql"

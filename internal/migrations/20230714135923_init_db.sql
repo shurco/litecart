@@ -36,7 +36,7 @@ CREATE TABLE product (
 	metadata 	JSON DEFAULT "{}" NOT NULL,
 	attribute JSON DEFAULT "[]" NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
-	updated 	TIMESTAMP DEFAULT (datetime('now'))
+	updated 	TIMESTAMP
 );
 
 CREATE TABLE product_price (
