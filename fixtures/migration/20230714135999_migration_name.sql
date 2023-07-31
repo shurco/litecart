@@ -11,25 +11,15 @@ UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = 'sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' WHERE key = 'stripe_secret_key';
 UPDATE setting SET value = '' WHERE key = 'stripe_webhook_secret_key';
 
-INSERT INTO product (id, stripe_id, name, desc, url, metadata, attribute) VALUES 
-('fv6c9s9cqzf36sc', 'prod_OGdTsykDrQSkmA', 'name1', 'description1', 'url1', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('xrtb1b919t2nuj9', '', 'name2', 'description2', 'url2', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('7mweb67t8xv9pzx', 'prod_OGdTsykDrQSkmb', 'name3', 'description3', 'url3', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('k4pkxqhn4p0xhoc', '', 'name4', 'description4', 'url4', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('2wdx6k7b3lywc2o', '', 'name5', 'description5', 'url5', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('zlfpc6b17gte0ot', '', 'name6', 'description6', 'url6', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('ktorsk0xj8w5zab', '', 'name7', 'description7', 'url7', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
-('6bn739vrvfp6zaw', '', 'name8', 'description8', 'url8', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]');
-
-INSERT INTO product_price (id, stripe_id, product_id, currency, amount) VALUES 
-('ohrozxu47cwnaup', 'price_1NU6CfBDuthUZlLWNncOPN53', 'fv6c9s9cqzf36sc', 'EUR', 2000),
-('nvhdb52ogpzc4q6', 'price_1NU6CfBDuthUZlLWNncOPN54', 'xrtb1b919t2nuj9', 'USD', 2100),
-('k0k2ulegp96s34t', 'price_1NU6CfBDuthUZlLWNncOPN55', '7mweb67t8xv9pzx', 'EUR', 2200),
-('eyv2sngy7l5kc87', 'price_1NU6CfBDuthUZlLWNncOPN56', 'k4pkxqhn4p0xhoc', 'USD', 2300),
-('peepx4wzppbq1v0', 'price_1NU6CfBDuthUZlLWNncOPN57', '2wdx6k7b3lywc2o', 'EUR', 2400),
-('vry3k3za3t5zswq', 'price_1NU6CfBDuthUZlLWNncOPN58', 'zlfpc6b17gte0ot', 'USD', 2500),
-('joyc7vc5bc2o8tj', 'price_1NU6CfBDuthUZlLWNncOPN59', 'ktorsk0xj8w5zab', 'EUR', 2600),
-('0xtws4xeiet56ze', 'price_1NU6CfBDuthUZlLWNncOPN50', '6bn739vrvfp6zaw', 'USD', 2700);
+INSERT INTO product (id, stripe_id, name, desc, url, price, metadata, attribute) VALUES 
+('fv6c9s9cqzf36sc', 'prod_OGdTsykDrQSkmA', 'name1', 'description1', 'url1', '{"price_id":"", "currency":"EUR", "amount":"2000"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('xrtb1b919t2nuj9', '', 'name2', 'description2', 'url2', '{"price_id":"", "currency":"USD", "amount":"2100"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('7mweb67t8xv9pzx', 'prod_OGdTsykDrQSkmb', 'name3', 'description3', 'url3', '{"price_id":"", "currency":"EUR", "amount":"2200"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('k4pkxqhn4p0xhoc', '', 'name4', 'description4', 'url4', '{"price_id":"", "currency":"USD", "amount":"2300"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('2wdx6k7b3lywc2o', '', 'name5', 'description5', 'url5', '{"price_id":"", "currency":"EUR", "amount":"2400"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('zlfpc6b17gte0ot', '', 'name6', 'description6', 'url6', '{"price_id":"", "currency":"USD", "amount":"2500"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('ktorsk0xj8w5zab', '', 'name7', 'description7', 'url7', '{"price_id":"", "currency":"EUR", "amount":"2600"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]'),
+('6bn739vrvfp6zaw', '', 'name8', 'description8', 'url8', '{"price_id":"", "currency":"USD", "amount":"2700"}', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]');
 
 INSERT INTO product_image (id, product_id, name, ext) VALUES 
 ('dj9bae53oob0ukj', 'fv6c9s9cqzf36sc', '0f8e7e98-1639-40a3-97f6-0aac15538d88', 'webp'),
@@ -46,7 +36,6 @@ INSERT INTO product_image (id, product_id, name, ext) VALUES
 -- +goose Down
 -- +goose StatementBegin
 DELETE FROM product_image;
-DELETE FROM product_price;
 DELETE FROM product;
 DELETE FROM setting;
 DELETE FROM subdomain;

@@ -33,19 +33,11 @@ CREATE TABLE product (
 	name 			TEXT NOT NULL,
 	desc 			TEXT NOT NULL,
 	url 			TEXT UNIQUE NOT NULL,
+	price 		JSON DEFAULT "{}" NOT NULL,
 	metadata 	JSON DEFAULT "{}" NOT NULL,
 	attribute JSON DEFAULT "[]" NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
-);
-
-CREATE TABLE product_price (
-	id 		    	TEXT PRIMARY KEY NOT NULL,
-	stripe_id 	TEXT,
-	product_id 	TEXT NOT NULL,
-	currency 		TEXT NOT NULL,
-	amount 			INTEGER,
-	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE product_image (
@@ -61,7 +53,6 @@ CREATE TABLE product_image (
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE product_image;
-DROP TABLE product_price;
 DROP TABLE product;
 DROP TABLE subdomain;
 DROP TABLE session;
