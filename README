@@ -3,4 +3,5 @@
 For developer:
 1. Install tools ./scripts/tools/tools
 2. Install https://github.com/tailwindlabs/tailwindcss/releases/
-    cd web && ./tailwindcss -o ./public/assets/css/style.css --watch
+    cd web/admin && ../tailwindcss -o ./public/assets/css/style.css --watch --minify
+    cd web/site && ../tailwindcss -o ./public/assets/css/style.css --watch --minify

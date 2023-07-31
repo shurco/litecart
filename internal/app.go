@@ -45,10 +45,10 @@ func NewApp() error {
 	// web web server
 	var views *html.Engine
 	if DevMode {
-		views = html.New("../web/views", ".html")
+		views = html.New("../web", ".html")
 		views.Reload(true)
 	} else {
-		views = html.NewFileSystem(http.Dir("../web/views"), ".html")
+		views = html.NewFileSystem(http.Dir("../web"), ".html")
 	}
 	views.Delims("{#", "#}")
 
@@ -61,10 +61,11 @@ func NewApp() error {
 		Logger: &log,
 	}))
 
-	app.Static("/", "../web/public")
+	app.Static("/", "../web/site/public")
 	app.Static("/uploads", "./uploads")
 
-	app.Static("/_/components", "../web/views/admin/components")
+	app.Static("/_", "../web/admin/public")
+	app.Static("/_/components", "../web/admin/components")
 
 	app.Use(DatabaseCheck)
 	app.Use(SubdomainCheck)
@@ -86,20 +87,6 @@ func NewApp() error {
 
 	return nil
 }
-
-/*
-func DatabaseCheck(c *fiber.Ctx) error {
-	db := queries.DB()
-	if !db.IsInstalled() {
-		if c.Path() != "/_/install" && strings.Split(c.Path(), "/")[1] != "api" {
-			return c.Redirect("/_/install")
-		}
-	} else if c.Path() == "/_/install" {
-		return c.Redirect("/_")
-	}
-	return c.Next()
-}
-*/
 
 func DatabaseCheck(c *fiber.Ctx) error {
 	db := queries.DB()

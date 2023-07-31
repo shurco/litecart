@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiteCart</title>
+  <script src="/_/assets/js/vue.js?v=3.3.4"></script>
+  <script src="/_/assets/js/vee-validate/main.js?v=4.10.7"></script>
+  <script src="/_/assets/js/vee-validate/rules.js?v=4.10.7"></script>
+  <script src="/_/assets/js/notification.js?v=3.1.1"></script>
+  <script src="/_/assets/js/main.js" type="module"></script>
+  <link href="/_/assets/css/notification.css?v=3.1.1" rel="stylesheet">
+  <link href="/_/assets/css/style.css" rel="stylesheet">
+  <link href="/_/assets/css/main.css" rel="stylesheet">
+  <script>
+    const { onMounted, onUpdated, onUnmounted, ref, watch, getCurrentInstance, components, directives } = Vue;
+    const { defineRule, Form, Field } = VeeValidate;
+    const { required, email, min } = VeeValidateRules;
+
+    defineRule('required', required);
+    defineRule('email', email);
+    defineRule('min', min);
+  </script>
+</head>
+
+<body>
+  <div class="flex">
+    <div class="flex-none w-48" id="menu">
+      <div class="flex h-screen flex-col justify-between border-e bg-white" id="menu">
+        <div class="py-6">
+
+          <ul>
+            <li>
+              <a href="/_/products" class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "products"#}bg-gray-100{# else #}bg-white{# end #}">
+                Products
+              </a>
+            </li>
+
+            <li>
+              <a href="/_/settings" class="flex items-center px-6 text-sm font-medium text-gray-900 p-4 hover:bg-gray-50 hover:text-gray-500 {# if eq .Menu "settings"#}bg-gray-100{# else #}bg-white{# end #}">
+                Settings
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sticky inset-x-0 bottom-0 border-t border-gray-100">
+          <a href="/" target="_blank" class="flex items-center px-6 text-sm font-medium text-gray-500 bg-white p-4 hover:bg-green-50 hover:text-green-500">
+            Open site
+          </a>
+
+          <a href="#" class="flex items-center px-6 text-sm font-medium text-gray-500 bg-white p-4 hover:bg-red-50 hover:text-red-500" @click="signOut">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 mt-5 mx-5">
+      {# embed #}
+    </div>
+  </div>
+
+  <script>
+    Vue.createApp({
+      methods: {
+        async signOut() {
+          await fetch('/api/sign/out', {
+            method: 'POST',
+          });
+          window.location.href = "/_/signin";
+        },
+      },
+    }).mount("#menu");
+  </script>
+</body>
+
+</html>
