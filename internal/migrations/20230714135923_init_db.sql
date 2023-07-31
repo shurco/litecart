@@ -45,7 +45,7 @@ CREATE TABLE product_price (
 	product_id 	TEXT NOT NULL,
 	currency 		TEXT NOT NULL,
 	amount 			INTEGER,
-	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE
+	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE product_image (
@@ -53,7 +53,7 @@ CREATE TABLE product_image (
 	product_id 		TEXT NOT NULL,
 	name 					TEXT NOT NULL,
 	ext 					TEXT NOT NULL,
-	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE
+	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- +goose StatementEnd
 
