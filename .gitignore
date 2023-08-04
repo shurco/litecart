@@ -20,9 +20,9 @@
 # Go workspace file
 go.work
 
-__debug_bin*
-lc_base/
-uploads/
-fixtures/migration/20230714135923_private.sql
-tailwindcss
+cmd/__debug_bin*
+cmd/lc_base/
+cmd/uploads/
+cmd/web/
+fixtures/migration/*_private.sql
 .DS_Store
