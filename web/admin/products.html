@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Products</h1>
     </div>
     <div>
-      <form-button type="submit" name="Add" color="green" ico="row" @click="openDrawer(null, 'Add new product', 'add')" />
+      <form-button type="submit" name="Add" color="green" ico="row" @click="openDrawer(null, null, 'Add new product', 'add')" />
     </div>
   </div>
 
@@ -15,28 +15,37 @@
           <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Name</th>
           <th class="whitespace-nowrap w-32 px-4 py-2 font-medium text-gray-900">URL</th>
           <th class="whitespace-nowrap w-32 px-4 py-2 font-medium text-gray-900">Price</th>
-          <th class="w-32 px-4 py-2"></th>
+          <th class="w-24 px-4 py-2"></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
-        <tr class="hover:bg-gray-100 active:bg-gray-100 cursor-pointer" v-for="item in products.products">
-          <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(item.id, item.name, 'view')">
-            {{item.name}}
-            <badge ico="exclamation" class="bg-red-100  text-red-700" v-if="!item.stripe_id">Stripe ID</badge>
+        <tr class="hover:bg-gray-100 active:bg-gray-100 cursor-pointer" :class="{ 'opacity-30' : !item.active }" v-for="item, index in products.products">
+          <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, item.name, 'view')">
+            <div class="flex">
+              <div>{{item.name}}</div>
+              <div class="pl-3" v-if="!item.stripe.product.id">
+                <svg class="h-5 w-5 text-red-700">
+                  <use xlink:href="/_/assets/img/sprite.svg#exclamation" />
+                </svg>
+              </div>
+            </div>
           </td>
-          <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(item.id, item.name, 'view')">{{item.url}}
+          <td class="whitespace-nowrap px-4 py-2">
+            <a :href="`/product/${item.url}`" target="_blank">{{item.url}}</a>
           </td>
-          <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(item.id, item.name, 'view')">{{ costFormat( item.price.amount ) }}{{ item.price.currency }}</td>
+          <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, item.name, 'view')">
+            {{ costFormat( item.stripe.price.amount ) }} {{ item.stripe.price.currency }}</td>
           <td class="px-4 py-2">
-            <div class="flex flex-row">
+            <div class="flex">
               <div class="pr-3">
-                <svg class="h-5 w-5" @click="openDrawer(item.id, item.name, 'update')">
+                <svg class="h-5 w-5" @click="openDrawer(index, item.id, item.name, 'update')">
                   <use xlink:href="/_/assets/img/sprite.svg#pencil-square" />
                 </svg>
               </div>
               <div>
-                <svg class="h-5 w-5" @click="updateStripe(item.id)">
-                  <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
+                <svg class="h-5 w-5" @click="updateProductActive(index)">
+                  <use xlink:href="/_/assets/img/sprite.svg#eye-slash" v-if="!item.active" />
+                  <use xlink:href="/_/assets/img/sprite.svg#eye" v-else />
                 </svg>
               </div>
             </div>
@@ -47,23 +56,22 @@
   </div>
   <div class="mx-auto" v-else>Add first product</div>
 
-  <drawer :is-open="isDrawerOpen" max-width="700px" @close="closeDrawer" :title="product.name">
-    <div class="flow-root" v-if="product.action==='view'">
+  <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
+    <div class="flow-root" v-if="isDrawer.action==='view'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
-
         <detail-list name="Stripe ID">
-          <div class="flex flex-row" v-if="product.info.stripe_id==''">
+          <div class="flex items-center" v-if="product.info.stripe.product.id===''">
             <badge ico="exclamation" class="bg-red-100  text-red-700">Stripe ID</badge>
-            <svg class="h-5 w-5 ml-3 cursor-pointer" @click="updateStripe(product.info.id)">
+            <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
               <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
             </svg>
           </div>
-          <span v-else>{{ product.info.stripe_id }}</span>
+          <span v-else>{{ product.info.stripe.product.id }}</span>
         </detail-list>
 
         <detail-list name="ID">{{ product.info.id }}</detail-list>
         <detail-list name="Name">{{ product.info.name }}</detail-list>
-        <detail-list name="Price">{{ costFormat(product.info.price.amount) }} {{ product.info.price.currency}}</detail-list>
+        <detail-list name="Price">{{ costFormat(product.info.stripe.price.amount) }} {{ product.info.stripe.price.currency}}</detail-list>
         <detail-list name="URL">{{ product.info.url }}</detail-list>
 
         <detail-list name="Metadata">
@@ -86,35 +94,60 @@
         </detail-list>
 
         <detail-list name="description">{{ product.info.description }}</detail-list>
-
       </dl>
     </div>
 
-    <div class="flow-root" v-if="product.action==='update'">
+    <template v-slot:header v-if="isDrawer.action==='view'">
+      <div class="flex items-center">
+        <div class="pr-3">
+          <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">{{products.products[product.index].name}}</h2>
+        </div>
+        <div>
+          <svg class="h-5 w-5 cursor-pointer" @click="updateProductActive(product.index)">
+            <use xlink:href="/_/assets/img/sprite.svg#eye-slash" v-if="!products.products[product.index].active" />
+            <use xlink:href="/_/assets/img/sprite.svg#eye" v-else />
+          </svg>
+        </div>
+      </div>
+    </template>
+
+    <template v-slot:footer v-if="isDrawer.action==='view'">
+      <div class="flex">
+        <div class="flex-none">
+          <form-button type="submit" name="Close" color="green" @click="closeDrawer"></form-button>
+        </div>
+        <div class="grow"></div>
+        <div class="flex-none">
+          <span @click="deleteProduct(product.index)" class="text-red-700 cursor-pointer">Delete</span>
+        </div>
+      </div>
+    </template>
+
+
+    <div class="flow-root" v-if="isDrawer.action==='update'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
         <v-form @submit="onSubmit" v-slot="{ errors }" class="mx-auto mb-0 mt-8 space-y-4">
           <form-input v-model="product.info.name" id="name" type="text" name="Name" ico="at-symbol"></form-input>
 
           <div class="flex flex-row">
-            <div class="pr-3"><form-input v-model="product.info.price.amount" id="amount" type="text" name="Amount" ico="money"></form-input></div>
-            <div><form-select v-model="product.info.price.currency" id="currency" name="Currency" :options="['EUR','USD']"></form-select></div>
+            <div class="pr-3"><form-input v-model="product.info.stripe.price.amount" id="amount" type="text" name="Amount" ico="money"></form-input></div>
+            <div><form-select v-model="product.info.stripe.price.currency" id="currency" name="Currency" :options="['EUR','USD']"></form-select></div>
           </div>
-          <form-input v-model="product.info.url" id="url" type="text" name="Url" ico="at-symbol"></form-input>
+          <form-input v-model="product.info.url" id="url" type="text" name="Url" ico="glob-alt"></form-input>
 
           <hr />
           <div class="flex flex-row" v-for="(value, key, index) in product.info.metadata">
-            <div class="pr-3"><form-input v-model="value" :id="`mtd-value-${index}`" type="text" :name="`Metadata Value-${index}`" ico="money"></form-input></div>
-            <div><form-input v-model="key" :id="`mtd-key-${index}`" type="text" :name="`Metadata Key-${index}`" ico="money"></form-input></div>
+            <div class="pr-3"><form-input v-model="value" :id="`mtd-value-${index}`" type="text" :name="`Metadata Value-${index}`"></form-input></div>
+            <div><form-input v-model="key" :id="`mtd-key-${index}`" type="text" :name="`Metadata Key-${index}`"></form-input></div>
           </div>
 
           <hr />
           <div v-for="(value, index) in product.info.attributes">
-            <form-input v-model="value" :id="`atr-key-${index}`" type="text" :name="`Attribute-${index}`" ico="money"></form-input>
+            <form-input v-model="value" :id="`atr-key-${index}`" type="text" :name="`Attribute-${index}`"></form-input>
           </div>
 
           <hr />
           images
-
 
           <hr />
           <form-textarea v-model="product.info.description" id="textarea" name="textarea" /></form-textarea>
@@ -123,7 +156,7 @@
       </dl>
     </div>
 
-    <div class="flow-root" v-if="product.action==='add'">
+    <div class="flow-root" v-if="isDrawer.action==='add'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
         <form-input v-model="product.info.name" id="name" type="text" name="Name" ico="at-symbol"></form-input>
       </dl>
@@ -155,20 +188,24 @@
 
     data() {
       return {
-        isDrawerOpen: ref(false),
+        isDrawer: ref({
+          open: false,
+          action: null,
+        }),
+
         products: ref({}),
+
         product: ref({
           info: {
             id: String,
-            stripe_id: String,
             name: String,
             url: String,
             metadata: Object,
             description: String,
           },
           action: String,
+          index: Number,
           name: String,
-          price: String,
         }),
       };
     },
@@ -190,6 +227,7 @@
       },
 
       async getProduct(id) {
+
         const response = await fetch(`/api/products/${id}`, {
           credentials: "include",
           method: 'GET',
@@ -200,8 +238,16 @@
         }
       },
 
-      async updateStripe(id) {
-        console.log(id)
+      async addStripe(index, id) {
+        const response = await fetch(`/api/products/stripe/${id}`, {
+          credentials: "include",
+          method: 'POST',
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          this.products.products[index].stripe.product.id = this.resp.result.product_id;
+          this.product.info.stripe.product.id = this.resp.result.product_id;
+        }
       },
 
       async updateProduct(id) {
@@ -212,10 +258,39 @@
         console.log(id)
       },
 
-      openDrawer(id, name, action) {
-        this.isDrawerOpen = true;
-        this.product.action = action;
-        this.product.name = name;
+      async deleteProduct(index) {
+        const response = await fetch(`/api/products/${this.products.products[index].id}`, {
+          credentials: "include",
+          method: 'DELETE',
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          this.products.products.splice(index, 1);
+          this.products.total = this.products.total - 1;
+          this.closeDrawer();
+        } else {
+          const obj = JSON.parse(this.resp.result);
+          if (obj.code === "resource_missing") {
+            console.log(obj.message)
+          }
+        }
+      },
+
+      async updateProductActive(index) {
+        const response = await fetch(`/api/products/active/${this.products.products[index].id}`, {
+          credentials: "include",
+          method: 'PATCH',
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          this.products.products[index].active = !this.products.products[index].active;
+        }
+      },
+
+      openDrawer(index, id, name, action) {
+        this.isDrawer.open = true;
+        this.isDrawer.action = action;
+        this.product.index = index;
 
         switch (action) {
           case 'view':
@@ -229,10 +304,10 @@
       },
 
       closeDrawer() {
-        this.isDrawerOpen = false;
+        this.isDrawer.open = false;
+        this.isDrawer.action = null;
         this.product.info = {};
-        this.product.action = null;
-        this.product.name = null;
+        this.product.index = null;
       },
 
       costFormat(cost) {

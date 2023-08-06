@@ -8,7 +8,7 @@ export default {
   props: {
     title: {
       type: String,
-      required: true,
+      default: "Header",
     },
 
     isOpen: {
@@ -96,7 +96,9 @@ export default {
         backgroundColor: backgroundColor,
       }">
       <div class="pb-8">
-        <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">{{ title }}</h2>
+        <slot name="header">
+          <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">{{ title }}</h2>
+        </slot>
       </div>
       <slot />
       <div class="pt-8">

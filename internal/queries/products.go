@@ -9,17 +9,29 @@ import (
 	"github.com/shurco/litecart/internal/models"
 )
 
+// ProductQueries is ...
 type ProductQueries struct {
 	*sql.DB
 }
 
-func (q *ProductQueries) ListProducts() ([]models.Product, error) {
-	products := []models.Product{}
+// ListProducts is ...
+func (q *ProductQueries) ListProducts() (*models.Products, error) {
+	products := &models.Products{}
 
 	query := `
-			SELECT product.id, product.stripe_id, product.name, product.desc, product.url, strftime('%s', product.created), price.id, price.stripe_id, price.currency, price.amount
-      FROM product
-      JOIN product_price AS price ON product.id = price.product_id
+			SELECT 
+				id, 
+				name, 
+				desc, 
+				url, 
+				active,
+				json_extract(stripe, '$.product.id') as product_id, 
+				json_extract(stripe, '$.price.id') as price_id, 
+				json_extract(stripe, '$.price.currency') as currency, 
+				json_extract(stripe, '$.price.amount') as amount, 
+				strftime('%s', created) 
+			FROM product
+			WHERE deleted = 0
 		`
 
 	rows, err := q.DB.Query(query)
@@ -32,30 +44,37 @@ func (q *ProductQueries) ListProducts() ([]models.Product, error) {
 		product := models.Product{}
 		err := rows.Scan(
 			&product.ID,
-			&product.StripeID,
 			&product.Name,
 			&product.Description,
 			&product.URL,
+			&product.Active,
+			&product.Stripe.Product.ID,
+			&product.Stripe.Price.ID,
+			&product.Stripe.Price.Currency,
+			&product.Stripe.Price.Amount,
 			&product.Created,
-			&product.Price.ID,
-			&product.Price.StripeID,
-			&product.Price.Currency,
-			&product.Price.Amount,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		products = append(products, product)
+		products.Products = append(products.Products, product)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
+	// total records
+	err = q.DB.QueryRow(`SELECT COUNT(id) FROM product`).Scan(&products.Total)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
 	return products, nil
 }
 
+// Product is ...
 func (q *ProductQueries) Product(id string) (*models.Product, error) {
 	product := &models.Product{
 		ID: id,
@@ -63,42 +82,44 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 
 	query := `
 			SELECT 
-					product.stripe_id,
-					product.name, 
-					product.desc, 
-					product.url, 
-					product.metadata, 
-					product.attribute, 
-					strftime('%s', product.created), 
-					strftime('%s', product.updated),
-					product_price.id,
-					product_price.stripe_id,
-					product_price.currency,
-					product_price.amount,
-					group_concat(DISTINCT product_image.name || '.' || product_image.ext) as images
+				product.name, 
+				product.desc, 
+				product.url, 
+				product.active,
+				json_extract(stripe, '$.product.id') as product_id, 
+				json_extract(stripe, '$.product.valid') as product_valid, 
+				json_extract(stripe, '$.price.id') as price_id, 
+				json_extract(stripe, '$.price.currency') as currency, 
+				json_extract(stripe, '$.price.amount') as amount, 
+				product.metadata, 
+				product.attribute, 
+				strftime('%s', product.created), 
+				strftime('%s', product.updated),
+				group_concat(DISTINCT product_image.name || '.' || product_image.ext) as images
 			FROM product 
-			LEFT JOIN product_price ON product.id = product_price.product_id
 			LEFT JOIN product_image ON product.id = product_image.product_id
 			WHERE product.id = ?
 			GROUP BY product.id
 	`
-	var stripeID, images, metadata, attributes sql.NullString
+	// stripeID
+	var images, metadata, attributes sql.NullString
 	var updated sql.NullInt64
 
 	err := q.DB.QueryRow(query, id).
 		Scan(
-			&stripeID,
 			&product.Name,
 			&product.Description,
 			&product.URL,
+			&product.Active,
+			&product.Stripe.Product.ID,
+			&product.Stripe.Product.Valid,
+			&product.Stripe.Price.ID,
+			&product.Stripe.Price.Currency,
+			&product.Stripe.Price.Amount,
 			&metadata,
 			&attributes,
 			&product.Created,
 			&updated,
-			&product.Price.ID,
-			&product.Price.StripeID,
-			&product.Price.Currency,
-			&product.Price.Amount,
 			&images,
 		)
 	if err != nil {
@@ -106,10 +127,6 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 			return nil, errors.New("product not found")
 		}
 		return nil, err
-	}
-
-	if stripeID.Valid {
-		product.StripeID = stripeID.String
 	}
 
 	if updated.Valid {
@@ -131,60 +148,71 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 	return product, nil
 }
 
-/*
-func (b *Base) GetStripeProducts() []models.Product {
-	products := []models.Product{}
-	list := b.Stripe.Products.List(nil)
-	for _, val := range list.ProductList().Data {
-		price, _ := b.Stripe.Prices.Get(val.DefaultPrice.ID, nil)
+// AddProduct is ...
+func (q *ProductQueries) AddProduct(product *models.Product) error {
+	return nil
+}
 
-		product := models.Product{
-			ID:          val.ID,
-			Name:        val.Name,
-			Description: val.Description,
-			Price: models.Price{
-				ID:       val.DefaultPrice.ID,
-				Currency: string(price.Currency),
-				Amount:   int(price.UnitAmount),
-			},
-			Images:     val.Images,
-			URL:        val.URL,
-			Metadata:   val.Metadata,
-			Attributes: val.Attributes,
-			Created:    val.Created,
-			Updated:    val.Updated,
+// UpdateProduct is ...
+func (q *ProductQueries) UpdateProduct(product *models.Product) error {
+	return nil
+}
+
+// DeleteProduct is ...
+func (q *ProductQueries) DeleteProduct(id string) error {
+	if err := q.DeleteStripeProduct(id); err != nil && err != StripeProductNotFound {
+		return err
+	}
+
+	var stripeProductID, stripePriceID string
+	query := `
+			SELECT 
+				json_extract(stripe, '$.product.id') as product_id ,
+				json_extract(stripe, '$.price.id') as price_id 
+			FROM product 
+			WHERE id = ?
+	`
+	err := q.DB.QueryRow(query, id).Scan(&stripeProductID, &stripePriceID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if !q.IsStripeProduct(stripeProductID) {
+		if _, err := q.DB.Exec(`DELETE FROM product WHERE id = ?`, id); err != nil {
+			return err
 		}
-
-		products = append(products, product)
 	}
 
-	return products
+	if stripePriceID != "" {
+		if _, err := q.DB.Exec(`UPDATE product SET active = 0, deleted = 1, updated = datetime('now') WHERE id = ?`, id); err != nil {
+			return err
+		}
+	} else {
+		if _, err := q.DB.Exec(`DELETE FROM product WHERE id = ?`, id); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func (b *Base) AddStripeProducts() *stripe.Product {
-	newProduct := &stripe.ProductParams{
-		Active:      stripe.Bool(true),
-		Name:        stripe.String("Test Name"),
-		Description: stripe.String("This is a description"),
-		URL:         stripe.String("http://example.com"),
-		Images: stripe.StringSlice([]string{
-			"https://werbot.com/assets/img/steps-1.png",
-			"https://werbot.com/assets/img/steps-2.png",
-			"https://werbot.com/assets/img/steps-3.png",
-		}),
-		Shippable: stripe.Bool(true),
-		DefaultPriceData: &stripe.ProductDefaultPriceDataParams{
-			Currency:   stripe.String(string(stripe.CurrencyEUR)),
-			UnitAmount: stripe.Int64(5000),
-		},
-	}
-	newProduct.AddMetadata("key", "value")
-
-	recponse, err := b.Stripe.Products.New(newProduct)
-	if err != nil {
-		b.Log.Fatal().Err(err).Send()
+// UpdateActive is ...
+func (q *ProductQueries) UpdateActive(id string) error {
+	var active bool
+	query := `
+			SELECT 
+				active
+			FROM product 
+			WHERE id = ?
+	`
+	err := q.DB.QueryRow(query, id).Scan(&active)
+	if err != nil && err != sql.ErrNoRows {
+		return err
 	}
 
-	return recponse
+	if _, err := q.DB.Exec(`UPDATE product SET active = ?, updated = datetime('now') WHERE id = ?`, !active, id); err != nil {
+		return err
+	}
+
+	return nil
 }
-*/

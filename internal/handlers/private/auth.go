@@ -14,6 +14,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
+// SignIn is ...
 func SignIn(c *fiber.Ctx) error {
 	db := queries.DB()
 	request := new(models.SignIn)
@@ -64,6 +65,7 @@ func SignIn(c *fiber.Ctx) error {
 	return webutil.StatusOK(c, "Token", token)
 }
 
+// SignOut is ...
 func SignOut(c *fiber.Ctx) error {
 	db := queries.DB()
 	settingJWT, err := db.SettingJWT()

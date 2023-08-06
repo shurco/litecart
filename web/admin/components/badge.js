@@ -14,8 +14,7 @@ export default {
 
   setup(props) { },
 
-  template: `
-  <span class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5">
+  template: `<span class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5">
     <svg :class="(ico !== '' ? '-ms-0.5 me-1.5 '+svgClass : 'h-0 w-0' )" v-if="ico!==''">
       <use v-bind="{'xlink:href':'/_/assets/img/sprite.svg#'+ico}" />
     </svg>

@@ -10,10 +10,12 @@ import (
 	"github.com/shurco/litecart/pkg/security"
 )
 
+// InstallQueries is ...
 type InstallQueries struct {
 	*sql.DB
 }
 
+// Install is ...
 func (q *InstallQueries) Install(i *models.Install) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

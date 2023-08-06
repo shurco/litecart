@@ -7,12 +7,14 @@ import (
 	"fmt"
 
 	"github.com/pressly/goose/v3"
-	"github.com/shurco/litecart/pkg/fsutil"
 	_ "modernc.org/sqlite"
+
+	"github.com/shurco/litecart/pkg/fsutil"
 )
 
 var db *Base
 
+// Base is ...
 type Base struct {
 	AuthQueries
 	InstallQueries
@@ -20,6 +22,7 @@ type Base struct {
 	ProductQueries
 }
 
+// InitDB is ...
 func InitDB(dbPath string, migrations embed.FS) (db *sql.DB, err error) {
 	if !fsutil.IsFile(dbPath) {
 		// create db
@@ -36,9 +39,12 @@ func InitDB(dbPath string, migrations embed.FS) (db *sql.DB, err error) {
 	// connect to database
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
 	db, err = sql.Open("sqlite", dsn)
+	db.Query("PRAGMA auto_vacuum")
+
 	return
 }
 
+// Migrate is ...
 func Migrate(dbPath string, migrations embed.FS) (err error) {
 	goose.SetBaseFS(migrations)
 	var db *sql.DB
@@ -48,10 +54,11 @@ func Migrate(dbPath string, migrations embed.FS) (err error) {
 	}
 	defer db.Close()
 
-	err = goose.Up(db, "migrations")
+	err = goose.Up(db, ".")
 	return
 }
 
+// InitQueries is ...
 func InitQueries(embed embed.FS) (err error) {
 	// init database
 	var sqlite *sql.DB
@@ -69,6 +76,7 @@ func InitQueries(embed embed.FS) (err error) {
 	return
 }
 
+// DB is ...
 func DB() *Base {
 	if db == nil {
 		db = &Base{}

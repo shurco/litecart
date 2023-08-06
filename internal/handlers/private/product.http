@@ -10,7 +10,6 @@ Content-Type: application/json
     "password":"123456789ASDFGzxcvb"
 }
 
-
 ###
 # @name products
 GET {{host}}/api/products
@@ -26,3 +25,12 @@ Authorization: Bearer {{signin.response.body.result}}
 GET {{host}}/api/products/fv6c9s9cqzf36sc
 Authorization: Bearer {{signin.response.body.result}}
 
+###
+# @name active
+PATCH {{host}}/api/products/active/fv6c9s9cqzf36sc
+Authorization: Bearer {{signin.response.body.result}}
+
+###
+# @name check
+GET {{host}}/api/products/stripe/fv6c9s9cqzf36sc/check
+Authorization: Bearer {{signin.response.body.result}}

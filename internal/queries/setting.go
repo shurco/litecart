@@ -8,10 +8,12 @@ import (
 	"github.com/stripe/stripe-go/v74/client"
 )
 
+// SettingQueries is ...
 type SettingQueries struct {
 	*sql.DB
 }
 
+// Stripe is ...
 type Stripe struct {
 	SecretKey  string
 	WebhookKey string

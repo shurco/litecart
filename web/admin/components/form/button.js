@@ -1,6 +1,14 @@
 export default {
-  data() { },
-  
+  data(props) {
+    return {
+      colors: {
+        green: ["bg-green-600", "bg-green-500"],
+        yellow: ["bg-yellow-600", "bg-yellow-500"],
+        red: ["bg-red-600", "bg-red-500"],
+      }
+    }
+  },
+
   setup(props) { },
 
   props: {
@@ -17,7 +25,7 @@ export default {
 
   template: `<button
   class="group relative inline-flex items-center overflow-hidden rounded px-8 py-3 text-white"
-  :class="color ? 'bg-'+color+'-600 active:bg-'+color+'-500' : 'bg-green-600 active:bg-'+color+'-500', ico ? 'focus:outline-none focus:ring' : ''">
+  :class="color ? colors[color][0]+' active:'+colors[color][1] : '', ico ? 'focus:outline-none focus:ring' : ''">
 
   <span class="absolute -start-full transition-all group-hover:start-4" v-if="ico">
     <svg class="h-4 w-4">

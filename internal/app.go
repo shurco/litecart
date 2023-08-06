@@ -1,13 +1,15 @@
 package app
 
 import (
-	"embed"
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
 
 	"github.com/armon/go-proxyproto"
+	"github.com/rs/zerolog"
 
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
@@ -15,29 +17,35 @@ import (
 
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/internal/routes"
+	"github.com/shurco/litecart/migrations"
 	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/logging"
 )
 
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
-
 var (
 	DevMode    bool
 	MainDomain string
+	log        zerolog.Logger
 )
 
 // NewApp is ...
-func NewApp() error {
-	DevMode = true
-	log := logging.Log()
+func NewApp(appDev bool) error {
+	DevMode = appDev
+	log = logging.Log()
 
+	// check uploads folder
 	if err := fsutil.MkDirs(0775, "./uploads"); err != nil {
 		log.Err(err).Send()
 		return err
 	}
 
-	if err := queries.InitQueries(embedMigrations); err != nil {
+	// check web folder
+	if err := fsutil.MkDirs(0775, "./web"); err != nil {
+		log.Err(err).Send()
+		return err
+	}
+
+	if err := queries.InitQueries(migrations.Embed()); err != nil {
 		log.Err(err).Send()
 		return err
 	}
@@ -76,13 +84,25 @@ func NewApp() error {
 	routes.ApiPublicRoutes(app)
 	routes.NotFoundRoute(app)
 
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
-	if err != nil {
-		log.Err(err).Send()
-	}
-	proxyListener := &proxyproto.Listener{Listener: ln}
-	if err := app.Listener(proxyListener); err != nil {
-		log.Err(err).Send()
+	if DevMode {
+		StartServer(app)
+	} else {
+		idleConnsClosed := make(chan struct{})
+
+		go func() {
+			sigint := make(chan os.Signal, 1)
+			signal.Notify(sigint, os.Interrupt)
+			<-sigint
+
+			if err := app.Shutdown(); err != nil {
+				log.Err(err).Send()
+			}
+
+			close(idleConnsClosed)
+		}()
+
+		StartServer(app)
+		<-idleConnsClosed
 	}
 
 	return nil
@@ -119,4 +139,16 @@ func SubdomainCheck(c *fiber.Ctx) error {
 		}
 	}
 	return c.Next()
+}
+
+// StartServer is ...
+func StartServer(a *fiber.App) {
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+	if err != nil {
+		log.Err(err).Send()
+	}
+	proxyListener := &proxyproto.Listener{Listener: ln}
+	if err := a.Listener(proxyListener); err != nil {
+		log.Err(err).Send()
+	}
 }

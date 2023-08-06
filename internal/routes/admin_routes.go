@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/shurco/litecart/internal/middleware"
-	"github.com/shurco/litecart/internal/queries"
 )
 
 // AdminRoutes is ...
@@ -25,15 +24,8 @@ func AdminRoutes(c *fiber.App) {
 
 	// product section
 	admin.Get("/products", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		db := queries.DB()
-		products, err := db.ListProducts()
-		if err != nil {
-			return err
-		}
-
 		return c.Render("admin/products", fiber.Map{
-			"Products": products,
-			"Menu":     "products",
+			"Menu": "products",
 		}, "admin/layouts/main")
 	})
 

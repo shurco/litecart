@@ -1,7 +1,5 @@
 1. STRIPE_SECRET_KEY for install (PROD) https://dashboard.stripe.com/apikeys or (DEV) https://dashboard.stripe.com/test/apikeys
 
 For developer:
-1. Install tools ./scripts/tools/tools
-2. Install https://github.com/tailwindlabs/tailwindcss/releases/
-    cd web/admin && ../tailwindcss -o ./public/assets/css/style.css --watch --minify
-    cd web/site && ../tailwindcss -o ./public/assets/css/style.css --watch --minify
+1. Install tools utilities ./scripts/tools
+2. Install compiling CSS ./scripts/web 

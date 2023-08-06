@@ -20,6 +20,6 @@ func SiteRoutes(c *fiber.App) {
 	})
 
 	c.Get("/webhook", func(c *fiber.Ctx) error {
-		return webutil.Response(c, fiber.StatusOK, "Webhook", "ok")
+		return webutil.Response(c, fiber.StatusOK, "Webhook", nil)
 	})
 }

@@ -5,10 +5,12 @@ import (
 	"errors"
 )
 
+// AuthQueries is ...
 type AuthQueries struct {
 	*sql.DB
 }
 
+// GetPasswordByEmail is ...
 func (q *AuthQueries) GetPasswordByEmail(email string) (string, error) {
 	var id, value string
 
