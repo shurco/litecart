@@ -5,7 +5,7 @@
 ROOT_PATH="$(git rev-parse --show-toplevel)"
 source ${ROOT_PATH}/scripts/_helper
 
-MIGRATION_DIR=${ROOT_PATH}/internal/migrations
+MIGRATION_DIR=${ROOT_PATH}/migrations
 MIGRATION_DIR_TMP=${ROOT_PATH}/.vscode/migrate_tmp
 UPLOADS_DIR=${ROOT_PATH}/cmd/uploads
 LC_BASE_DIR="${ROOT_PATH}/cmd/lc_base"

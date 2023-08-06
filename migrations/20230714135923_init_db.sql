@@ -29,13 +29,14 @@ CREATE TABLE subdomain (
 
 CREATE TABLE product (
 	id 				TEXT PRIMARY KEY NOT NULL,
-	stripe_id TEXT,
 	name 			TEXT NOT NULL,
 	desc 			TEXT NOT NULL,
 	url 			TEXT UNIQUE NOT NULL,
-	price 		JSON DEFAULT "{}" NOT NULL,
-	metadata 	JSON DEFAULT "{}" NOT NULL,
-	attribute JSON DEFAULT "[]" NOT NULL,
+	metadata 	JSON DEFAULT '{}' NOT NULL,
+	attribute JSON DEFAULT '[]' NOT NULL,
+	active    BOOLEAN DEFAULT TRUE NOT NULL,
+	deleted   BOOLEAN DEFAULT FALSE NOT NULL,
+	stripe 		JSON DEFAULT '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"", "amount":""}}' NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
 );
