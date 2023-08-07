@@ -20,6 +20,7 @@ import (
 	"github.com/shurco/litecart/migrations"
 	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/logging"
+	"github.com/shurco/litecart/web"
 )
 
 var (
@@ -39,16 +40,12 @@ func NewApp(appDev bool) error {
 		return err
 	}
 
-	// check web folder
-	if err := fsutil.MkDirs(0775, "./web"); err != nil {
-		log.Err(err).Send()
-		return err
-	}
-
 	if err := queries.InitQueries(migrations.Embed()); err != nil {
 		log.Err(err).Send()
 		return err
 	}
+
+	fmt.Print(fsutil.IsDir("./web"))
 
 	// web web server
 	var views *html.Engine
@@ -56,7 +53,12 @@ func NewApp(appDev bool) error {
 		views = html.New("../web", ".html")
 		views.Reload(true)
 	} else {
-		views = html.NewFileSystem(http.Dir("../web"), ".html")
+		if fsutil.IsDir("./web") {
+			views = html.New("./web", ".html")
+			views.Reload(true)
+		} else {
+			views = html.NewFileSystem(http.FS(web.Embed()), ".html")
+		}
 	}
 	views.Delims("{#", "#}")
 
