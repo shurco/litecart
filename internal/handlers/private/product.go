@@ -142,9 +142,20 @@ func AddProductImage(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	resizeFill := imaging.Fill(fileSource, 147, 147, imaging.Center, imaging.Lanczos)
-	if err := imaging.Save(resizeFill, fmt.Sprintf("./uploads/%s_sm.%s", fileUUID, fileExt)); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+	sizes := []struct {
+		size string
+		dim  int
+	}{
+		{"sm", 147},
+		{"md", 400},
+	}
+
+	for _, s := range sizes {
+		resizedImage := imaging.Fill(fileSource, s.dim, s.dim, imaging.Center, imaging.Lanczos)
+		err := imaging.Save(resizedImage, fmt.Sprintf("./uploads/%s_%s.%s", fileUUID, s.size, fileExt))
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
 	}
 
 	addedImage, err := db.AddImage(productID, fileUUID, fileExt)

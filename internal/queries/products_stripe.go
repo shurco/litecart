@@ -47,7 +47,7 @@ func (q *ProductQueries) AddStripeProduct(productID string) (*models.StripeInfo,
 
 	images := []string{}
 	for _, image := range product.Images {
-		path := fmt.Sprintf("https://%s/uploads/%s.%s", db.GetDomain(), image.Name, image.Ext)
+		path := fmt.Sprintf("https://%s/uploads/%s_md.%s", db.GetDomain(), image.Name, image.Ext)
 		images = append(images, path)
 	}
 

@@ -66,7 +66,14 @@
               <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
             </svg>
           </div>
-          <span v-else>{{ product.info.stripe.product.id }}</span>
+          <div class="flex items-center" v-else>
+            {{ product.info.stripe.product.id }}
+            <a :href="`https://dashboard.stripe.com/products/${product.info.stripe.product.id}`" target="_blank">
+              <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
+                <use xlink:href="/_/assets/img/sprite.svg#link" />
+              </svg>
+            </a>
+          </div>
         </detail-list>
 
         <detail-list name="ID">{{ product.info.id }}</detail-list>
@@ -110,18 +117,6 @@
             <use xlink:href="/_/assets/img/sprite.svg#eye-slash" v-if="!products.products[product.index].active" />
             <use xlink:href="/_/assets/img/sprite.svg#eye" v-else />
           </svg>
-        </div>
-      </div>
-    </template>
-
-    <template v-slot:footer v-if="isDrawer.action==='view'">
-      <div class="flex">
-        <div class="flex-none">
-          <form-button type="submit" name="Close" color="green" @click="closeDrawer"></form-button>
-        </div>
-        <div class="grow"></div>
-        <div class="flex-none">
-          <span @click="deleteProduct(product.index)" class="text-red-700 cursor-pointer">Delete</span>
         </div>
       </div>
     </template>
@@ -178,6 +173,19 @@
         </div>
       </div>
     </template>
+
+    <template v-slot:footer v-if="isDrawer.action==='update'">
+      <div class="flex">
+        <div class="flex-none">
+          <form-button type="submit" name="Close" color="green" @click="closeDrawer"></form-button>
+        </div>
+        <div class="grow"></div>
+        <div class="flex-none">
+          <span @click="deleteProduct(product.index)" class="text-red-700 cursor-pointer">Delete</span>
+        </div>
+      </div>
+    </template>
+
 
     <div class="flow-root" v-if="isDrawer.action==='add'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
