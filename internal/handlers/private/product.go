@@ -19,7 +19,7 @@ import (
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	products, err := db.ListProducts()
+	products, err := db.ListProducts(true)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}

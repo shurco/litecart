@@ -24,14 +24,22 @@
             <div class="flex">
               <div>{{item.name}}</div>
               <div class="pl-3" v-if="!item.stripe.product.id">
-                <svg class="h-5 w-5 text-red-700">
+                <svg class="h-5 w-5 text-red-500">
                   <use xlink:href="/_/assets/img/sprite.svg#exclamation" />
                 </svg>
               </div>
+
+              <div class="pl-3" v-if="item.stripe.product.id && !item.stripe.product.valid">
+                <svg class="h-5 w-5 text-yellow-500">
+                  <use xlink:href="/_/assets/img/sprite.svg#exclamation" />
+                </svg>
+              </div>
+
             </div>
           </td>
           <td class="whitespace-nowrap px-4 py-2">
-            <a :href="`/product/${item.url}`" target="_blank">{{item.url}}</a>
+            <a :href="`/products/${item.url}`" target="_blank" v-if="item.stripe.product.id && item.stripe.product.valid && item.active">{{item.url}}</a>
+            <span v-else>{{item.url}}</span>
           </td>
           <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, item.name, 'view')">
             {{ costFormat( item.stripe.price.amount ) }} {{ item.stripe.price.currency }}</td>
@@ -66,6 +74,12 @@
               <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
             </svg>
           </div>
+          <div class="flex items-center" v-else-if="product.info.stripe.product.id && !product.info.stripe.product.valid">
+            <badge ico="exclamation" class="bg-yellow-100  text-yellow-700">{{ product.info.stripe.product.id }}</badge>
+            <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
+              <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
+            </svg>
+          </div>
           <div class="flex items-center" v-else>
             {{ product.info.stripe.product.id }}
             <a :href="`https://dashboard.stripe.com/products/${product.info.stripe.product.id}`" target="_blank">
@@ -74,6 +88,7 @@
               </svg>
             </a>
           </div>
+
         </detail-list>
 
         <detail-list name="ID">{{ product.info.id }}</detail-list>
@@ -286,7 +301,9 @@
         this.resp = await response.json();
         if (this.resp.success) {
           this.products.products[index].stripe.product.id = this.resp.result.product_id;
+          this.products.products[index].stripe.product.valid = 1;
           this.product.info.stripe.product.id = this.resp.result.product_id;
+          this.product.info.stripe.product.valid = 1;
         }
       },
 

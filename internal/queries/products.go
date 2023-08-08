@@ -17,9 +17,10 @@ type ProductQueries struct {
 }
 
 // ListProducts is ...
-func (q *ProductQueries) ListProducts() (*models.Products, error) {
+func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 	products := &models.Products{}
 
+	queryPrivate := ` WHERE deleted = 0 AND active = 1 AND json_extract(stripe, '$.product.id') != '' AND json_extract(stripe, '$.product.valid') = 1`
 	query := `
 			SELECT 
 				id, 
@@ -28,13 +29,19 @@ func (q *ProductQueries) ListProducts() (*models.Products, error) {
 				url, 
 				active,
 				json_extract(stripe, '$.product.id') as product_id, 
+				json_extract(stripe, '$.product.valid') as product_valid, 
 				json_extract(stripe, '$.price.id') as price_id, 
 				json_extract(stripe, '$.price.currency') as currency, 
-				json_extract(stripe, '$.price.amount') as amount, 
+				json_extract(stripe, '$.price.amount') as amount,
 				strftime('%s', created) 
 			FROM product
-			WHERE deleted = 0
 		`
+	queryTotal := `SELECT COUNT(id) FROM product`
+
+	if !private {
+		query = query + queryPrivate
+		queryTotal = queryTotal + queryPrivate
+	}
 
 	rows, err := q.DB.Query(query)
 	if err != nil {
@@ -44,6 +51,7 @@ func (q *ProductQueries) ListProducts() (*models.Products, error) {
 
 	for rows.Next() {
 		product := models.Product{}
+
 		err := rows.Scan(
 			&product.ID,
 			&product.Name,
@@ -51,6 +59,7 @@ func (q *ProductQueries) ListProducts() (*models.Products, error) {
 			&product.URL,
 			&product.Active,
 			&product.Stripe.Product.ID,
+			&product.Stripe.Product.Valid,
 			&product.Stripe.Price.ID,
 			&product.Stripe.Price.Currency,
 			&product.Stripe.Price.Amount,
@@ -68,7 +77,7 @@ func (q *ProductQueries) ListProducts() (*models.Products, error) {
 	}
 
 	// total records
-	err = q.DB.QueryRow(`SELECT COUNT(id) FROM product`).Scan(&products.Total)
+	err = q.DB.QueryRow(queryTotal).Scan(&products.Total)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}

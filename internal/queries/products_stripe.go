@@ -36,7 +36,10 @@ func (q *ProductQueries) AddStripeProduct(productID string) (*models.StripeInfo,
 	}
 
 	var stripeProductID string
-	err = q.DB.QueryRow(`SELECT json_extract(stripe, '$.product.id') as product_id FROM product WHERE id = ?`, productID).Scan(&stripeProductID)
+	err = q.DB.QueryRow(`SELECT json_extract(stripe, '$.product.id') as product_id 
+			FROM product 
+			WHERE id = ? 
+				AND json_extract(stripe, '$.product.valid') = 1`, productID).Scan(&stripeProductID)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
@@ -87,7 +90,7 @@ func (q *ProductQueries) AddStripeProduct(productID string) (*models.StripeInfo,
 func (q *ProductQueries) UpdateStripeProduct(productID string, stripe *models.StripeInfo) error {
 	query := `
 			UPDATE product SET 
-				stripe = json_replace(stripe, '$.price.id', ?, '$.product.id', ?), 
+				stripe = json_replace(stripe, '$.price.id', ?, '$.product.id', ?, '$.product.valid', 1), 
 				updated = datetime('now') 
 			WHERE id = ?
 	`
