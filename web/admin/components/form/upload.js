@@ -20,7 +20,7 @@ export default {
         const formData = new FormData();
         formData.append('document', f);
 
-        fetch(`/api/products/${this.productId}/image`, {
+        fetch(`/api/_/products/${this.productId}/image`, {
           credentials: 'include',
           method: 'POST',
           body: formData,

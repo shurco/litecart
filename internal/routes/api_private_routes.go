@@ -15,7 +15,7 @@ func ApiPrivateRoutes(c *fiber.App) {
 	sign.Post("/in", handlers.SignIn)
 	sign.Post("/out", middleware.JWTProtected(), handlers.SignOut)
 
-	product := c.Group("/api/products", middleware.JWTProtected())
+	product := c.Group("/api/_/products", middleware.JWTProtected())
 	product.Get("/", handlers.Products)
 	product.Post("/", handlers.AddProduct)
 	product.Get("/:product_id<len(15)>", handlers.Product)

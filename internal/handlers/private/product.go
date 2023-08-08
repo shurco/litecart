@@ -15,7 +15,7 @@ import (
 )
 
 // Products is ...
-// [get] /api/products
+// [get] /api/_/products
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
 
@@ -28,7 +28,7 @@ func Products(c *fiber.Ctx) error {
 }
 
 // GetProduct is ...
-// [get] /api/products/:product_id
+// [get] /api/_/products/:product_id
 func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()

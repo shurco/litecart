@@ -257,7 +257,7 @@
 
     methods: {
       async listProducts() {
-        const response = await fetch(`/api/products`, {
+        const response = await fetch(`/api/_/products`, {
           credentials: "include",
           method: 'GET',
         });
@@ -268,7 +268,7 @@
       },
 
       async getProduct(id) {
-        const response = await fetch(`/api/products/${id}`, {
+        const response = await fetch(`/api/_/products/${id}`, {
           credentials: "include",
           method: 'GET',
         });
@@ -279,7 +279,7 @@
       },
 
       async addStripe(index, id) {
-        const response = await fetch(`/api/products/stripe/${id}`, {
+        const response = await fetch(`/api/_/products/stripe/${id}`, {
           credentials: "include",
           method: 'POST',
         });
@@ -299,7 +299,7 @@
       },
 
       async deleteProduct(index) {
-        const response = await fetch(`/api/products/${this.products.products[index].id}`, {
+        const response = await fetch(`/api/_/products/${this.products.products[index].id}`, {
           credentials: "include",
           method: 'DELETE',
         });
@@ -317,7 +317,7 @@
       },
 
       async updateProductActive(index) {
-        const response = await fetch(`/api/products/${this.products.products[index].id}/active`, {
+        const response = await fetch(`/api/_/products/${this.products.products[index].id}/active`, {
           credentials: "include",
           method: 'PATCH',
         });
@@ -336,7 +336,7 @@
 
       async deleteProductImage(index, product_id) {
         const image = this.product.info.images[index]
-        const response = await fetch(`/api/products/${product_id}/image/${image.id}`, {
+        const response = await fetch(`/api/_/products/${product_id}/image/${image.id}`, {
           credentials: "include",
           method: 'DELETE',
         });
