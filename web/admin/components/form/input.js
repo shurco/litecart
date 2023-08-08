@@ -63,7 +63,7 @@ export default {
       {{name}}
     </span>
 
-    <span class="absolute inset-y-0 end-0 grid place-content-center px-4">
+    <span class="absolute inset-y-0 end-0 grid place-content-center px-4" v-if="ico">
       <svg class="h-5 w-5" >
         <use v-bind="{'xlink:href':'/_/assets/img/sprite.svg#'+ico}" :class="error? 'text-red-500' : 'text-gray-400'" />
       </svg>

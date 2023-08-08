@@ -11,7 +11,7 @@ type Product struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Images      []string          `json:"images"`
+	Images      []Images          `json:"images"`
 	URL         string            `json:"url"`
 	Metadata    map[string]string `json:"metadata"`
 	Attributes  []string          `json:"attributes"`
@@ -19,6 +19,13 @@ type Product struct {
 	Active      bool              `json:"active"`
 	Created     int64             `json:"created"`
 	Updated     int64             `json:"updated"`
+}
+
+// Images is ...
+type Images struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Ext  string `json:"ext"`
 }
 
 // Stripe is ...

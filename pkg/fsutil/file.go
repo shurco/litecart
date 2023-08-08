@@ -62,3 +62,11 @@ func WriteOSFile(f *os.File, data any) (n int, err error) {
 	}
 	return n, err
 }
+
+// ExtName is ...
+func ExtName(fpath string) string {
+	if ext := path.Ext(fpath); len(ext) > 0 {
+		return ext[1:]
+	}
+	return ""
+}

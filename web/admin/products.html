@@ -10,7 +10,7 @@
 
   <div class="mx-auto" v-if="products.total>0">
     <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-      <thead class="text-left ">
+      <thead class="text-left">
         <tr>
           <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Name</th>
           <th class="whitespace-nowrap w-32 px-4 py-2 font-medium text-gray-900">URL</th>
@@ -60,7 +60,7 @@
     <div class="flow-root" v-if="isDrawer.action==='view'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
         <detail-list name="Stripe ID">
-          <div class="flex items-center" v-if="product.info.stripe.product.id===''">
+          <div class="flex items-center" v-if="!product.info.stripe.product.id">
             <badge ico="exclamation" class="bg-red-100  text-red-700">Stripe ID</badge>
             <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
               <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
@@ -71,7 +71,8 @@
 
         <detail-list name="ID">{{ product.info.id }}</detail-list>
         <detail-list name="Name">{{ product.info.name }}</detail-list>
-        <detail-list name="Price">{{ costFormat(product.info.stripe.price.amount) }} {{ product.info.stripe.price.currency}}</detail-list>
+        <detail-list name="Price">{{ costFormat(product.info.stripe.price.amount) }} {{ product.info.stripe.price.currency}}
+        </detail-list>
         <detail-list name="URL">{{ product.info.url }}</detail-list>
 
         <detail-list name="Metadata">
@@ -84,12 +85,14 @@
           <div v-for="item in product.info.attributes">{{item}}</div>
         </detail-list>
 
-        <detail-list name="Created">{{ product.info.created }}</detail-list>
-        <detail-list name="Updated">{{ product.info.updates }}</detail-list>
+        <detail-list name="Created">{{ formatDate(product.info.created) }}</detail-list>
+        <detail-list name="Updated" v-if="product.info.updated !== 0">{{ formatDate(product.info.updated) }}</detail-list>
 
-        <detail-list name="Images">
+        <detail-list name="Images" grid="true" v-if="product.info.images !== null">
           <div v-for="item in product.info.images">
-            <img style="width:100%; max-width:150px;" :src="`/uploads/${item}`">
+            <a :href="`/uploads/${item.name}.${item.ext}`" target="_blank">
+              <img style="width:100%; max-width:150px;" :src="`/uploads/${item.name}_sm.${item.ext}`" loading="lazy">
+            </a>
           </div>
         </detail-list>
 
@@ -147,7 +150,19 @@
           </div>
 
           <hr />
-          images
+          <div class="grid grid-cols-4 gap-4 content-start" v-if="product.info.images !== null">
+            <div v-for="(item, index) in product.info.images" class="relative" style="width:100%; max-width:150px;">
+              <a :href="`/uploads/${item.name}.${item.ext}`" target="_blank">
+                <img :src="`/uploads/${item.name}_sm.${item.ext}`">
+              </a>
+              <div class="cursor-pointer absolute end-4 top-4 bg-white p-2" @click="deleteProductImage(index, product.info.id)">
+                <svg class="h-5 w-5">
+                  <use xlink:href="/_/assets/img/sprite.svg#trash" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <form-upload :product-id="product.info.id" accept=".jpg,.jpeg,.png,.webp" @added="addProductImage" />
 
           <hr />
           <form-textarea v-model="product.info.description" id="textarea" name="textarea" /></form-textarea>
@@ -156,11 +171,27 @@
       </dl>
     </div>
 
+    <template v-slot:header v-if="isDrawer.action==='update'">
+      <div class="flex items-center">
+        <div class="pr-3">
+          <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">Edit</h2>
+        </div>
+      </div>
+    </template>
+
     <div class="flow-root" v-if="isDrawer.action==='add'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
         <form-input v-model="product.info.name" id="name" type="text" name="Name" ico="at-symbol"></form-input>
       </dl>
     </div>
+
+    <template v-slot:header v-if="isDrawer.action==='add'">
+      <div class="flex items-center">
+        <div class="pr-3">
+          <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">Add</h2>
+        </div>
+      </div>
+    </template>
 
   </drawer>
 </div>
@@ -170,6 +201,7 @@
   import FormSelect from './components/form/select.js';
   import FormTextarea from './components/form/textarea.js';
   import FormButton from './components/form/button.js';
+  import FormUpload from './components/form/upload.js';
   import Drawer from './components/drawer.js';
   import Badge from './components/badge.js';
   import DetailList from './components/detail/list.js';
@@ -180,6 +212,7 @@
       FormSelect,
       FormTextarea,
       FormButton,
+      FormUpload,
       Drawer,
       Badge,
       DetailList,
@@ -227,7 +260,6 @@
       },
 
       async getProduct(id) {
-
         const response = await fetch(`/api/products/${id}`, {
           credentials: "include",
           method: 'GET',
@@ -277,13 +309,32 @@
       },
 
       async updateProductActive(index) {
-        const response = await fetch(`/api/products/active/${this.products.products[index].id}`, {
+        const response = await fetch(`/api/products/${this.products.products[index].id}/active`, {
           credentials: "include",
           method: 'PATCH',
         });
         this.resp = await response.json();
         if (this.resp.success) {
           this.products.products[index].active = !this.products.products[index].active;
+        }
+      },
+
+      async addProductImage(event) {
+        console.log(event)
+        if (event.success) {
+          this.product.info.images.push(event.result)
+        }
+      },
+
+      async deleteProductImage(index, product_id) {
+        const image = this.product.info.images[index]
+        const response = await fetch(`/api/products/${product_id}/image/${image.id}`, {
+          credentials: "include",
+          method: 'DELETE',
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          this.product.info.images.splice(index, 1);
         }
       },
 
@@ -313,6 +364,12 @@
       costFormat(cost) {
         return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
       },
+
+      formatDate(timestamp) {
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const date = new Date(timestamp * 1000);
+        return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
+      }
     },
   }).mount("#app");
 </script>

@@ -81,7 +81,7 @@ if [[ $MIGRATION == "test" ]]; then
   fi
   run_goose $GOOSE_ACTION
 elif [[ $MIGRATION == "dev" ]]; then
-  arr_goose=(up down)
+  arr_goose=(up down reset)
   if [[ " ${arr_goose[@]} " =~ " $GOOSE_ACTION " ]]; then
     SOURCE=${BASH_SOURCE[0]}
     if [ $GOOSE_ACTION == "up" ]; then
@@ -100,6 +100,9 @@ elif [[ $MIGRATION == "dev" ]]; then
       #if [ -d "${LC_BASE_DIR}" ]; then
       #  rm -rf ${LC_BASE_DIR}
       #fi
+    elif [ $GOOSE_ACTION == "reset" ]; then
+      $SOURCE dev down
+      $SOURCE dev up
     fi
   else
     print_header "Migrations sql"
@@ -109,6 +112,7 @@ elif [[ $MIGRATION == "dev" ]]; then
     echo "Use next command:"
     print_help up "Run all available migrations"
     print_help down "Delete all migrations from database"
+    print_help reset "Reset all migrations"
     exit
   fi
 else

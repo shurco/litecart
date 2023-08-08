@@ -1,10 +1,15 @@
 package handlers
 
 import (
+	"fmt"
+
+	"github.com/disintegration/imaging"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/validator"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -23,12 +28,12 @@ func Products(c *fiber.Ctx) error {
 }
 
 // GetProduct is ...
-// [get] /api/products/:id
+// [get] /api/products/:product_id
 func Product(c *fiber.Ctx) error {
-	id := c.Params("id")
+	productID := c.Params("product_id")
 	db := queries.DB()
 
-	product, err := db.Product(id)
+	product, err := db.Product(productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -77,24 +82,99 @@ func UpdateProduct(c *fiber.Ctx) error {
 }
 
 // UpdateProductActive is ...
-// [patch] /api/active/:id
+// [patch] /api/:product_id/active
 func UpdateProductActive(c *fiber.Ctx) error {
-	id := c.Params("id")
+	productID := c.Params("product_id")
 	db := queries.DB()
 
-	if err := db.UpdateActive(id); err != nil {
+	if err := db.UpdateActive(productID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product active updated", nil)
 }
 
-// DeleteProduct is ...
-func DeleteProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
+// ProductImages
+// [get] /api/:product_id/image
+func ProductImages(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
 	db := queries.DB()
 
-	if err := db.DeleteProduct(id); err != nil {
+	images, err := db.ProductImages(productID)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Product images", images)
+}
+
+// AddProductImage is ...
+// [post] /api/:product_id/image
+func AddProductImage(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	db := queries.DB()
+
+	file, err := c.FormFile("document")
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	validMIME := false
+	validMIMETypes := []string{"image/png", "image/jpeg"}
+	for _, mime := range validMIMETypes {
+		if mime == file.Header["Content-Type"][0] {
+			validMIME = true
+		}
+	}
+	if !validMIME {
+		return webutil.StatusBadRequest(c, "file format not supported")
+	}
+
+	fileUUID := uuid.New().String()
+	fileExt := fsutil.ExtName(file.Filename)
+	fileName := fmt.Sprintf("%s.%s", fileUUID, fileExt)
+	filePath := fmt.Sprintf("./uploads/%s", fileName)
+
+	c.SaveFile(file, filePath)
+
+	fileSource, err := imaging.Open(filePath)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	resizeFill := imaging.Fill(fileSource, 147, 147, imaging.Center, imaging.Lanczos)
+	if err := imaging.Save(resizeFill, fmt.Sprintf("./uploads/%s_sm.%s", fileUUID, fileExt)); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	addedImage, err := db.AddImage(productID, fileUUID, fileExt)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Image added", addedImage)
+}
+
+// DeleteProductImage is ...
+// [delete] /api/:product_id/image/:image_id
+func DeleteProductImage(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	imageID := c.Params("image_id")
+	db := queries.DB()
+
+	if err := db.DeleteImage(productID, imageID); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Image deleted", nil)
+}
+
+// DeleteProduct is ...
+func DeleteProduct(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	db := queries.DB()
+
+	if err := db.DeleteProduct(productID); err != nil {
 		if err == queries.StripeProductNotFound {
 			return webutil.StatusNotFound(c)
 		}
@@ -106,15 +186,15 @@ func DeleteProduct(c *fiber.Ctx) error {
 
 // AddStripeProduct is ...
 func AddStripeProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
+	productID := c.Params("product_id")
 	db := queries.DB()
 
-	stripeID, err := db.AddStripeProduct(id)
+	stripeID, err := db.AddStripeProduct(productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	if err := db.UpdateStripeProduct(id, stripeID); err != nil {
+	if err := db.UpdateStripeProduct(productID, stripeID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -123,10 +203,10 @@ func AddStripeProduct(c *fiber.Ctx) error {
 
 // DeleteStripeProduct is ...
 func DeleteStripeProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
+	productID := c.Params("product_id")
 	db := queries.DB()
 
-	if err := db.DeleteStripeProduct(id); err != nil {
+	if err := db.DeleteStripeProduct(productID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -135,8 +215,8 @@ func DeleteStripeProduct(c *fiber.Ctx) error {
 
 // CheckStripeProduct is ...
 func CheckStripeProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
+	productID := c.Params("product_id")
 	db := queries.DB()
 
-	return webutil.Response(c, fiber.StatusOK, "Stripe product check", db.IsStripeProduct(id))
+	return webutil.Response(c, fiber.StatusOK, "Stripe product check", db.IsStripeProduct(productID))
 }

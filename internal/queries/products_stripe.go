@@ -3,6 +3,7 @@ package queries
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/stripe/stripe-go/v74"
@@ -44,12 +45,18 @@ func (q *ProductQueries) AddStripeProduct(productID string) (*models.StripeInfo,
 		return stripeInfo, nil
 	}
 
+	images := []string{}
+	for _, image := range product.Images {
+		path := fmt.Sprintf("https://%s/uploads/%s.%s", db.GetDomain(), image.Name, image.Ext)
+		images = append(images, path)
+	}
+
 	newProduct := &stripe.ProductParams{
 		Active:      stripe.Bool(true),
 		Name:        stripe.String(product.Name),
 		Description: stripe.String(product.Description),
 		URL:         stripe.String(product.URL),
-		Images:      stripe.StringSlice(product.Images),
+		Images:      stripe.StringSlice(images),
 		Shippable:   stripe.Bool(true),
 		DefaultPriceData: &stripe.ProductDefaultPriceDataParams{
 			Currency:   stripe.String(product.Stripe.Price.Currency),

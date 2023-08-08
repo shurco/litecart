@@ -27,6 +27,13 @@ func (q *SettingQueries) IsInstalled() bool {
 	return installed
 }
 
+// GetDomain is ...
+func (q *SettingQueries) GetDomain() string {
+	var domain string
+	q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'domain'`).Scan(&domain)
+	return domain
+}
+
 // CheckSubdomain is ...
 func (q *SettingQueries) CheckSubdomain(name string) bool {
 	var id int

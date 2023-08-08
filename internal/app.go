@@ -45,8 +45,6 @@ func NewApp(appDev bool) error {
 		return err
 	}
 
-	fmt.Print(fsutil.IsDir("./web"))
-
 	// web web server
 	var views *html.Engine
 	if DevMode {

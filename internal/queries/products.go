@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"strings"
+	"fmt"
+	"os"
 
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/security"
 )
 
 // ProductQueries is ...
@@ -93,9 +95,9 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 				json_extract(stripe, '$.price.amount') as amount, 
 				product.metadata, 
 				product.attribute, 
+				json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
 				strftime('%s', product.created), 
-				strftime('%s', product.updated),
-				group_concat(DISTINCT product_image.name || '.' || product_image.ext) as images
+				strftime('%s', product.updated)
 			FROM product 
 			LEFT JOIN product_image ON product.id = product_image.product_id
 			WHERE product.id = ?
@@ -118,9 +120,9 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 			&product.Stripe.Price.Amount,
 			&metadata,
 			&attributes,
+			&images,
 			&product.Created,
 			&updated,
-			&images,
 		)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -133,8 +135,8 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 		product.Updated = updated.Int64
 	}
 
-	if images.Valid {
-		product.Images = strings.Split(images.String, ",")
+	if images.Valid && images.String != `[{"id":null,"name":null,"ext":null}]` {
+		json.Unmarshal([]byte(images.String), &product.Images)
 	}
 
 	if attributes.Valid {
@@ -212,6 +214,75 @@ func (q *ProductQueries) UpdateActive(id string) error {
 
 	if _, err := q.DB.Exec(`UPDATE product SET active = ?, updated = datetime('now') WHERE id = ?`, !active, id); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ProductImages is ...
+func (q *ProductQueries) ProductImages(id string) (*[]models.Images, error) {
+	images := &[]models.Images{}
+
+	query := `
+			SELECT 
+				json_group_array(json_object('id', id, 'name', name, 'ext', ext)) as images
+			FROM product_image 
+			WHERE product_id = ?
+	`
+	var imgs sql.NullString
+	err := q.DB.QueryRow(query, id).Scan(&imgs)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("product not found")
+		}
+		return nil, err
+	}
+
+	if imgs.Valid && imgs.String != `[{"id":null,"name":null,"ext":null}]` {
+		json.Unmarshal([]byte(imgs.String), &images)
+	}
+
+	return images, nil
+}
+
+// AddImage is ...
+func (q *ProductQueries) AddImage(productID, fileUUID, fileExt string) (*models.Images, error) {
+	file := &models.Images{
+		ID:   security.RandomString(),
+		Name: fileUUID,
+		Ext:  fileExt,
+	}
+
+	// add db record
+	_, err := q.DB.Exec(`INSERT INTO product_image (id, product_id, name, ext) VALUES (?, ?, ?, ?)`, file.ID, productID, fileUUID, fileExt)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+// DeleteImage is ...
+func (q *ProductQueries) DeleteImage(productID, imageID string) error {
+	var name, ext string
+	err := q.DB.QueryRow(`SELECT name, ext FROM product_image WHERE id = ?`, imageID).Scan(&name, &ext)
+	if err != nil {
+		return err
+	}
+
+	if _, err := q.DB.Exec(`DELETE FROM product_image WHERE id = ? AND product_id = ?`, imageID, productID); err != nil {
+		return err
+	}
+
+	filePaths := []string{
+		fmt.Sprintf("./uploads/%s.%s", name, ext),
+		fmt.Sprintf("./uploads/%s_sm.%s", name, ext),
+	}
+
+	for _, filePath := range filePaths {
+		if err := os.Remove(filePath); err != nil {
+			return fmt.Errorf("failed to remove file %s: %w", filePath, err)
+		}
 	}
 
 	return nil

@@ -18,15 +18,19 @@ func ApiPrivateRoutes(c *fiber.App) {
 	product := c.Group("/api/products", middleware.JWTProtected())
 	product.Get("/", handlers.Products)
 	product.Post("/", handlers.AddProduct)
-	product.Get("/:id<len(15)>", handlers.Product)
-	product.Patch("/:id<len(15)>", handlers.UpdateProduct)
-	product.Delete("/:id<len(15)>", handlers.DeleteProduct)
+	product.Get("/:product_id<len(15)>", handlers.Product)
+	product.Patch("/:product_id<len(15)>", handlers.UpdateProduct)
+	product.Delete("/:product_id<len(15)>", handlers.DeleteProduct)
 
-	product.Patch("/active/:id<len(15)>", handlers.UpdateProductActive)
+	product.Patch("/:product_id<len(15)>/active", handlers.UpdateProductActive)
+
+	product.Get("/:product_id<len(15)>/image", handlers.ProductImages)
+	product.Post("/:product_id<len(15)>/image", handlers.AddProductImage)
+	product.Delete("/:product_id<len(15)>/image/:image_id<len(15)>", handlers.DeleteProductImage)
 
 	// stripe section
-	product.Post("/stripe/:id<len(15)>", handlers.AddStripeProduct)
-	product.Delete("/stripe/:id<len(15)>", handlers.DeleteStripeProduct)
+	product.Post("/stripe/:product_id<len(15)>", handlers.AddStripeProduct)
+	product.Delete("/stripe/:product_id<len(15)>", handlers.DeleteStripeProduct)
 
-	product.Get("/stripe/:id<len(15)>/check", handlers.CheckStripeProduct)
+	product.Get("/stripe/:product_id<len(15)>/check", handlers.CheckStripeProduct)
 }
