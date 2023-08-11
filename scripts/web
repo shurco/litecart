@@ -9,7 +9,7 @@ WEB=$1
 
 if [[ $WEB == "admin" ]]; then
   cd $ROOT_PATH/web/admin && tailwindcss -o ./public/assets/css/style.css --watch --minify
-elif [[ $MIGRATION == "site" ]]; then
+elif [[ $WEB == "site" ]]; then
   cd $ROOT_PATH/web/site && tailwindcss -o ./public/assets/css/style.css --watch --minify
 else
   print_header "Tailwind CLI"

@@ -12,7 +12,8 @@ Darwin)
   brew install goose golangci-lint yq sqlite3
   ;;
 Linux)
-  mkdir -p ${ROOT_PATH}/.vscode/tmp
+  mkdir -p "${ROOT_PATH}/.vscode/tmp"
+  mkdir -p "${HOME}/.local/bin"
 
   print_header "Install/Update sqlite3"
   sudo apt-get install sqlite3 -y >/dev/null 2>&1
@@ -22,7 +23,7 @@ Linux)
   GOLINTER_LATEST=$(get_latest_release "golangci/golangci-lint")
   wget "https://github.com/golangci/golangci-lint/releases/download/${GOLINTER_LATEST}/golangci-lint-${GOLINTER_LATEST#*v}-linux-amd64.tar.gz" -4 -q -O ${ROOT_PATH}/.vscode/tmp/golangci-lint.tar.gz
   tar --no-same-owner -xzf ${ROOT_PATH}/.vscode/tmp/golangci-lint.tar.gz -C ${ROOT_PATH}/.vscode/tmp
-  install "${ROOT_PATH}/.vscode/tmp/golangci-lint-${GOLINTER_LATEST#*v}-linux-amd64/golangci-lint" "$HOME/.local/bin"
+  install "${ROOT_PATH}/.vscode/tmp/golangci-lint-${GOLINTER_LATEST#*v}-linux-amd64/golangci-lint" "$HOME/.local/bin/golangci-lint"
   print_answer "SUCCESS" green
 
   print_header "Install/Update goose"
@@ -31,7 +32,7 @@ Linux)
 
   print_header "Install/Update yq"
   wget "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -4 -q -O ${ROOT_PATH}/.vscode/tmp/yq
-  install "${ROOT_PATH}/.vscode/tmp/yq" "$HOME/.local/bin"
+  install "${ROOT_PATH}/.vscode/tmp/yq" "$HOME/.local/bin/yq"
   print_answer "SUCCESS" green
 
   rm -rf ${ROOT_PATH}/.vscode/tmp
