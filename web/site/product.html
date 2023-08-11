@@ -75,12 +75,14 @@
       },
 
       inCart(id) {
-        const cart = JSON.parse(localStorage.getItem('cart'))
-        let obj = cart.find(o => o.id === id);
-        if (obj) {
-          return true
+        if (localStorage.getItem('cart')) {
+          const cart = JSON.parse(localStorage.getItem('cart'))
+          let obj = cart.find(o => o.id === id);
+          if (obj) {
+            return true
+          }
+          return false
         }
-        return false
       },
 
       costFormat(cost) {
