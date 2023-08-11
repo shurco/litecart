@@ -1,38 +1,97 @@
 <div id="app">
-  <h1>{{count}}</h1>
-  <button @click="increment">Increment</button>
+  <section>
+    <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
+
+      <ul class="grid gap-4 mt-8 sm:grid-cols-2 lg:grid-cols-4" v-if="products && load">
+        <li v-for="item, index in products">
+          <a :href="`/products/${item.url}`" class="block overflow-hidden group rounded-lg">
+            <img :src="`/uploads/${item.images[0].name}_md.${item.images[0].ext}`" alt=""
+              class="h-[150px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[250px]" />
+          </a>
+          <div class="relative bg-white mt-3">
+            <a :href="`/products/${item.url}`" class="block overflow-hidden group"></a>
+            <h3 class="text-xs text-gray-700 group-hover:underline group-hover:underline-offset-4">
+              {{item.name}}
+            </h3>
+            </a>
+
+            <div class="flex justify-between mb-5 cursor-pointer">
+              <span class="tracking-wider text-gray-900">{{ costFormat( item.stripe.price.amount ) }} {{ item.stripe.price.currency }}</span>
+              <span @click="addCart(index)" v-if="!inCart(item.id) && !item.inCart">
+                <svg class="h-4 w-4">
+                  <use xlink:href="/assets/img/sprite.svg#cart" />
+                </svg>
+              </span>
+            </div>
+        </li>
+      </ul>
+      <div v-else>products not found</div>
+    </div>
+  </section>
 </div>
 
-<script>
+<script type="module">
   Vue.createApp({
     data() {
       return {
-        count: ref(0),
+        load: false,
+        products: ref([]),
       };
     },
 
+    mounted() {
+      this.listProducts();
+    },
+
     methods: {
-      increment() {
-        this.count++
+      addCart(index) {
+        const product = this.products[index]
+        if (!this.inCart(product.id)) {
+          this.products[index].inCart = true
+          window.dispatchEvent(new CustomEvent("addProduct", {
+            detail: {
+              id: product.id,
+              name: product.name,
+              url: product.url,
+              image: {
+                name: product.images[0].name,
+                ext: product.images[0].ext
+              },
+              price: {
+                id: product.stripe.price.id,
+                amount: product.stripe.price.amount,
+                currency: product.stripe.price.currency
+              },
+            },
+          }));
+        }
+      },
+
+      async listProducts() {
+        const response = await fetch(`/api/products`, {
+          credentials: "include",
+          method: 'GET',
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          this.products = this.resp.result.products;
+          this.load = true;
+        }
+      },
+
+      inCart(id) {
+        const cart = JSON.parse(localStorage.getItem('cart'))
+        let obj = cart.find(o => o.id === id);
+        if (obj) {
+          return true
+        }
+        return false
+      },
+
+      costFormat(cost) {
+        return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
       },
     },
-    setup(props, context) {
-      onMounted(() => {
-        console.info("App mounted!");
-        console.info("Vue version", app.version);
-        console.info("app", app);
-        console.info("props", props);
-        console.info("context", context);
-        console.info("getCurrentInstance()", getCurrentInstance());
-        let _this = getCurrentInstance().withProxy;
-        console.info("this", _this);
-      });
-      onUpdated(() => {
-        console.info("App updated!");
-      });
-      onUnmounted(() => {
-        console.info("App unmounted!");
-      });
-    }
+
   }).mount("#app");
 </script>

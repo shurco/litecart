@@ -28,12 +28,13 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 				desc, 
 				url, 
 				active,
+				(SELECT json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images FROM product_image WHERE product_id = product.id LIMIT 3) as image,
 				json_extract(stripe, '$.product.id') as product_id, 
 				json_extract(stripe, '$.product.valid') as product_valid, 
 				json_extract(stripe, '$.price.id') as price_id, 
 				json_extract(stripe, '$.price.currency') as currency, 
 				json_extract(stripe, '$.price.amount') as amount,
-				strftime('%s', created) 
+				strftime('%s', created)
 			FROM product
 		`
 	queryTotal := `SELECT COUNT(id) FROM product`
@@ -50,6 +51,7 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var image sql.NullString
 		product := models.Product{}
 
 		err := rows.Scan(
@@ -58,6 +60,7 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 			&product.Description,
 			&product.URL,
 			&product.Active,
+			&image,
 			&product.Stripe.Product.ID,
 			&product.Stripe.Product.Valid,
 			&product.Stripe.Price.ID,
@@ -67,6 +70,10 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if image.Valid && image.String != `[{"id":null,"name":null,"ext":null}]` {
+			json.Unmarshal([]byte(image.String), &product.Images)
 		}
 
 		products.Products = append(products.Products, product)
@@ -86,13 +93,12 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 }
 
 // Product is ...
-func (q *ProductQueries) Product(id string) (*models.Product, error) {
-	product := &models.Product{
-		ID: id,
-	}
+func (q *ProductQueries) Product(id string, private bool) (*models.Product, error) {
+	product := &models.Product{}
 
 	query := `
 			SELECT 
+				product.id,
 				product.name, 
 				product.desc, 
 				product.url, 
@@ -109,15 +115,20 @@ func (q *ProductQueries) Product(id string) (*models.Product, error) {
 				strftime('%s', product.updated)
 			FROM product 
 			LEFT JOIN product_image ON product.id = product_image.product_id
-			WHERE product.id = ?
-			GROUP BY product.id
 	`
+	if private {
+		query = query + `WHERE product.id = ?`
+	} else {
+		query = query + `WHERE product.url = ? AND product.active = 1`
+	}
+
 	// stripeID
 	var images, metadata, attributes sql.NullString
 	var updated sql.NullInt64
 
 	err := q.DB.QueryRow(query, id).
 		Scan(
+			&product.ID,
 			&product.Name,
 			&product.Description,
 			&product.URL,
@@ -205,6 +216,26 @@ func (q *ProductQueries) DeleteProduct(id string) error {
 	}
 
 	return nil
+}
+
+// IsProduct is ...
+func (q *ProductQueries) IsProduct(url string) bool {
+	var id string
+	query := `
+			SELECT 
+				id
+			FROM product 
+			WHERE url = ? AND active = 1
+	`
+	err := q.DB.QueryRow(query, url).Scan(&id)
+	if err != nil {
+		return false
+	}
+	if id != "" {
+		return true
+	}
+
+	return false
 }
 
 // UpdateActive is ...

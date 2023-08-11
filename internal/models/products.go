@@ -11,14 +11,14 @@ type Product struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Images      []Images          `json:"images"`
+	Images      []Images          `json:"images,omitempty"`
 	URL         string            `json:"url"`
-	Metadata    map[string]string `json:"metadata"`
-	Attributes  []string          `json:"attributes"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+	Attributes  []string          `json:"attributes,omitempty"`
 	Stripe      Stripe            `json:"stripe"`
 	Active      bool              `json:"active"`
 	Created     int64             `json:"created"`
-	Updated     int64             `json:"updated"`
+	Updated     int64             `json:"updated,omitempty"`
 }
 
 // Images is ...
@@ -36,8 +36,8 @@ type Stripe struct {
 
 // StripeProduct is ...
 type StripeProduct struct {
-	ID    string `json:"id"`
-	Valid bool   `json:"valid"`
+	ID    string `json:"id,omitempty"`
+	Valid bool   `json:"valid,omitempty"`
 }
 
 // StripePrice is ...

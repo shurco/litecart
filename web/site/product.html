@@ -1,0 +1,91 @@
+<div id="product">
+  <section>
+    <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8" v-if="load">
+        <div class="relative h-[350px] sm:h-[450px]">
+          <img :src="`/uploads/${product.images[0].name}.${product.images[0].ext}`" alt=""
+            class="rounded-lg absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0" />
+          <img :src="`/uploads/${product.images[0].name}.${product.images[0].ext}`" alt=""
+            class="rounded-lg absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100" />
+        </div>
+        <div class="lg:col-span-2">
+          <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
+          <p class="mt-4">{{product.description}}</p>
+          <p class="mt-4">{{ costFormat( product.stripe.price.amount ) }} {{ product.stripe.price.currency }}</p>
+          <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="addCart()" v-if="!product.inCart" />
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+  import FormButton from '/components/form/button.js';
+
+  Vue.createApp({
+    components: {
+      FormButton,
+    },
+
+    data() {
+      return {
+        load: false,
+        product: ref({}),
+      };
+    },
+
+    mounted() {
+      this.getProduct('{#.ProductUrl#}');
+    },
+
+    methods: {
+      addCart() {
+        if (!this.inCart(this.product.id)) {
+          this.product.inCart = true
+          window.dispatchEvent(new CustomEvent("addProduct", {
+            detail: {
+              id: this.product.id,
+              name: this.product.name,
+              url: this.product.url,
+              image: {
+                name: this.product.images[0].name,
+                ext: this.product.images[0].ext
+              },
+              price: {
+                id: this.product.stripe.price.id,
+                amount: this.product.stripe.price.amount,
+                currency: this.product.stripe.price.currency
+              },
+            },
+          }));
+        }
+      },
+
+      async getProduct(url) {
+        const response = await fetch(`/api/products/${url}`, {
+          credentials: "include",
+          method: 'GET',
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          this.product = this.resp.result;
+          this.product.inCart = this.inCart(this.product.id);
+          this.load = true;
+        }
+      },
+
+      inCart(id) {
+        const cart = JSON.parse(localStorage.getItem('cart'))
+        let obj = cart.find(o => o.id === id);
+        if (obj) {
+          return true
+        }
+        return false
+      },
+
+      costFormat(cost) {
+        return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
+      },
+    },
+  }).mount("#product");
+</script>

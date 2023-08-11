@@ -1,0 +1,13 @@
+@host = http://localhost:8080
+
+###
+# @name products
+GET {{host}}/api/products
+
+###
+# @name fake_product
+GET {{host}}/api/products/123456789012345
+
+###
+# @name product
+GET {{host}}/api/products/fv6c9s9cqzf36sc

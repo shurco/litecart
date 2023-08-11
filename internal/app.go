@@ -70,6 +70,7 @@ func NewApp(appDev bool) error {
 	}))
 
 	app.Static("/", "../web/site/public")
+	app.Static("/components", "../web/site/components")
 	app.Static("/uploads", "./uploads")
 
 	app.Static("/_", "../web/admin/public")

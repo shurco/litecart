@@ -30,7 +30,7 @@ func stripeClient() (*client.API, error) {
 // AddStripeProduct is ...
 func (q *ProductQueries) AddStripeProduct(productID string) (*models.StripeInfo, error) {
 	stripeInfo := &models.StripeInfo{}
-	product, err := q.Product(productID)
+	product, err := q.Product(productID, true)
 	if err != nil {
 		return nil, err
 	}
