@@ -1,0 +1,37 @@
+<div id="app">
+  <div class="grid grid-cols-1 gap-4 pb-4 lg:grid-cols-[1fr_120px] lg:gap-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">FAQ</h1>
+    </div>
+  </div>
+
+  <div class="mx-auto">
+    123
+  </div>
+
+</div>
+
+<script type="module">
+  Vue.createApp({
+    methods: {},
+
+    setup(props, context) {
+      onMounted(() => {
+        console.info("App mounted!");
+        console.info("Vue version", app.version);
+        console.info("app", app);
+        console.info("props", props);
+        console.info("context", context);
+        console.info("getCurrentInstance()", getCurrentInstance());
+        let _this = getCurrentInstance().withProxy;
+        console.info("this", _this);
+      });
+      onUpdated(() => {
+        console.info("App updated!");
+      });
+      onUnmounted(() => {
+        console.info("App unmounted!");
+      });
+    }
+  }).mount("#app");
+</script>
