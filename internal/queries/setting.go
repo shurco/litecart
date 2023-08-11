@@ -2,6 +2,7 @@ package queries
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 
 	"github.com/shurco/litecart/pkg/jwtutil"
@@ -17,6 +18,7 @@ type SettingQueries struct {
 type Stripe struct {
 	SecretKey  string
 	WebhookKey string
+	Domain     string
 	Client     *client.API
 }
 
@@ -115,8 +117,8 @@ func (q *SettingQueries) SettingJWT() (*jwtutil.Setting, error) {
 func (q *SettingQueries) SettingStripe() (*Stripe, error) {
 	settings := &Stripe{}
 
-	query := `SELECT key, value FROM setting WHERE key IN (?, ?)`
-	rows, err := q.DB.Query(query, "stripe_secret_key", "stripe_webhook_secret_key")
+	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?)`
+	rows, err := q.DB.Query(query, "stripe_secret_key", "stripe_webhook_secret_key", "domain")
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +136,8 @@ func (q *SettingQueries) SettingStripe() (*Stripe, error) {
 			settings.SecretKey = value
 		case "stripe_webhook_secret_key":
 			settings.WebhookKey = value
+		case "domain":
+			settings.Domain = fmt.Sprintf("https://%s", value)
 		}
 	}
 

@@ -29,6 +29,20 @@ func AdminRoutes(c *fiber.App) {
 		}, "admin/layouts/main")
 	})
 
+	// checkout section
+	admin.Get("/checkouts", middleware.JWTProtected(), func(c *fiber.Ctx) error {
+		return c.Render("admin/checkouts", fiber.Map{
+			"Menu": "checkouts",
+		}, "admin/layouts/main")
+	})
+
+	// faq section
+	admin.Get("/faq", middleware.JWTProtected(), func(c *fiber.Ctx) error {
+		return c.Render("admin/faq", fiber.Map{
+			"Menu": "faq",
+		}, "admin/layouts/main")
+	})
+
 	// setting section
 	admin.Get("/settings", middleware.JWTProtected(), func(c *fiber.Ctx) error {
 		return c.Render("admin/settings", fiber.Map{

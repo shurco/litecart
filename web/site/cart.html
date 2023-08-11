@@ -45,7 +45,7 @@
               </dl>
 
               <div class="flex justify-end">
-                <a href="#" class="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                <a href="#" class="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600" @click="checkOut()">
                   Checkout
                 </a>
               </div>
@@ -82,6 +82,29 @@
         this.cart.splice(index, 1);
         localStorage.setItem("cart", JSON.stringify(this.cart))
         window.dispatchEvent(new CustomEvent("delProduct"))
+      },
+
+      async checkOut() {
+        var cart = []
+        for (const item of this.cart) {
+          cart.push({
+            "price": item.price.id,
+            "quantity": 1
+          })
+        }
+        
+        const response = await fetch(`/cart/checkout`, {
+          credentials: "include",
+          method: 'POST',
+          body: JSON.stringify(cart),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        });
+        this.resp = await response.json();
+        if (this.resp.success) {
+          window.location.href = this.resp.result;
+        }
       },
 
       costFormat(cost) {

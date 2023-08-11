@@ -14,7 +14,7 @@ var (
 	StripeProductNotFound = errors.New("stripe product not found")
 )
 
-func stripeClient() (*client.API, error) {
+func StripeClient() (*client.API, error) {
 	db := DB()
 	stripe, err := db.SettingStripe()
 	if err != nil {
@@ -70,7 +70,7 @@ func (q *ProductQueries) AddStripeProduct(productID string) (*models.StripeInfo,
 		newProduct.AddMetadata(key, value)
 	}
 
-	client, err := stripeClient()
+	client, err := StripeClient()
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (q *ProductQueries) DeleteStripeProduct(productID string) error {
 		return StripeProductNotFound
 	}
 
-	client, err := stripeClient()
+	client, err := StripeClient()
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (q *ProductQueries) DeleteStripeProduct(productID string) error {
 
 // IsStripeProduct is ...
 func (q *ProductQueries) IsStripeProduct(stripeProductID string) bool {
-	client, err := stripeClient()
+	client, err := StripeClient()
 	if err != nil {
 		return false
 	}

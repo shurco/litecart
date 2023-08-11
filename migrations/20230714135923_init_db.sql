@@ -48,11 +48,25 @@ CREATE TABLE product_image (
 	ext 					TEXT NOT NULL,
 	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE cart (
+	id 				     TEXT PRIMARY KEY NOT NULL,
+	email 		     TEXT DEFAULT NULL,
+	name  		     TEXT DEFAULT NULL,
+	amount_total   NUMERC NOT NULL,
+	currency			 TEXT NOT NULL,
+	payment_id     TEXT DEFAULT NULL,
+	payment_status TEXT DEFAULT NULL,
+	cart 			     JSON DEFAULT '[]' NOT NULL,
+	created 	     TIMESTAMP DEFAULT (datetime('now')),
+	updated        TIMESTAMP
+);
 -- +goose StatementEnd
 
 
 -- +goose Down
 -- +goose StatementBegin
+DROP TABLE cart;
 DROP TABLE product_image;
 DROP TABLE product;
 DROP TABLE subdomain;

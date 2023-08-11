@@ -33,4 +33,7 @@ func ApiPrivateRoutes(c *fiber.App) {
 	product.Delete("/stripe/:product_id<len(15)>", handlers.DeleteStripeProduct)
 
 	product.Get("/stripe/:product_id<len(15)>/check", handlers.CheckStripeProduct)
+
+	// checkouts
+	c.Get("/api/_/checkouts", handlers.Checkouts)
 }

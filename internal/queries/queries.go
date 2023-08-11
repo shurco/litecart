@@ -20,6 +20,7 @@ type Base struct {
 	InstallQueries
 	SettingQueries
 	ProductQueries
+	CartQueries
 }
 
 // InitDB is ...
@@ -72,6 +73,7 @@ func InitQueries(embed embed.FS) (err error) {
 		InstallQueries: InstallQueries{DB: sqlite},
 		SettingQueries: SettingQueries{DB: sqlite},
 		ProductQueries: ProductQueries{DB: sqlite},
+		CartQueries:    CartQueries{DB: sqlite},
 	}
 	return
 }

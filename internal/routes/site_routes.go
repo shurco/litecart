@@ -2,6 +2,8 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+
+	handlers "github.com/shurco/litecart/internal/handlers/public"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -24,10 +26,7 @@ func SiteRoutes(c *fiber.App) {
 		return c.Render("site/text", nil, "site/layouts/main")
 	})
 
-	c.Get("/cart", func(c *fiber.Ctx) error {
-		return c.Render("site/cart", nil, "site/layouts/main")
-	})
-
+	// catalog section
 	c.Get("/products/:product_url", func(c *fiber.Ctx) error {
 		productURL := c.Params("product_url")
 		db := queries.DB()
@@ -41,11 +40,16 @@ func SiteRoutes(c *fiber.App) {
 		}, "site/layouts/main")
 	})
 
-	c.Get("/success", func(c *fiber.Ctx) error {
-		return c.Render("site/success", fiber.Map{
-			"Title": "Hello, World!",
-		}, "site/layouts/clear")
+	// cart section
+	cart := c.Group("/cart")
+
+	cart.Get("/", func(c *fiber.Ctx) error {
+		return c.Render("site/cart", nil, "site/layouts/main")
 	})
+
+	cart.Post("/checkout", handlers.Checkout)
+	cart.Get("/success/:cart_id<len(15)>/:session_id", handlers.CheckoutSuccess)
+	cart.Get("/cancel/:cart_id<len(15)>", handlers.CheckoutCancel)
 
 	c.Get("/webhook", func(c *fiber.Ctx) error {
 		return webutil.Response(c, fiber.StatusOK, "Webhook", nil)
