@@ -186,48 +186,8 @@ func DeleteProduct(c *fiber.Ctx) error {
 	db := queries.DB()
 
 	if err := db.DeleteProduct(productID); err != nil {
-		if err == queries.StripeProductNotFound {
-			return webutil.StatusNotFound(c)
-		}
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product deleted", nil)
-}
-
-// AddStripeProduct is ...
-func AddStripeProduct(c *fiber.Ctx) error {
-	productID := c.Params("product_id")
-	db := queries.DB()
-
-	stripeID, err := db.AddStripeProduct(productID)
-	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	if err := db.UpdateStripeProduct(productID, stripeID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Stripe id", stripeID)
-}
-
-// DeleteStripeProduct is ...
-func DeleteStripeProduct(c *fiber.Ctx) error {
-	productID := c.Params("product_id")
-	db := queries.DB()
-
-	if err := db.DeleteStripeProduct(productID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Stripe product deleted", nil)
-}
-
-// CheckStripeProduct is ...
-func CheckStripeProduct(c *fiber.Ctx) error {
-	productID := c.Params("product_id")
-	db := queries.DB()
-
-	return webutil.Response(c, fiber.StatusOK, "Stripe product check", db.IsStripeProduct(productID))
 }

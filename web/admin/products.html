@@ -21,28 +21,16 @@
       <tbody class="divide-y divide-gray-200">
         <tr class="hover:bg-gray-100 active:bg-gray-100 cursor-pointer" :class="{ 'opacity-30' : !item.active }" v-for="item, index in products.products">
           <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, item.name, 'view')">
-            <div class="flex">
-              <div>{{item.name}}</div>
-              <div class="pl-3" v-if="!item.stripe.product.id">
-                <svg class="h-5 w-5 text-red-500">
-                  <use xlink:href="/_/assets/img/sprite.svg#exclamation" />
-                </svg>
-              </div>
-
-              <div class="pl-3" v-if="item.stripe.product.id && !item.stripe.product.valid">
-                <svg class="h-5 w-5 text-yellow-500">
-                  <use xlink:href="/_/assets/img/sprite.svg#exclamation" />
-                </svg>
-              </div>
-
+            <div>
+              {{item.name}}
             </div>
           </td>
           <td class="whitespace-nowrap px-4 py-2">
-            <a :href="`/products/${item.url}`" target="_blank" v-if="item.stripe.product.id && item.stripe.product.valid && item.active">{{item.url}}</a>
+            <a :href="`/products/${item.url}`" target="_blank" v-if="item.active">{{item.url}}</a>
             <span v-else>{{item.url}}</span>
           </td>
           <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, item.name, 'view')">
-            {{ costFormat( item.stripe.price.amount ) }} {{ item.stripe.price.currency }}</td>
+            {{ costFormat( item.amount ) }} {{ item.currency }}</td>
           <td class="px-4 py-2">
             <div class="flex">
               <div class="pr-3">
@@ -67,33 +55,10 @@
   <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
     <div class="flow-root" v-if="isDrawer.action==='view'">
       <dl class="-my-3 divide-y divide-gray-100 text-sm">
-        <detail-list name="Stripe ID">
-          <div class="flex items-center" v-if="!product.info.stripe.product.id">
-            <badge ico="exclamation" class="bg-red-100  text-red-700">Stripe ID</badge>
-            <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
-              <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
-            </svg>
-          </div>
-          <div class="flex items-center" v-else-if="product.info.stripe.product.id && !product.info.stripe.product.valid">
-            <badge ico="exclamation" class="bg-yellow-100  text-yellow-700">{{ product.info.stripe.product.id }}</badge>
-            <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
-              <use xlink:href="/_/assets/img/sprite.svg#arrow-path" />
-            </svg>
-          </div>
-          <div class="flex items-center" v-else>
-            {{ product.info.stripe.product.id }}
-            <a :href="`https://dashboard.stripe.com/products/${product.info.stripe.product.id}`" target="_blank">
-              <svg class="h-5 w-5 ml-3 cursor-pointer" @click="addStripe(product.index, product.info.id)">
-                <use xlink:href="/_/assets/img/sprite.svg#link" />
-              </svg>
-            </a>
-          </div>
-
-        </detail-list>
 
         <detail-list name="ID">{{ product.info.id }}</detail-list>
         <detail-list name="Name">{{ product.info.name }}</detail-list>
-        <detail-list name="Price">{{ costFormat(product.info.stripe.price.amount) }} {{ product.info.stripe.price.currency}}
+        <detail-list name="Price">{{ costFormat(product.info.amount) }} {{ product.info.currency}}
         </detail-list>
         <detail-list name="URL">{{ product.info.url }}</detail-list>
 
@@ -108,7 +73,7 @@
         </detail-list>
 
         <detail-list name="Created">{{ formatDate(product.info.created) }}</detail-list>
-        <detail-list name="Updated" v-if="product.info.updated !== 0">{{ formatDate(product.info.updated) }}</detail-list>
+        <detail-list name="Updated" v-if="product.info.updated">{{ formatDate(product.info.updated) }}</detail-list>
 
         <detail-list name="Images" grid="true" v-if="product.info.images !== null">
           <div v-for="item in product.info.images">
@@ -143,8 +108,7 @@
           <form-input v-model="product.info.name" id="name" type="text" name="Name" ico="at-symbol"></form-input>
 
           <div class="flex flex-row">
-            <div class="pr-3"><form-input v-model="product.info.stripe.price.amount" id="amount" type="text" name="Amount" ico="money"></form-input></div>
-            <div><form-select v-model="product.info.stripe.price.currency" id="currency" name="Currency" :options="['EUR','USD']"></form-select></div>
+            <div class="pr-3"><form-input v-model="product.info.amount" id="amount" type="text" name="Amount" ico="money"></form-input></div>
           </div>
           <form-input v-model="product.info.url" id="url" type="text" name="Url" ico="glob-alt"></form-input>
 
@@ -290,20 +254,6 @@
         this.resp = await response.json();
         if (this.resp.success) {
           this.product.info = this.resp.result;
-        }
-      },
-
-      async addStripe(index, id) {
-        const response = await fetch(`/api/_/products/stripe/${id}`, {
-          credentials: "include",
-          method: 'POST',
-        });
-        this.resp = await response.json();
-        if (this.resp.success) {
-          this.products.products[index].stripe.product.id = this.resp.result.product_id;
-          this.products.products[index].stripe.product.valid = 1;
-          this.product.info.stripe.product.id = this.resp.result.product_id;
-          this.product.info.stripe.product.valid = 1;
         }
       },
 

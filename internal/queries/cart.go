@@ -14,7 +14,6 @@ type CartQueries struct {
 }
 
 // Checkouts is ...
-// !!! private !!!
 func (q *CartQueries) Checkouts() ([]*models.Checkout, error) {
 	checkouts := []*models.Checkout{}
 

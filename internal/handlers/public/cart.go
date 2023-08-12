@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/stripe/stripe-go/v74"
 	"github.com/stripe/stripe-go/v74/checkout/session"
@@ -14,28 +16,53 @@ import (
 // Checkout is ...
 // [post] /cart/checkout
 func Checkout(c *fiber.Ctx) error {
-	items := &[]models.CheckoutLineItem{}
+	items := &[]models.CartProduct{}
 	if err := c.BodyParser(items); err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 
+	idList := []string{}
+	for _, item := range *items {
+		idList = append(idList, item.ProductID)
+	}
+
 	db := queries.DB()
+	domain := db.GetDomain()
+	currency := db.GetCurrency()
+	products, err := db.ListProducts(false, idList...)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
 	settingStripe, err := db.SettingStripe()
 	if err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	stripe.Key = settingStripe.SecretKey
-
 	lineItems := []*stripe.CheckoutSessionLineItemParams{}
-	for _, item := range *items {
+	for _, item := range products.Products {
+		images := []string{}
+		for _, image := range item.Images {
+			path := fmt.Sprintf("https://%s/uploads/%s_md.%s", domain, image.Name, image.Ext)
+			images = append(images, path)
+		}
+
 		lineItems = append(lineItems, &stripe.CheckoutSessionLineItemParams{
-			Price:    stripe.String(item.Price),
-			Quantity: stripe.Int64(int64(item.Quantity)),
+			PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
+				UnitAmount: stripe.Int64(int64(item.Amount)),
+				Currency:   stripe.String(currency),
+				ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
+					Name:        stripe.String(item.Name),
+					Description: stripe.String(item.Description),
+					Images:      stripe.StringSlice(images),
+				},
+			},
+			Quantity: stripe.Int64(1),
 		})
 	}
 
 	cartID := security.RandomString()
+	stripe.Key = settingStripe.SecretKey
 	params := &stripe.CheckoutSessionParams{
 		LineItems: lineItems,
 		//AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{

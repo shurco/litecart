@@ -16,7 +16,7 @@
             </a>
 
             <div class="flex justify-between mb-5 cursor-pointer">
-              <span class="tracking-wider text-gray-900">{{ costFormat( item.stripe.price.amount ) }} {{ item.stripe.price.currency }}</span>
+              <span class="tracking-wider text-gray-900">{{ costFormat( item.amount ) }} {{ currency }}</span>
               <span @click="addCart(index)" v-if="!inCart(item.id) && !item.inCart">
                 <svg class="h-4 w-4">
                   <use xlink:href="/assets/img/sprite.svg#cart" />
@@ -35,6 +35,7 @@
     data() {
       return {
         load: false,
+        currency: ref(),
         products: ref([]),
       };
     },
@@ -53,14 +54,11 @@
               id: product.id,
               name: product.name,
               url: product.url,
+              amount: product.amount,
+              currency: this.currency,
               image: {
                 name: product.images[0].name,
                 ext: product.images[0].ext
-              },
-              price: {
-                id: product.stripe.price.id,
-                amount: product.stripe.price.amount,
-                currency: product.stripe.price.currency
               },
             },
           }));
@@ -74,6 +72,7 @@
         });
         this.resp = await response.json();
         if (this.resp.success) {
+          this.currency = this.resp.result.currency;
           this.products = this.resp.result.products;
           this.load = true;
         }

@@ -11,7 +11,8 @@ INSERT INTO setting (id, key, value) VALUES
 ('vlr2rtp82fewd1o', 'email', ''),
 ('zg7kdyrm9c9ivi5', 'password', ''),
 ('0oh908z9r28133g', 'jwt_secret', 'secret'),
-('6o20io9hb2qt8c2', 'jwt_secret_expire_hours', '48'),
+('o9h0oh90b2qt8c2', 'jwt_secret_expire_hours', '48'),
+('6o20io9hb27n0v9', 'currency', 'USD'),
 ('2r59p9nudtykndd', 'stripe_secret_key', ''),
 ('hzmhlamxdwo6ca3', 'stripe_webhook_secret_key', '');
 
@@ -32,11 +33,11 @@ CREATE TABLE product (
 	name 			TEXT NOT NULL,
 	desc 			TEXT NOT NULL,
 	url 			TEXT UNIQUE NOT NULL,
+	amount    NUMERC NOT NULL,
 	metadata 	JSON DEFAULT '{}' NOT NULL,
 	attribute JSON DEFAULT '[]' NOT NULL,
 	active    BOOLEAN DEFAULT TRUE NOT NULL,
 	deleted   BOOLEAN DEFAULT FALSE NOT NULL,
-	stripe 		JSON DEFAULT '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"", "amount":""}}' NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
 );

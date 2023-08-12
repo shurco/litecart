@@ -30,11 +30,6 @@ Authorization: Bearer {{signin.response.body.result}}
 PATCH {{host}}/api/_/products/active/fv6c9s9cqzf36sc
 Authorization: Bearer {{signin.response.body.result}}
 
-###
-# @name check
-GET {{host}}/api/_/products/stripe/fv6c9s9cqzf36sc/check
-Authorization: Bearer {{signin.response.body.result}}
-
 
 ###
 # @name image_add

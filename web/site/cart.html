@@ -19,7 +19,7 @@
               </div>
 
               <div class="flex flex-1 items-center justify-end gap-2">
-                {{costFormat(item.price.amount)}} {{item.price.currency}}
+                {{costFormat(item.amount)}} {{item.currency}}
 
                 <button class="text-gray-600 transition hover:text-red-600" @click="remote(index)">
                   <span class="sr-only">Remove item</span>
@@ -40,7 +40,7 @@
 
                 <div class="flex justify-between !text-base">
                   <dt>Total</dt>
-                  <dd>{{total}} {{cart[0].price.currency}}</dd>
+                  <dd>{{total}} {{cart[0].currency}}</dd>
                 </div>
               </dl>
 
@@ -70,7 +70,7 @@
         get() {
           let total = 0
           for (const item of this.cart) {
-            total = total + item.price.amount
+            total = total + item.amount
           }
           return this.costFormat(total);
         },
@@ -88,7 +88,7 @@
         var cart = []
         for (const item of this.cart) {
           cart.push({
-            "price": item.price.id,
+            "id": item.id,
             "quantity": 1
           })
         }

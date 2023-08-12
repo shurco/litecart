@@ -21,10 +21,15 @@
         <tr class="hover:bg-gray-100 active:bg-gray-100 cursor-pointer" v-for="item, index in checkouts">
           <td class="whitespace-nowrap px-4 py-2">{{item.email}}</td>
           <td class="whitespace-nowrap px-4 py-2">{{item.name}}</td>
-          <td class="whitespace-nowrap px-4 py-2">{{ costFormat( item.amount_total ) }} {{ item.currency }}</td>
+          <td class="whitespace-nowrap px-4 py-2">
+            <a :href="`https://dashboard.stripe.com/payments/${item.payment_id}`" target="_blank">
+              {{ costFormat( item.amount_total ) }} {{ item.currency }}
+            </a>
+          </td>
           <td class="whitespace-nowrap px-4 py-2">{{item.payment_status}}</td>
           <td class="whitespace-nowrap px-4 py-2">{{ formatDate(item.created) }}</td>
           <td class="whitespace-nowrap px-4 py-2">{{ formatDate(item.updated) }}</td>
+
         </tr>
       </tbody>
     </table>

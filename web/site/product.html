@@ -11,8 +11,12 @@
         <div class="lg:col-span-2">
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
           <p class="mt-4">{{product.description}}</p>
-          <p class="mt-4">{{ costFormat( product.stripe.price.amount ) }} {{ product.stripe.price.currency }}</p>
-          <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="addCart()" v-if="!product.inCart" />
+          <p class="mt-4">{{ costFormat( product.amount ) }} {{ product.currency }}</p>
+
+          <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="addCart()" v-if="!product.inCart"></form-button>
+          <p class="mt-4" v-else>added to cart</p>
+
+
         </div>
       </div>
     </div>
@@ -47,14 +51,11 @@
               id: this.product.id,
               name: this.product.name,
               url: this.product.url,
+              amount: this.product.amount,
+              currency: this.product.currency,
               image: {
                 name: this.product.images[0].name,
                 ext: this.product.images[0].ext
-              },
-              price: {
-                id: this.product.stripe.price.id,
-                amount: this.product.stripe.price.amount,
-                currency: this.product.stripe.price.currency
               },
             },
           }));

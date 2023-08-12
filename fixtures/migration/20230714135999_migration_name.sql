@@ -11,15 +11,15 @@ UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = 'sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' WHERE key = 'stripe_secret_key';
 UPDATE setting SET value = '' WHERE key = 'stripe_webhook_secret_key';
 
-INSERT INTO product (id, name, desc, url, metadata, attribute, stripe) VALUES 
-('fv6c9s9cqzf36sc', 'name1', 'description1', 'url1', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"prod_OGdTsykDrQSkmA", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2000"}}'),
-('xrtb1b919t2nuj9', 'name2', 'description2', 'url2', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2000"}}'),
-('7mweb67t8xv9pzx', 'name3', 'description3', 'url3', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"prod_OGdTsykDrQSkmb", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2200"}}'),
-('k4pkxqhn4p0xhoc', 'name4', 'description4', 'url4', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2300"}}'),
-('2wdx6k7b3lywc2o', 'name5', 'description5', 'url5', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2400"}}'),
-('zlfpc6b17gte0ot', 'name6', 'description6', 'url6', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2500"}}'),
-('ktorsk0xj8w5zab', 'name7', 'description7', 'url7', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2600"}}'),
-('6bn739vrvfp6zaw', 'name8', 'description8', 'url8', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', '{"product":{"id":"", "valid": 0},"price":{"id":"", "currency":"USD", "amount":"2700"}}');
+INSERT INTO product (id, name, desc, url, metadata, attribute, amount) VALUES 
+('fv6c9s9cqzf36sc', 'name1', 'description1', 'url1', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2000),
+('xrtb1b919t2nuj9', 'name2', 'description2', 'url2', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2100),
+('7mweb67t8xv9pzx', 'name3', 'description3', 'url3', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2200),
+('k4pkxqhn4p0xhoc', 'name4', 'description4', 'url4', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2300),
+('2wdx6k7b3lywc2o', 'name5', 'description5', 'url5', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2400),
+('zlfpc6b17gte0ot', 'name6', 'description6', 'url6', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2500),
+('ktorsk0xj8w5zab', 'name7', 'description7', 'url7', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2600),
+('6bn739vrvfp6zaw', 'name8', 'description8', 'url8', '{"key1":"value1", "key2":"value2", "key3":"value3", "key4":"value4", "key5":"value5", "key6":"value6"}', '["atribute1" ,"atribute2", "atribute3"]', 2700);
 
 UPDATE product SET active = 0 WHERE id = 'zlfpc6b17gte0ot';
 

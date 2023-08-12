@@ -36,6 +36,13 @@ func (q *SettingQueries) GetDomain() string {
 	return domain
 }
 
+// GetCurrency is ...
+func (q *SettingQueries) GetCurrency() string {
+	var currency string
+	q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'currency'`).Scan(&currency)
+	return currency
+}
+
 // CheckSubdomain is ...
 func (q *SettingQueries) CheckSubdomain(name string) bool {
 	var id int
@@ -146,4 +153,17 @@ func (q *SettingQueries) SettingStripe() (*Stripe, error) {
 	}
 
 	return settings, nil
+}
+
+func StripeClient() (*client.API, error) {
+	db := DB()
+	stripe, err := db.SettingStripe()
+	if err != nil {
+		return nil, err
+	}
+
+	client := &client.API{}
+	client.Init(stripe.SecretKey, nil)
+
+	return client, nil
 }

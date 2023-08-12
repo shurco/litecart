@@ -28,12 +28,6 @@ func ApiPrivateRoutes(c *fiber.App) {
 	product.Post("/:product_id<len(15)>/image", handlers.AddProductImage)
 	product.Delete("/:product_id<len(15)>/image/:image_id<len(15)>", handlers.DeleteProductImage)
 
-	// stripe section
-	product.Post("/stripe/:product_id<len(15)>", handlers.AddStripeProduct)
-	product.Delete("/stripe/:product_id<len(15)>", handlers.DeleteStripeProduct)
-
-	product.Get("/stripe/:product_id<len(15)>/check", handlers.CheckStripeProduct)
-
 	// checkouts
 	c.Get("/api/_/checkouts", handlers.Checkouts)
 }

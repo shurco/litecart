@@ -17,34 +17,47 @@ type ProductQueries struct {
 }
 
 // ListProducts is ...
-func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
-	products := &models.Products{}
+func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.Products, error) {
+	products := &models.Products{
+		Currency: "USD",
+	}
 
-	queryPrivate := ` WHERE deleted = 0 AND active = 1 AND json_extract(stripe, '$.product.id') != '' AND json_extract(stripe, '$.product.valid') = 1`
+	queryPrivate := ` WHERE deleted = 0 AND active = 1`
 	query := `
 			SELECT 
 				id, 
 				name, 
 				desc, 
-				url, 
+				url,
+				amount,
 				active,
 				(SELECT json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images FROM product_image WHERE product_id = product.id LIMIT 3) as image,
-				json_extract(stripe, '$.product.id') as product_id, 
-				json_extract(stripe, '$.product.valid') as product_valid, 
-				json_extract(stripe, '$.price.id') as price_id, 
-				json_extract(stripe, '$.price.currency') as currency, 
-				json_extract(stripe, '$.price.amount') as amount,
 				strftime('%s', created)
 			FROM product
 		`
 	queryTotal := `SELECT COUNT(id) FROM product`
+
+	queryList := ""
+	if len(idList) > 0 {
+		var queryType = map[bool]string{
+			false: "AND",
+			true:  "WHERE",
+		}
+
+		list := ""
+		for _, id := range idList {
+			list += list + fmt.Sprintf(",'%s'", id)
+		}
+
+		queryList = fmt.Sprintf(" %s id IN (%s)", queryType[private], list[1:])
+	}
 
 	if !private {
 		query = query + queryPrivate
 		queryTotal = queryTotal + queryPrivate
 	}
 
-	rows, err := q.DB.Query(query)
+	rows, err := q.DB.Query(query + queryList)
 	if err != nil {
 		return nil, err
 	}
@@ -59,13 +72,9 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 			&product.Name,
 			&product.Description,
 			&product.URL,
+			&product.Amount,
 			&product.Active,
 			&image,
-			&product.Stripe.Product.ID,
-			&product.Stripe.Product.Valid,
-			&product.Stripe.Price.ID,
-			&product.Stripe.Price.Currency,
-			&product.Stripe.Price.Amount,
 			&product.Created,
 		)
 		if err != nil {
@@ -84,7 +93,7 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 	}
 
 	// total records
-	err = q.DB.QueryRow(queryTotal).Scan(&products.Total)
+	err = q.DB.QueryRow(queryTotal + queryList).Scan(&products.Total)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
@@ -94,7 +103,9 @@ func (q *ProductQueries) ListProducts(private bool) (*models.Products, error) {
 
 // Product is ...
 func (q *ProductQueries) Product(id string, private bool) (*models.Product, error) {
-	product := &models.Product{}
+	product := &models.Product{
+		Currency: "USD",
+	}
 
 	query := `
 			SELECT 
@@ -102,12 +113,8 @@ func (q *ProductQueries) Product(id string, private bool) (*models.Product, erro
 				product.name, 
 				product.desc, 
 				product.url, 
+				product.amount,
 				product.active,
-				json_extract(stripe, '$.product.id') as product_id, 
-				json_extract(stripe, '$.product.valid') as product_valid, 
-				json_extract(stripe, '$.price.id') as price_id, 
-				json_extract(stripe, '$.price.currency') as currency, 
-				json_extract(stripe, '$.price.amount') as amount, 
 				product.metadata, 
 				product.attribute, 
 				json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
@@ -132,12 +139,8 @@ func (q *ProductQueries) Product(id string, private bool) (*models.Product, erro
 			&product.Name,
 			&product.Description,
 			&product.URL,
+			&product.Amount,
 			&product.Active,
-			&product.Stripe.Product.ID,
-			&product.Stripe.Product.Valid,
-			&product.Stripe.Price.ID,
-			&product.Stripe.Price.Currency,
-			&product.Stripe.Price.Amount,
 			&metadata,
 			&attributes,
 			&images,
@@ -182,37 +185,8 @@ func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 
 // DeleteProduct is ...
 func (q *ProductQueries) DeleteProduct(id string) error {
-	if err := q.DeleteStripeProduct(id); err != nil && err != StripeProductNotFound {
+	if _, err := q.DB.Exec(`DELETE FROM product WHERE id = ?`, id); err != nil {
 		return err
-	}
-
-	var stripeProductID, stripePriceID string
-	query := `
-			SELECT 
-				json_extract(stripe, '$.product.id') as product_id ,
-				json_extract(stripe, '$.price.id') as price_id 
-			FROM product 
-			WHERE id = ?
-	`
-	err := q.DB.QueryRow(query, id).Scan(&stripeProductID, &stripePriceID)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	if !q.IsStripeProduct(stripeProductID) {
-		if _, err := q.DB.Exec(`DELETE FROM product WHERE id = ?`, id); err != nil {
-			return err
-		}
-	}
-
-	if stripePriceID != "" {
-		if _, err := q.DB.Exec(`UPDATE product SET active = 0, deleted = 1, updated = datetime('now') WHERE id = ?`, id); err != nil {
-			return err
-		}
-	} else {
-		if _, err := q.DB.Exec(`DELETE FROM product WHERE id = ?`, id); err != nil {
-			return err
-		}
 	}
 
 	return nil
