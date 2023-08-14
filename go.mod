@@ -14,7 +14,7 @@ require (
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
-	github.com/pressly/goose/v3 v3.14.0
+	github.com/pressly/goose/v3 v3.15.0
 	github.com/rs/zerolog v1.30.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stripe/stripe-go/v74 v74.30.0
