@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -13,6 +12,8 @@ import (
 
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/template/html/v2"
 
 	"github.com/shurco/litecart/internal/queries"
@@ -34,12 +35,6 @@ func NewApp(appDev bool) error {
 	DevMode = appDev
 	log = logging.Log()
 
-	// check lc_uploads folder
-	if err := fsutil.MkDirs(0775, "./lc_uploads"); err != nil {
-		log.Err(err).Send()
-		return err
-	}
-
 	if err := queries.InitQueries(migrations.Embed()); err != nil {
 		log.Err(err).Send()
 		return err
@@ -47,17 +42,19 @@ func NewApp(appDev bool) error {
 
 	// web web server
 	var views *html.Engine
+	var sitePath string
+
 	if DevMode {
-		views = html.New("../web/site", ".html")
-		views.Reload(true)
+		sitePath = "../web/site"
+		views = html.New(sitePath, ".html")
 	} else {
-		if fsutil.IsDir("./web") {
-			views = html.New("./web", ".html")
-			views.Reload(true)
-		} else {
-			views = html.NewFileSystem(http.FS(web.Embed()), ".html")
+		sitePath = "./site"
+		if !fsutil.IsDir(sitePath) {
+			fsutil.EmbedExtract(web.EmbedSite(), "")
 		}
+		views = html.New(sitePath, ".html")
 	}
+	views.Reload(true)
 	views.Delims("{#", "#}")
 
 	app := fiber.New(fiber.Config{
@@ -65,12 +62,22 @@ func NewApp(appDev bool) error {
 		Views:                 views,
 	})
 
+	app.Use(helmet.New())
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
+	}))
 	app.Use(fiberzerolog.New(fiberzerolog.Config{
 		Logger: &log,
 	}))
 
-	app.Static("/", "../web/site/public")
-	app.Static("/components", "../web/site/components")
+	app.Static("/", sitePath+"/public")
+	app.Static("/components", sitePath+"/components")
+
+	// check lc_uploads folder
+	if err := fsutil.MkDirs(0775, "./lc_uploads"); err != nil {
+		log.Err(err).Send()
+		return err
+	}
 	app.Static("/uploads", "./lc_uploads")
 
 	app.Use(DatabaseCheck)

@@ -10,7 +10,6 @@
       "args": ["serve", "--dev"]
       //"args": ["serve"]
       //"args": ["serve", "--help"]
-      //"args": ["theme"]
     }
   ]
 }

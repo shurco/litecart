@@ -33,7 +33,6 @@ func main() {
 	})
 
 	rootCmd.AddCommand(cmdServe())
-	rootCmd.AddCommand(cmdTheme())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -52,21 +51,6 @@ func cmdServe() *cobra.Command {
 	}
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
 	cmd.PersistentFlags().MarkHidden("dev")
-
-	return cmd
-}
-
-func cmdTheme() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "theme",
-		Short: "Create default theme folder",
-		Run: func(themeCmd *cobra.Command, args []string) {
-			if err := app.NewTheme(); err != nil {
-				fmt.Print(err)
-				os.Exit(1)
-			}
-		},
-	}
 
 	return cmd
 }
