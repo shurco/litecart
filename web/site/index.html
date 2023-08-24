@@ -4,8 +4,8 @@
 
       <ul class="grid gap-4 mt-8 sm:grid-cols-2 lg:grid-cols-4" v-if="products && load">
         <li v-for="item, index in products">
-          <a :href="`/products/${item.url}`" class="block overflow-hidden group rounded-lg">
-            <img :src="`/uploads/${item.images[0].name}_md.${item.images[0].ext}`" alt=""
+          <a :href="`/products/${item.url}`" class="block overflow-hidden group rounded-lg">            
+            <img :src="(item.images ? `/uploads/${item.images[0].name}_md.${item.images[0].ext}` : '/assets/img/noimage.png')" alt=""
               class="h-[150px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[250px]" />
           </a>
           <div class="relative bg-white mt-3">
