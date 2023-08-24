@@ -2,51 +2,15 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-
-	"github.com/shurco/litecart/internal/middleware"
 )
 
 // AdminRoutes is ...
 func AdminRoutes(c *fiber.App) {
-	admin := c.Group("/_")
-
-	admin.Get("/install", func(c *fiber.Ctx) error {
-		return c.Render("admin/install", nil, "admin/layouts/clear")
+	c.Static("/_", "../web/admin/dist", fiber.Static{
+		Compress: true,
 	})
 
-	admin.Get("/signin", func(c *fiber.Ctx) error {
-		return c.Render("admin/signin", nil, "admin/layouts/clear")
-	})
-
-	admin.Get("/", func(c *fiber.Ctx) error {
-		return c.Redirect("/_/products")
-	})
-
-	// product section
-	admin.Get("/products", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/products", fiber.Map{
-			"Menu": "products",
-		}, "admin/layouts/main")
-	})
-
-	// checkout section
-	admin.Get("/checkouts", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/checkouts", fiber.Map{
-			"Menu": "checkouts",
-		}, "admin/layouts/main")
-	})
-
-	// faq section
-	admin.Get("/faq", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/faq", fiber.Map{
-			"Menu": "faq",
-		}, "admin/layouts/main")
-	})
-
-	// setting section
-	admin.Get("/settings", middleware.JWTProtected(), func(c *fiber.Ctx) error {
-		return c.Render("admin/settings", fiber.Map{
-			"Menu": "settings",
-		}, "admin/layouts/main")
+	c.Get("/_/*", func(ctx *fiber.Ctx) error {
+		return ctx.SendFile("../web/admin/dist/index.html", true)
 	})
 }

@@ -15,6 +15,7 @@ import (
 )
 
 // SignIn is ...
+// [post] /api/sign/in
 func SignIn(c *fiber.Ctx) error {
 	db := queries.DB()
 	request := new(models.SignIn)
@@ -66,6 +67,7 @@ func SignIn(c *fiber.Ctx) error {
 }
 
 // SignOut is ...
+// [post] /api/sign/out
 func SignOut(c *fiber.Ctx) error {
 	db := queries.DB()
 	settingJWT, err := db.SettingJWT()

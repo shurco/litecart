@@ -34,8 +34,8 @@ func NewApp(appDev bool) error {
 	DevMode = appDev
 	log = logging.Log()
 
-	// check uploads folder
-	if err := fsutil.MkDirs(0775, "./uploads"); err != nil {
+	// check lc_uploads folder
+	if err := fsutil.MkDirs(0775, "./lc_uploads"); err != nil {
 		log.Err(err).Send()
 		return err
 	}
@@ -48,7 +48,7 @@ func NewApp(appDev bool) error {
 	// web web server
 	var views *html.Engine
 	if DevMode {
-		views = html.New("../web", ".html")
+		views = html.New("../web/site", ".html")
 		views.Reload(true)
 	} else {
 		if fsutil.IsDir("./web") {
@@ -71,10 +71,7 @@ func NewApp(appDev bool) error {
 
 	app.Static("/", "../web/site/public")
 	app.Static("/components", "../web/site/components")
-	app.Static("/uploads", "./uploads")
-
-	app.Static("/_", "../web/admin/public")
-	app.Static("/_/components", "../web/admin/components")
+	app.Static("/uploads", "./lc_uploads")
 
 	app.Use(DatabaseCheck)
 	app.Use(SubdomainCheck)

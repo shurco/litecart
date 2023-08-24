@@ -55,7 +55,6 @@
               name: product.name,
               url: product.url,
               amount: product.amount,
-              currency: this.currency,
               image: {
                 name: product.images[0].name,
                 ext: product.images[0].ext
@@ -72,7 +71,12 @@
         });
         this.resp = await response.json();
         if (this.resp.success) {
-          this.currency = this.resp.result.currency;
+          if (localStorage.getItem('currency')) {
+            this.currency = localStorage.getItem('currency');
+          }else{
+            localStorage.setItem('currency', this.resp.result.currency);
+            this.currency = this.resp.result.currency;
+          }
           this.products = this.resp.result.products;
           this.load = true;
         }

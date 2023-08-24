@@ -2,8 +2,8 @@ package web
 
 import "embed"
 
-//go:embed admin/*
-//go:embed site/*
+//go:embed admin/dist/*
+//go:embed site/*.html site/components/* site/layouts/* site/public/*
 var embedWeb embed.FS
 
 // Embed is ...

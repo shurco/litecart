@@ -40,7 +40,7 @@
 
                 <div class="flex justify-between !text-base">
                   <dt>Total</dt>
-                  <dd>{{total}} {{cart[0].currency}}</dd>
+                  <dd>{{total}} {{currency}}</dd>
                 </div>
               </dl>
 
@@ -61,6 +61,7 @@
   Vue.createApp({
     data() {
       return {
+        currency: localStorage.getItem('currency'),
         cart: JSON.parse(localStorage.getItem('cart')) || ref([]),
       };
     },

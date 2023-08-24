@@ -11,19 +11,19 @@ import (
 // SiteRoutes is ...
 func SiteRoutes(c *fiber.App) {
 	c.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("site/index", nil, "site/layouts/main")
+		return c.Render("index", nil, "layouts/main")
 	})
 
 	c.Get("/terms", func(c *fiber.Ctx) error {
-		return c.Render("site/text", nil, "site/layouts/main")
+		return c.Render("text", nil, "layouts/main")
 	})
 
 	c.Get("/privacy", func(c *fiber.Ctx) error {
-		return c.Render("site/text", nil, "site/layouts/main")
+		return c.Render("text", nil, "layouts/main")
 	})
 
 	c.Get("/cookies", func(c *fiber.Ctx) error {
-		return c.Render("site/text", nil, "site/layouts/main")
+		return c.Render("text", nil, "layouts/main")
 	})
 
 	// catalog section
@@ -32,19 +32,19 @@ func SiteRoutes(c *fiber.App) {
 		db := queries.DB()
 
 		if !db.IsProduct(productURL) {
-			return c.Status(fiber.StatusNotFound).Render("site/404", fiber.Map{}, "site/layouts/clear")
+			return c.Status(fiber.StatusNotFound).Render("404", fiber.Map{}, "layouts/clear")
 		}
 
-		return c.Render("site/product", fiber.Map{
+		return c.Render("product", fiber.Map{
 			"ProductUrl": c.Params("product_url"),
-		}, "site/layouts/main")
+		}, "layouts/main")
 	})
 
 	// cart section
 	cart := c.Group("/cart")
 
 	cart.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("site/cart", nil, "site/layouts/main")
+		return c.Render("cart", nil, "layouts/main")
 	})
 
 	cart.Post("/checkout", handlers.Checkout)

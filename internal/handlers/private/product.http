@@ -13,31 +13,24 @@ Content-Type: application/json
 ###
 # @name products
 GET {{host}}/api/_/products
-Authorization: Bearer {{signin.response.body.result}}
 
 ###
 # @name fake_product
 GET {{host}}/api/_products/123456789012345
-Authorization: Bearer {{signin.response.body.result}}
 
 ###
 # @name product
 GET {{host}}/api/_/products/fv6c9s9cqzf36sc
-Authorization: Bearer {{signin.response.body.result}}
 
 ###
 # @name active
 PATCH {{host}}/api/_/products/active/fv6c9s9cqzf36sc
-Authorization: Bearer {{signin.response.body.result}}
 
 
 ###
 # @name image_add
 POST {{host}}/api/_/products/fv6c9s9cqzf36sc/image
-Authorization: Bearer {{signin.response.body.result}}
-
 
 ###
 # @name image_delete
 DELETE {{host}}/api/_/products/fv6c9s9cqzf36sc/image/dj9bae53oob0ukj
-Authorization: Bearer {{signin.response.body.result}}

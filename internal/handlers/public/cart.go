@@ -113,7 +113,7 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	return c.Render("site/success", nil, "site/layouts/main")
+	return c.Render("success", nil, "layouts/main")
 }
 
 // CheckoutCancel is ...
@@ -129,5 +129,5 @@ func CheckoutCancel(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	return c.Render("site/cancel", nil, "site/layouts/main")
+	return c.Render("cancel", nil, "layouts/main")
 }

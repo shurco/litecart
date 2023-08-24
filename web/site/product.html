@@ -11,11 +11,10 @@
         <div class="lg:col-span-2">
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
           <p class="mt-4">{{product.description}}</p>
-          <p class="mt-4">{{ costFormat( product.amount ) }} {{ product.currency }}</p>
+          <p class="mt-4">{{ costFormat( product.amount ) }} {{ currency }}</p>
 
           <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="addCart()" v-if="!product.inCart"></form-button>
           <p class="mt-4" v-else>added to cart</p>
-
 
         </div>
       </div>
@@ -34,6 +33,7 @@
     data() {
       return {
         load: false,
+        currency: ref(),
         product: ref({}),
       };
     },
@@ -52,7 +52,6 @@
               name: this.product.name,
               url: this.product.url,
               amount: this.product.amount,
-              currency: this.product.currency,
               image: {
                 name: this.product.images[0].name,
                 ext: this.product.images[0].ext
@@ -69,6 +68,12 @@
         });
         this.resp = await response.json();
         if (this.resp.success) {
+          if (localStorage.getItem('currency')) {
+            this.currency = localStorage.getItem('currency');
+          }else{
+            localStorage.setItem('currency', this.resp.result.currency);
+            this.currency = this.resp.result.currency;
+          }
           this.product = this.resp.result;
           this.product.inCart = this.inCart(this.product.id);
           this.load = true;

@@ -133,7 +133,7 @@ func AddProductImage(c *fiber.Ctx) error {
 	fileUUID := uuid.New().String()
 	fileExt := fsutil.ExtName(file.Filename)
 	fileName := fmt.Sprintf("%s.%s", fileUUID, fileExt)
-	filePath := fmt.Sprintf("./uploads/%s", fileName)
+	filePath := fmt.Sprintf("./lc_uploads/%s", fileName)
 
 	c.SaveFile(file, filePath)
 
@@ -152,7 +152,7 @@ func AddProductImage(c *fiber.Ctx) error {
 
 	for _, s := range sizes {
 		resizedImage := imaging.Fill(fileSource, s.dim, s.dim, imaging.Center, imaging.Lanczos)
-		err := imaging.Save(resizedImage, fmt.Sprintf("./uploads/%s_%s.%s", fileUUID, s.size, fileExt))
+		err := imaging.Save(resizedImage, fmt.Sprintf("./lc_uploads/%s_%s.%s", fileUUID, s.size, fileExt))
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}

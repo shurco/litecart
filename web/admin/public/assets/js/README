@@ -1,7 +1,0 @@
-vue - https://unpkg.com/vue@<version>/dist/vue.global.prod.js
-pinia - https://unpkg.com/pinia@<version>/dist/pinia.iife.prod.js
-
-vee-validate/main - https://unpkg.com/vee-validate@next
-vee-validate/rules - https://unpkg.com/@vee-validate/rules@next
-
-notification - https://www.npmjs.com/package/vue-toast-notification?activeTab=code

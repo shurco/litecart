@@ -10,6 +10,7 @@ import (
 )
 
 // Install is ...
+// [post] /api/install
 func Install(c *fiber.Ctx) error {
 	db := queries.DB()
 	request := new(models.Install)

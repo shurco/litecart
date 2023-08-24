@@ -289,8 +289,8 @@ func (q *ProductQueries) DeleteImage(productID, imageID string) error {
 	}
 
 	filePaths := []string{
-		fmt.Sprintf("./uploads/%s.%s", name, ext),
-		fmt.Sprintf("./uploads/%s_sm.%s", name, ext),
+		fmt.Sprintf("./lc_uploads/%s.%s", name, ext),
+		fmt.Sprintf("./lc_uploads/%s_sm.%s", name, ext),
 	}
 
 	for _, filePath := range filePaths {
