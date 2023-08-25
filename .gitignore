@@ -39,6 +39,6 @@ go.work
 cmd/__debug_bin*
 cmd/lc_base/
 cmd/lc_uploads/
-cmd/web/
+cmd/site/
 fixtures/migration/*_private.sql
 .DS_Store

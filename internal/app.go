@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/armon/go-proxyproto"
+	"github.com/pires/go-proxyproto"
 	"github.com/rs/zerolog"
 
 	"github.com/gofiber/contrib/fiberzerolog"
@@ -25,13 +25,15 @@ import (
 )
 
 var (
+	ProxyMod   bool
 	DevMode    bool
 	MainDomain string
 	log        zerolog.Logger
 )
 
 // NewApp is ...
-func NewApp(appDev bool) error {
+func NewApp(proxyMod, appDev bool) error {
+	ProxyMod = proxyMod
 	DevMode = appDev
 	log = logging.Log()
 
@@ -80,17 +82,18 @@ func NewApp(appDev bool) error {
 	}
 	app.Static("/uploads", "./lc_uploads")
 
-	app.Use(DatabaseCheck)
+	app.Use(InstallCheck)
 	app.Use(SubdomainCheck)
 
-	routes.SiteRoutes(app)
 	routes.AdminRoutes(app)
 	routes.ApiPrivateRoutes(app)
+	routes.SiteRoutes(app)
 	routes.ApiPublicRoutes(app)
+
 	routes.NotFoundRoute(app)
 
 	if DevMode {
-		StartServer(app)
+		StartServer(app, ProxyMod)
 	} else {
 		idleConnsClosed := make(chan struct{})
 
@@ -106,17 +109,17 @@ func NewApp(appDev bool) error {
 			close(idleConnsClosed)
 		}()
 
-		StartServer(app)
+		StartServer(app, ProxyMod)
 		<-idleConnsClosed
 	}
 
 	return nil
 }
 
-func DatabaseCheck(c *fiber.Ctx) error {
+func InstallCheck(c *fiber.Ctx) error {
 	db := queries.DB()
 	if !db.IsInstalled() {
-		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/api") {
+		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/_/assets") && !strings.HasPrefix(c.Path(), "/api") {
 			return c.Redirect("/_/install")
 		}
 	} else if strings.HasPrefix(c.Path(), "/_/install") {
@@ -126,7 +129,7 @@ func DatabaseCheck(c *fiber.Ctx) error {
 }
 
 func SubdomainCheck(c *fiber.Ctx) error {
-	db := queries.DB()
+	//db := queries.DB()
 
 	/*
 		if MainDomain == "" {
@@ -138,22 +141,34 @@ func SubdomainCheck(c *fiber.Ctx) error {
 		}
 	*/
 
-	if len(c.Subdomains()) > 0 {
-		if !db.CheckSubdomain(c.Subdomains()[0]) && !DevMode {
-			return c.Redirect(fmt.Sprintf("%s://%s", c.Protocol(), MainDomain), fiber.StatusMovedPermanently)
+	/*
+		if len(c.Subdomains()) > 0 {
+			if !db.CheckSubdomain(c.Subdomains()[0]) && !DevMode {
+				return c.Redirect(fmt.Sprintf("%s://%s", c.Protocol(), MainDomain), fiber.StatusMovedPermanently)
+			}
 		}
-	}
+	*/
 	return c.Next()
 }
 
 // StartServer is ...
-func StartServer(a *fiber.App) {
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
-	if err != nil {
-		log.Err(err).Send()
+func StartServer(a *fiber.App, proxyMode bool) {
+	if proxyMode {
+		ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+		if err != nil {
+			log.Err(err).Send()
+		}
+
+		proxyListener := &proxyproto.Listener{Listener: ln}
+		defer proxyListener.Close()
+
+		if err := a.Listener(proxyListener); err != nil {
+			log.Err(err).Send()
+		}
+	} else {
+		if err := a.Listen(fmt.Sprintf(":%d", 8080)); err != nil {
+			log.Err(err).Send()
+		}
 	}
-	proxyListener := &proxyproto.Listener{Listener: ln}
-	if err := a.Listener(proxyListener); err != nil {
-		log.Err(err).Send()
-	}
+
 }

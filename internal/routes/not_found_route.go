@@ -13,7 +13,9 @@ func NotFoundRoute(a *fiber.App) {
 		if strings.HasPrefix(c.Path(), "/api") {
 			return webutil.Response(c, fiber.StatusNotFound, "Not Found", nil)
 		}
-
+		if strings.HasPrefix(c.Path(), "/_") {
+			return c.Next()
+		}
 		return c.Status(fiber.StatusNotFound).Render("404", fiber.Map{}, "layouts/clear")
 	})
 }

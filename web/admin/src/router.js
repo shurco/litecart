@@ -104,7 +104,8 @@ router.beforeEach((to, from, next) => {
     isAuthenticated = true
   }
 
-  if (!isAuthenticated && to.name !== 'signin') next({ name: 'signin' })
+  if (to.path === '/install') next()
+  else if (!isAuthenticated && to.name !== 'signin') next({ name: 'signin' })
   else if (isAuthenticated && to.name == 'signin') next({ name: 'products' })
   else next()
 })

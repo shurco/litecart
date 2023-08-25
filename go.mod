@@ -3,7 +3,6 @@ module github.com/shurco/litecart
 go 1.20
 
 require (
-	github.com/armon/go-proxyproto v0.0.0-20210323213023-7e956b284f0a
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
@@ -14,6 +13,7 @@ require (
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.1
+	github.com/pires/go-proxyproto v0.7.0
 	github.com/pressly/goose/v3 v3.15.0
 	github.com/rs/zerolog v1.30.0
 	github.com/spf13/cobra v1.7.0

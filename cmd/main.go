@@ -15,12 +15,15 @@ var (
 	buildDate = "14.07.2023"
 )
 
-var devMode bool
+var (
+	devMode  bool
+	proxyMod bool
+)
 
 var rootCmd = &cobra.Command{
 	Use:                "litecart",
 	Short:              "LiteCart CLI",
-	Long:               "Open Source realtime cart in 1 file",
+	Long:               "🛒 litecart - shopping-cart in 1 file",
 	Version:            fmt.Sprintf("LiteCart v%s (%s) from %s", version, gitCommit, buildDate),
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 	CompletionOptions:  cobra.CompletionOptions{DisableDefaultCmd: true},
@@ -44,11 +47,12 @@ func cmdServe() *cobra.Command {
 		Use:   "serve [flags]",
 		Short: "Starts the web server (default to 127.0.0.1:8080)",
 		Run: func(serveCmd *cobra.Command, args []string) {
-			if err := app.NewApp(devMode); err != nil {
+			if err := app.NewApp(proxyMod, devMode); err != nil {
 				os.Exit(1)
 			}
 		},
 	}
+	cmd.PersistentFlags().BoolVar(&proxyMod, "proxy", false, "proxy mode")
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
 	cmd.PersistentFlags().MarkHidden("dev")
 

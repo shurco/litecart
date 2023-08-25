@@ -45,18 +45,20 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
+import { setCookie } from '@/utils/'
 
 const route = useRoute()
+const router = useRouter()
 
 const signOut = async () => {
   await fetch('/api/sign/out', {
     credentials: "include",
     method: 'POST',
   })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        window.location.href = "/_/signin/";
+    .then(response => {
+      if (response.status === 204) {
+        setCookie('token', '', -1)
+        router.push({ path: 'signin' })
       }
     })
 };
