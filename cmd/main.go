@@ -15,11 +15,6 @@ var (
 	buildDate = "14.07.2023"
 )
 
-var (
-	devMode  bool
-	proxyMod bool
-)
-
 var rootCmd = &cobra.Command{
 	Use:                "litecart",
 	Short:              "LiteCart CLI",
@@ -43,16 +38,35 @@ func main() {
 }
 
 func cmdServe() *cobra.Command {
+	var devMode bool
+	var httpAddr, httpsAddr string
 	cmd := &cobra.Command{
 		Use:   "serve [flags]",
 		Short: "Starts the web server (default to 127.0.0.1:8080)",
 		Run: func(serveCmd *cobra.Command, args []string) {
-			if err := app.NewApp(proxyMod, devMode); err != nil {
+			if err := app.NewApp(httpAddr, httpsAddr, devMode); err != nil {
 				os.Exit(1)
 			}
 		},
 	}
-	cmd.PersistentFlags().BoolVar(&proxyMod, "proxy", false, "proxy mode")
+
+	cmd.PersistentFlags().StringVar(
+		&httpAddr,
+		"http",
+		"127.0.0.1:8080",
+		"server address",
+	)
+
+	// Ports <= 1024 are privileged ports. You can't use them unless you're root or have the explicit
+	// permission to use them. See this answer for an explanation or wikipedia or something you trust more.
+	// sudo setcap 'cap_net_bind_service=+ep' /opt/yourGoBinary
+	cmd.PersistentFlags().StringVar(
+		&httpsAddr,
+		"https",
+		"",
+		"HTTPS server address (auto TLS)",
+	)
+
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
 	cmd.PersistentFlags().MarkHidden("dev")
 

@@ -37,8 +37,8 @@ coverage
 go.work
 
 cmd/__debug_bin*
-cmd/lc_base/
-cmd/lc_uploads/
+cmd/main
+cmd/lc_*/
 cmd/site/
 fixtures/migration/*_private.sql
 .DS_Store

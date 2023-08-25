@@ -38,7 +38,7 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     homepage: https://github.com/shurco/litecart
-    description: "LiteCart - Open Source realtime cart in 1 file"
+    description: "litecart - open source shopping-cart in 1 file"
     license: "MIT"
 
 upx:

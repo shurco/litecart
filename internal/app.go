@@ -1,14 +1,13 @@
 package app
 
 import (
+	"crypto/tls"
 	"fmt"
-	"net"
 	"os"
-	"os/signal"
 	"strings"
 
-	"github.com/pires/go-proxyproto"
 	"github.com/rs/zerolog"
+	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
@@ -25,17 +24,22 @@ import (
 )
 
 var (
-	ProxyMod   bool
 	DevMode    bool
 	MainDomain string
 	log        zerolog.Logger
 )
 
 // NewApp is ...
-func NewApp(proxyMod, appDev bool) error {
-	ProxyMod = proxyMod
+func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 	DevMode = appDev
 	log = logging.Log()
+
+	schema := "http"
+	mainAddr := httpAddr
+	if httpsAddr != "" {
+		schema = "https"
+		mainAddr = httpsAddr
+	}
 
 	if err := queries.InitQueries(migrations.Embed()); err != nil {
 		log.Err(err).Send()
@@ -60,6 +64,7 @@ func NewApp(proxyMod, appDev bool) error {
 	views.Delims("{#", "#}")
 
 	app := fiber.New(fiber.Config{
+		//Prefork: true,
 		DisableStartupMessage: true,
 		Views:                 views,
 	})
@@ -92,27 +97,69 @@ func NewApp(proxyMod, appDev bool) error {
 
 	routes.NotFoundRoute(app)
 
-	if DevMode {
-		StartServer(app, ProxyMod)
-	} else {
-		idleConnsClosed := make(chan struct{})
+	fmt.Print("🛒 litecart - open source shopping-cart in 1 file\n")
+	fmt.Printf("├─ Cart UI: %s://%s/\n", schema, mainAddr)
+	fmt.Printf("└─ Admin UI: %s://%s/_/\n", schema, mainAddr)
 
-		go func() {
-			sigint := make(chan os.Signal, 1)
-			signal.Notify(sigint, os.Interrupt)
-			<-sigint
+	if schema == "https" {
+		m := &autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(mainAddr),
+			Cache:      autocert.DirCache("./lc_certs"),
+		}
 
-			if err := app.Shutdown(); err != nil {
-				log.Err(err).Send()
-			}
+		cfgTLS := &tls.Config{
+			GetCertificate: m.GetCertificate,
+			NextProtos: []string{
+				"http/1.1", "acme-tls/1",
+			},
+		}
 
-			close(idleConnsClosed)
-		}()
+		ln, err := tls.Listen("tcp", ":443", cfgTLS)
+		if err != nil {
+			log.Err(err).Send()
+			os.Exit(1)
+		}
 
-		StartServer(app, ProxyMod)
-		<-idleConnsClosed
+		if err := app.Listener(ln); err != nil {
+			log.Err(err).Send()
+			os.Exit(1)
+		}
+
 	}
 
+	go StartServer(mainAddr, app)
+
+	/*
+		if DevMode {
+			StartServer(mainAddr, app)
+		} else {
+			idleConnsClosed := make(chan struct{})
+
+			go func() {
+				sigint := make(chan os.Signal, 1)
+				signal.Notify(sigint, os.Interrupt)
+				<-sigint
+
+				if err := app.Shutdown(); err != nil {
+					log.Err(err).Send()
+				}
+
+				close(idleConnsClosed)
+			}()
+
+			StartServer(mainAddr, app)
+			<-idleConnsClosed
+		}
+	*/
+
+	return nil
+}
+
+func LoginHandler(c *fiber.Ctx) error {
+	fmt.Println("BaseURL: " + c.BaseURL())
+	fmt.Println("Protocol: " + c.Protocol())
+	fmt.Println("Hostname: " + c.Hostname())
 	return nil
 }
 
@@ -152,23 +199,9 @@ func SubdomainCheck(c *fiber.Ctx) error {
 }
 
 // StartServer is ...
-func StartServer(a *fiber.App, proxyMode bool) {
-	if proxyMode {
-		ln, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
-		if err != nil {
-			log.Err(err).Send()
-		}
-
-		proxyListener := &proxyproto.Listener{Listener: ln}
-		defer proxyListener.Close()
-
-		if err := a.Listener(proxyListener); err != nil {
-			log.Err(err).Send()
-		}
-	} else {
-		if err := a.Listen(fmt.Sprintf(":%d", 8080)); err != nil {
-			log.Err(err).Send()
-		}
+func StartServer(addr string, a *fiber.App) {
+	if err := a.Listen(addr); err != nil {
+		log.Err(err).Send()
+		os.Exit(1)
 	}
-
 }
