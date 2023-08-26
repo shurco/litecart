@@ -55,6 +55,8 @@ func Migrate(dbPath string, migrations embed.FS) (err error) {
 	}
 	defer db.Close()
 
+	goose.SetTableName("migrate_db_version")
+
 	err = goose.Up(db, ".")
 	return
 }

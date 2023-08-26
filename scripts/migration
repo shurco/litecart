@@ -11,7 +11,7 @@ LC_UPLOADS_DIR=${ROOT_PATH}/cmd/lc_uploads
 LC_BASE_DIR="${ROOT_PATH}/cmd/lc_base"
 LC_BASE="${LC_BASE_DIR}/data.db"
 
-DB_POSTFIX="goose_db_version"
+DB_POSTFIX="migrate_db_version"
 MIGRATION=$1
 GOOSE_ACTION=$2
 
