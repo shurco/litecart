@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
 
 	"github.com/rs/zerolog"
@@ -64,7 +65,7 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 	views.Delims("{#", "#}")
 
 	app := fiber.New(fiber.Config{
-		//Prefork: true,
+		//Prefork:               true,
 		DisableStartupMessage: true,
 		Views:                 views,
 	})
@@ -128,38 +129,27 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 
 	}
 
-	go StartServer(mainAddr, app)
+	if DevMode {
+		StartServer(mainAddr, app)
+	} else {
+		idleConnsClosed := make(chan struct{})
 
-	/*
-		if DevMode {
-			StartServer(mainAddr, app)
-		} else {
-			idleConnsClosed := make(chan struct{})
+		go func() {
+			sigint := make(chan os.Signal, 1)
+			signal.Notify(sigint, os.Interrupt)
+			<-sigint
 
-			go func() {
-				sigint := make(chan os.Signal, 1)
-				signal.Notify(sigint, os.Interrupt)
-				<-sigint
+			if err := app.Shutdown(); err != nil {
+				log.Err(err).Send()
+			}
 
-				if err := app.Shutdown(); err != nil {
-					log.Err(err).Send()
-				}
+			close(idleConnsClosed)
+		}()
 
-				close(idleConnsClosed)
-			}()
+		StartServer(mainAddr, app)
+		<-idleConnsClosed
+	}
 
-			StartServer(mainAddr, app)
-			<-idleConnsClosed
-		}
-	*/
-
-	return nil
-}
-
-func LoginHandler(c *fiber.Ctx) error {
-	fmt.Println("BaseURL: " + c.BaseURL())
-	fmt.Println("Protocol: " + c.Protocol())
-	fmt.Println("Hostname: " + c.Hostname())
 	return nil
 }
 

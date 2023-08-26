@@ -6,7 +6,7 @@ POST {{host}}/api/install
 Content-Type: application/json
 
 {
-    "email":"user@site.com",
+    "email":"user@mail.com",
     "password":"123456789ASDFGzxcvb"
 }
 
@@ -17,7 +17,7 @@ POST {{host}}/api/install
 Content-Type: application/json
 
 {
-    "email":"user@site.com",
+    "email":"user@mail.com",
     "password":"123456789ASDFGzxcvb",
     "domain":"site.com",
     "stripe_secret":"sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 

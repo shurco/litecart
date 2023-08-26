@@ -4,7 +4,7 @@ INSERT INTO subdomain (id, name, desc) VALUES ('62zonbnpdrzeje0', 'name', 'descr
 
 UPDATE setting SET value = 'true' WHERE key = 'installed';
 UPDATE setting SET value = 'site.com' WHERE key = 'domain';
-UPDATE setting SET value = 'user@site.com' WHERE key = 'email';
+UPDATE setting SET value = 'user@mail.com' WHERE key = 'email';
 UPDATE setting SET value = '$2a$04$k.JZqE2LV81ThRR2tgNcceNNi9Ue6P079e6mrhOPyYN/ILcwag/7G' WHERE key = 'password';
 UPDATE setting SET value = 'd58ca30c8e5ca96695451fa27af949d9' WHERE key = 'jwt_secret';
 UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';

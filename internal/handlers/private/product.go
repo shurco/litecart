@@ -10,7 +10,6 @@ import (
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/fsutil"
-	"github.com/shurco/litecart/pkg/validator"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -50,10 +49,6 @@ func AddProduct(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	if err := validator.Struct(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
-	}
-
 	if err := db.AddProduct(request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -67,10 +62,6 @@ func UpdateProduct(c *fiber.Ctx) error {
 	request := new(models.Product)
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
-	}
-
-	if err := validator.Struct(request); err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
-	"github.com/shurco/litecart/pkg/validator"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -19,7 +18,7 @@ func Install(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	if err := validator.Struct(request); err != nil {
+	if err := request.Validate(); err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 
