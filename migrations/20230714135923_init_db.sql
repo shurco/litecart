@@ -28,6 +28,20 @@ CREATE TABLE subdomain (
 	desc 	TEXT DEFAULT NULL
 );
 
+CREATE TABLE page (
+	id 				TEXT PRIMARY KEY NOT NULL,
+	name 			TEXT NOT NULL,
+	url 			TEXT UNIQUE NOT NULL,
+	content 	TEXT DEFAULT NULL,
+	created 	TIMESTAMP DEFAULT (datetime('now')),
+	updated 	TIMESTAMP
+);
+INSERT INTO page (id, name, url, content) VALUES 
+('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', ''),
+('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', ''),
+('kFCjBnL25hNTRHk', 'Cookies', 'cookies', '');
+
+
 CREATE TABLE product (
 	id 				TEXT PRIMARY KEY NOT NULL,
 	name 			TEXT NOT NULL,
@@ -70,6 +84,7 @@ CREATE TABLE cart (
 DROP TABLE cart;
 DROP TABLE product_image;
 DROP TABLE product;
+DROP TABLE page;
 DROP TABLE subdomain;
 DROP TABLE session;
 DROP TABLE setting;

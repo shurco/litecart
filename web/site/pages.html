@@ -1,0 +1,36 @@
+<div id="page">
+  <section>
+    <div class="tiptap max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
+      <h1><strong>{{content.name}}</strong></h1>
+      <div v-html="content.content" class="mt-10"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  Vue.createApp({
+    data() {
+      return {
+        content: ref([]),
+      };
+    },
+
+    mounted() {
+      this.pageContent('{#.PageUrl#}');
+    },
+
+    methods: {
+      async pageContent(url) {
+        const response = await fetch(`/api/pages/${url}`, {
+          credentials: "include",
+          method: 'GET',
+        });
+        this.resp = await response.json()
+        if (this.resp.success) {
+          this.content = this.resp.result
+        }
+      },
+    },
+
+  }).mount("#page");
+</script>

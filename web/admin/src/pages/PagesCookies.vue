@@ -1,21 +1,59 @@
 <template>
-  <div class="grid grid-cols-1 pt-4">
+  <div class="pt-5">
+    <Editor v-model="content" />
 
-    <div class="flex pt-4">
-      <div class="flex-none">
-        <FormButton type="submit" name="Save" color="green" class="mr-3" @click="updatePage" />
-      </div>
-      <div class="grow"></div>
-    </div>
-
+    <hr class="my-5" />
+    <FormButton type="submit" name="Save" color="green" @click="updatePage" />
   </div>
 </template>
 
 <script setup>
-import FormButton from '@/components/form/Button.vue'
-import FormTextarea from '@/components/form/Textarea.vue'
+import { onMounted, ref } from 'vue'
 
-const updatePage = () => {
-  console.log("save")
+// @ts-ignore
+import * as NProgress from 'nprogress'
+import Editor from '@/components/Editor.vue'
+import FormButton from '@/components/form/Button.vue'
+
+const page = ref()
+const content = ref()
+
+onMounted(() => {
+  pageContent('cookies')
+})
+
+const pageContent = async (url) => {
+  NProgress.start()
+
+  await fetch(`/api/pages/${url}`, {
+    credentials: 'include',
+    method: 'GET'
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        page.value = data.result
+        content.value = data.result.content
+      }
+      NProgress.done()
+    })
+}
+
+const updatePage = async () => {
+  NProgress.start()
+
+  page.value.content = content.value
+  await fetch(`/api/_/pages/${page.value.id}`, {
+    credentials: 'include',
+    method: 'PATCH',
+    body: JSON.stringify(page.value),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      NProgress.done()
+    })
 }
 </script>

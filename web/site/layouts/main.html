@@ -8,6 +8,7 @@
   <script src="/assets/js/vue.js?v=3.3.4"></script>
   <script src="/assets/js/main.js" type="module"></script>
   <link href="/assets/css/style.css" rel="stylesheet">
+  <link href="/assets/css/main.css" rel="stylesheet">
   <script>
     const { onMounted, onUpdated, onUnmounted, ref, toRefs, watch, reactive, computed, created, getCurrentInstance } = Vue;
   </script>
@@ -46,7 +47,7 @@
       <div class=" border-t border-gray-100 pt-8 sm:flex sm:items-center sm:justify-between ">
         <ul class="flex flex-wrap justify-center gap-4 text-xs lg:justify-end">
           <li v-for="item in menu">
-            <a :href="item.url" class="text-blue-500 transition hover:opacity-75">
+            <a :href="`/${item.url}`" class="text-blue-500 transition hover:opacity-75">
               {{item.name}}
             </a>
           </li>
@@ -103,20 +104,7 @@
     Vue.createApp({
       data() {
         return {
-          menu: [
-            {
-              url: "/terms",
-              name: "Terms & Conditions"
-            },
-            {
-              url: "/privacy",
-              name: "Privacy Policy"
-            },
-            {
-              url: "/cookies",
-              name: "Cookies"
-            },
-          ],
+          menu: ref([]),
 
           social: [
             {
@@ -148,6 +136,24 @@
 
         };
       },
+
+      mounted() {
+        this.listPages();
+      },
+
+      methods: {
+        async listPages() {
+          const response = await fetch(`/api/pages`, {
+            credentials: "include",
+            method: 'GET',
+          });
+          this.resp = await response.json()
+          if (this.resp.success) {
+            this.menu = this.resp.result
+          }
+        },
+      },
+
     }).mount("#footer");
   </script>
 

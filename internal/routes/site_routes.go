@@ -15,15 +15,21 @@ func SiteRoutes(c *fiber.App) {
 	})
 
 	c.Get("/terms", func(c *fiber.Ctx) error {
-		return c.Render("text", nil, "layouts/main")
+		return c.Render("pages", fiber.Map{
+			"PageUrl": "terms",
+		}, "layouts/main")
 	})
 
 	c.Get("/privacy", func(c *fiber.Ctx) error {
-		return c.Render("text", nil, "layouts/main")
+		return c.Render("pages", fiber.Map{
+			"PageUrl": "privacy",
+		}, "layouts/main")
 	})
 
 	c.Get("/cookies", func(c *fiber.Ctx) error {
-		return c.Render("text", nil, "layouts/main")
+		return c.Render("pages", fiber.Map{
+			"PageUrl": "cookies",
+		}, "layouts/main")
 	})
 
 	// catalog section

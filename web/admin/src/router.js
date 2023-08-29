@@ -39,6 +39,13 @@ const router = createRouter({
       component: () => import('@/pages/Pages.vue'),
       redirect: '/pages/terms',
       children: [
+        /*
+        {
+          path: ':pageUrl',
+          name: 'page',
+          component: () => import('@/pages/Page.vue')
+        }
+        */
         {
           path: 'terms',
           name: 'pagesTerms',

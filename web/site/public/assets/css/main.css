@@ -1,0 +1,65 @@
+h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: #111827;
+
+  @media (min-width: 640px) {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+h2 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+
+  @media (min-width: 640px) {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+h3 {
+  font-weight: 700;
+  color: #111827;
+
+  @media (min-width: 640px) {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+.tiptap ul {
+  padding-left: 2.5rem;
+  list-style-type: disc;
+}
+
+.tiptap ol {
+  padding-left: 2.5rem;
+  list-style-type: decimal;
+}
+
+.tiptap > * + * {
+  margin-top: 0.75em;
+}
+.tiptap blockquote {
+  padding-left: 1rem;
+  border-color: #6b7280;
+  border-style: solid;
+}
+.tiptap blockquote ul {
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+.tiptap blockquote ol {
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+.tiptap hr {
+  border: none;
+  border-top: 2px solid rgba(13, 13, 13, 0.1);
+  margin: 2rem 0;
+}
