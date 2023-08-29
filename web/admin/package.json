@@ -8,6 +8,10 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
+    "@tiptap/extension-link": "^2.1.7",
+    "@tiptap/pm": "^2.1.7",
+    "@tiptap/starter-kit": "^2.1.7",
+    "@tiptap/vue-3": "^2.1.7",
     "@vee-validate/rules": "^4.11.2",
     "nprogress": "^0.2.0",
     "vee-validate": "^4.11.2",
@@ -21,6 +25,7 @@
     "autoprefixer": "^10.4.15",
     "daisyui": "^3.5.1",
     "postcss": "^8.4.28",
+    "sass": "^1.66.1",
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.9",
     "vite-plugin-vue-devtools": "^1.0.0-rc.2",
