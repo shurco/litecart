@@ -18,10 +18,10 @@ github.com/go-ozzo/ozzo-validation/v4 v4.3.0/go.mod h1:2NKgrcHl3z6cJs+3Oo940FPRi
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/gofiber/contrib/fiberzerolog v0.2.0 h1:U6mKf8HCTFWRNIN/iKLDJLi9UDmqACLbUAcWSVUw2x0=
 github.com/gofiber/contrib/fiberzerolog v0.2.0/go.mod h1:rCL2kQftHPK9MsK2FJAnfWhbzLZ7A/7nytl3UhL3yNw=
-github.com/gofiber/contrib/jwt v1.0.4 h1:ahIBc/ezuSvcvY2JSbSk0AmaVJFQfO07r7taMhAqt6Q=
-github.com/gofiber/contrib/jwt v1.0.4/go.mod h1:l8mQTjjUGd3BZckufTw6MC6pThCtzV9UdkF5A3XnDzE=
-github.com/gofiber/fiber/v2 v2.48.0 h1:cRVMCb9aUJDsyHxGFLwz/sGzDggdailZZyptU9F9cU0=
-github.com/gofiber/fiber/v2 v2.48.0/go.mod h1:xqJgfqrc23FJuqGOW6DVgi3HyZEm2Mn9pRqUb2kHSX8=
+github.com/gofiber/contrib/jwt v1.0.5 h1:uETSzFD4fWXcd8Yh3Jh22sNagr15+LaksHakotxOnBM=
+github.com/gofiber/contrib/jwt v1.0.5/go.mod h1:l8mQTjjUGd3BZckufTw6MC6pThCtzV9UdkF5A3XnDzE=
+github.com/gofiber/fiber/v2 v2.49.0 h1:xBVG2c66GDcWfww56xHvMn52Q0XX7UrSvjj6MD8/5EE=
+github.com/gofiber/fiber/v2 v2.49.0/go.mod h1:oxpt7wQaEYgdDmq7nMxCGhilYicBLFnZ+jQSJcQDlSE=
 github.com/gofiber/template v1.8.2 h1:PIv9s/7Uq6m+Fm2MDNd20pAFFKt5wWs7ZBd8iV9pWwk=
 github.com/gofiber/template v1.8.2/go.mod h1:bs/2n0pSNPOkRa5VJ8zTIvedcI/lEYxzV3+YPXdBvq8=
 github.com/gofiber/template/html/v2 v2.0.5 h1:BKLJ6Qr940NjntbGmpO3zVa4nFNGDCi/IfUiDB9OC20=
