@@ -71,25 +71,14 @@ export function costFormat(cost) {
   return Number(cost) ? (Number(cost) / 100).toFixed(2) : '0.00'
 }
 
+export function costStripe(cost) {
+  return Number(cost) * 100
+}
+
 export function formatDate(timestamp) {
-  const monthNames = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
-  ]
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const date = new Date(timestamp * 1000)
-  return `${date.getDate()} ${
-    monthNames[date.getMonth()]
-  } ${date.getFullYear()}, ${date.toLocaleTimeString()}`
+  return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}, ${date.toLocaleTimeString()}`
 }
 
 function deepEqual(object1, object2) {

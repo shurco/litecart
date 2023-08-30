@@ -14,18 +14,17 @@ type Products struct {
 
 // Product is ...
 type Product struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Images      []Images          `json:"images,omitempty"`
-	URL         string            `json:"url"`
-	Amount      int               `json:"amount"`
-	Currency    string            `json:"currency,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
-	Attributes  []string          `json:"attributes,omitempty"`
-	Active      bool              `json:"active"`
-	Created     int64             `json:"created"`
-	Updated     int64             `json:"updated,omitempty"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Images      []Images   `json:"images,omitempty"`
+	URL         string     `json:"url"`
+	Amount      int        `json:"amount"`
+	Metadata    []Metadata `json:"metadata,omitempty"`
+	Attributes  []string   `json:"attributes,omitempty"`
+	Active      bool       `json:"active"`
+	Created     int64      `json:"created"`
+	Updated     int64      `json:"updated,omitempty"`
 }
 
 // Validate is ...
@@ -37,10 +36,23 @@ func (v Product) Validate() error {
 		validation.Field(&v.Images),
 		validation.Field(&v.URL, validation.Required, validation.Length(1, 20)),
 		validation.Field(&v.Amount, validation.Required, validation.Min(0)),
-		validation.Field(&v.Currency, validation.In("USD", "EUR")),
 		validation.Field(&v.Metadata),
 		validation.Field(&v.Attributes, validation.Each(validation.Length(3, 254))),
 		validation.Field(&v.Active),
+	)
+}
+
+// Metadata is ...
+type Metadata struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// Validate is ...
+func (v Metadata) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Key, validation.Required, validation.Length(1, 20)),
+		validation.Field(&v.Value, validation.Required, validation.Min(0)),
 	)
 }
 

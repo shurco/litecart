@@ -103,9 +103,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 
 // Product is ...
 func (q *ProductQueries) Product(id string, private bool) (*models.Product, error) {
-	product := &models.Product{
-		Currency: "USD",
-	}
+	product := &models.Product{}
 
 	query := `
 			SELECT 
@@ -180,6 +178,22 @@ func (q *ProductQueries) AddProduct(product *models.Product) error {
 
 // UpdateProduct is ...
 func (q *ProductQueries) UpdateProduct(product *models.Product) error {
+	metadata, _ := json.Marshal(product.Metadata)
+	attributes, _ := json.Marshal(product.Attributes)
+
+	_, err := q.DB.Exec(`UPDATE product SET name = ?, desc = ?, url = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
+		product.Name,
+		product.Description,
+		product.URL,
+		product.Amount,
+		metadata,
+		attributes,
+		product.ID,
+	)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

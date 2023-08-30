@@ -13,20 +13,18 @@
       <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
         <thead class="text-left">
           <tr>
-            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-              Name
-            </th>
-            <th class="w-32 whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-              URL
-            </th>
-            <th class="w-32 whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-              Price
-            </th>
+            <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Name</th>
+            <th class="w-32 whitespace-nowrap px-4 py-2 font-medium text-gray-900">URL</th>
+            <th class="w-32 whitespace-nowrap px-4 py-2 font-medium text-gray-900">Price</th>
             <th class="w-24 px-4 py-2"></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr class="cursor-pointer hover:bg-gray-100 active:bg-gray-100" :class="{ 'opacity-30': !item.active }" v-for="(item, index) in products.products">
+          <tr
+            class="cursor-pointer hover:bg-gray-100 active:bg-gray-100"
+            :class="{ 'opacity-30': !item.active }"
+            v-for="(item, index) in products.products"
+          >
             <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, 'view')">
               <div>
                 {{ item.name }}
@@ -37,7 +35,7 @@
               <span v-else>{{ item.url }}</span>
             </td>
             <td class="whitespace-nowrap px-4 py-2" @click="openDrawer(index, item.id, 'view')">
-              {{ costFormat(item.amount) }} {{ item.currency }}
+              {{ costFormat(item.amount) }} {{ products.currency }}
             </td>
             <td class="px-4 py-2">
               <div class="flex">
@@ -45,7 +43,11 @@
                   <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, item.id, 'update')" />
                 </div>
                 <div>
-                  <SvgIcon :name="(item.active ? 'eye' : 'eye-slash')" class="h-5 w-5" @click="updateProductActive(index)" />
+                  <SvgIcon
+                    :name="item.active ? 'eye' : 'eye-slash'"
+                    class="h-5 w-5"
+                    @click="updateProductActive(index)"
+                  />
                 </div>
               </div>
             </td>
@@ -60,22 +62,18 @@
         <dl class="-my-3 divide-y divide-gray-100 text-sm">
           <DetailList name="ID">{{ product.info.id }}</DetailList>
           <DetailList name="Name">{{ product.info.name }}</DetailList>
-          <DetailList name="Price">{{ product.info.amount }} {{ product.info.currency }}</DetailList>
+          <DetailList name="Price">{{ product.info.amount }} {{ products.currency }}</DetailList>
           <DetailList name="URL">{{ product.info.url }}</DetailList>
 
           <DetailList name="Metadata">
-            <div v-for="(value, key) in product.info.metadata">
-              {{ key }}: {{ value }}
-            </div>
+            <div v-for="(data, index) in product.info.metadata">{{ data.key }}: {{ data.value }}</div>
           </DetailList>
 
           <DetailList name="Attributes">
             <div v-for="item in product.info.attributes">{{ item }}</div>
           </DetailList>
 
-          <DetailList name="Created">{{
-            formatDate(product.info.created)
-          }}</DetailList>
+          <DetailList name="Created">{{ formatDate(product.info.created) }}</DetailList>
           <DetailList name="Updated" v-if="product.info.updated">
             {{ formatDate(product.info.updated) }}
           </DetailList>
@@ -83,14 +81,16 @@
           <DetailList name="Images" :grid="true" v-if="product.info.images !== null">
             <div v-for="item in product.info.images">
               <a :href="`/uploads/${item.name}.${item.ext}`" target="_blank">
-                <img style="width: 100%; max-width: 150px" :src="`/uploads/${item.name}_sm.${item.ext}`" loading="lazy" />
+                <img
+                  style="width: 100%; max-width: 150px"
+                  :src="`/uploads/${item.name}_sm.${item.ext}`"
+                  loading="lazy"
+                />
               </a>
             </div>
           </DetailList>
 
-          <DetailList name="description">{{
-            product.info.description
-          }}</DetailList>
+          <DetailList name="description">{{ product.info.description }}</DetailList>
         </dl>
       </div>
 
@@ -98,11 +98,15 @@
         <div class="flex items-center">
           <div class="pr-3">
             <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">
-              {{ products.products[product.index].name }}
+              View {{ products.products[product.index].name }}
             </h2>
           </div>
           <div>
-            <SvgIcon :name="(products.products[product.index].active ? 'eye' : 'eye-slash')" class="h-5 w-5 cursor-pointer" @click="updateProductActive(product.index)" />
+            <SvgIcon
+              :name="products.products[product.index].active ? 'eye' : 'eye-slash'"
+              class="h-5 w-5 cursor-pointer"
+              @click="updateProductActive(product.index)"
+            />
           </div>
         </div>
       </template>
@@ -116,27 +120,31 @@
               <div class="pr-3">
                 <FormInput v-model="product.info.amount" id="amount" type="text" title="Amount" ico="money" />
               </div>
-              <div class="mt-3">{{ product.info.currency }}</div>
+              <div class="mt-3">{{ products.currency }}</div>
             </div>
             <FormInput v-model="product.info.url" id="url" type="text" title="Url" ico="glob-alt" />
 
             <hr />
             <p class="font-semibold">Metadata</p>
-            <div class="flex" v-for="(value, key, index) in product.info.metadata" :key="index">
+            <div class="flex" v-for="(data, index) in product.info.metadata" :key="index">
               <div class="grow pr-3">
-                <FormInput v-model="product.info.metadata[key]" :id="`mtd-value-${index}`" type="text" :title="`Value-${index}`" />
+                <FormInput v-model="data.key" :id="`mtd-key-${index}`" type="text" title="" />
               </div>
               <div class="grow">
-                <FormInput v-model="Object.keys(product.info.metadata)[index]" :id="`mtd-key-${index}`" type="text" :title="`Key-${index}`" />
+                <FormInput v-model="data.value" :id="`mtd-value-${index}`" type="text" title="" />
               </div>
-              <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteMetadataRecord(index, product.info.id)">
+              <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteMetadataRecord(index)">
                 <SvgIcon name="trash" class="h-5 w-5" />
               </div>
             </div>
             <div class="flex">
               <div class="grow"></div>
               <div class="mt-2 flex-none">
-                <a href="#" class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700" @click="addMetadataRecord">
+                <a
+                  href="#"
+                  class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
+                  @click="addMetadataRecord()"
+                >
                   Add metadata record
                 </a>
               </div>
@@ -146,16 +154,20 @@
             <p class="font-semibold">Attributes</p>
             <div class="flex" v-for="(value, index) in product.info.attributes" :key="index">
               <div class="grow">
-                <FormInput v-model="product.info.attributes[index]" :id="`atr-key-${index}`" type="text" :title="`${index}`" />
+                <FormInput v-model="product.info.attributes[index]" :id="`atr-key-${index}`" type="text" title="" />
               </div>
-              <div class="flex-none cursor-pointer pl-3 pt-3">
+              <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteAttributeRecord(index)">
                 <SvgIcon name="trash" class="h-5 w-5" />
               </div>
             </div>
             <div class="flex">
               <div class="grow"></div>
               <div class="mt-2 flex-none">
-                <a href="#" class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700" @click="addAttributeRecord">
+                <a
+                  href="#"
+                  class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
+                  @click="addAttributeRecord()"
+                >
                   Add attribute record
                 </a>
               </div>
@@ -167,15 +179,18 @@
                 <a :href="`/uploads/${item.name}.${item.ext}`" target="_blank">
                   <img :src="`/uploads/${item.name}_sm.${item.ext}`" />
                 </a>
-                <div class="absolute end-4 top-4 cursor-pointer bg-white p-2" @click="deleteProductImage(index, product.info.id)">
+                <div
+                  class="absolute end-4 top-4 cursor-pointer bg-white p-2"
+                  @click="deleteProductImage(index, product.info.id)"
+                >
                   <SvgIcon name="trash" class="h-5 w-5" />
                 </div>
               </div>
             </div>
-            <FormUpload :productId="product.info.id" accept=".jpg,.jpeg,.png" @added="addProductImage" />
+            <FormUpload :productId="`${product.info.id}`" accept=".jpg,.jpeg,.png" @added="addProductImage" />
 
             <hr />
-            <FormTextarea v-model="product.info.description" id="textarea" name="textarea"></FormTextarea>
+            <FormTextarea v-model="product.info.description" id="textarea" name="Description" />
           </Form>
         </dl>
       </div>
@@ -183,7 +198,16 @@
       <template v-slot:header v-if="isDrawer.action === 'update'">
         <div class="flex items-center">
           <div class="pr-3">
-            <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">Edit</h2>
+            <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">
+              Edit {{ products.products[product.index].name }}
+            </h2>
+          </div>
+          <div>
+            <SvgIcon
+              :name="products.products[product.index].active ? 'eye' : 'eye-slash'"
+              class="h-5 w-5 cursor-pointer"
+              @click="updateProductActive(product.index)"
+            />
           </div>
         </div>
       </template>
@@ -219,189 +243,229 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref } from 'vue'
 
 // @ts-ignore
-import * as NProgress from "nprogress";
+import * as NProgress from 'nprogress'
 
 import SvgIcon from 'svg-icon'
-import { defineRule, Form } from "vee-validate";
-import { required, email, min } from "@vee-validate/rules";
-defineRule("required", required);
-defineRule("email", email);
-defineRule("min", min);
+import { defineRule, Form } from 'vee-validate'
+import { required, email, min } from '@vee-validate/rules'
+defineRule('required', required)
+defineRule('email', email)
+defineRule('min', min)
 
-import { costFormat, formatDate } from "@/utils/";
+import { costFormat, costStripe, formatDate } from '@/utils/'
 
-import MainLayouts from "@/layouts/Main.vue";
-import FormInput from "@/components/form/Input.vue";
-import FormButton from "@/components/form/Button.vue";
-import FormUpload from "@/components/form/Upload.vue";
-import FormTextarea from "@/components/form/Textarea.vue";
-import DetailList from "@/components/DetailList.vue";
-import Drawer from "@/components/Drawer.vue";
+import MainLayouts from '@/layouts/Main.vue'
+import FormInput from '@/components/form/Input.vue'
+import FormButton from '@/components/form/Button.vue'
+import FormUpload from '@/components/form/Upload.vue'
+import FormTextarea from '@/components/form/Textarea.vue'
+import DetailList from '@/components/DetailList.vue'
+import Drawer from '@/components/Drawer.vue'
 
 onMounted(() => {
-  listProducts();
-});
+  listProducts()
+})
 
 const isDrawer = ref({
   open: false,
-  action: null,
-});
+  action: null
+})
 
-const products = ref({});
+const products = ref({})
 
 const product = ref({
   info: {
-    id: String,
-    name: String,
-    amount: String,
-    url: String,
-    metadata: Object,
-    description: String,
+    id: null,
+    name: null,
+    amount: null,
+    url: null,
+    metadata: {},
+    attributes: [],
+    images: {},
+    description: null,
+    created: null,
+    updated: null
   },
-  action: String,
-  index: Number,
-  name: String,
-});
+  action: null,
+  index: 0,
+  name: null
+})
 
 const listProducts = async () => {
-  NProgress.start();
+  NProgress.start()
 
-  await fetch("/api/_/products", {
-    credentials: "include",
-    method: "GET",
+  await fetch('/api/_/products', {
+    credentials: 'include',
+    method: 'GET'
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        products.value = data.result;
+        products.value = data.result
       }
-      NProgress.done();
-    });
-};
+      NProgress.done()
+    })
+}
 
 const getProduct = async (id) => {
-  NProgress.start();
+  NProgress.start()
 
   await fetch(`/api/_/products/${id}`, {
-    credentials: "include",
-    method: "GET",
+    credentials: 'include',
+    method: 'GET'
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        product.value.info = data.result;
-        product.value.info.amount = costFormat(product.value.info.amount);
-      }
-      NProgress.done();
-    });
-};
+        const { id, name, amount, url, metadata, attributes, images, description, created, updated } = data.result
 
-const updateProduct = (index) => {
-  console.log(index);
-};
+        product.value.info.id = id
+        product.value.info.name = name
+        product.value.info.amount = costFormat(amount)
+        product.value.info.url = url
+        product.value.info.metadata = metadata
+        product.value.info.attributes = attributes
+        product.value.info.images = images
+        product.value.info.description = description
+        product.value.info.created = created
+        product.value.info.updated = updated
+      }
+      NProgress.done()
+    })
+}
+
+const updateProduct = async () => {
+  const update = JSON.parse(JSON.stringify(product.value.info))
+  update.amount = costStripe(update.amount)
+
+  NProgress.start()
+  await fetch(`/api/_/products/${update.id}`, {
+    credentials: 'include',
+    method: 'PATCH',
+    body: JSON.stringify(update),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        const found = products.value.products.find((e) => e.id === update.id)
+        found.name = update.name
+        found.url = update.url
+        found.amount = update.amount
+        found.description = update.description
+      }
+      NProgress.done()
+      closeDrawer()
+    })
+}
 
 const addProduct = (index) => {
-  console.log(index);
-};
+  console.log(index)
+}
 
 const deleteProduct = async (index) => {
-  NProgress.start();
+  NProgress.start()
 
   await fetch(`/api/_/products/${products.value.products[index].id}`, {
-    credentials: "include",
-    method: "DELETE",
+    credentials: 'include',
+    method: 'DELETE'
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        products.value.products.splice(index, 1);
-        products.value.total = products.value.total - 1;
-        closeDrawer();
+        products.value.products.splice(index, 1)
+        products.value.total = products.value.total - 1
+        closeDrawer()
       } else {
-        const obj = JSON.parse(data.result);
-        if (obj.code === "resource_missing") {
-          console.log(obj.message);
+        const obj = JSON.parse(data.result)
+        if (obj.code === 'resource_missing') {
+          console.log(obj.message)
         }
       }
-      NProgress.done();
-    });
-};
+      NProgress.done()
+    })
+}
 
 const updateProductActive = async (index) => {
-  NProgress.start();
+  NProgress.start()
 
   await fetch(`/api/_/products/${products.value.products[index].id}/active`, {
-    credentials: "include",
-    method: "PATCH",
+    credentials: 'include',
+    method: 'PATCH'
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        products.value.products[index].active =
-          !products.value.products[index].active;
+        products.value.products[index].active = !products.value.products[index].active
       }
-      NProgress.done();
-    });
-};
+      NProgress.done()
+    })
+}
 
-const addMetadataRecord = (index) => {
-  console.log(index);
-};
+const addMetadataRecord = () => {
+  product.value.info.metadata.push({ key: '', value: '' })
+}
 
-const deleteMetadataRecord = (index, productId) => {
-  console.log(index);
-};
+const deleteMetadataRecord = (key) => {
+  product.value.info.metadata.splice(key, 1)
+}
 
-const addAttributeRecord = (index) => {
-  console.log(index);
-};
+const addAttributeRecord = () => {
+  product.value.info.attributes.push('')
+}
+
+const deleteAttributeRecord = (index) => {
+  product.value.info.attributes.splice(index, 1)
+}
 
 const addProductImage = (event) => {
   if (event.success) {
-    product.value.info.images.push(event.result);
+    product.value.info.images.push(event.result)
   }
-};
+}
 
 const deleteProductImage = async (index, productId) => {
-  NProgress.start();
-  const image = product.value.info.images[index];
+  NProgress.start()
 
+  const image = product.value.info.images[index]
   await fetch(`/api/_/products/${productId}/image/${image.id}`, {
-    credentials: "include",
-    method: "DELETE",
+    credentials: 'include',
+    method: 'DELETE'
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        product.value.info.images.splice(index, 1);
+        product.value.info.images.splice(index, 1)
       }
-      NProgress.done();
-    });
-};
+      NProgress.done()
+    })
+}
 
 const openDrawer = (index, id, action) => {
-  isDrawer.value.open = true;
-  isDrawer.value.action = action;
-  product.value.index = index;
+  isDrawer.value.open = true
+  isDrawer.value.action = action
+  product.value.index = index
 
   switch (action) {
-    case "view":
-    case "update":
-      getProduct(id);
-      break;
-    case "add":
-      addProduct("add");
-      break;
+    case 'view':
+    case 'update':
+      getProduct(id)
+      break
+    case 'add':
+      addProduct('add')
+      break
   }
-};
+}
 
 const closeDrawer = () => {
-  isDrawer.value.open = false;
-  isDrawer.value.action = null;
-  product.value.info = {};
-  product.value.index = null;
-};
+  isDrawer.value.open = false
+  isDrawer.value.action = null
+  product.value.info = {}
+  product.value.index = null
+}
 </script>
