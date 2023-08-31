@@ -79,7 +79,6 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 	}))
 
 	app.Static("/", sitePath+"/public")
-	app.Static("/components", sitePath+"/components")
 
 	// check lc_uploads folder
 	if err := fsutil.MkDirs(0775, "./lc_uploads"); err != nil {

@@ -13,9 +13,8 @@
           <p class="mt-4">{{product.description}}</p>
           <p class="mt-4">{{ costFormat( product.amount ) }} {{ currency }}</p>
 
-          <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="addCart()" v-if="!product.inCart"></form-button>
-          <p class="mt-4" v-else>added to cart</p>
-
+          <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="add()" v-if="!product.inCart"></form-button>
+          <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="remove()" v-else></form-button>
         </div>
       </div>
     </div>
@@ -23,7 +22,7 @@
 </div>
 
 <script type="module">
-  import FormButton from '/components/form/button.js';
+  import FormButton from '/assets/js/form/button.js';
 
   Vue.createApp({
     components: {
@@ -43,7 +42,7 @@
     },
 
     methods: {
-      addCart() {
+      add() {
         if (!this.inCart(this.product.id)) {
           this.product.inCart = true
           window.dispatchEvent(new CustomEvent("addProduct", {
@@ -61,6 +60,18 @@
         }
       },
 
+      remove() {
+        const cart = JSON.parse(localStorage.getItem('cart'))
+
+        if (cart.find(x => x.id === this.product.id)) {
+          this.product.inCart = false
+          const indexCart = cart.findIndex(item => item.id === this.product.id);
+          cart.splice(indexCart, 1);
+          localStorage.setItem("cart", JSON.stringify(cart))
+          window.dispatchEvent(new CustomEvent("delProduct"))
+        }
+      },
+
       async getProduct(url) {
         const response = await fetch(`/api/products/${url}`, {
           credentials: "include",
@@ -70,7 +81,7 @@
         if (this.resp.success) {
           if (localStorage.getItem('currency')) {
             this.currency = localStorage.getItem('currency');
-          }else{
+          } else {
             localStorage.setItem('currency', this.resp.result.currency);
             this.currency = this.resp.result.currency;
           }

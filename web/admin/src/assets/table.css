@@ -1,0 +1,23 @@
+table {
+  @apply min-w-full divide-y-2 divide-gray-200 bg-white text-sm;
+
+  thead {
+    @apply text-left;
+  }
+
+  th {
+    @apply whitespace-nowrap px-4 py-2 font-medium text-gray-900;
+  }
+
+  tbody {
+    @apply divide-y divide-gray-200;
+  }
+
+  tr {
+    @apply cursor-pointer hover:bg-gray-100 active:bg-gray-100;
+
+    td {
+      @apply whitespace-nowrap px-4 py-2;
+    }
+  }
+}

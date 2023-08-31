@@ -1,12 +1,7 @@
 <template>
-  <button class="group relative inline-flex items-center overflow-hidden rounded px-8 py-3 text-white"
-    :class="color ? colors[color][0] + ' active:' + colors[color][1] : '', ico ? 'focus:outline-none focus:ring' : ''">
-
-    <span class="absolute -start-full transition-all group-hover:start-4" v-if="ico">
-      <SvgIcon :name="ico" class="h-4 w-4" />
-    </span>
-
-    <span class="text-sm font-medium" :class="ico ? 'transition-all group-hover:ms-4' : ''">
+  <button class="group" :class="color ? colors[color][0] + ' active:' + colors[color][1] : '', ico ? 'focus:outline-none focus:ring' : ''">
+    <SvgIcon :name="ico" class="h-4 w-4 absolute -start-full transition-all group-hover:start-4" v-if="ico" />
+    <span :class="ico ? 'transition-all group-hover:ms-4' : ''">
       {{ name }}
     </span>
   </button>
@@ -35,3 +30,13 @@ const colors = {
   red: ["bg-red-600", "bg-red-500"],
 }
 </script>
+
+<style lang="scss" scoped>
+button {
+  @apply relative inline-flex items-center overflow-hidden rounded px-8 py-3 text-white;
+
+  & span {
+    @apply text-sm font-medium;
+  }
+}
+</style>

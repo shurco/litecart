@@ -10,7 +10,7 @@ var embedAdmin embed.FS
 //go:embed admin/dist/index.html
 var embedAdminIndex embed.FS
 
-//go:embed site/*.html site/layouts/*.html site/components/* site/public/*
+//go:embed site/*.html site/layouts/*.html site/public/*
 var embedSite embed.FS
 
 // EmbedAdmin is ...

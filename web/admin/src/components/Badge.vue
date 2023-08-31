@@ -1,14 +1,14 @@
 <template>
-  <span class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5">
-    <SvgIcon :name="ico" :class="(ico ? '-ms-0.5 me-1.5 ' + svgClass : 'h-0 w-0')" v-if="ico" />
-    <p class="whitespace-nowrap text-xs">
+  <span class="badge">
+    <SvgIcon :name="ico" :class="ico ? '-ms-0.5 me-1.5 ' + svgClass : 'h-0 w-0'" v-if="ico" />
+    <p>
       <slot />
     </p>
   </span>
 </template>
 
 <script setup>
-import SvgIcon from 'svg-icon'
+import SvgIcon from "svg-icon";
 
 const props = defineProps({
   ico: String,
@@ -19,3 +19,13 @@ const props = defineProps({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.badge {
+  @apply inline-flex items-center justify-center rounded-full px-2.5 py-0.5;
+
+  & p {
+    @apply whitespace-nowrap text-xs;
+  }
+}
+</style>

@@ -32,6 +32,7 @@ export default {
     <svg class="h-4 w-4" >
       <use xlink:href="/assets/img/sprite.svg#arrow-right" v-if="ico==='row'" />
       <use xlink:href="/assets/img/sprite.svg#cart" v-if="ico==='cart'" />
+      <use xlink:href="/assets/img/sprite.svg#trash" v-if="ico==='trash'" />
     </svg>
   </span>
 

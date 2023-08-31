@@ -5,30 +5,32 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "update": "ncu -i --format group"
   },
   "dependencies": {
     "@tiptap/extension-link": "^2.1.7",
     "@tiptap/pm": "^2.1.7",
     "@tiptap/starter-kit": "^2.1.7",
     "@tiptap/vue-3": "^2.1.7",
-    "@vee-validate/rules": "^4.11.2",
+    "@vee-validate/rules": "^4.11.3",
     "nprogress": "^0.2.0",
-    "vee-validate": "^4.11.2",
+    "vee-validate": "^4.11.3",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
     "vue-toast-notification": "^3"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.4",
-    "@vitejs/plugin-vue": "^4.3.1",
+    "@tailwindcss/forms": "^0.5.6",
+    "@vitejs/plugin-vue": "^4.3.4",
     "autoprefixer": "^10.4.15",
-    "daisyui": "^3.5.1",
-    "postcss": "^8.4.28",
+    "postcss": "^8.4.29",
+    "prettier": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.5.3",
     "sass": "^1.66.1",
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.9",
-    "vite-plugin-vue-devtools": "^1.0.0-rc.2",
+    "vite-plugin-vue-devtools": "^1.0.0-rc.3",
     "vite-plugin-vue-svg-icons": "^3.1.4"
   }
 }
