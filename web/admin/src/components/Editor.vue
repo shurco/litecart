@@ -47,49 +47,44 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { EditorContent, Editor } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
-
-import SvgIcon from "svg-icon";
-
-const emits = defineEmits(["update:modelValue"]);
-const editor = ref();
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { EditorContent, Editor } from '@tiptap/vue-3'
+import StarterKit from '@tiptap/starter-kit'
+import SvgIcon from 'svg-icon'
+const emits = defineEmits(['update:modelValue'])
+const editor = ref()
 const props = defineProps({
   modelValue: {
     type: String,
     required: true,
-    default: "",
-  },
-});
-
+    default: ""
+  }
+})
 onMounted(() => {
   editor.value = new Editor({
     extensions: [StarterKit],
     content: props.modelValue,
     onUpdate: () => {
-      emits("update:modelValue", editor.value.getHTML());
-    },
-  });
-});
-
+      emits('update:modelValue', editor.value.getHTML())
+    }
+  })
+})
 onBeforeUnmount(() => {
-  editor.value.destroy();
-});
-
+  editor.value.destroy()
+})
 watch(
   () => props.modelValue,
   (value) => {
-    const isSame = editor.value.getHTML() === value;
+    const isSame = editor.value.getHTML() === value
     if (isSame) {
-      return;
+      return
     }
-    editor.value.commands.setContent(value, false);
-  },
-);
+    editor.value.commands.setContent(value, false)
+  }
+)
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .ProseMirror:focus {
   outline: none;
 }
@@ -97,7 +92,7 @@ watch(
 button,
 input,
 select {
-  @apply m-[0.2rem] rounded-[0.3rem] bg-slate-100 px-[0.6rem] py-[0.2rem] text-black;
+  @apply text-black m-[0.2rem] px-[0.6rem] py-[0.2rem] rounded-[0.3rem] bg-slate-100;
 }
 
 button[disabled],
@@ -125,7 +120,7 @@ select[disabled] {
   }
 
   blockquote {
-    @apply border-x-2 border-solid border-gray-500 pl-4;
+    @apply pl-4 border-x-2 border-solid border-gray-500;
 
     ul {
       @apply list-disc pl-4;
