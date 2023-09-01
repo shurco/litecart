@@ -30,7 +30,6 @@
                 <img style="width: 100%; max-width: 80px" :src="`/uploads/${item.images[0].name}_sm.${item.images[0].ext}`" loading="lazy" />
               </a>
               <img style="width: 100%; max-width: 80px" src="/assets/img/noimage.png" v-else />
-
             </td>
             <td>
               <a :href="`/products/${item.url}`" target="_blank" v-if="item.active">{{ item.url }}</a>
@@ -56,6 +55,7 @@
     <div class="mx-auto" v-else>Add first product</div>
 
     <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
+      <!-- Start view section -->
       <div class="flow-root" v-if="isDrawer.action === 'view'">
         <dl class="-my-3 divide-y divide-gray-100 text-sm">
           <DetailList name="ID">{{ product.info.id }}</DetailList>
@@ -105,7 +105,9 @@
           </div>
         </div>
       </template>
+      <!-- End view section -->
 
+      <!-- Start update section -->
       <div class="flow-root" v-if="isDrawer.action === 'update'">
         <dl class="-my-3 divide-y divide-gray-100 text-sm">
           <Form @submit="updateProduct" v-slot="{ errors }" class="mx-auto mb-0 mt-8 space-y-4">
@@ -113,11 +115,11 @@
 
             <div class="flex flex-row">
               <div class="pr-3">
-                <FormInput v-model="product.info.amount" id="amount" type="text" title="Amount" ico="money" />
+                <FormInput v-model.trim="product.info.amount" id="amount" type="text" title="Amount" ico="money" />
               </div>
               <div class="mt-3">{{ products.currency }}</div>
             </div>
-            <FormInput v-model="product.info.url" id="url" type="text" title="Url" ico="glob-alt" />
+            <FormInput v-model.trim="product.info.url" id="url" type="text" title="Url" ico="glob-alt" />
 
             <hr />
             <p class="font-semibold">Metadata</p>
@@ -204,10 +206,68 @@
           </div>
         </div>
       </template>
+      <!-- End update section -->
 
+      <!-- Start add section -->
       <div class="flow-root" v-if="isDrawer.action === 'add'">
         <dl class="-my-3 divide-y divide-gray-100 text-sm">
-          <FormInput v-model="product.info.name" id="name" type="text" name="Name" ico="at-symbol" />
+          {{ product }}
+
+          <Form @submit="addProduct" v-slot="{ errors }" class="mx-auto mb-0 mt-8 space-y-4">
+            <FormInput v-model.trim="product.info.name" id="name" type="text" title="Name" ico="at-symbol" />
+
+            <div class="flex flex-row">
+              <div class="pr-3">
+                <FormInput v-model.trim="product.info.amount" id="amount" type="text" title="Amount" ico="money" />
+              </div>
+              <div class="mt-3">{{ products.currency }}</div>
+            </div>
+            <FormInput v-model.trim="product.info.url" id="url" type="text" title="Url" ico="glob-alt" />
+
+            <hr />
+            <p class="font-semibold">Metadata</p>
+            <div class="flex" v-for="(data, index) in product.info.metadata" :key="index">
+              <div class="grow pr-3">
+                <FormInput v-model="data.key" :id="`mtd-key-${index}`" type="text" title="" />
+              </div>
+              <div class="grow">
+                <FormInput v-model="data.value" :id="`mtd-value-${index}`" type="text" title="" />
+              </div>
+              <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteMetadataRecord(index)">
+                <SvgIcon name="trash" class="h-5 w-5" />
+              </div>
+            </div>
+            <div class="flex">
+              <div class="grow"></div>
+              <div class="mt-2 flex-none">
+                <a href="#" class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700" @click="addMetadataRecord()">
+                  Add metadata record
+                </a>
+              </div>
+            </div>
+
+            <hr />
+            <p class="font-semibold">Attributes</p>
+            <div class="flex" v-for="(value, index) in product.info.attributes" :key="index">
+              <div class="grow">
+                <FormInput v-model="product.info.attributes[index]" :id="`atr-key-${index}`" type="text" title="" />
+              </div>
+              <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteAttributeRecord(index)">
+                <SvgIcon name="trash" class="h-5 w-5" />
+              </div>
+            </div>
+            <div class="flex">
+              <div class="grow"></div>
+              <div class="mt-2 flex-none">
+                <a href="#" class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700" @click="addAttributeRecord()">
+                  Add attribute record
+                </a>
+              </div>
+            </div>
+
+            <hr />
+            <FormTextarea v-model="product.info.description" id="textarea" name="Description" />
+          </Form>
         </dl>
       </div>
 
@@ -218,6 +278,17 @@
           </div>
         </div>
       </template>
+
+      <template v-slot:footer v-if="isDrawer.action === 'add'">
+        <div class="flex">
+          <div class="flex-none">
+            <FormButton type="submit" name="Add" color="green" class="mr-3" @click="addProduct" />
+            <FormButton type="submit" name="Close" color="gray" @click="closeDrawer" />
+          </div>
+          <div class="grow"></div>
+        </div>
+      </template>
+      <!-- End update section -->
     </drawer>
   </MainLayouts>
 </template>
@@ -262,9 +333,9 @@ const product = ref({
     name: null,
     amount: null,
     url: null,
-    metadata: {},
+    metadata: [],
     attributes: [],
-    images: {},
+    images: [],
     description: null,
     created: null,
     updated: null,
@@ -330,7 +401,8 @@ const getProduct = async (id) => {
 
 const updateProduct = async () => {
   const update = JSON.parse(JSON.stringify(product.value.info));
-  update.amount = costStripe(update.amount);
+  update.amount = costStripe(update.amount)
+  update.url = update.url.toLowerCase().split(" ").join("")
 
   NProgress.start();
   await fetch(`/api/_/products/${update.id}`, {
@@ -355,8 +427,27 @@ const updateProduct = async () => {
     });
 };
 
-const addProduct = (index) => {
-  console.log(index);
+const addProduct = async () => {
+  const add = JSON.parse(JSON.stringify(product.value.info));
+  add.amount = costStripe(add.amount)
+  add.url = add.url.toLowerCase().split(" ").join("")
+
+  NProgress.start();
+  await fetch(`/api/_/products`, {
+    credentials: "include",
+    method: "POST",
+    body: JSON.stringify(add),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      NProgress.done();
+      closeDrawer();
+    });
+
 };
 
 const deleteProduct = async (index) => {
@@ -400,6 +491,9 @@ const updateProductActive = async (index) => {
 };
 
 const addMetadataRecord = () => {
+  if (!product.value.info.metadata) {
+    product.value.info.metadata = [];
+  }
   product.value.info.metadata.push({ key: "", value: "" });
 };
 
@@ -408,6 +502,9 @@ const deleteMetadataRecord = (key) => {
 };
 
 const addAttributeRecord = () => {
+  if (!product.value.info.attributes) {
+    product.value.info.attributes = [];
+  }
   product.value.info.attributes.push("");
 };
 
@@ -449,7 +546,8 @@ const openDrawer = (index, id, action) => {
       getProduct(id);
       break;
     case "add":
-      addProduct("add");
+      //getProduct(-1);
+      addProduct();
       break;
   }
 };

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	version   = "0.0.1"
+	version   = "v0.0.1"
 	gitCommit = "00000000"
 	buildDate = "14.07.2023"
 )
@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Use:                "litecart",
 	Short:              "LiteCart CLI",
 	Long:               "🛒 litecart - shopping-cart in 1 file",
-	Version:            fmt.Sprintf("LiteCart v%s (%s) from %s", version, gitCommit, buildDate),
+	Version:            fmt.Sprintf("LiteCart %s (%s) from %s", version, gitCommit, buildDate),
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 	CompletionOptions:  cobra.CompletionOptions{DisableDefaultCmd: true},
 }
