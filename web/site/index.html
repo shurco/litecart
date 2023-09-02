@@ -57,16 +57,19 @@
         const product = this.products[index]
         if (!this.inCart(product.id)) {
           this.products[index].inCart = true
+
+          const image = product.images ? {
+            name: product.images[0].name,
+            ext: product.images[0].ext
+          } : null;
+
           window.dispatchEvent(new CustomEvent("addProduct", {
             detail: {
               id: product.id,
               name: product.name,
               url: product.url,
               amount: product.amount,
-              image: {
-                name: product.images[0].name,
-                ext: product.images[0].ext
-              },
+              image: image,
             },
           }));
         }

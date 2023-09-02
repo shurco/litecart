@@ -26,6 +26,24 @@ func Products(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Products", products)
 }
 
+// AddProduct is ...
+// [post] /api/_/products
+func AddProduct(c *fiber.Ctx) error {
+	db := queries.DB()
+	request := new(models.Product)
+
+	if err := c.BodyParser(request); err != nil {
+		return webutil.StatusBadRequest(c, err)
+	}
+
+	product, err := db.AddProduct(request)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Product added", product)
+}
+
 // GetProduct is ...
 // [get] /api/_/products/:product_id
 func Product(c *fiber.Ctx) error {
@@ -40,26 +58,13 @@ func Product(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product info", product)
 }
 
-// AddProduct is ...
-func AddProduct(c *fiber.Ctx) error {
-	db := queries.DB()
-	request := new(models.Product)
-
-	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
-	}
-
-	if err := db.AddProduct(request); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Product added", nil)
-}
-
 // UpdateProduct is ...
+// [patch] /api/_/products/:product_id
 func UpdateProduct(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
 	db := queries.DB()
 	request := new(models.Product)
+	request.ID = productID
 
 	if err := c.BodyParser(request); err != nil {
 		return webutil.StatusBadRequest(c, err)
@@ -72,8 +77,21 @@ func UpdateProduct(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product updated", nil)
 }
 
+// DeleteProduct is ...
+// [delete] /api/_/products/:product_id
+func DeleteProduct(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	db := queries.DB()
+
+	if err := db.DeleteProduct(productID); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Product deleted", nil)
+}
+
 // UpdateProductActive is ...
-// [patch] /api/:product_id/active
+// [patch] /api/_/products/:product_id/active
 func UpdateProductActive(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
@@ -86,7 +104,7 @@ func UpdateProductActive(c *fiber.Ctx) error {
 }
 
 // ProductImages
-// [get] /api/:product_id/image
+// [get] /api/_/products/:product_id/image
 func ProductImages(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
@@ -100,7 +118,7 @@ func ProductImages(c *fiber.Ctx) error {
 }
 
 // AddProductImage is ...
-// [post] /api/:product_id/image
+// [post] /api/_/products/:product_id/image
 func AddProductImage(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
@@ -158,7 +176,7 @@ func AddProductImage(c *fiber.Ctx) error {
 }
 
 // DeleteProductImage is ...
-// [delete] /api/:product_id/image/:image_id
+// [delete] /api/_/products/:product_id/image/:image_id
 func DeleteProductImage(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	imageID := c.Params("image_id")
@@ -169,16 +187,4 @@ func DeleteProductImage(c *fiber.Ctx) error {
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Image deleted", nil)
-}
-
-// DeleteProduct is ...
-func DeleteProduct(c *fiber.Ctx) error {
-	productID := c.Params("product_id")
-	db := queries.DB()
-
-	if err := db.DeleteProduct(productID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Product deleted", nil)
 }

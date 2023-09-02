@@ -15,6 +15,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { notify } from "notiwind";
 
 import { defineRule, Form } from 'vee-validate'
 import { required, email, min } from '@vee-validate/rules'
@@ -26,15 +27,10 @@ import BlankLayouts from '@/layouts/Blank.vue'
 import FormInput from '@/components/form/Input.vue'
 import FormButton from '@/components/form/Button.vue'
 
-import 'vue-toast-notification/dist/theme-default.css'
-import { useToast } from 'vue-toast-notification'
-
 const state = ref({
   email: '',
   password: ''
 })
-
-const toast = useToast()
 
 const onSubmit = async () => {
   await fetch('/api/sign/in', {
@@ -47,13 +43,14 @@ const onSubmit = async () => {
   })
     .then((response) => response.json())
     .then((data) => {
-      if (!data.success) {
-        toast.open({
-          message: data.result,
-          type: 'error'
-        })
-      } else {
+      if (data.success) {
         window.location.href = '/_/'
+      } else {
+        notify({
+          group: "bottom",
+          title: "Error",
+          text: data.result,
+        }, 4000)
       }
     })
 }

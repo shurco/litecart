@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex relative h-screen overflow-hidden">
     <div class="flex-none w-48" id="menu">
       <div class="menu" id="menu">
         <div class="py-6">
@@ -17,7 +17,8 @@
         </div>
       </div>
     </div>
-    <div class="flex-1 mt-5 mx-5">
+
+    <div class="flex-1 mt-5 px-5 h-screen overflow-y-auto">
       <slot />
     </div>
   </div>

@@ -7,17 +7,9 @@
       transitionDuration: `200 ms`,
       backgroundColor: backgroundColor,
     }">
-      <div class="pb-8">
-        <slot name="header">
-          <h1>{{ title }}</h1>
-        </slot>
-      </div>
+
       <slot />
-      <div class="pt-8">
-        <slot name="footer">
-          <FormButton type="submit" name="Close" color="green" @click="closeDrawer" />
-        </slot>
-      </div>
+
     </div>
   </div>
 </template>

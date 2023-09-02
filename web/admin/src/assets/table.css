@@ -1,5 +1,5 @@
 table {
-  @apply min-w-full divide-y-2 divide-gray-200 bg-white text-sm;
+  @apply min-w-full divide-y-2 divide-gray-200 text-sm;
 
   thead {
     @apply text-left;

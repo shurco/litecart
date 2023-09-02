@@ -10,7 +10,7 @@
         <div class="mt-8" v-if="cart.length>0">
           <ul class="space-y-4">
             <li class="flex items-center gap-4" v-for="item, index in cart">
-              <img :src="`/uploads/${item.image.name}_sm.${item.image.ext}`" alt="" class="h-16 w-16 rounded object-cover" />
+              <img :src="(item.image !== null ? `/uploads/${item.image.name}_sm.${item.image.ext}` : '/assets/img/noimage.png')" alt="" class="h-16 w-16 rounded object-cover" />
 
               <div>
                 <a :href="`/products/${item.url}`" target="_blank">

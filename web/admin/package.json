@@ -14,11 +14,11 @@
     "@tiptap/starter-kit": "^2.1.7",
     "@tiptap/vue-3": "^2.1.7",
     "@vee-validate/rules": "^4.11.3",
+    "notiwind": "^2.0.2",
     "nprogress": "^0.2.0",
     "vee-validate": "^4.11.3",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.4",
-    "vue-toast-notification": "^3"
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.6",

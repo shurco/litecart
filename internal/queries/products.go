@@ -172,8 +172,18 @@ func (q *ProductQueries) Product(id string, private bool) (*models.Product, erro
 }
 
 // AddProduct is ...
-func (q *ProductQueries) AddProduct(product *models.Product) error {
-	return nil
+func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, error) {
+	product.ID = security.RandomString()
+	metadata, _ := json.Marshal(product.Metadata)
+	attributes, _ := json.Marshal(product.Attributes)
+
+	sql := `INSERT INTO product (id, name, amount, url, metadata, attribute, desc) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING strftime('%s', created)`
+	err := q.DB.QueryRow(sql, product.ID, product.Name, product.Amount, product.URL, metadata, attributes, product.Description).Scan(&product.Created)
+	if err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
 
 // UpdateProduct is ...

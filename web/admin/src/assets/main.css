@@ -1,3 +1,7 @@
+body {
+  @apply bg-zinc-50;
+}
+
 h1 {
   @apply text-2xl font-bold text-gray-900 sm:text-3xl;
 }
@@ -15,7 +19,7 @@ img {
 }
 
 header {
-  @apply grid grid-cols-1 gap-4 pb-4 lg:grid-cols-[1fr_120px] lg:gap-8;
+  @apply grid  grid-cols-[1fr_120px] gap-8 pb-4;
 }
 
 .content-center {
@@ -34,7 +38,6 @@ header {
   @apply pl-4 text-sm text-red-500;
 }
 
-
 label {
   @apply relative block rounded border border-gray-200 pe-10 text-sm shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600;
 
@@ -43,7 +46,7 @@ label {
   }
 
   .title {
-    @apply pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-xs text-gray-700 transition-all;
+    @apply pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-zinc-50 p-0.5 text-xs text-gray-700 transition-all;
   }
 
   .ico {
