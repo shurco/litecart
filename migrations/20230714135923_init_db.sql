@@ -37,7 +37,7 @@ CREATE TABLE page (
 	url 			TEXT UNIQUE NOT NULL,
 	content 	TEXT DEFAULT NULL,
 	type 		  TEXT NOT NULL CHECK (type == 'header' OR type == 'footer'),
-	active    BOOLEAN DEFAULT TRUE NOT NULL,
+	active    BOOLEAN DEFAULT FALSE NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
 );
@@ -45,10 +45,10 @@ CREATE INDEX idx_page_name ON page (name);
 CREATE INDEX idx_page_url ON page (url);
 CREATE INDEX idx_page_group ON page (type);
 
-INSERT INTO page (id, name, url, type, content) VALUES 
-('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', 'footer', ''),
-('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', 'footer', ''),
-('kFCjBnL25hNTRHk', 'Cookies', 'cookies', 'footer', '');
+INSERT INTO page (id, name, url, type, content, active) VALUES 
+('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', 'footer', '', true),
+('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', 'footer', '', true),
+('kFCjBnL25hNTRHk', 'Cookies', 'cookies', 'footer', '', true);
 
 CREATE TABLE product (
 	id 				TEXT PRIMARY KEY NOT NULL,

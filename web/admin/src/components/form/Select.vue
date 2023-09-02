@@ -1,14 +1,15 @@
 <template>
-  <div class="select">
+  <div>
     <label :for="id" :class="error ? 'border-red-500' : ''">
-      <Field v-slot="{ value }" v-model="model" as="select" :name="id" :id="id" :rules="rules" class="field">
+      <Field v-slot="{ value }" v-model="model" as="select" :name="id" :id="id" :rules="rules" class="field peer">
         <option value="" disabled>Please select</option>
         <option v-for="option in options" :key="option" :value="option" :selected="value && value.includes(option)">
           {{ option }}
         </option>
       </Field>
 
-      <span class="title">{{ name }}</span>
+      <span class="title">{{ title }}</span>
+      
     </label>
     <span class="error" v-if="error">{{ error }}</span>
   </div>
@@ -28,13 +29,17 @@ const props = defineProps({
     type: String,
     default: "name",
   },
-  name: {
+  title: {
     type: String,
     default: "Name",
   },
   options: {
     type: Object,
     required: true,
+  },
+  rules: {
+    type: String,
+    default: "",
   },
   color: {
     type: String,
@@ -54,19 +59,3 @@ const model = computed({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.select {
-  & label {
-    @apply relative block rounded border border-gray-200 pe-[0.4rem] text-sm shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600;
-
-    & .field {
-      @apply peer w-full border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0;
-    }
-
-    .title {
-      @apply pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs;
-    }
-  }
-}
-</style>

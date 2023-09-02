@@ -21,14 +21,31 @@ func Pages(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Pages", pages)
 }
 
-// UpdatePage is ...
-// [get] /api/_/page/:page_id
-func UpdatePage(c *fiber.Ctx) error {
+// AddPage is ...
+// [post] /api/_/page/
+func AddPage(c *fiber.Ctx) error {
 	db := queries.DB()
-	pageID := c.Params("page_id")
-	request := &models.Page{
-		ID: pageID,
+	request := new(models.Page)
+
+	if err := c.BodyParser(request); err != nil {
+		return webutil.StatusBadRequest(c, err)
 	}
+
+	page, err := db.AddPage(request)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Page added", page)
+}
+
+// UpdatePage is ...
+// [patch] /api/_/pages/:page_id
+func UpdatePage(c *fiber.Ctx) error {
+	pageID := c.Params("page_id")
+	db := queries.DB()
+	request := new(models.Page)
+	request.ID = pageID
 
 	if err := c.BodyParser(request); err != nil {
 		return webutil.StatusBadRequest(c, err)
@@ -39,4 +56,50 @@ func UpdatePage(c *fiber.Ctx) error {
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Page updated", nil)
+}
+
+// DeletePage is ...
+// [delete] /api/_/pages/:page_id
+func DeletePage(c *fiber.Ctx) error {
+	pageID := c.Params("page_id")
+	db := queries.DB()
+
+	if err := db.DeletePage(pageID); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Page deleted", nil)
+}
+
+// UpdatePageContent is ...
+// [get] /api/_/page/:page_id/content
+func UpdatePageContent(c *fiber.Ctx) error {
+	db := queries.DB()
+	pageID := c.Params("page_id")
+	request := &models.Page{
+		ID: pageID,
+	}
+
+	if err := c.BodyParser(request); err != nil {
+		return webutil.StatusBadRequest(c, err)
+	}
+
+	if err := db.UpdatePageContent(request); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Page content updated", nil)
+}
+
+// UpdatePageActive is ...
+// [patch] /api/_/page/:page_id/active
+func UpdatePageActive(c *fiber.Ctx) error {
+	pageID := c.Params("page_id")
+	db := queries.DB()
+
+	if err := db.UpdatePageActive(pageID); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Page active updated", nil)
 }

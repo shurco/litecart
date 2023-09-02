@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/security"
 )
 
 // PageQueries is ...
@@ -69,11 +70,65 @@ func (q *PageQueries) Page(url string) (*models.Page, error) {
 	return &page, nil
 }
 
-// SystemQueries is ...
+// AddPage is ...
+func (q *PageQueries) AddPage(page *models.Page) (*models.Page, error) {
+	page.ID = security.RandomString()
+	page.Active = false
+
+	sql := `INSERT INTO page (id, name, url, type) VALUES (?, ?, ?, ?) RETURNING strftime('%s', created)`
+	err := q.DB.QueryRow(sql, page.ID, page.Name, page.Url, page.Type).Scan(&page.Created)
+	if err != nil {
+		return nil, err
+	}
+
+	return page, nil
+}
+
+// UpdatePage is ...
 func (q *PageQueries) UpdatePage(page *models.Page) error {
+	_, err := q.DB.Exec(`UPDATE page SET name = ?, url = ?, type = ?, updated = datetime('now') WHERE id = ?`,
+		page.Name,
+		page.Url,
+		page.Type,
+		page.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeletePage is ...
+func (q *PageQueries) DeletePage(id string) error {
+	if _, err := q.DB.Exec(`DELETE FROM page WHERE id = ?`, id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdatePageContent is ...
+func (q *PageQueries) UpdatePageContent(page *models.Page) error {
 	_, err := q.DB.Exec(`UPDATE page SET content = ?, updated = datetime('now') WHERE id = ? `, page.Content, page.ID)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// UpdatePageActive is ...
+func (q *ProductQueries) UpdatePageActive(id string) error {
+	var active bool
+	query := `SELECT active FROM page WHERE id = ?`
+	err := q.DB.QueryRow(query, id).Scan(&active)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if _, err := q.DB.Exec(`UPDATE page SET active = ?, updated = datetime('now') WHERE id = ?`, !active, id); err != nil {
+		return err
+	}
+
 	return nil
 }

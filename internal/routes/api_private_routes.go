@@ -17,7 +17,11 @@ func ApiPrivateRoutes(c *fiber.App) {
 
 	pages := c.Group("/api/_/pages", middleware.JWTProtected())
 	pages.Get("/", handlers.Pages)
+	pages.Post("/", handlers.AddPage)
 	pages.Patch("/:page_id<len(15)>", handlers.UpdatePage)
+	pages.Delete("/:page_id<len(15)>", handlers.DeletePage)
+	pages.Patch("/:page_id<len(15)>/content", handlers.UpdatePageContent)
+	pages.Patch("/:page_id<len(15)>/active", handlers.UpdatePageActive)
 
 	product := c.Group("/api/_/products", middleware.JWTProtected())
 	product.Get("/", handlers.Products)
@@ -25,9 +29,7 @@ func ApiPrivateRoutes(c *fiber.App) {
 	product.Get("/:product_id<len(15)>", handlers.Product)
 	product.Patch("/:product_id<len(15)>", handlers.UpdateProduct)
 	product.Delete("/:product_id<len(15)>", handlers.DeleteProduct)
-
 	product.Patch("/:product_id<len(15)>/active", handlers.UpdateProductActive)
-
 	product.Get("/:product_id<len(15)>/image", handlers.ProductImages)
 	product.Post("/:product_id<len(15)>/image", handlers.AddProductImage)
 	product.Delete("/:product_id<len(15)>/image/:image_id<len(15)>", handlers.DeleteProductImage)
