@@ -28,6 +28,9 @@ func Page(c *fiber.Ctx) error {
 
 	page, err := db.Page(pageUrl)
 	if err != nil {
+		if err.Error() == "page not found" {
+			return webutil.StatusNotFound(c)
+		}
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 

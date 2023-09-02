@@ -71,7 +71,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 			&product.ID,
 			&product.Name,
 			&product.Description,
-			&product.URL,
+			&product.Url,
 			&product.Amount,
 			&product.Active,
 			&image,
@@ -136,7 +136,7 @@ func (q *ProductQueries) Product(id string, private bool) (*models.Product, erro
 			&product.ID,
 			&product.Name,
 			&product.Description,
-			&product.URL,
+			&product.Url,
 			&product.Amount,
 			&product.Active,
 			&metadata,
@@ -178,7 +178,7 @@ func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, e
 	attributes, _ := json.Marshal(product.Attributes)
 
 	sql := `INSERT INTO product (id, name, amount, url, metadata, attribute, desc) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING strftime('%s', created)`
-	err := q.DB.QueryRow(sql, product.ID, product.Name, product.Amount, product.URL, metadata, attributes, product.Description).Scan(&product.Created)
+	err := q.DB.QueryRow(sql, product.ID, product.Name, product.Amount, product.Url, metadata, attributes, product.Description).Scan(&product.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 	_, err := q.DB.Exec(`UPDATE product SET name = ?, desc = ?, url = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
 		product.Name,
 		product.Description,
-		product.URL,
+		product.Url,
 		product.Amount,
 		metadata,
 		attributes,

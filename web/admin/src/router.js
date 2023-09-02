@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getCookie } from "@/utils/";
-
-// @ts-ignore
 import * as NProgress from "nprogress";
 
 const router = createRouter({
@@ -19,7 +17,6 @@ const router = createRouter({
       meta: { layouts: "BlankLayouts" },
       component: () => import("@/pages/Signin.vue"),
     },
-
     {
       path: "/",
       name: "products",
@@ -36,30 +33,12 @@ const router = createRouter({
       path: "/pages",
       name: "pages",
       meta: { layouts: "MainLayouts" },
-      component: () => import("@/pages/Pages.vue"),
-      redirect: "/pages/terms",
+      component: () => import("@/pages/Pages.vue"), 
       children: [
-        /*
         {
-          path: ':pageUrl',
-          name: 'page',
-          component: () => import('@/pages/Page.vue')
-        }
-        */
-        {
-          path: "terms",
-          name: "pagesTerms",
-          component: () => import("@/pages/PagesTerms.vue"),
-        },
-        {
-          path: "privacy",
-          name: "pagesPrivacy",
-          component: () => import("@/pages/PagesPrivacy.vue"),
-        },
-        {
-          path: "cookies",
-          name: "pagesCookies",
-          component: () => import("@/pages/PagesCookies.vue"),
+          path: ':page_url',
+          name: 'pagesArticle',
+          component: () => import('@/pages/Pages.vue')
         },
       ],
     },
@@ -94,7 +73,7 @@ const router = createRouter({
     },
 
     {
-      path: "/:pathMatch(.*)",
+      path: "/:pathMatch(.*)*",
       name: "404",
       meta: { layouts: "BlankLayouts" },
       component: () => import("@/pages/404.vue"),

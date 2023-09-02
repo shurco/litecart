@@ -16,7 +16,13 @@ type PageQueries struct {
 func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, error) {
 	pages := []models.Page{}
 
-	query := `SELECT id, name, url FROM page WHERE content != ""`
+	queryPrivate := ` WHERE active = 1`
+	query := `SELECT id, name, url, type, active, strftime('%s', created), strftime('%s', updated) FROM page`
+
+	if !private {
+		query = query + queryPrivate
+	}
+
 	rows, err := q.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -24,10 +30,16 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 	defer rows.Close()
 
 	for rows.Next() {
+		var updated sql.NullInt64
+
 		page := models.Page{}
-		err := rows.Scan(&page.ID, &page.Name, &page.Url)
+		err := rows.Scan(&page.ID, &page.Name, &page.Url, &page.Type, &page.Active, &page.Created, &updated)
 		if err != nil {
 			return nil, err
+		}
+
+		if updated.Valid {
+			page.Updated = updated.Int64
 		}
 
 		pages = append(pages, page)

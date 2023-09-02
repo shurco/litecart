@@ -5,6 +5,7 @@ CREATE TABLE setting (
 	key 	TEXT UNIQUE NOT NULL,
 	value TEXT DEFAULT NULL
 );
+CREATE INDEX idx_setting_key ON setting (key);
 INSERT INTO setting (id, key, value) VALUES 
 ('fkzjyd1p4z866mj', 'installed', 0),
 ('j3j2kaq67n0v9op', 'domain', ''),
@@ -21,26 +22,33 @@ CREATE TABLE session (
 	value 	TEXT DEFAULT NULL,
 	expires INTEGER
 );
+CREATE INDEX idx_session_key ON session (key);
 
 CREATE TABLE subdomain (
 	id 		TEXT PRIMARY KEY NOT NULL,
 	name 	TEXT UNIQUE NOT NULL,
 	desc 	TEXT DEFAULT NULL
 );
+CREATE INDEX idx_subdomain_name ON subdomain (name);
 
 CREATE TABLE page (
 	id 				TEXT PRIMARY KEY NOT NULL,
 	name 			TEXT NOT NULL,
 	url 			TEXT UNIQUE NOT NULL,
 	content 	TEXT DEFAULT NULL,
+	type 		  TEXT NOT NULL CHECK (type == 'header' OR type == 'footer'),
+	active    BOOLEAN DEFAULT TRUE NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
 );
-INSERT INTO page (id, name, url, content) VALUES 
-('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', ''),
-('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', ''),
-('kFCjBnL25hNTRHk', 'Cookies', 'cookies', '');
+CREATE INDEX idx_page_name ON page (name);
+CREATE INDEX idx_page_url ON page (url);
+CREATE INDEX idx_page_group ON page (type);
 
+INSERT INTO page (id, name, url, type, content) VALUES 
+('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', 'footer', ''),
+('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', 'footer', ''),
+('kFCjBnL25hNTRHk', 'Cookies', 'cookies', 'footer', '');
 
 CREATE TABLE product (
 	id 				TEXT PRIMARY KEY NOT NULL,
@@ -55,6 +63,9 @@ CREATE TABLE product (
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
 );
+CREATE INDEX idx_product_id ON product (id);
+CREATE INDEX idx_product_name ON product (name);
+CREATE INDEX idx_product_url ON product (url);
 
 CREATE TABLE product_image (
 	id 						TEXT PRIMARY KEY NOT NULL,
@@ -63,6 +74,8 @@ CREATE TABLE product_image (
 	ext 					TEXT NOT NULL,
 	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+CREATE INDEX idx_product_image_product_id ON product_image (product_id);
+
 
 CREATE TABLE cart (
 	id 				     TEXT PRIMARY KEY NOT NULL,
