@@ -15,6 +15,10 @@ func ApiPrivateRoutes(c *fiber.App) {
 	sign.Post("/in", handlers.SignIn)
 	sign.Post("/out", middleware.JWTProtected(), handlers.SignOut)
 
+	settings := c.Group("/api/_/settings", middleware.JWTProtected())
+	settings.Get("/", handlers.Settings)
+	settings.Patch("/", handlers.UpdateSettings)
+
 	pages := c.Group("/api/_/pages", middleware.JWTProtected())
 	pages.Get("/", handlers.Pages)
 	pages.Post("/", handlers.AddPage)

@@ -13,8 +13,8 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Group</th>
-              <th>Url</th>
+              <th class="w-32">Group</th>
+              <th class="w-32">Url</th>
               <th class="w-32">Created</th>
               <th class="w-32">Updated</th>
               <th class="w-24 px-4 py-2"></th>
@@ -44,7 +44,7 @@
       </div>
       <div class="mx-auto" v-else>Not found pages</div>
     </div>
-    <div v-else>
+    <div v-else class="mt-5">
       <header>
         <h1>{{ page.name }}</h1>
       </header>
@@ -182,19 +182,24 @@ onMounted(async () => {
 });
 
 const pagesList = async () => {
-  NProgress.start();
+  try {
+    NProgress.start();
 
-  await fetch(`/api/_/pages`, {
-    credentials: "include",
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        pages.value = data.result;
-      }
-      NProgress.done();
+    const response = await fetch(`/api/_/pages`, {
+      credentials: "include",
+      method: "GET",
     });
+    const data = await response.json();
+
+    if (data.success) {
+      pages.value = data.result;
+    }
+
+  } catch (error) {
+    console.error(error);
+  } finally {
+    NProgress.done();
+  }
 };
 
 const openPage = (url) => {
@@ -203,9 +208,9 @@ const openPage = (url) => {
 }
 
 const pageContent = async (url) => {
-  NProgress.start();
-
   try {
+    NProgress.start();
+
     const response = await fetch(`/api/pages/${url}`, {
       credentials: "include",
       method: "GET",
@@ -269,10 +274,10 @@ const addPage = async () => {
 }
 
 const updatePageContent = async () => {
-  NProgress.start();
-  page.value.content = content.value;
-
   try {
+    NProgress.start();
+    page.value.content = content.value;
+
     const response = await fetch(`/api/_/pages/${page.value.id}/content`, {
       credentials: "include",
       method: "PATCH",
@@ -286,13 +291,12 @@ const updatePageContent = async () => {
   } finally {
     NProgress.done();
   }
-
 };
 
 const updatePageActive = async (index) => {
-  NProgress.start();
-
   try {
+    NProgress.start();
+
     const response = await fetch(`/api/_/pages/${pages.value[index].id}/active`, {
       credentials: "include",
       method: "PATCH",
@@ -310,10 +314,10 @@ const updatePageActive = async (index) => {
 };
 
 const updatePage = async () => {
-  const update = { ...page.value };
-  NProgress.start();
-
   try {
+    const update = { ...page.value };
+    NProgress.start();
+
     const response = await fetch(`/api/_/pages/${update.id}`, {
       credentials: "include",
       method: "PATCH",
@@ -345,12 +349,10 @@ const updatePage = async () => {
 }
 
 const deletePage = async () => {
-  const index = page.value.index;
-  NProgress.start();
-
-  console.log(pages.value[index].id)
-
   try {
+    const index = page.value.index;
+    NProgress.start();
+
     const response = await fetch(`/api/_/pages/${pages.value[index].id}`, {
       credentials: "include",
       method: "DELETE",

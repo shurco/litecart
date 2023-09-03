@@ -62,15 +62,15 @@ func Checkout(c *fiber.Ctx) error {
 	}
 
 	cartID := security.RandomString()
-	stripe.Key = settingStripe.SecretKey
+	stripe.Key = settingStripe.Stripe.SecretKey
 	params := &stripe.CheckoutSessionParams{
 		LineItems: lineItems,
 		//AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{
 		//	Enabled: stripe.Bool(true),
 		//},
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(settingStripe.Domain + "/cart/success/" + cartID + "/{CHECKOUT_SESSION_ID}"),
-		CancelURL:  stripe.String(settingStripe.Domain + "/cart/cancel/" + cartID),
+		SuccessURL: stripe.String(settingStripe.Main.Domain + "/cart/success/" + cartID + "/{CHECKOUT_SESSION_ID}"),
+		CancelURL:  stripe.String(settingStripe.Main.Domain + "/cart/cancel/" + cartID),
 	}
 
 	stripeSession, err := session.New(params)

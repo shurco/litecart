@@ -328,25 +328,13 @@ const isDrawer = ref({
 const products = ref([]);
 
 const product = ref({
-  info: {
-    //id: null,
-    //name: null,
-    //amount: null,
-    //url: null,
-    //metadata: [],
-    //attributes: [],
-    //images: [],
-    //description: null,
-    //created: null,
-    //updated: null,
-  },
+  info: {},
   action: null,
   index: 0,
   name: null,
 });
 
 const listProducts = async () => {
-  NProgress.start();
 
   try {
     const response = await fetch("/api/_/products", {
@@ -366,9 +354,9 @@ const listProducts = async () => {
 };
 
 const getProduct = async (id) => {
-  NProgress.start();
-
   try {
+    NProgress.start();
+
     const response = await fetch(`/api/_/products/${id}`, {
       credentials: "include",
       method: "GET",
@@ -394,12 +382,12 @@ const getProduct = async (id) => {
 };
 
 const updateProduct = async () => {
-  const update = { ...product.value.info };
-  update.amount = costStripe(update.amount);
-
-  NProgress.start();
-
   try {
+    const update = { ...product.value.info };
+    update.amount = costStripe(update.amount);
+
+    NProgress.start();
+
     const response = await fetch(`/api/_/products/${update.id}`, {
       credentials: "include",
       method: "PATCH",
@@ -432,12 +420,12 @@ const updateProduct = async () => {
 };
 
 const addProduct = async () => {
-  const add = { ...product.value.info };
-  add.amount = costStripe(add.amount);
-
-  NProgress.start();
-
   try {
+    const add = { ...product.value.info };
+    add.amount = costStripe(add.amount);
+
+    NProgress.start();
+
     const response = await fetch(`/api/_/products`, {
       credentials: "include",
       method: "POST",
@@ -474,9 +462,9 @@ const addProduct = async () => {
 };
 
 const deleteProduct = async (index) => {
-  NProgress.start();
-
   try {
+    NProgress.start();
+
     const response = await fetch(`/api/_/products/${products.value.products[index].id}`, {
       credentials: "include",
       method: "DELETE",
@@ -548,11 +536,10 @@ const addProductImage = (event) => {
 };
 
 const deleteProductImage = async (index, productId) => {
-  NProgress.start();
-  const image = product.value.info.images[index];
-
-
   try {
+    NProgress.start();
+    const image = product.value.info.images[index];
+
     const response = await fetch(`/api/_/products/${productId}/image/${image.id}`, {
       credentials: "include",
       method: "DELETE",

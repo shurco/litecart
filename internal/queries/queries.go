@@ -16,9 +16,9 @@ var db *Base
 
 // Base is ...
 type Base struct {
+	SettingQueries
 	AuthQueries
 	InstallQueries
-	SettingQueries
 	PageQueries
 	ProductQueries
 	CartQueries

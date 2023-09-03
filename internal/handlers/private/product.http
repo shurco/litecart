@@ -6,7 +6,7 @@ POST {{host}}/api/sign/in
 Content-Type: application/json
 
 {
-    "email":"user@site.com",
+    "email":"user@mail.com",
     "password":"123456789ASDFGzxcvb"
 }
 

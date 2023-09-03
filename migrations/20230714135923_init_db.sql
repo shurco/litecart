@@ -15,7 +15,17 @@ INSERT INTO setting (id, key, value) VALUES
 ('o9h0oh90b2qt8c2', 'jwt_secret_expire_hours', '48'),
 ('6o20io9hb27n0v9', 'currency', 'USD'),
 ('2r59p9nudtykndd', 'stripe_secret_key', ''),
-('hzmhlamxdwo6ca3', 'stripe_webhook_secret_key', '');
+('hzmhlamxdwo6ca3', 'stripe_webhook_secret_key', ''),
+('yLR1176FQj1BQks', 'social_facebook', ''),
+('rKVq63So91kMuN7', 'social_instagram', ''),
+('NVv27ea47Yo7gPm', 'social_twitter', ''),
+('VjdMVG7LcUL274G', 'social_dribble', ''),
+('8sz9yVDNvNBa97b', 'social_github', ''),
+('AC3of7o9pS9HdB1', 'smtp_host', ''),
+('p47ale7NBl2nqaB', 'smtp_port', '0'),
+('GIsA71Lk59h7vFa', 'smtp_username', ''),
+('zdb4Q07blJJ8msv', 'smtp_password', ''),
+('I0dk15zAn0d14hN', 'smtp_encryption', '');
 
 CREATE TABLE session (
 	key 		TEXT UNIQUE NOT NULL,

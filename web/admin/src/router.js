@@ -47,29 +47,6 @@ const router = createRouter({
       name: "settings",
       meta: { layouts: "MainLayouts" },
       component: () => import("@/pages/Settings.vue"),
-      redirect: "/settings/main",
-      children: [
-        {
-          path: "main",
-          name: "settingsMain",
-          component: () => import("@/pages/SettingsMain.vue"),
-        },
-        {
-          path: "socials",
-          name: "settingsSocials",
-          component: () => import("@/pages/SettingsSocials.vue"),
-        },
-        {
-          path: "mail",
-          name: "settingsMail",
-          component: () => import("@/pages/SettingsMail.vue"),
-        },
-        {
-          path: "messages",
-          name: "settingsMessages",
-          component: () => import("@/pages/SettingsMessages.vue"),
-        },
-      ],
     },
 
     {
