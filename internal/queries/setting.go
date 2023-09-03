@@ -11,6 +11,7 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/jwtutil"
+	"github.com/shurco/litecart/pkg/security"
 )
 
 // SettingQueries is ...
@@ -116,6 +117,20 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"jwt_secret":              settings.Main.JWT.Secret,
 			"jwt_secret_expire_hours": settings.Main.JWT.ExpireHours,
 		}
+	case "password":
+		var passwordHash string
+		if err := q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'password'`).Scan(&passwordHash); err != nil {
+			return errors.New("not found user")
+		}
+		compareUserPassword := security.ComparePasswords(passwordHash, settings.Password.Old)
+		if !compareUserPassword {
+			return errors.New("wrong password")
+		}
+
+		sectionSettings = map[string]any{
+			"password": security.GeneratePassword(settings.Password.New),
+		}
+
 	case "stripe":
 		sectionSettings = map[string]any{
 			"stripe_secret_key":         settings.Stripe.SecretKey,

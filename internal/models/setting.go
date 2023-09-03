@@ -6,10 +6,11 @@ import (
 )
 
 type Setting struct {
-	Main   Main   `json:"main,omitempty"`
-	Stripe Stripe `json:"stripe,omitempty"`
-	Social Social `json:"social,omitempty"`
-	Mail   Mail   `json:"mail,omitempty"`
+	Main     Main     `json:"main,omitempty"`
+	Password Password `json:"password,omitempty"`
+	Stripe   Stripe   `json:"stripe,omitempty"`
+	Social   Social   `json:"social,omitempty"`
+	Mail     Mail     `json:"mail,omitempty"`
 }
 
 // Validate is ...
@@ -36,6 +37,19 @@ func (v Main) Validate() error {
 		validation.Field(&v.Email, is.Email),
 		validation.Field(&v.Currency, is.CurrencyCode),
 		validation.Field(&v.JWT),
+	)
+}
+
+type Password struct {
+	Old string `json:"old"`
+	New string `json:"new"`
+}
+
+// Validate is ...
+func (v Password) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Old, validation.Length(6, 30)),
+		validation.Field(&v.New, validation.Length(6, 30)),
 	)
 }
 

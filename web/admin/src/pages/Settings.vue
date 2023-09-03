@@ -36,6 +36,29 @@
       </div>
 
       <div class="mt-5">
+        <h2 class="mb-5">Password</h2>
+        <Form @submit="updateSetting('password')" v-slot="{ errors }">
+          <FormInput v-model.trim="password.old" :error="errors.password_old" rules="required|min:6" class="w-96" id="password_old" type="password" title="Actual password"
+            ico="finger-print" />
+          <div class="flex mt-5">
+            <div class="pr-3">
+              <FormInput v-model.trim="password.new1" :error="errors.password_new1" rules="required|min:6" class="w-96" id="password_new1" type="password" title="New password"
+                ico="finger-print" />
+            </div>
+            <div>
+              <FormInput v-model.trim="password.new2" :error="errors.password_new2" rules="required|confirmed:password_new1" class="w-96" id="password_new2" type="password"
+                title="Repeat password" ico="finger-print" />
+            </div>
+          </div>
+          <div class="pt-8">
+            <FormButton type="submit" name="Save" color="green" />
+          </div>
+        </Form>
+        <hr class="mt-5" />
+      </div>
+
+
+      <div class="mt-5">
         <h2 class="mb-5">Stripe</h2>
         <Form @submit="updateSetting('stripe')" v-slot="{ errors }">
           <div class="flex">
@@ -126,7 +149,7 @@
               <FormInput v-model.trim="mail.smtp_username" :error="errors.smtp_username" rules="required" class="w-64" id="smtp_username" type="text" title="Username" ico="user" />
             </div>
             <div>
-              <FormInput v-model.trim="mail.smtp_password" :error="errors.smtp_password" rules="required" class="w-64" id="smtp_password" type="password" title="Password"
+              <FormInput v-model.trim="mail.smtp_password" :error="errors.smtp_password" rules="required|min:6" class="w-64" id="smtp_password" type="password" title="Password"
                 ico="finger-print" />
             </div>
           </div>
@@ -155,6 +178,12 @@ defineRule("one_of", one_of);
 defineRule("alpha_num", alpha_num);
 defineRule("numeric", numeric);
 defineRule("min", min);
+defineRule('confirmed', (value, [target], ctx) => {
+  if (value === ctx.form[target]) {
+    return true;
+  }
+  return 'Passwords must match';
+});
 
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
@@ -162,6 +191,7 @@ import FormButton from "@/components/form/Button.vue";
 const main = ref({
   jwt: {},
 })
+const password = ref({})
 const stripe = ref({})
 const social = ref({})
 const mail = ref({})
@@ -203,6 +233,12 @@ const updateSetting = async (section) => {
       case "main":
         update.main = main.value;
         break;
+      case "password":
+        update.password = {
+          old: password.value.old,
+          new: password.value.new1
+        }
+        break;
       case "stripe":
         update.stripe = stripe.value;
         break;
@@ -227,11 +263,19 @@ const updateSetting = async (section) => {
     });
     const data = await response.json();
 
-    if (!data.success) {
+    if (data.success) {
+      notify({
+        group: "bottom",
+        title: "Perfect",
+        text: data.message,
+        type: "success",
+      }, 4000)
+    }else{
       notify({
         group: "bottom",
         title: "Error",
         text: data.result,
+        type: "error",
       }, 4000)
     }
   } catch (error) {
