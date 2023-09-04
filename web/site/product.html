@@ -13,7 +13,7 @@
           <p class="mt-4">{{product.description}}</p>
           <p class="mt-4">{{ costFormat( product.amount ) }} {{ currency }}</p>
 
-          <form-button type="submit" name="Add" color="green" ico="row" class="mt-4" @click="add()" v-if="!product.inCart"></form-button>
+          <form-button type="submit" name="Add" color="green" ico="plus" class="mt-4" @click="add()" v-if="!product.inCart"></form-button>
           <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="remove()" v-else></form-button>
         </div>
       </div>

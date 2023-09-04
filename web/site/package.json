@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "npx tailwindcss -o ./public/assets/css/style.css --watch",
+    "dev": "npx tailwindcss -o ./public/assets/css/style.css --watch  --minify",
     "build": "npx tailwindcss -o ./public/assets/css/style.css --minify"
   },
   "devDependencies": {
