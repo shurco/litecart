@@ -57,9 +57,15 @@
         <hr class="mt-5" />
       </div>
 
-
       <div class="mt-5">
         <h2 class="mb-5">Stripe</h2>
+
+        <div class="flex items-center justify-between bg-red-600 px-2 py-3 text-white mb-5" v-if="!stripe.secret_key">
+          <p class="text-sm font-medium">
+            This section is required!
+          </p>
+        </div>
+
         <Form @submit="updateSetting('stripe')" v-slot="{ errors }">
           <div class="flex">
             <div class="pr-3">
@@ -111,7 +117,8 @@
               https://dribbble.com/
             </div>
             <div>
-              <FormInput v-model.trim="social.dribbble" :error="errors.social_dribbble" rules="alpha_num" class="w-48" id="social_dribbble" type="text" title="Dribbble" ico="dribbble" />
+              <FormInput v-model.trim="social.dribbble" :error="errors.social_dribbble" rules="alpha_num" class="w-48" id="social_dribbble" type="text" title="Dribbble"
+                ico="dribbble" />
             </div>
           </div>
           <div class="flex mt-5">
@@ -131,6 +138,13 @@
 
       <div class="mt-5">
         <h2 class="mb-5">Mail</h2>
+
+        <div class="flex items-center justify-between bg-red-600 px-2 py-3 text-white mb-5" v-if="!mail.smtp_host || !mail.smtp_port || !mail.smtp_username || !mail.smtp_password">
+          <p class="text-sm font-medium">
+            This section is required!
+          </p>
+        </div>
+
         <Form @submit="updateSetting('mail')" v-slot="{ errors }">
           <div class="flex">
             <div class="pr-3">
@@ -270,7 +284,7 @@ const updateSetting = async (section) => {
         text: data.message,
         type: "success",
       }, 4000)
-    }else{
+    } else {
       notify({
         group: "bottom",
         title: "Error",
