@@ -80,11 +80,11 @@ func (v Stripe) Validate() error {
 }
 
 type Social struct {
-	Facebook  string `json:"facebook"`
-	Instagram string `json:"instagram"`
-	Twitter   string `json:"twitter"`
-	Dribble   string `json:"dribble"`
-	Github    string `json:"github"`
+	Facebook  string `json:"facebook,omitempty"`
+	Instagram string `json:"instagram,omitempty"`
+	Twitter   string `json:"twitter,omitempty"`
+	Dribbble  string `json:"dribbble,omitempty"`
+	Github    string `json:"github,omitempty"`
 }
 
 // Validate is ...
@@ -98,11 +98,11 @@ func (v Social) Validate() error {
 }
 
 type Mail struct {
-	Host       string `json:"smtp_host"`
-	Port       int    `json:"smtp_port"`
-	Encryption string `json:"smtp_encryption"`
-	Username   string `json:"smtp_username"`
-	Password   string `json:"smtp_password"`
+	Host       string `json:"smtp_host,omitempty"`
+	Port       int    `json:"smtp_port,omitempty"`
+	Encryption string `json:"smtp_encryption,omitempty"`
+	Username   string `json:"smtp_username,omitempty"`
+	Password   string `json:"smtp_password,omitempty"`
 }
 
 // Validate is ...

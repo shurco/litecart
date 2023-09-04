@@ -27,7 +27,7 @@ func (q *SettingQueries) Settings() (*models.Setting, error) {
 		"domain", "email", "currency", // 3
 		"jwt_secret", "jwt_secret_expire_hours", // 2
 		"stripe_secret_key", "stripe_webhook_secret_key", // 2
-		"social_facebook", "social_instagram", "social_twitter", "social_dribble", "social_github", // 5
+		"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github", // 5
 		"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // 5
 	}
 
@@ -49,7 +49,7 @@ func (q *SettingQueries) Settings() (*models.Setting, error) {
 		"social_facebook":           &settings.Social.Facebook,
 		"social_instagram":          &settings.Social.Instagram,
 		"social_twitter":            &settings.Social.Twitter,
-		"social_dribble":            &settings.Social.Dribble,
+		"social_dribbble":           &settings.Social.Dribbble,
 		"social_github":             &settings.Social.Github,
 		"smtp_host":                 &settings.Mail.Host,
 		"smtp_port":                 &settings.Mail.Port,
@@ -141,7 +141,7 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"social_facebook":  settings.Social.Facebook,
 			"social_instagram": settings.Social.Instagram,
 			"social_twitter":   settings.Social.Twitter,
-			"social_dribble":   settings.Social.Dribble,
+			"social_dribbble":  settings.Social.Dribbble,
 			"social_github":    settings.Social.Github,
 		}
 	case "mail":
@@ -303,17 +303,45 @@ func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 	return settings, nil
 }
 
-/*
-func StripeClient() (*client.API, error) {
-	db := DB()
-	stripe, err := db.SettingStripe()
+// ListSocials is ...
+func (q *SettingQueries) ListSocials() (*models.Social, error) {
+	socials := &models.Social{}
+
+	keys := []any{"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github"}
+
+	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
+	rows, err := q.DB.Query(query, keys...)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	client := &client.API{}
-	client.Init(stripe.SecretKey, nil)
+	for rows.Next() {
+		var key, value string
+		err := rows.Scan(&key, &value)
+		if err != nil {
+			return nil, err
+		}
 
-	return client, nil
+		if value != "" {
+			switch key {
+			case "social_facebook":
+				socials.Facebook = "https://facebook.com/" + value
+			case "social_instagram":
+				socials.Instagram = "https://instagram.com/" + value
+			case "social_twitter":
+				socials.Twitter = "https://twitter.com/@" + value
+			case "social_dribbble":
+				socials.Dribbble = "https://dribbble.com/" + value
+			case "social_github":
+				socials.Github = "https://github.com/" + value
+			}
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return socials, nil
 }
-*/

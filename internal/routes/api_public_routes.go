@@ -17,6 +17,8 @@ func ApiPublicRoutes(c *fiber.App) {
 	product.Get("/", handlers.Products)
 	product.Get("/:product_id", handlers.Product)
 
+	c.Get("/api/socials", handlers.Socials)
+
 	c.Get("/api/cart", func(c *fiber.Ctx) error {
 		return webutil.Response(c, fiber.StatusOK, "Cart", "ok")
 	})

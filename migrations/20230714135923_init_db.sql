@@ -19,7 +19,7 @@ INSERT INTO setting (id, key, value) VALUES
 ('yLR1176FQj1BQks', 'social_facebook', ''),
 ('rKVq63So91kMuN7', 'social_instagram', ''),
 ('NVv27ea47Yo7gPm', 'social_twitter', ''),
-('VjdMVG7LcUL274G', 'social_dribble', ''),
+('VjdMVG7LcUL274G', 'social_dribbble', ''),
 ('8sz9yVDNvNBa97b', 'social_github', ''),
 ('AC3of7o9pS9HdB1', 'smtp_host', ''),
 ('p47ale7NBl2nqaB', 'smtp_port', '0'),

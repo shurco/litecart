@@ -108,10 +108,10 @@
           </div>
           <div class="flex mt-5">
             <div class="pr-3 pt-2.5">
-              https://dribble.com/
+              https://dribbble.com/
             </div>
             <div>
-              <FormInput v-model.trim="social.dribble" :error="errors.social_dribble" rules="alpha_num" class="w-48" id="social_dribble" type="text" title="Dribble" ico="dribble" />
+              <FormInput v-model.trim="social.dribbble" :error="errors.social_dribbble" rules="alpha_num" class="w-48" id="social_dribbble" type="text" title="Dribbble" ico="dribbble" />
             </div>
           </div>
           <div class="flex mt-5">

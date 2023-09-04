@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🛒 litecart</title>
+  <title>litecart</title>
   <script src="/assets/js/vue.js?v=3.3.4"></script>
   <script src="/assets/js/main.js" type="module"></script>
   <link href="/assets/css/style.css" rel="stylesheet">
@@ -54,11 +54,11 @@
         </ul>
 
         <ul class="mt-8 flex justify-center gap-6 sm:mt-0 lg:justify-end">
-          <li v-for="item in social">
-            <a :href="item.url" rel="noreferrer" target="_blank" class="text-blue-700 transition hover:opacity-75">
-              <span class="sr-only">{{item.name}}</span>
+          <li v-for="(item, key, index) in social">
+            <a :href="item" rel="noreferrer" target="_blank" class="text-blue-700 transition hover:opacity-75">
+              <span class="sr-only">{{key}}</span>
               <svg class="h-6 w-6">
-                <use v-bind="{'xlink:href':'/assets/img/socials.svg#'+item.ico}" />
+                <use v-bind="{'xlink:href':'/assets/img/socials.svg#'+key}" />
               </svg>
             </a>
           </li>
@@ -105,40 +105,13 @@
       data() {
         return {
           menu: ref([]),
-
-          social: [
-            {
-              url: "#",
-              name: "Facebook",
-              ico: "facebook"
-            },
-            {
-              url: "#",
-              name: "Instagram",
-              ico: "instagram"
-            },
-            {
-              url: "#",
-              name: "Twitter",
-              ico: "twitter"
-            },
-            {
-              url: "#",
-              name: "GitHub",
-              ico: "github"
-            },
-            {
-              url: "#",
-              name: "Dribbble",
-              ico: "dribbble"
-            },
-          ],
-
+          social: ref([]),
         };
       },
 
       mounted() {
         this.listPages();
+        this.listSocials();
       },
 
       methods: {
@@ -152,6 +125,18 @@
             this.menu = this.resp.result
           }
         },
+
+        async listSocials() {
+          const response = await fetch(`/api/socials`, {
+            credentials: "include",
+            method: 'GET',
+          });
+          this.resp = await response.json()
+          if (this.resp.success) {
+            this.social = this.resp.result
+          }
+        },
+
       },
 
     }).mount("#footer");

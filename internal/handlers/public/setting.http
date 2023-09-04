@@ -1,0 +1,5 @@
+@host = http://localhost:8080
+
+###
+# @name socials
+GET {{host}}/api/socials
