@@ -16,8 +16,8 @@ github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+m
 github.com/go-ozzo/ozzo-validation/v4 v4.3.0 h1:byhDUpfEwjsVQb1vBunvIjh2BHQ9ead57VkAEY4V+Es=
 github.com/go-ozzo/ozzo-validation/v4 v4.3.0/go.mod h1:2NKgrcHl3z6cJs+3Oo940FPRiTzuqKbvfrL2RxCj6Ew=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
-github.com/gofiber/contrib/fiberzerolog v0.2.0 h1:U6mKf8HCTFWRNIN/iKLDJLi9UDmqACLbUAcWSVUw2x0=
-github.com/gofiber/contrib/fiberzerolog v0.2.0/go.mod h1:rCL2kQftHPK9MsK2FJAnfWhbzLZ7A/7nytl3UhL3yNw=
+github.com/gofiber/contrib/fiberzerolog v0.2.1 h1:yH70XuwO6gzj3PjMrOoffNmPtPX/wxMYq/DqB+N94Tg=
+github.com/gofiber/contrib/fiberzerolog v0.2.1/go.mod h1:XDcyXzvLNPt+SZFdkTRKtIzp9JVPsmgDg7BjO5e9q/4=
 github.com/gofiber/contrib/jwt v1.0.5 h1:uETSzFD4fWXcd8Yh3Jh22sNagr15+LaksHakotxOnBM=
 github.com/gofiber/contrib/jwt v1.0.5/go.mod h1:l8mQTjjUGd3BZckufTw6MC6pThCtzV9UdkF5A3XnDzE=
 github.com/gofiber/fiber/v2 v2.49.1 h1:0W2DRWevSirc8pJl4o8r8QejDR8TV6ZUCawHxwbIdOk=
