@@ -85,6 +85,12 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 		log.Err(err).Send()
 		return err
 	}
+	// check lc_digitals folder
+	if err := fsutil.MkDirs(0775, "./lc_digitals"); err != nil {
+		log.Err(err).Send()
+		return err
+	}
+
 	app.Static("/uploads", "./lc_uploads")
 
 	app.Use(InstallCheck)

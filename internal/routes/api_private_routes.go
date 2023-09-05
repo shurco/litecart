@@ -34,6 +34,12 @@ func ApiPrivateRoutes(c *fiber.App) {
 	product.Patch("/:product_id<len(15)>", handlers.UpdateProduct)
 	product.Delete("/:product_id<len(15)>", handlers.DeleteProduct)
 	product.Patch("/:product_id<len(15)>/active", handlers.UpdateProductActive)
+
+	product.Get("/:product_id<len(15)>/digital", handlers.ProductDigital)
+	product.Post("/:product_id<len(15)>/digital", handlers.AddProductDigital)
+	product.Patch("/:product_id<len(15)>/digital/:digital_id<len(15)>", handlers.UpdateProductDigital)
+	product.Delete("/:product_id<len(15)>/digital/:digital_id<len(15)>", handlers.DeleteProductDigital)
+
 	product.Get("/:product_id<len(15)>/image", handlers.ProductImages)
 	product.Post("/:product_id<len(15)>/image", handlers.AddProductImage)
 	product.Delete("/:product_id<len(15)>/image/:image_id<len(15)>", handlers.DeleteProductImage)

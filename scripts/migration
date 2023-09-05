@@ -8,6 +8,7 @@ source ${ROOT_PATH}/scripts/_helper
 MIGRATION_DIR=${ROOT_PATH}/migrations
 MIGRATION_DIR_TMP=${ROOT_PATH}/.vscode/migrate_tmp
 LC_UPLOADS_DIR=${ROOT_PATH}/cmd/lc_uploads
+LC_DIGITALS_DIR=${ROOT_PATH}/cmd/lc_digitals
 LC_BASE_DIR="${ROOT_PATH}/cmd/lc_base"
 LC_BASE="${LC_BASE_DIR}/data.db"
 
@@ -86,7 +87,9 @@ elif [[ $MIGRATION == "dev" ]]; then
     SOURCE=${BASH_SOURCE[0]}
     if [ $GOOSE_ACTION == "up" ]; then
       mkdir -p "${LC_UPLOADS_DIR}"
-      cp ${ROOT_PATH}/fixtures/images/* ${LC_UPLOADS_DIR}
+      cp ${ROOT_PATH}/fixtures/uploads/* ${LC_UPLOADS_DIR}
+      mkdir -p "${LC_DIGITALS_DIR}"
+      cp ${ROOT_PATH}/fixtures/digitals/* ${LC_DIGITALS_DIR}
       
       $SOURCE up
       $SOURCE test up
@@ -97,6 +100,10 @@ elif [[ $MIGRATION == "dev" ]]; then
       if [ -d "${LC_UPLOADS_DIR}" ]; then
         rm -rf ${LC_UPLOADS_DIR}
       fi
+      if [ -d "${LC_DIGITALS_DIR}" ]; then
+        rm -rf ${LC_DIGITALS_DIR}
+      fi
+
       #if [ -d "${LC_BASE_DIR}" ]; then
       #  rm -rf ${LC_BASE_DIR}
       #fi

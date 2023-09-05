@@ -98,7 +98,13 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		if p := recover(); p != nil || err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
 
 	stmt, err := tx.PrepareContext(ctx, `UPDATE setting SET value = ? WHERE key = ?`)
 	if err != nil {
@@ -161,10 +167,6 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 		if _, err := stmt.ExecContext(ctx, value, key); err != nil {
 			return err
 		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
 	}
 
 	return nil

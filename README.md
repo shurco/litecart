@@ -9,7 +9,7 @@
 
 ## 🛒&nbsp;&nbsp;What is litecart?
 
-Litecart is an open source hopping-cart in 1 file of embedded database (SQLite), convenient dashboard UI and simple site with online cart.
+Litecart is an open source hopping-cart in 1 file of embedded database (SQLite), convenient dashboard UI and simple site.
 
 > ⚠️&nbsp;&nbsp;Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users. Please keep in mind that litecart is still under active development and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
 

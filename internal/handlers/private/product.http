@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
     "email":"user@mail.com",
-    "password":"123456789ASDFGzxcvb"
+    "password":"Pass123"
 }
 
 ###
@@ -34,3 +34,12 @@ POST {{host}}/api/_/products/fv6c9s9cqzf36sc/image
 ###
 # @name image_delete
 DELETE {{host}}/api/_/products/fv6c9s9cqzf36sc/image/dj9bae53oob0ukj
+
+###
+# @name product_digital
+GET {{host}}/api/_/products/xrtb1b919t2nuj9/digital
+
+###
+# @name product_digital_fake
+GET {{host}}/api/_/products/fv6c9s9cqzf36s2/digital
+

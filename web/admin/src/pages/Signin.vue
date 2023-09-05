@@ -16,6 +16,7 @@
 <script setup>
 import { ref } from 'vue'
 import { notify } from "notiwind";
+import * as NProgress from "nprogress";
 
 import { defineRule, Form } from 'vee-validate'
 import { required, email, min } from '@vee-validate/rules'
@@ -33,25 +34,32 @@ const state = ref({
 })
 
 const onSubmit = async () => {
-  await fetch('/api/sign/in', {
-    credentials: 'include',
-    method: 'POST',
-    body: JSON.stringify(state.value),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        window.location.href = '/_/'
-      } else {
-        notify({
-          group: "bottom",
-          title: "Error",
-          text: data.result,
-        }, 4000)
+  try {
+    NProgress.start();
+
+    const response = await fetch('/api/sign/in', {
+      credentials: 'include',
+      method: 'POST',
+      body: JSON.stringify(state.value),
+      headers: {
+        'Content-Type': 'application/json'
       }
-    })
+    });
+    const { success, result } = await response.json();
+
+    if (success) {
+      window.location.href = '/_/'
+    } else {
+      notify({
+        group: "bottom",
+        title: "Error",
+        text: result,
+      }, 4000)
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    NProgress.done();
+  }
 }
 </script>

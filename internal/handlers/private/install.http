@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
     "email":"user@mail.com",
-    "password":"123456789ASDFGzxcvb"
+    "password":"Pass123"
 }
 
 
@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
     "email":"user@mail.com",
-    "password":"123456789ASDFGzxcvb",
+    "password":"Pass123",
     "domain":"site.com",
     "stripe_secret":"sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
 }

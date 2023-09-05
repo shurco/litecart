@@ -189,12 +189,11 @@ const pagesList = async () => {
       credentials: "include",
       method: "GET",
     });
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
-      pages.value = data.result;
+    if (success) {
+      pages.value = result;
     }
-
   } catch (error) {
     console.error(error);
   } finally {
@@ -216,11 +215,11 @@ const pageContent = async (url) => {
       method: "GET",
     });
     const { status } = response;
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
-      page.value = data.result;
-      content.value = data.result.content;
+    if (success) {
+      page.value = result;
+      content.value = result.content;
     }
 
     if (status == 404) {
@@ -247,23 +246,23 @@ const addPage = async () => {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
+    if (success) {
       pages.value.push({
-        id: data.result.id,
-        name: data.result.name,
-        url: data.result.url,
-        type: data.result.type,
-        created: data.result.created,
-        active: data.result.active
+        id: result.id,
+        name: result.name,
+        url: result.url,
+        type: result.type,
+        created: result.created,
+        active: result.active
       });
       closeDrawer();
     } else {
       notify({
         group: "bottom",
         title: "Error",
-        text: data.result,
+        text: result,
       }, 4000)
     }
   } catch (error) {
@@ -301,9 +300,9 @@ const updatePageActive = async (index) => {
       credentials: "include",
       method: "PATCH",
     });
-    const data = await response.json();
+    const { success } = await response.json();
 
-    if (data.success) {
+    if (success) {
       pages.value[index].active = !pages.value[index].active;
     }
   } catch (error) {
@@ -326,9 +325,9 @@ const updatePage = async () => {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
+    if (success) {
       const found = pages.value.find((e) => e.id === update.id);
       found.name = update.name;
       found.url = update.url;
@@ -338,7 +337,7 @@ const updatePage = async () => {
       notify({
         group: "bottom",
         title: "Error",
-        text: data.result,
+        text: result,
       }, 4000)
     }
   } catch (error) {
@@ -357,12 +356,12 @@ const deletePage = async () => {
       credentials: "include",
       method: "DELETE",
     });
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
+    if (success) {
       pages.value.splice(index, 1);
     } else {
-      const obj = JSON.parse(data.result);
+      const obj = JSON.parse(result);
       if (obj.code === "resource_missing") {
         console.log(obj.message);
       }
@@ -396,5 +395,4 @@ const closeDrawer = () => {
   isDrawer.value.open = false;
   isDrawer.value.action = null;
 };
-
 </script>

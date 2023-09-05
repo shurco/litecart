@@ -3,6 +3,10 @@ table {
 
   thead {
     @apply text-left;
+
+    tr {
+      @apply bg-gray-100;
+    }
   }
 
   th {
@@ -11,13 +15,14 @@ table {
 
   tbody {
     @apply divide-y divide-gray-200;
-  }
 
-  tr {
-    @apply cursor-pointer hover:bg-gray-100 active:bg-gray-100;
-
-    td {
-      @apply whitespace-nowrap px-4 py-2;
+    tr {
+      @apply cursor-pointer hover:bg-gray-100 active:bg-gray-100;
+  
+      td {
+        @apply whitespace-nowrap px-4 py-2;
+      }
     }
   }
+
 }

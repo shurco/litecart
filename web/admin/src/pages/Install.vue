@@ -23,6 +23,7 @@
 import { ref } from 'vue'
 import { defineRule, Form } from 'vee-validate'
 import { required, email, min } from '@vee-validate/rules'
+import * as NProgress from "nprogress";
 
 import BlankLayouts from '@/layouts/Blank.vue'
 import FormInput from '@/components/form/Input.vue'
@@ -40,19 +41,26 @@ const state = ref({
 })
 
 const onSubmit = async () => {
-  await fetch('/api/install', {
+  try {
+    NProgress.start();
+
+    const response =   await fetch('/api/install', {
     credentials: 'include',
     method: 'POST',
     body: JSON.stringify(state.value),
     headers: {
       'Content-Type': 'application/json'
     }
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        window.location.href = '/_/signin/'
-      }
-    })
+  });
+    const { success, result } = await response.json();
+
+    if (success) {
+      window.location.href = '/_/signin/'
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    NProgress.done();
+  }
 }
 </script>

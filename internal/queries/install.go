@@ -24,7 +24,13 @@ func (q *InstallQueries) Install(i *models.Install) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		if p := recover(); p != nil || err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
 
 	var installed bool
 	q.DB.QueryRow(`SELECT value FROM setting WHERE key = ?`, "installed").Scan(&installed)
@@ -57,10 +63,6 @@ func (q *InstallQueries) Install(i *models.Install) error {
 		if _, err := stmt.ExecContext(ctx, value, key); err != nil {
 			return err
 		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
 	}
 
 	return nil

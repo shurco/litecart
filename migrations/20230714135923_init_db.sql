@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE setting (
-	id 		TEXT PRIMARY KEY NOT NULL,
-	key 	TEXT UNIQUE NOT NULL,
-	value TEXT DEFAULT NULL
+	id     TEXT PRIMARY KEY NOT NULL,
+	key    TEXT UNIQUE NOT NULL,
+	value  TEXT DEFAULT NULL
 );
 CREATE INDEX idx_setting_key ON setting (key);
 INSERT INTO setting (id, key, value) VALUES 
@@ -28,16 +28,16 @@ INSERT INTO setting (id, key, value) VALUES
 ('I0dk15zAn0d14hN', 'smtp_encryption', '');
 
 CREATE TABLE session (
-	key 		TEXT UNIQUE NOT NULL,
-	value 	TEXT DEFAULT NULL,
-	expires INTEGER
+	key      TEXT UNIQUE NOT NULL,
+	value    TEXT DEFAULT NULL,
+	expires  INTEGER
 );
 CREATE INDEX idx_session_key ON session (key);
 
 CREATE TABLE subdomain (
-	id 		TEXT PRIMARY KEY NOT NULL,
-	name 	TEXT UNIQUE NOT NULL,
-	desc 	TEXT DEFAULT NULL
+	id    TEXT PRIMARY KEY NOT NULL,
+	name  TEXT UNIQUE NOT NULL,
+	desc  TEXT DEFAULT NULL
 );
 CREATE INDEX idx_subdomain_name ON subdomain (name);
 
@@ -54,50 +54,70 @@ CREATE TABLE page (
 CREATE INDEX idx_page_name ON page (name);
 CREATE INDEX idx_page_url ON page (url);
 CREATE INDEX idx_page_group ON page (type);
-
 INSERT INTO page (id, name, url, type, content, active) VALUES 
 ('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', 'footer', '', true),
 ('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', 'footer', '', true),
 ('kFCjBnL25hNTRHk', 'Cookies', 'cookies', 'footer', '', true);
 
 CREATE TABLE product (
-	id 				TEXT PRIMARY KEY NOT NULL,
-	name 			TEXT NOT NULL,
-	desc 			TEXT NOT NULL,
-	url 			TEXT UNIQUE NOT NULL,
-	amount    NUMERC NOT NULL,
-	metadata 	JSON DEFAULT '{}' NOT NULL,
-	attribute JSON DEFAULT '[]' NOT NULL,
-	active    BOOLEAN DEFAULT TRUE NOT NULL,
-	deleted   BOOLEAN DEFAULT FALSE NOT NULL,
-	created 	TIMESTAMP DEFAULT (datetime('now')),
-	updated 	TIMESTAMP
+	id         TEXT PRIMARY KEY NOT NULL,
+	name       TEXT NOT NULL,
+	desc       TEXT NOT NULL,
+	url        TEXT UNIQUE NOT NULL,
+	amount     NUMERC NOT NULL,
+	metadata   JSON DEFAULT '{}' NOT NULL,
+	attribute  JSON DEFAULT '[]' NOT NULL,
+	digital    TEXT CHECK (digital == 'file' OR digital == 'data' OR digital == 'api'),
+	active     BOOLEAN DEFAULT TRUE NOT NULL,
+	deleted    BOOLEAN DEFAULT FALSE NOT NULL,
+	created    TIMESTAMP DEFAULT (datetime('now')),
+	updated    TIMESTAMP
 );
 CREATE INDEX idx_product_id ON product (id);
 CREATE INDEX idx_product_name ON product (name);
 CREATE INDEX idx_product_url ON product (url);
 
+CREATE TABLE digital_file (
+	id            TEXT PRIMARY KEY NOT NULL,
+	product_id    TEXT NOT NULL,
+	name          TEXT NOT NULL,
+	ext           TEXT NOT NULL,
+	orig_name     TEXT NOT NULL,
+	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE INDEX idx_digital_file_product_id ON digital_file (product_id);
+
+CREATE TABLE digital_data (
+	id            TEXT PRIMARY KEY NOT NULL,
+	product_id    TEXT NOT NULL,
+	content       TEXT NOT NULL,
+	active        BOOLEAN DEFAULT TRUE NOT NULL,
+	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE INDEX idx_digital_data_product_id ON digital_data (product_id);
+
+
 CREATE TABLE product_image (
-	id 						TEXT PRIMARY KEY NOT NULL,
-	product_id 		TEXT NOT NULL,
-	name 					TEXT NOT NULL,
-	ext 					TEXT NOT NULL,
+	id          TEXT PRIMARY KEY NOT NULL,
+	product_id  TEXT NOT NULL,
+	name        TEXT NOT NULL,
+	ext         TEXT NOT NULL,
+	orig_name   TEXT NOT NULL,
 	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE INDEX idx_product_image_product_id ON product_image (product_id);
 
-
 CREATE TABLE cart (
-	id 				     TEXT PRIMARY KEY NOT NULL,
-	email 		     TEXT DEFAULT NULL,
-	name  		     TEXT DEFAULT NULL,
-	amount_total   NUMERC NOT NULL,
-	currency			 TEXT NOT NULL,
-	payment_id     TEXT DEFAULT NULL,
-	payment_status TEXT DEFAULT NULL,
-	cart 			     JSON DEFAULT '[]' NOT NULL,
-	created 	     TIMESTAMP DEFAULT (datetime('now')),
-	updated        TIMESTAMP
+	id              TEXT PRIMARY KEY NOT NULL,
+	email           TEXT DEFAULT NULL,
+	name            TEXT DEFAULT NULL,
+	amount_total    NUMERC NOT NULL,
+	currency        TEXT NOT NULL,
+	payment_id      TEXT DEFAULT NULL,
+	payment_status  TEXT DEFAULT NULL,
+	cart            JSON DEFAULT '[]' NOT NULL,
+	created         TIMESTAMP DEFAULT (datetime('now')),
+	updated         TIMESTAMP
 );
 -- +goose StatementEnd
 
@@ -106,6 +126,8 @@ CREATE TABLE cart (
 -- +goose StatementBegin
 DROP TABLE cart;
 DROP TABLE product_image;
+DROP TABLE digital_file;
+DROP TABLE digital_data;
 DROP TABLE product;
 DROP TABLE page;
 DROP TABLE subdomain;

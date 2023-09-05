@@ -30,7 +30,7 @@ func Products(c *fiber.Ctx) error {
 // [post] /api/_/products
 func AddProduct(c *fiber.Ctx) error {
 	db := queries.DB()
-	request := new(models.Product)
+	request := &models.Product{}
 
 	if err := c.BodyParser(request); err != nil {
 		return webutil.StatusBadRequest(c, err)
@@ -50,7 +50,7 @@ func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	product, err := db.Product(productID, true)
+	product, err := db.Product(true, productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -143,6 +143,7 @@ func AddProductImage(c *fiber.Ctx) error {
 	fileExt := fsutil.ExtName(file.Filename)
 	fileName := fmt.Sprintf("%s.%s", fileUUID, fileExt)
 	filePath := fmt.Sprintf("./lc_uploads/%s", fileName)
+	fileOrigName := file.Filename
 
 	c.SaveFile(file, filePath)
 
@@ -167,7 +168,7 @@ func AddProductImage(c *fiber.Ctx) error {
 		}
 	}
 
-	addedImage, err := db.AddImage(productID, fileUUID, fileExt)
+	addedImage, err := db.AddImage(productID, fileUUID, fileExt, fileOrigName)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -187,4 +188,87 @@ func DeleteProductImage(c *fiber.Ctx) error {
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Image deleted", nil)
+}
+
+// ProductDigital
+// [get] /api/_/products/:product_id/digital
+func ProductDigital(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	db := queries.DB()
+
+	digital, err := db.ProductDigital(productID)
+	if err != nil {
+		if err.Error() == "not found" {
+			return webutil.StatusNotFound(c)
+		}
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Product digital", digital)
+}
+
+// AddProductDigital is ...
+// [post] /api/_/products/:product_id/digital
+func AddProductDigital(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	db := queries.DB()
+
+	fileTmp, _ := c.FormFile("document")
+	if fileTmp != nil {
+		fileUUID := uuid.New().String()
+		fileExt := fsutil.ExtName(fileTmp.Filename)
+		fileName := fmt.Sprintf("%s.%s", fileUUID, fileExt)
+		filePath := fmt.Sprintf("./lc_digitals/%s", fileName)
+		fileOrigName := fileTmp.Filename
+
+		c.SaveFile(fileTmp, filePath)
+
+		file, err := db.AddDigitalFile(productID, fileUUID, fileExt, fileOrigName)
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+
+		return webutil.Response(c, fiber.StatusOK, "Digital added", file)
+	}
+
+	data, err := db.AddDigitalData(productID, "")
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Digital added", data)
+}
+
+// UpdateProductDigital is ...
+// [patch] /api/_/products/:product_id/digital/:digital_id
+func UpdateProductDigital(c *fiber.Ctx) error {
+	request := new(models.Data)
+	request.ID = c.Params("digital_id")
+	//request.Content = c.Params("digital_id")
+	request.Active = true
+	db := queries.DB()
+
+	if err := c.BodyParser(request); err != nil {
+		return webutil.StatusBadRequest(c, err)
+	}
+
+	if err := db.UpdateDigital(request); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Digital updated", nil)
+}
+
+// DeleteProductDigital is ...
+// [delete] /api/_/products/:product_id/digital/:digital_id
+func DeleteProductDigital(c *fiber.Ctx) error {
+	productID := c.Params("product_id")
+	digitalID := c.Params("digital_id")
+	db := queries.DB()
+
+	if err := db.DeleteDigital(productID, digitalID); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Digital deleted", nil)
 }

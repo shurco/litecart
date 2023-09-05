@@ -5,7 +5,6 @@ import (
 
 	handlers "github.com/shurco/litecart/internal/handlers/public"
 	"github.com/shurco/litecart/internal/queries"
-	"github.com/shurco/litecart/pkg/webutil"
 )
 
 // SiteRoutes is ...
@@ -42,7 +41,7 @@ func SiteRoutes(c *fiber.App) {
 		}
 
 		return c.Render("product", fiber.Map{
-			"ProductUrl": c.Params("product_url"),
+			"ProductUrl": productURL,
 		}, "layouts/main")
 	})
 
@@ -57,7 +56,4 @@ func SiteRoutes(c *fiber.App) {
 	cart.Get("/success/:cart_id<len(15)>/:session_id", handlers.CheckoutSuccess)
 	cart.Get("/cancel/:cart_id<len(15)>", handlers.CheckoutCancel)
 
-	c.Get("/webhook", func(c *fiber.Ctx) error {
-		return webutil.Response(c, fiber.StatusOK, "Webhook", nil)
-	})
 }

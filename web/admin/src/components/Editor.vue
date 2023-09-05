@@ -92,7 +92,7 @@ watch(
 button,
 input,
 select {
-  @apply text-black m-[0.2rem] px-[0.6rem] py-[0.2rem] rounded-[0.3rem] bg-slate-100;
+  @apply text-black m-[0.2rem] px-[0.6rem] py-[0.2rem] rounded-[0.3rem] bg-slate-200;
 }
 
 button[disabled],

@@ -26,7 +26,7 @@ func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	product, err := db.Product(productID, false)
+	product, err := db.Product(false, productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}

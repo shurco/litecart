@@ -44,6 +44,7 @@
 import { onMounted, ref } from "vue";
 import MainLayouts from "@/layouts/Main.vue";
 import { costFormat, formatDate } from "@/utils/";
+import * as NProgress from "nprogress";
 
 const checkouts = ref([]);
 
@@ -52,15 +53,22 @@ onMounted(() => {
 });
 
 const listCheckouts = async () => {
-  await fetch(`/api/_/checkouts`, {
-    credentials: "include",
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        checkouts.value = data.result;
-      }
+  try {
+    NProgress.start();
+
+    const response = await fetch(`/api/_/checkouts`, {
+      credentials: "include",
+      method: "GET",
     });
+    const { success, result } = await response.json();
+
+    if (success) {
+      checkouts.value = result;
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    NProgress.done();
+  }
 };
 </script>

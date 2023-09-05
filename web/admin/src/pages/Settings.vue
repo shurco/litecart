@@ -224,13 +224,13 @@ const settingsList = async () => {
       credentials: "include",
       method: "GET",
     });
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
-      main.value = data.result.main;
-      stripe.value = data.result.stripe;
-      social.value = data.result.social;
-      mail.value = data.result.mail;
+    if (success) {
+      main.value = result.main;
+      stripe.value = result.stripe;
+      social.value = result.social;
+      mail.value = result.mail;
     }
   } catch (error) {
     console.error(error);
@@ -275,20 +275,20 @@ const updateSetting = async (section) => {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
+    const { success, result } = await response.json();
 
-    if (data.success) {
+    if (success) {
       notify({
         group: "bottom",
         title: "Perfect",
-        text: data.message,
+        text: message,
         type: "success",
       }, 4000)
     } else {
       notify({
         group: "bottom",
         title: "Error",
-        text: data.result,
+        text: result,
         type: "error",
       }, 4000)
     }
@@ -297,6 +297,5 @@ const updateSetting = async (section) => {
   } finally {
     NProgress.done();
   }
-
 }
 </script>

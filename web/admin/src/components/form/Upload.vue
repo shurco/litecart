@@ -12,9 +12,12 @@ import { getCurrentInstance } from "vue";
 import SvgIcon from "svg-icon";
 
 const props = defineProps({
+  section: {
+    type: String,
+    required: true,
+  },
   accept: {
     type: String,
-    default: "image/*",
   },
   productId: String,
   status: Boolean,
