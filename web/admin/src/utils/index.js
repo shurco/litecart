@@ -1,110 +1,141 @@
-import { isRef } from 'vue'
+import { isRef } from "vue";
+import { notify } from "notiwind";
 
 export function getCookie(cname) {
-  let name = cname + '='
-  let decodedCookie = decodeURIComponent(document.cookie)
-  let ca = decodedCookie.split(';')
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(";");
   for (let i = 0; i < ca.length; i++) {
-    let c = ca[i]
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1)
+    let c = ca[i];
+    while (c.charAt(0) == " ") {
+      c = c.substring(1);
     }
     if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length)
+      return c.substring(name.length, c.length);
     }
   }
-  return ''
+  return "";
 }
 
 export function setCookie(cname, cvalue, days) {
-  let date = new Date()
-  date.setDate(date.getDate() + days)
-  let value = cvalue + (days == null ? '' : '; expires=' + date.toUTCString())
-  document.cookie = cname + '=' + value
+  let date = new Date();
+  date.setDate(date.getDate() + days);
+  let value = cvalue + (days == null ? "" : "; expires=" + date.toUTCString());
+  document.cookie = cname + "=" + value;
 }
 
 export function getUser() {
-  let obj = getCookie('loginUser')
+  let obj = getCookie("loginUser");
   if (obj) {
-    return JSON.parse(obj)
+    return JSON.parse(obj);
   }
 }
 
 export function setUser(user) {
   if (!user) {
-    return
+    return;
   }
 
-  let value = JSON.stringify(user)
-  setCookie('loginUser', value, 1)
+  let value = JSON.stringify(user);
+  setCookie("loginUser", value, 1);
 }
 
 export function delUser() {
-  setCookie('loginUser', '', -1)
+  setCookie("loginUser", "", -1);
 }
 
 export function updateItem(list, row, newVal) {
   if (isRef(list)) {
-    list = list.value
+    list = list.value;
   }
-  let index = getItemIndex(list, row)
-  list[index] = newVal
+  let index = getItemIndex(list, row);
+  list[index] = newVal;
 }
 
 export function deleteItem(list, row) {
   if (isRef(list)) {
-    list = list.value
+    list = list.value;
   }
-  let index = getItemIndex(list, row)
-  list.splice(index, 1)
+  let index = getItemIndex(list, row);
+  list.splice(index, 1);
 }
 
 export function getItemIndex(list, row) {
   for (let i in list) {
     if (deepEqual(list[i], row)) {
-      return i
+      return i;
     }
   }
 }
 
 export function costFormat(cost) {
-  return Number(cost) ? (Number(cost) / 100).toFixed(2) : '0.00'
+  return Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00";
 }
 
 export function costStripe(cost) {
-  return Number(cost) * 100
+  return Number(cost) * 100;
 }
 
 export function formatDate(timestamp) {
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const date = new Date(timestamp * 1000)
-  return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}, ${date.toLocaleTimeString()}`
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const date = new Date(timestamp * 1000);
+  return `${date.getDate()} ${
+    monthNames[date.getMonth()]
+  } ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
 }
 
 function deepEqual(object1, object2) {
   if (object1 == object2) {
-    return true
+    return true;
   }
 
-  const keys1 = Object.keys(object1)
-  const keys2 = Object.keys(object2)
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
 
   if (keys1.length !== keys2.length) {
-    return false
+    return false;
   }
 
   for (let index = 0; index < keys1.length; index++) {
-    const val1 = object1[keys1[index]]
-    const val2 = object2[keys2[index]]
-    const areObjects = isObject(val1) && isObject(val2)
-    if ((areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2)) {
-      return false
+    const val1 = object1[keys1[index]];
+    const val2 = object2[keys2[index]];
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !deepEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
 function isObject(object) {
-  return object != null && typeof object === 'object'
+  return object != null && typeof object === "object";
+}
+
+export function notifyMessage(title, message, type) {
+  notify(
+    {
+      group: "bottom",
+      title: title,
+      text: message,
+      type: type,
+    },
+    4000,
+  );
 }

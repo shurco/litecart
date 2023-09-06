@@ -61,8 +61,8 @@ import { onMounted, ref } from "vue";
 import FormInput from "@/components/form/Input.vue";
 import FormUpload from "@/components/form/Upload.vue";
 import SvgIcon from 'svg-icon'
+import { notifyMessage } from "@/utils/"
 
-import { notify } from "notiwind";
 import * as NProgress from "nprogress";
 
 const props = defineProps({
@@ -139,11 +139,7 @@ const deleteDigital = async (type, index) => {
           break;
       }
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", result, "error")
     }
   } catch (error) {
     console.error(error);
@@ -166,12 +162,7 @@ const addDigitalData = async () => {
     if (success) {
       digital.value.data.push(result)
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-        type: "error",
-      }, 4000)
+      notifyMessage("Error", result, "error")
     }
 
   } catch (error) {

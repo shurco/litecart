@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	mail "github.com/xhit/go-simple-mail/v2"
+
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/jwtutil"
 	"github.com/shurco/litecart/pkg/security"
@@ -113,7 +115,6 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 	defer stmt.Close()
 
 	sectionSettings := make(map[string]any)
-
 	switch section {
 	case "main":
 		sectionSettings = map[string]any{
@@ -169,6 +170,30 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 		}
 	}
 
+	return nil
+}
+
+// SettingValueByKey is ...
+func (q *SettingQueries) SettingValueByKey(key string) (*models.SettingName, error) {
+	setting := &models.SettingName{
+		Key: key,
+	}
+	err := q.DB.QueryRow(`SELECT id, value FROM setting WHERE key = ?`, key).Scan(&setting.ID, &setting.Value)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("not found")
+		}
+		return nil, err
+	}
+	return setting, nil
+}
+
+// UpdateSettingValueByKey is ...
+func (q *SettingQueries) UpdateSettingValueByKey(setting *models.SettingName) error {
+	_, err := q.DB.Exec(`UPDATE setting SET value = ? WHERE key = ? `, setting.Value, setting.Key)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -346,4 +371,88 @@ func (q *SettingQueries) ListSocials() (*models.Social, error) {
 	}
 
 	return socials, nil
+}
+
+// SettingTestMail is ...
+func (q *SettingQueries) SettingMail() (*models.Mail, error) {
+	setting := new(models.Mail)
+	keys := []any{"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption"}
+
+	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
+	rows, err := q.DB.Query(query, keys...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var key, value string
+		err := rows.Scan(&key, &value)
+		if err != nil {
+			return nil, err
+		}
+
+		if value != "" {
+			switch key {
+			case "smtp_host":
+				setting.Host = value
+			case "smtp_port":
+				SMTPPort, _ := strconv.Atoi(value)
+				setting.Port = SMTPPort
+			case "smtp_username":
+				setting.Username = value
+			case "smtp_password":
+				setting.Password = value
+			case "smtp_encryption":
+				setting.Encryption = value
+			}
+		}
+	}
+
+	return setting, nil
+}
+
+var EncryptionTypes = map[string]mail.Encryption{
+	"None":     mail.EncryptionNone,
+	"SSL/TLS":  mail.EncryptionSSL,
+	"STARTTLS": mail.EncryptionTLS,
+}
+
+// SettingTestMail is ...
+func (q *SettingQueries) SettingTestMail() error {
+	smtpSetting, err := q.SettingMail()
+	if err != nil {
+		return err
+	}
+
+	settingEmail, err := q.SettingValueByKey("email")
+	emailAdmin := settingEmail.Value.(string)
+
+	server := mail.NewSMTPClient()
+	server.Host = smtpSetting.Host
+	server.Port = smtpSetting.Port
+	server.Username = smtpSetting.Username
+	server.Password = smtpSetting.Password
+	server.Encryption = EncryptionTypes[smtpSetting.Encryption]
+
+	server.KeepAlive = false
+	server.ConnectTimeout = 10 * time.Second
+	server.SendTimeout = 10 * time.Second
+
+	smtpClient, err := server.Connect()
+	if err != nil {
+		return err
+	}
+
+	email := mail.NewMSG()
+	email.SetFrom(emailAdmin).
+		AddTo(emailAdmin).
+		SetSubject("litecart test smtp settings")
+	email.SetBody(mail.TextHTML, "test message")
+
+	if err := email.Send(smtpClient); err != nil {
+		return err
+	}
+
+	return nil
 }

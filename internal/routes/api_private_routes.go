@@ -18,6 +18,9 @@ func ApiPrivateRoutes(c *fiber.App) {
 	settings := c.Group("/api/_/settings", middleware.JWTProtected())
 	settings.Get("/", handlers.Settings)
 	settings.Patch("/", handlers.UpdateSettings)
+	settings.Get("/:setting_key", handlers.SettingByKey)
+	settings.Patch("/:setting_key", handlers.UpdateSettingByKey)
+	settings.Get("/test/mail", handlers.TestMail)
 
 	pages := c.Group("/api/_/pages", middleware.JWTProtected())
 	pages.Get("/", handlers.Pages)

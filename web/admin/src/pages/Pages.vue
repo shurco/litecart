@@ -48,7 +48,7 @@
       <header>
         <h1>{{ page.name }}</h1>
       </header>
-      <div class="pt-5">
+      <div>
         <Editor v-model="content" />
 
         <hr class="my-5" />
@@ -142,9 +142,10 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MainLayouts from "@/layouts/Main.vue";
-import { notify } from "notiwind";
-import * as NProgress from "nprogress";
 import SvgIcon from "svg-icon";
+import { notifyMessage } from "@/utils/";
+
+import * as NProgress from "nprogress";
 
 import { defineRule, Form } from "vee-validate";
 import { required, alpha_num, min } from "@vee-validate/rules";
@@ -259,11 +260,7 @@ const addPage = async () => {
       });
       closeDrawer();
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", message, "error");
     }
   } catch (error) {
     console.error(error);
@@ -285,6 +282,13 @@ const updatePageContent = async () => {
         "Content-Type": "application/json",
       },
     });
+    const { success, result, message } = await response.json();
+
+    if (success) {
+      notifyMessage("Perfect", message, "success");
+    } else {
+      notifyMessage("Error", result, "error");
+    }
   } catch (error) {
     console.error(error);
   } finally {
@@ -325,20 +329,17 @@ const updatePage = async () => {
         "Content-Type": "application/json",
       },
     });
-    const { success, result } = await response.json();
+    const { success, result, message } = await response.json();
 
     if (success) {
       const found = pages.value.find((e) => e.id === update.id);
       found.name = update.name;
       found.url = update.url;
       found.type = update.type;
+      notifyMessage("Perfect", message, "success");
       closeDrawer();
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", result, "error");
     }
   } catch (error) {
     console.error(error);

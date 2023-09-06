@@ -31,7 +31,7 @@ const onChange = () => {
     const formData = new FormData();
     formData.append("document", f);
 
-    fetch(`/api/_/products/${props.productId}/image`, {
+    fetch(`/api/_/products/${props.productId}/${props.section}`, {
       credentials: "include",
       method: "POST",
       body: formData,
@@ -74,7 +74,7 @@ const drop = (event) => {
   }
 
   label {
-    @apply block cursor-pointer p-0 border-0 shadow-none;
+    @apply block cursor-pointer p-0 border-0 shadow-none ;
   }
 }
 </style>

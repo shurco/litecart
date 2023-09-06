@@ -24,7 +24,7 @@ func Settings(c *fiber.Ctx) error {
 }
 
 // UpdateSettings is ...
-// [get] /api/_/settings
+// [patch] /api/_/settings
 func UpdateSettings(c *fiber.Ctx) error {
 	db := queries.DB()
 	request := new(models.Setting)
@@ -48,4 +48,56 @@ func UpdateSettings(c *fiber.Ctx) error {
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Settings updated", nil)
+}
+
+// SettingByKey is ...
+// [get] /api/_/settings/:setting_key
+func SettingByKey(c *fiber.Ctx) error {
+	db := queries.DB()
+	settingKey := c.Params("setting_key")
+
+	if settingKey == "password" {
+		return webutil.StatusNotFound(c)
+	}
+
+	setting, err := db.SettingValueByKey(settingKey)
+	if err != nil {
+		if err.Error() == "not found" {
+			return webutil.StatusNotFound(c)
+		}
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Setting", setting)
+}
+
+// UpdateSettingByKey is ...
+// [patch] /api/_/settings/:setting_key
+func UpdateSettingByKey(c *fiber.Ctx) error {
+	db := queries.DB()
+	request := &models.SettingName{
+		Key: c.Params("setting_key"),
+	}
+
+	if err := c.BodyParser(request); err != nil {
+		return webutil.StatusBadRequest(c, err)
+	}
+
+	if err := db.UpdateSettingValueByKey(request); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Setting updated", nil)
+}
+
+// TestMail is ...
+// [get] /api/_/settings/test/mail
+func TestMail(c *fiber.Ctx) error {
+	db := queries.DB()
+
+	if err := db.SettingTestMail(); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Test mail", "Message sent to your mailbox")
 }

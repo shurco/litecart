@@ -115,3 +115,18 @@ func (v Mail) Validate() error {
 		validation.Field(&v.Password, validation.Length(3, 20)),
 	)
 }
+
+// SettingName is ...
+type SettingName struct {
+	ID    string `json:"id,omitempty"`
+	Key   string `json:"key"`
+	Value any    `json:"value,omitempty"`
+}
+
+// Validate is ...
+func (v SettingName) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.ID, validation.Length(15, 15)),
+		validation.Field(&v.Key, validation.Required),
+	)
+}

@@ -13,3 +13,11 @@ Content-Type: application/json
 ###
 # @name settings
 GET {{host}}/api/_/settings
+
+###
+# @name settings
+GET {{host}}/api/_/settings/mail_letter_purchase
+
+###
+# @name settings
+GET {{host}}/api/_/settings/test/mail

@@ -1,10 +1,9 @@
 <template>
   <div class="textarea">
     <label :for="id" :class="error ? 'border-red-500' : ''">
-      <textarea v-model="model" id="id" :name="id" class="text peer" rows="4" placeholder="Enter any additional order notes...">
+      <textarea v-model="model" id="id" :name="id" class="text peer" :rows="rows" placeholder="Enter any additional order notes..." style="">
         {{ $slots.default ? $slots.default()[0].children : "" }}
-        </textarea>
-
+      </textarea>
       <span class="title">{{ name }}</span>
     </label>
     <span class="error" v-if="error">{{ error }}</span>
@@ -29,6 +28,10 @@ const props = defineProps({
   color: {
     type: String,
     default: "indigo",
+  },
+  rows: {
+    type: Number,
+    default: 4,
   },
   error: String,
 });

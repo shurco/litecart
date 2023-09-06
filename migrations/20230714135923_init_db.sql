@@ -25,7 +25,8 @@ INSERT INTO setting (id, key, value) VALUES
 ('p47ale7NBl2nqaB', 'smtp_port', '0'),
 ('GIsA71Lk59h7vFa', 'smtp_username', ''),
 ('zdb4Q07blJJ8msv', 'smtp_password', ''),
-('I0dk15zAn0d14hN', 'smtp_encryption', '');
+('I0dk15zAn0d14hN', 'smtp_encryption', ''),
+('CoDDXfxF4GZxq6b', 'mail_letter_purchase', '');
 
 CREATE TABLE session (
 	key      TEXT UNIQUE NOT NULL,

@@ -15,7 +15,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { notify } from "notiwind";
+import { notifyMessage } from "@/utils/";
+
 import * as NProgress from "nprogress";
 
 import { defineRule, Form } from 'vee-validate'
@@ -50,11 +51,7 @@ const onSubmit = async () => {
     if (success) {
       window.location.href = '/_/'
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", result, "error");
     }
   } catch (error) {
     console.error(error);

@@ -86,47 +86,11 @@
       <div class="mt-5">
         <h2 class="mb-5">Socials</h2>
         <Form @submit="updateSetting('social')" v-slot="{ errors }">
-          <div class="flex">
-            <div class="pr-3 pt-2.5">
-              https://facebook.com/
-            </div>
+          <div v-for="(value, key, index) in socialUrl" :key="index" class="flex mt-5">
+            <div class="pr-3 pt-2.5">{{ socialUrl[key] }}</div>
             <div>
-              <FormInput v-model.trim="social.facebook" :error="errors.social_facebook" rules="alpha_num" class="w-48" id="social_facebook" type="text" title="Facebook"
-                ico="facebook" />
-            </div>
-          </div>
-          <div class="flex mt-5">
-            <div class="pr-3 pt-2.5">
-              https://instagrammm.com/
-            </div>
-            <div>
-              <FormInput v-model.trim="social.instagram" :error="errors.social_instagram" rules="alpha_num" class="w-48" id="social_instagram" type="text" title="Instagram"
-                ico="instagram" />
-            </div>
-          </div>
-          <div class="flex mt-5">
-            <div class="pr-3 pt-2.5">
-              https://twitter.com/@
-            </div>
-            <div>
-              <FormInput v-model.trim="social.twitter" :error="errors.social_twitter" rules="alpha_num" class="w-48" id="social_twitter" type="text" title="Twitter" ico="twitter" />
-            </div>
-          </div>
-          <div class="flex mt-5">
-            <div class="pr-3 pt-2.5">
-              https://dribbble.com/
-            </div>
-            <div>
-              <FormInput v-model.trim="social.dribbble" :error="errors.social_dribbble" rules="alpha_num" class="w-48" id="social_dribbble" type="text" title="Dribbble"
-                ico="dribbble" />
-            </div>
-          </div>
-          <div class="flex mt-5">
-            <div class="pr-3 pt-2.5">
-              https://github.com/
-            </div>
-            <div>
-              <FormInput v-model.trim="social.github" :error="errors.social_github" rules="alpha_num" class="w-48" id="social_github" type="text" title="Github" ico="github" />
+              <FormInput v-model.trim="social[key]" :error="errors[`social_${key}`]" rules="alpha_num" class="w-48" :id="`social_${key}`" type="text"
+                :title="key.charAt(0).toUpperCase() + key.slice(1)" :ico="key" />
             </div>
           </div>
           <div class="pt-8">
@@ -137,7 +101,17 @@
       </div>
 
       <div class="mt-5">
-        <h2 class="mb-5">Mail</h2>
+        <h2 class="mb-5">Mail letters</h2>
+
+        <div class="flex">
+          <div class="bg-gray-200 px-3 py-3 rounded-lg cursor-pointer" @click="openDrawer('mail_letter_purchase')">Purchase letter</div>
+        </div>
+
+        <hr class="mt-5" />
+      </div>
+
+      <div class="mt-5">
+        <h2 class="mb-5">Mail settings</h2>
 
         <div class="flex items-center justify-between bg-red-600 px-2 py-3 text-white mb-5" v-if="!mail.smtp_host || !mail.smtp_port || !mail.smtp_username || !mail.smtp_password">
           <p class="text-sm font-medium">
@@ -155,7 +129,8 @@
                 ico="arrow-left-on-rectangle" />
             </div>
             <div>
-              <FormInput v-model.trim="mail.smtp_encryption" class="w-64" id="smtp_encryption" type="text" title="SMTP encryption" ico="lock-closed" />
+              <FormSelect v-model="mail.smtp_encryption" :options="['None', 'SSL/TLS', 'STARTTLS']" :error="errors.digital_type" rules="required"
+                id="smtp_encryption" title="SMTP encryption" ico="lock-closed"></FormSelect>
             </div>
           </div>
           <div class="flex mt-5">
@@ -167,22 +142,28 @@
                 ico="finger-print" />
             </div>
           </div>
-          <div class="pt-8">
-            <FormButton type="submit" name="Save" color="green" />
+          <div class="pt-8 flex">
+            <FormButton type="submit" name="Save" color="green" class="flex-none" />
+            <div class="ml-5 mt-3 flex-none">
+              <span @click="sendTestMail" class="cursor-pointer text-red-700">Test mail</span>
+            </div>
           </div>
         </Form>
       </div>
-
     </div>
+
+    <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
+      <SettingLetter :close="closeDrawer" name="mail_letter_purchase" v-if="isDrawer.action === 'mail_letter_purchase'" />
+    </drawer>
   </MainLayouts>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
 import * as NProgress from "nprogress";
 import MainLayouts from "@/layouts/Main.vue";
-import { notify } from "notiwind";
+import { notifyMessage } from "@/utils/";
+import SettingLetter from "@/components/setting/Letter.vue";
 
 import { defineRule, Form } from "vee-validate";
 import { required, email, one_of, alpha_num, numeric, min } from "@vee-validate/rules";
@@ -201,6 +182,8 @@ defineRule('confirmed', (value, [target], ctx) => {
 
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
+import FormSelect from "@/components/form/Select.vue";
+import Drawer from "@/components/Drawer.vue";
 
 const main = ref({
   jwt: {},
@@ -210,7 +193,18 @@ const stripe = ref({})
 const social = ref({})
 const mail = ref({})
 
-const route = useRoute();
+const socialUrl = {
+  "facebook": "https://facebook.com/",
+  "instagram": "https://instagram.com/",
+  "twitter": "https://twitter.com/@",
+  "dribbble": "https://dribbble.com/",
+  "github": "https://github.com/"
+}
+
+const isDrawer = ref({
+  open: false,
+  action: null,
+});
 
 onMounted(async () => {
   settingsList();
@@ -275,22 +269,12 @@ const updateSetting = async (section) => {
         "Content-Type": "application/json",
       },
     });
-    const { success, result } = await response.json();
+    const { success, message, result } = await response.json();
 
     if (success) {
-      notify({
-        group: "bottom",
-        title: "Perfect",
-        text: message,
-        type: "success",
-      }, 4000)
+      notifyMessage("Perfect", message, "success");
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-        type: "error",
-      }, 4000)
+      notifyMessage("Error", result, "error");
     }
   } catch (error) {
     console.error(error);
@@ -298,4 +282,38 @@ const updateSetting = async (section) => {
     NProgress.done();
   }
 }
+
+const sendTestMail = async () => {
+  try {
+    NProgress.start();
+
+    const response = await fetch(`/api/_/settings/test/mail`, {
+      credentials: "include",
+      method: "GET",
+    });
+    const { success, message, result } = await response.json();
+
+    if (success) {
+      notifyMessage("Perfect", message, "success");
+    } else {
+      notifyMessage("Error", result, "error");
+    }
+
+  } catch (error) {
+    console.error(error);
+  } finally {
+    NProgress.done();
+  }
+};
+
+const openDrawer = (action) => {
+  isDrawer.value.open = true;
+  isDrawer.value.action = action;
+};
+
+const closeDrawer = () => {
+  isDrawer.value.open = false;
+  isDrawer.value.action = null;
+};
+
 </script>

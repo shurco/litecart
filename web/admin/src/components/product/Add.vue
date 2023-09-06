@@ -94,10 +94,8 @@ import FormButton from "@/components/form/Button.vue";
 import FormSelect from "@/components/form/Select.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
 import SvgIcon from 'svg-icon'
+import { notifyMessage, costStripe } from "@/utils/";
 
-import { costStripe } from "@/utils/";
-
-import { notify } from "notiwind";
 import * as NProgress from "nprogress";
 
 import { defineRule, Form } from "vee-validate";
@@ -196,12 +194,7 @@ const addProduct = async () => {
       products.value.total++;
       props.close();
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-        type: "error",
-      }, 4000)
+      notifyMessage("Error", result, "error")
     }
   } catch (error) {
     console.error(error);
@@ -209,6 +202,4 @@ const addProduct = async () => {
     NProgress.done();
   }
 };
-
-
 </script>

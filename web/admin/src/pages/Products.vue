@@ -67,20 +67,17 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { notify } from "notiwind";
-import * as NProgress from "nprogress";
 import SvgIcon from "svg-icon";
-
-import { costFormat } from "@/utils/";
-
+import { notifyMessage, costFormat } from "@/utils/";
 import MainLayouts from "@/layouts/Main.vue";
 import FormButton from "@/components/form/Button.vue";
 import Drawer from "@/components/Drawer.vue";
-
 import ProjectView from "@/components/product/View.vue";
 import ProjectAdd from "@/components/product/Add.vue";
 import ProjectUpdate from "@/components/product/Update.vue";
 import ProjectDigital from "@/components/product/Digital.vue";
+
+import * as NProgress from "nprogress";
 
 onMounted(() => {
   listProducts();
@@ -136,11 +133,7 @@ const getProduct = async (id) => {
       Object.assign(info, result);
       info.amount = costFormat(info.amount);
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", result, "error");
     }
   } catch (error) {
     console.error(error);

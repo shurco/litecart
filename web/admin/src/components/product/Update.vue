@@ -108,10 +108,8 @@ import FormButton from "@/components/form/Button.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
 import FormUpload from "@/components/form/Upload.vue";
 import SvgIcon from 'svg-icon'
+import { notifyMessage, costStripe } from "@/utils/";
 
-import {costStripe } from "@/utils/";
-
-import { notify } from "notiwind";
 import * as NProgress from "nprogress";
 
 import { defineRule, Form } from "vee-validate";
@@ -194,7 +192,7 @@ const updateProduct = async () => {
         "Content-Type": "application/json",
       },
     });
-    const { success, result } = await response.json();
+    const { success, result, message } = await response.json();
 
     if (success) {
       const found = products.value.products.find((e) => e.id === update.id);
@@ -202,13 +200,10 @@ const updateProduct = async () => {
       found.url = update.url;
       found.amount = update.amount;
       found.description = update.description;
+      notifyMessage("Perfect", message, "success");
       props.close();
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", result, "error");
     }
   } catch (error) {
     console.error(error);
@@ -264,11 +259,7 @@ const deleteProductImage = async (index, productId) => {
     if (success) {
       product.value.info.images.splice(index, 1);
     } else {
-      notify({
-        group: "bottom",
-        title: "Error",
-        text: result,
-      }, 4000)
+      notifyMessage("Error", result, "error");
     }
   } catch (error) {
     console.error(error);
