@@ -55,7 +55,7 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	var sitePath string
 
 	if !noSite {
-		sitePath := "./site"
+		sitePath = "./site"
 		if DevMode {
 			sitePath = "../web/site"
 		} else {
