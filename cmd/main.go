@@ -38,13 +38,13 @@ func main() {
 }
 
 func cmdServe() *cobra.Command {
-	var devMode bool
+	var noSite, devMode bool
 	var httpAddr, httpsAddr string
 	cmd := &cobra.Command{
 		Use:   "serve [flags]",
 		Short: "Starts the web server (default to 127.0.0.1:8080)",
 		Run: func(serveCmd *cobra.Command, args []string) {
-			if err := app.NewApp(httpAddr, httpsAddr, devMode); err != nil {
+			if err := app.NewApp(httpAddr, httpsAddr, noSite, devMode); err != nil {
 				os.Exit(1)
 			}
 		},
@@ -66,6 +66,8 @@ func cmdServe() *cobra.Command {
 		"",
 		"HTTPS server address (auto TLS)",
 	)
+
+	cmd.PersistentFlags().BoolVar(&noSite, "no-site", false, "disable create site")
 
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
 	cmd.PersistentFlags().MarkHidden("dev")

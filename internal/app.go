@@ -31,7 +31,7 @@ var (
 )
 
 // NewApp is ...
-func NewApp(httpAddr, httpsAddr string, appDev bool) error {
+func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	DevMode = appDev
 	log = logging.Log()
 
@@ -48,27 +48,28 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 	}
 
 	// web web server
-	var views *html.Engine
-	var sitePath string
-
-	if DevMode {
-		sitePath = "../web/site"
-		views = html.New(sitePath, ".html")
-	} else {
-		sitePath = "./site"
-		if !fsutil.IsDir(sitePath) {
-			fsutil.EmbedExtract(web.EmbedSite(), "")
-		}
-		views = html.New(sitePath, ".html")
-	}
-	views.Reload(true)
-	views.Delims("{#", "#}")
-
-	app := fiber.New(fiber.Config{
+	var fiberConfig = fiber.Config{
 		//Prefork:               true,
 		DisableStartupMessage: true,
-		Views:                 views,
-	})
+	}
+	var sitePath string
+
+	if !noSite {
+		sitePath := "./site"
+		if DevMode {
+			sitePath = "../web/site"
+		} else {
+			if !fsutil.IsDir(sitePath) {
+				fsutil.EmbedExtract(web.EmbedSite(), "")
+			}
+		}
+		views := html.New(sitePath, ".html")
+		views.Reload(true)
+		views.Delims("{#", "#}")
+		fiberConfig.Views = views
+	}
+
+	app := fiber.New(fiberConfig)
 
 	app.Use(helmet.New())
 	app.Use(compress.New(compress.Config{
@@ -78,17 +79,19 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 		Logger: &log,
 	}))
 
-	app.Static("/", sitePath+"/public")
-
-	// check lc_uploads folder
-	if err := fsutil.MkDirs(0775, "./lc_uploads"); err != nil {
-		log.Err(err).Send()
-		return err
+	dirsToCheck := []struct {
+		path string
+		name string
+	}{
+		{"./lc_uploads", "lc_uploads"},
+		{"./lc_digitals", "lc_digitals"},
 	}
-	// check lc_digitals folder
-	if err := fsutil.MkDirs(0775, "./lc_digitals"); err != nil {
-		log.Err(err).Send()
-		return err
+
+	for _, dir := range dirsToCheck {
+		if err := fsutil.MkDirs(0775, dir.path); err != nil {
+			log.Err(err).Send()
+			return err
+		}
 	}
 
 	app.Static("/uploads", "./lc_uploads")
@@ -98,14 +101,17 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 
 	routes.AdminRoutes(app)
 	routes.ApiPrivateRoutes(app)
-	routes.SiteRoutes(app)
-	routes.ApiPublicRoutes(app)
-
-	routes.NotFoundRoute(app)
 
 	fmt.Print("🛒 litecart - open source shopping-cart in 1 file\n")
-	fmt.Printf("├─ Cart UI: %s://%s/\n", schema, mainAddr)
+	if !noSite {
+		app.Static("/", sitePath+"/public")
+		routes.SiteRoutes(app)
+		routes.ApiPublicRoutes(app)
+		fmt.Printf("├─ Cart UI: %s://%s/\n", schema, mainAddr)
+	}
 	fmt.Printf("└─ Admin UI: %s://%s/_/\n", schema, mainAddr)
+
+	routes.NotFoundRoute(app, noSite)
 
 	if schema == "https" {
 		m := &autocert.Manager{
@@ -131,7 +137,6 @@ func NewApp(httpAddr, httpsAddr string, appDev bool) error {
 			log.Err(err).Send()
 			os.Exit(1)
 		}
-
 	}
 
 	if DevMode {
