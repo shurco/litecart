@@ -24,7 +24,7 @@
             <tr :class="{ 'opacity-30': !item.active }" v-for="(item, index) in pages" :key="item.id">
               <td @click="openPage(item.slug)">{{ item.name }}</td>
               <td @click="openPage(item.slug)">{{ item.position }}</td>
-              <td @click="openPage(item.slug)">{{ item.slug }}</td>
+              <td><a :href="`/${item.slug}`" target="_blank">{{ item.slug }}</a></td>
               <td @click="openPage(item.slug)">
                 {{ formatDate(item.created) }}
               </td>

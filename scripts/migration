@@ -24,7 +24,7 @@ fi
 
 run_goose() {
   arr_goose=("create" "up" "up1" "down" "down1" "redo" "status")
-  if [[ " ${arr_goose[@]} " =~ " $1 " ]]; then
+  if [[ " ${arr_goose[*]} " =~ " $1 " ]]; then
     GOOSE_CMD="goose -dir $MIGRATION_DIR -table $DB_POSTFIX sqlite3 ${LC_BASE}"
 
     case "$1" in
@@ -83,7 +83,7 @@ if [[ $MIGRATION == "test" ]]; then
   run_goose $GOOSE_ACTION
 elif [[ $MIGRATION == "dev" ]]; then
   arr_goose=(up down reset)
-  if [[ " ${arr_goose[@]} " =~ " $GOOSE_ACTION " ]]; then
+  if [[ " ${arr_goose[*]} " =~ " $GOOSE_ACTION " ]]; then
     SOURCE=${BASH_SOURCE[0]}
     if [ $GOOSE_ACTION == "up" ]; then
       mkdir -p "${LC_UPLOADS_DIR}"

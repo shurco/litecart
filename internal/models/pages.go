@@ -7,10 +7,10 @@ type Page struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Slug     string `json:"slug"`
-	Position string `json:"position"`
-	Content  string `json:"content,omitempty"`
+	Position string `json:"position,omitempty"`
+	Content  string `json:"content"`
 	Active   bool   `json:"active"`
-	Created  int64  `json:"created"`
+	Created  int64  `json:"created,omitempty"`
 	Updated  int64  `json:"updated,omitempty"`
 }
 

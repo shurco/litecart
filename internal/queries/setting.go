@@ -34,7 +34,7 @@ func (q *SettingQueries) Settings() (*models.Setting, error) {
 	}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
-	rows, err := q.DB.Query(query, keys...)
+	rows, err := q.DB.QueryContext(context.TODO(), query, keys...)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 		}
 	case "password":
 		var passwordHash string
-		if err := q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'password'`).Scan(&passwordHash); err != nil {
+		if err := q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'password'`).Scan(&passwordHash); err != nil {
 			return errors.ErrUserNotFound
 		}
 		compareUserPassword := security.ComparePasswords(passwordHash, settings.Password.Old)
@@ -178,7 +178,7 @@ func (q *SettingQueries) SettingValueByKey(key string) (*models.SettingName, err
 	setting := &models.SettingName{
 		Key: key,
 	}
-	err := q.DB.QueryRow(`SELECT id, value FROM setting WHERE key = ?`, key).Scan(&setting.ID, &setting.Value)
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT id, value FROM setting WHERE key = ?`, key).Scan(&setting.ID, &setting.Value)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.ErrSettingNotFound
@@ -190,7 +190,7 @@ func (q *SettingQueries) SettingValueByKey(key string) (*models.SettingName, err
 
 // UpdateSettingValueByKey is ...
 func (q *SettingQueries) UpdateSettingValueByKey(setting *models.SettingName) error {
-	_, err := q.DB.Exec(`UPDATE setting SET value = ? WHERE key = ? `, setting.Value, setting.Key)
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE setting SET value = ? WHERE key = ? `, setting.Value, setting.Key)
 	if err != nil {
 		return err
 	}
@@ -200,14 +200,14 @@ func (q *SettingQueries) UpdateSettingValueByKey(setting *models.SettingName) er
 // IsInstalled is ...
 func (q *SettingQueries) IsInstalled() bool {
 	var installed bool
-	q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'installed'`).Scan(&installed)
+	q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'installed'`).Scan(&installed)
 	return installed
 }
 
 // GetDomain is ...
 func (q *SettingQueries) GetDomain() string {
 	var domain string
-	q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'domain'`).Scan(&domain)
+	q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'domain'`).Scan(&domain)
 	return domain
 }
 
@@ -221,14 +221,14 @@ func (q *SettingQueries) GetCurrency() string {
 // CheckSubdomain is ...
 func (q *SettingQueries) CheckSubdomain(name string) bool {
 	var id int
-	err := q.DB.QueryRow(`SELECT id FROM domain WHERE name = ?`, name).Scan(&id)
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT id FROM domain WHERE name = ?`, name).Scan(&id)
 	return err == nil
 }
 
 // GetSession is ...
 func (q *SettingQueries) GetSession(key string) (string, error) {
 	var value string
-	err := q.DB.QueryRow(`SELECT value FROM session WHERE key = ?`, key).Scan(&value)
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT value FROM session WHERE key = ?`, key).Scan(&value)
 	if err != nil {
 		return "", err
 	}
@@ -237,7 +237,7 @@ func (q *SettingQueries) GetSession(key string) (string, error) {
 
 // AddSession is ...
 func (q *SettingQueries) AddSession(key, value string, expires int64) error {
-	_, err := q.DB.Exec(`INSERT INTO session (key, value, expires) VALUES (?, ?, ?)`, key, value, expires)
+	_, err := q.DB.ExecContext(context.TODO(), `INSERT INTO session (key, value, expires) VALUES (?, ?, ?)`, key, value, expires)
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,7 @@ func (q *SettingQueries) AddSession(key, value string, expires int64) error {
 
 // UpdateSession is ...
 func (q *SettingQueries) UpdateSession(key, value string, expires int64) error {
-	_, err := q.DB.Exec(`UPDATE session SET value = ?, expires = ? WHERE key = ? `, value, expires, key)
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE session SET value = ?, expires = ? WHERE key = ? `, value, expires, key)
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func (q *SettingQueries) UpdateSession(key, value string, expires int64) error {
 
 // DeleteSession is ...
 func (q *SettingQueries) DeleteSession(key string) error {
-	_, err := q.DB.Exec(`DELETE FROM session WHERE key = ?`, key)
+	_, err := q.DB.ExecContext(context.TODO(), `DELETE FROM session WHERE key = ?`, key)
 	if err != nil {
 		return err
 	}
@@ -267,7 +267,7 @@ func (q *SettingQueries) SettingJWT() (*jwtutil.Setting, error) {
 	settings := &jwtutil.Setting{}
 
 	query := `SELECT key, value FROM setting WHERE key IN (?, ?)`
-	rows, err := q.DB.Query(query, "jwt_secret", "jwt_secret_expire_hours")
+	rows, err := q.DB.QueryContext(context.TODO(), query, "jwt_secret", "jwt_secret_expire_hours")
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +300,7 @@ func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 	settings := &models.Setting{}
 
 	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?)`
-	rows, err := q.DB.Query(query, "stripe_secret_key", "stripe_webhook_secret_key", "domain")
+	rows, err := q.DB.QueryContext(context.TODO(), query, "stripe_secret_key", "stripe_webhook_secret_key", "domain")
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func (q *SettingQueries) ListSocials() (*models.Social, error) {
 	keys := []any{"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github"}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
-	rows, err := q.DB.Query(query, keys...)
+	rows, err := q.DB.QueryContext(context.TODO(), query, keys...)
 	if err != nil {
 		return nil, err
 	}
@@ -379,7 +379,7 @@ func (q *SettingQueries) SettingMail() (*models.Mail, error) {
 	keys := []any{"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption"}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
-	rows, err := q.DB.Query(query, keys...)
+	rows, err := q.DB.QueryContext(context.TODO(), query, keys...)
 	if err != nil {
 		return nil, err
 	}

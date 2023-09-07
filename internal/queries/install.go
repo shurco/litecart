@@ -33,7 +33,7 @@ func (q *InstallQueries) Install(i *models.Install) error {
 	}()
 
 	var installed bool
-	q.DB.QueryRow(`SELECT value FROM setting WHERE key = ?`, "installed").Scan(&installed)
+	q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = ?`, "installed").Scan(&installed)
 	if installed {
 		return fmt.Errorf("%s", "Rejected because you have already installed and configured the cart")
 	}

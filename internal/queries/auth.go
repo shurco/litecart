@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/shurco/litecart/pkg/errors"
@@ -15,14 +16,14 @@ type AuthQueries struct {
 func (q *AuthQueries) GetPasswordByEmail(email string) (string, error) {
 	var id, value string
 
-	if err := q.DB.QueryRow(`SELECT id FROM setting WHERE key = 'email' AND value = ?`, email).Scan(&id); err != nil {
+	if err := q.DB.QueryRowContext(context.TODO(), `SELECT id FROM setting WHERE key = 'email' AND value = ?`, email).Scan(&id); err != nil {
 		return "", errors.ErrUserNotFound
 	}
 	if id == "" {
 		return "", errors.ErrUserEmailNotFound
 	}
 
-	if err := q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'password'`).Scan(&value); err != nil {
+	if err := q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'password'`).Scan(&value); err != nil {
 		return "", errors.ErrUserPasswordNotFound
 	}
 	if value == "" {

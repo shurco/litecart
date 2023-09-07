@@ -60,7 +60,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 		queryTotal = queryTotal + queryPrivate
 	}
 
-	rows, err := q.DB.Query(query + queryList)
+	rows, err := q.DB.QueryContext(context.TODO(), query+queryList)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 	}
 
 	// total records
-	err = q.DB.QueryRow(queryTotal + queryList).Scan(&products.Total)
+	err = q.DB.QueryRowContext(context.TODO(), queryTotal+queryList).Scan(&products.Total)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 	var images, metadata, attributes, digitalType sql.NullString
 	var updated sql.NullInt64
 
-	err := q.DB.QueryRow(query, id).
+	err := q.DB.QueryRowContext(context.TODO(), query, id).
 		Scan(
 			&product.ID,
 			&product.Name,
@@ -192,7 +192,7 @@ func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, e
 	attributes, _ := json.Marshal(product.Attributes)
 
 	sql := `INSERT INTO product (id, name, amount, slug, metadata, attribute, desc, digital) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING strftime('%s', created)`
-	err := q.DB.QueryRow(sql, product.ID, product.Name, product.Amount, product.Slug, metadata, attributes, product.Description, product.Digital.Type).Scan(&product.Created)
+	err := q.DB.QueryRowContext(context.TODO(), sql, product.ID, product.Name, product.Amount, product.Slug, metadata, attributes, product.Description, product.Digital.Type).Scan(&product.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 	metadata, _ := json.Marshal(product.Metadata)
 	attributes, _ := json.Marshal(product.Attributes)
 
-	_, err := q.DB.Exec(`UPDATE product SET name = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE product SET name = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
 		product.Name,
 		product.Description,
 		product.Slug,
@@ -223,7 +223,7 @@ func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 
 // DeleteProduct is ...
 func (q *ProductQueries) DeleteProduct(id string) error {
-	if _, err := q.DB.Exec(`DELETE FROM product WHERE id = ?`, id); err != nil {
+	if _, err := q.DB.ExecContext(context.TODO(), `DELETE FROM product WHERE id = ?`, id); err != nil {
 		return err
 	}
 
@@ -239,7 +239,7 @@ func (q *ProductQueries) IsProduct(slug string) bool {
 			FROM product 
 			WHERE slug = ? AND active = 1
 	`
-	err := q.DB.QueryRow(query, slug).Scan(&id)
+	err := q.DB.QueryRowContext(context.TODO(), query, slug).Scan(&id)
 	if err != nil {
 		return false
 	}
@@ -259,12 +259,12 @@ func (q *ProductQueries) UpdateActive(id string) error {
 			FROM product 
 			WHERE id = ?
 	`
-	err := q.DB.QueryRow(query, id).Scan(&active)
+	err := q.DB.QueryRowContext(context.TODO(), query, id).Scan(&active)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
-	if _, err := q.DB.Exec(`UPDATE product SET active = ?, updated = datetime('now') WHERE id = ?`, !active, id); err != nil {
+	if _, err := q.DB.ExecContext(context.TODO(), `UPDATE product SET active = ?, updated = datetime('now') WHERE id = ?`, !active, id); err != nil {
 		return err
 	}
 
@@ -282,7 +282,7 @@ func (q *ProductQueries) ProductImages(id string) (*[]models.File, error) {
 			WHERE product_id = ?
 	`
 	var imgs sql.NullString
-	err := q.DB.QueryRow(query, id).Scan(&imgs)
+	err := q.DB.QueryRowContext(context.TODO(), query, id).Scan(&imgs)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.ErrProductNotFound
@@ -306,7 +306,7 @@ func (q *ProductQueries) AddImage(productID, fileUUID, fileExt, origName string)
 	}
 
 	// add db record
-	_, err := q.DB.Exec(`INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES (?, ?, ?, ?, ?)`, file.ID, productID, file.Name, file.Ext, origName)
+	_, err := q.DB.ExecContext(context.TODO(), `INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES (?, ?, ?, ?, ?)`, file.ID, productID, file.Name, file.Ext, origName)
 	if err != nil {
 		return nil, err
 	}
@@ -317,12 +317,12 @@ func (q *ProductQueries) AddImage(productID, fileUUID, fileExt, origName string)
 // DeleteImage is ...
 func (q *ProductQueries) DeleteImage(productID, imageID string) error {
 	var name, ext string
-	err := q.DB.QueryRow(`SELECT name, ext FROM product_image WHERE id = ?`, imageID).Scan(&name, &ext)
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT name, ext FROM product_image WHERE id = ?`, imageID).Scan(&name, &ext)
 	if err != nil {
 		return err
 	}
 
-	if _, err := q.DB.Exec(`DELETE FROM product_image WHERE id = ? AND product_id = ?`, imageID, productID); err != nil {
+	if _, err := q.DB.ExecContext(context.TODO(), `DELETE FROM product_image WHERE id = ? AND product_id = ?`, imageID, productID); err != nil {
 		return err
 	}
 
@@ -362,7 +362,7 @@ func (q *ProductQueries) ProductDigital(productID string) (*models.Digital, erro
 
 	// digital type
 	var digitalType sql.NullString
-	err = q.DB.QueryRow(`SELECT digital FROM product WHERE id = ?`, productID).Scan(&digitalType)
+	err = q.DB.QueryRowContext(context.TODO(), `SELECT digital FROM product WHERE id = ?`, productID).Scan(&digitalType)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.ErrProductNotFound
@@ -377,7 +377,7 @@ func (q *ProductQueries) ProductDigital(productID string) (*models.Digital, erro
 	}
 
 	// digital file
-	rows, err := q.DB.Query(`SELECT id, name, ext FROM digital_file WHERE product_id = ?`, productID)
+	rows, err := q.DB.QueryContext(context.TODO(), `SELECT id, name, ext FROM digital_file WHERE product_id = ?`, productID)
 	if err != nil {
 		return nil, err
 	}
@@ -403,7 +403,7 @@ func (q *ProductQueries) ProductDigital(productID string) (*models.Digital, erro
 	}
 
 	// digital data
-	rows, err = q.DB.Query(`SELECT id, content, active FROM digital_data WHERE product_id = ?`, productID)
+	rows, err = q.DB.QueryContext(context.TODO(), `SELECT id, content, active FROM digital_data WHERE product_id = ?`, productID)
 	if err != nil {
 		return nil, err
 	}
@@ -440,7 +440,7 @@ func (q *ProductQueries) AddDigitalFile(productID, fileUUID, fileExt, origName s
 	}
 
 	// add db record
-	_, err := q.DB.Exec(`INSERT INTO digital_file (id, product_id, name, ext, orig_name) VALUES (?, ?, ?, ?, ?)`, file.ID, productID, file.Name, file.Ext, origName)
+	_, err := q.DB.ExecContext(context.TODO(), `INSERT INTO digital_file (id, product_id, name, ext, orig_name) VALUES (?, ?, ?, ?, ?)`, file.ID, productID, file.Name, file.Ext, origName)
 	if err != nil {
 		return nil, err
 	}
@@ -457,7 +457,7 @@ func (q *ProductQueries) AddDigitalData(productID, content string) (*models.Data
 	}
 
 	// add db record
-	_, err := q.DB.Exec(`INSERT INTO digital_data (id, product_id, content) VALUES (?, ?, ?)`, file.ID, productID, file.Content)
+	_, err := q.DB.ExecContext(context.TODO(), `INSERT INTO digital_data (id, product_id, content) VALUES (?, ?, ?)`, file.ID, productID, file.Content)
 	if err != nil {
 		return nil, err
 	}
@@ -467,7 +467,7 @@ func (q *ProductQueries) AddDigitalData(productID, content string) (*models.Data
 
 // UpdateDigital is ...
 func (q *ProductQueries) UpdateDigital(digital *models.Data) error {
-	_, err := q.DB.Exec(`UPDATE digital_data SET content = ?, active = ? WHERE id = ?`,
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE digital_data SET content = ?, active = ? WHERE id = ?`,
 		digital.Content,
 		digital.Active,
 		digital.ID,
@@ -482,7 +482,7 @@ func (q *ProductQueries) UpdateDigital(digital *models.Data) error {
 // DeleteDigital is ...
 func (q *ProductQueries) DeleteDigital(productID, digitalID string) error {
 	var digitalType string
-	err := q.DB.QueryRow(`SELECT digital FROM product WHERE id = ?`, productID).Scan(&digitalType)
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT digital FROM product WHERE id = ?`, productID).Scan(&digitalType)
 	if err != nil {
 		return err
 	}
@@ -490,12 +490,12 @@ func (q *ProductQueries) DeleteDigital(productID, digitalID string) error {
 	switch digitalType {
 	case "file":
 		var name, ext string
-		err := q.DB.QueryRow(`SELECT name, ext FROM digital_file WHERE id = ?`, digitalID).Scan(&name, &ext)
+		err := q.DB.QueryRowContext(context.TODO(), `SELECT name, ext FROM digital_file WHERE id = ?`, digitalID).Scan(&name, &ext)
 		if err != nil {
 			return err
 		}
 
-		if _, err := q.DB.Exec(`DELETE FROM digital_file WHERE id = ? AND product_id = ?`, digitalID, productID); err != nil {
+		if _, err := q.DB.ExecContext(context.TODO(), `DELETE FROM digital_file WHERE id = ? AND product_id = ?`, digitalID, productID); err != nil {
 			return err
 		}
 
@@ -510,7 +510,7 @@ func (q *ProductQueries) DeleteDigital(productID, digitalID string) error {
 		}
 
 	case "data":
-		if _, err := q.DB.Exec(`DELETE FROM digital_data WHERE id = ? AND product_id = ?`, digitalID, productID); err != nil {
+		if _, err := q.DB.ExecContext(context.TODO(), `DELETE FROM digital_data WHERE id = ? AND product_id = ?`, digitalID, productID); err != nil {
 			return err
 		}
 	}

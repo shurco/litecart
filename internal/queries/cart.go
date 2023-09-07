@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"strings"
@@ -31,7 +32,7 @@ func (q *CartQueries) Checkouts() ([]*models.Checkout, error) {
 	FROM cart
 	`
 
-	rows, err := q.DB.Query(query)
+	rows, err := q.DB.QueryContext(context.TODO(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (q *CartQueries) AddCart(cart *models.Checkout) error {
 		return err
 	}
 
-	_, err = q.DB.Exec(`INSERT INTO cart (id, cart, amount_total, currency, payment_status) VALUES (?, ?, ?, ?, ?)`, cart.ID, string(byteCart), cart.AmountTotal, cart.Currency, cart.PaymentStatus)
+	_, err = q.DB.ExecContext(context.TODO(), `INSERT INTO cart (id, cart, amount_total, currency, payment_status) VALUES (?, ?, ?, ?, ?)`, cart.ID, string(byteCart), cart.AmountTotal, cart.Currency, cart.PaymentStatus)
 	if err != nil {
 		return err
 	}
@@ -130,7 +131,7 @@ func (q *CartQueries) UpdateCart(cart *models.Checkout) error {
 	sql.WriteString("updated = datetime('now') WHERE id = ?")
 	args = append(args, cart.ID)
 
-	if _, err := q.DB.Exec(sql.String(), args...); err != nil {
+	if _, err := q.DB.ExecContext(context.TODO(), sql.String(), args...); err != nil {
 		return err
 	}
 
