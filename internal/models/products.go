@@ -18,7 +18,7 @@ type Product struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Images      []File     `json:"images,omitempty"`
-	Url         string     `json:"url"`
+	Slug        string     `json:"slug"`
 	Amount      int        `json:"amount"`
 	Metadata    []Metadata `json:"metadata,omitempty"`
 	Attributes  []string   `json:"attributes,omitempty"`
@@ -35,7 +35,7 @@ func (v Product) Validate() error {
 		validation.Field(&v.Name, validation.Length(3, 50)),
 		validation.Field(&v.Description, validation.NotNil),
 		validation.Field(&v.Images),
-		validation.Field(&v.Url, validation.Required, validation.Length(1, 20)),
+		validation.Field(&v.Slug, validation.Required, validation.Length(3, 20)),
 		validation.Field(&v.Amount, validation.Required, validation.Min(0)),
 		validation.Field(&v.Metadata),
 		validation.Field(&v.Attributes, validation.Each(validation.Length(3, 254))),

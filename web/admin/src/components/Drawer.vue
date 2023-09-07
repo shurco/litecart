@@ -7,35 +7,29 @@
       transitionDuration: `200 ms`,
       backgroundColor: backgroundColor,
     }">
-
       <slot />
-
     </div>
   </div>
 </template>
 
 <script setup>
 import { getCurrentInstance, watch, ref } from "vue";
-import FormButton from "@/components/form/Button.vue";
 
 const props = defineProps({
   title: {
     type: String,
     default: "Header",
   },
-
   isOpen: {
     type: Boolean,
     required: false,
     default: false,
   },
-
   maxWidth: {
     type: String,
     required: false,
     default: "500px",
   },
-
   backgroundColor: {
     type: String,
     required: false,
@@ -55,14 +49,12 @@ watch(
     if (val) {
       const drawerContent = document.getElementById("drawer_content");
       drawerContent.scrollTop = 0;
-
       toggleBackgroundScrolling(true);
       isVisible.value = true;
     } else {
       toggleBackgroundScrolling(false);
       setTimeout(() => (isVisible.value = false), 200);
     }
-
     setTimeout(() => (isTransitioning.value = false), 200);
   },
 );

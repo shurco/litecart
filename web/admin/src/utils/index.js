@@ -127,15 +127,3 @@ function deepEqual(object1, object2) {
 function isObject(object) {
   return object != null && typeof object === "object";
 }
-
-export function notifyMessage(title, message, type) {
-  notify(
-    {
-      group: "bottom",
-      title: title,
-      text: message,
-      type: type,
-    },
-    4000,
-  );
-}

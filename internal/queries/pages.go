@@ -2,9 +2,9 @@ package queries
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/security"
 )
 
@@ -18,7 +18,7 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 	pages := []models.Page{}
 
 	queryPrivate := ` WHERE active = 1`
-	query := `SELECT id, name, url, type, active, strftime('%s', created), strftime('%s', updated) FROM page`
+	query := `SELECT id, name, slug, position, active, strftime('%s', created), strftime('%s', updated) FROM page`
 
 	if !private {
 		query = query + queryPrivate
@@ -34,7 +34,7 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 		var updated sql.NullInt64
 
 		page := models.Page{}
-		err := rows.Scan(&page.ID, &page.Name, &page.Url, &page.Type, &page.Active, &page.Created, &updated)
+		err := rows.Scan(&page.ID, &page.Name, &page.Slug, &page.Position, &page.Active, &page.Created, &updated)
 		if err != nil {
 			return nil, err
 		}
@@ -54,15 +54,15 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 }
 
 // Page is ...
-func (q *PageQueries) Page(url string) (*models.Page, error) {
+func (q *PageQueries) Page(slug string) (*models.Page, error) {
 	page := models.Page{
-		Url: url,
+		Slug: slug,
 	}
 
-	err := q.DB.QueryRow(`SELECT id, name, content FROM page WHERE url = ?`, url).Scan(&page.ID, &page.Name, &page.Content)
+	err := q.DB.QueryRow(`SELECT id, name, content FROM page WHERE slug = ?`, slug).Scan(&page.ID, &page.Name, &page.Content)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("page not found")
+			return nil, errors.ErrPageNotFound
 		}
 		return nil, err
 	}
@@ -75,8 +75,8 @@ func (q *PageQueries) AddPage(page *models.Page) (*models.Page, error) {
 	page.ID = security.RandomString()
 	page.Active = false
 
-	sql := `INSERT INTO page (id, name, url, type) VALUES (?, ?, ?, ?) RETURNING strftime('%s', created)`
-	err := q.DB.QueryRow(sql, page.ID, page.Name, page.Url, page.Type).Scan(&page.Created)
+	sql := `INSERT INTO page (id, name, slug, position) VALUES (?, ?, ?, ?) RETURNING strftime('%s', created)`
+	err := q.DB.QueryRow(sql, page.ID, page.Name, page.Slug, page.Position).Scan(&page.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +86,10 @@ func (q *PageQueries) AddPage(page *models.Page) (*models.Page, error) {
 
 // UpdatePage is ...
 func (q *PageQueries) UpdatePage(page *models.Page) error {
-	_, err := q.DB.Exec(`UPDATE page SET name = ?, url = ?, type = ?, updated = datetime('now') WHERE id = ?`,
+	_, err := q.DB.Exec(`UPDATE page SET name = ?, slug = ?, position = ?, updated = datetime('now') WHERE id = ?`,
 		page.Name,
-		page.Url,
-		page.Type,
+		page.Slug,
+		page.Position,
 		page.ID,
 	)
 	if err != nil {

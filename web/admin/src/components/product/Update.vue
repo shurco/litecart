@@ -6,14 +6,15 @@
           <h1>Edit {{ products.products[product.index].name }}</h1>
         </div>
         <div>
-          <SvgIcon :name="products.products[product.index].active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="updateActive(product.index)" />
+          <SvgIcon :name="products.products[product.index].active ? 'eye' : 'eye-slash'
+            " class="h-5 w-5 cursor-pointer" @click="updateActive(product.index)" />
         </div>
       </div>
     </div>
 
     <Form @submit="updateProduct" v-slot="{ errors }">
       <div class="flow-root">
-        <dl class="-my-3 text-sm mx-auto mb-0 mt-2 space-y-4">
+        <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
           <FormInput v-model.trim="product.info.name" :error="errors.name" rules="required|min:4" id="name" type="text" title="Name" ico="at-symbol" />
 
           <div class="flex flex-row">
@@ -22,7 +23,7 @@
             </div>
             <div class="mt-3">{{ products.currency }}</div>
           </div>
-          <FormInput v-model.trim="product.info.url" :error="errors.url" rules="required|alpha_num" id="url" type="text" title="Url" ico="glob-alt" />
+          <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|alpha_num|min:3" id="slug" type="text" title="Slug" ico="glob-alt" />
 
           <hr />
           <p class="font-semibold">Metadata</p>
@@ -101,62 +102,55 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { onMounted, computed } from "vue";
 
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
 import FormUpload from "@/components/form/Upload.vue";
-import SvgIcon from 'svg-icon'
-import { notifyMessage, costStripe } from "@/utils/";
+import { costStripe } from "@/utils/";
+import { showMessage } from "@/utils/message";
+import { apiUpdate, apiDelete } from "@/utils/api";
 
-import * as NProgress from "nprogress";
-
-import { defineRule, Form } from "vee-validate";
-import { required, alpha_num, min } from "@vee-validate/rules";
-defineRule("required", required);
-defineRule("min", min);
-defineRule("alpha_num", alpha_num);
-defineRule('amount', value => {
-  if (!value || !value.length) {
-    return true;
-  }
-  if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-    return 'amount is not valid';
-  }
-  return true;
-});
+import SvgIcon from "svg-icon";
+import { Form } from "vee-validate";
 
 const props = defineProps({
   product: {
-    required: true
+    required: true,
   },
   products: {
-    required: true
+    required: true,
   },
   updateActive: Function,
   close: Function,
-})
+});
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(["update:modelValue"]);
 
 const product = computed({
   get: () => {
-    return props.product
+    return props.product;
   },
   set: (val) => {
-    emits('update:modelValue', val)
+    emits("update:modelValue", val);
+  },
+});
+
+onMounted(() => {
+  if (!product.value.info.images) {
+    product.value.info.images = [];
   }
-})
+});
 
 const products = computed({
   get: () => {
-    return props.products
+    return props.products;
   },
   set: (val) => {
-    emits('update:modelValue', val)
-  }
-})
+    emits("update:modelValue", val);
+  },
+});
 
 const addMetadataRecord = () => {
   const metadata = product.value.info.metadata || [];
@@ -179,92 +173,57 @@ const deleteAttributeRecord = (index) => {
 };
 
 const updateProduct = async () => {
-  try {
-    const update = { ...product.value.info };
-    update.amount = costStripe(update.amount);
-    NProgress.start();
-
-    const response = await fetch(`/api/_/products/${update.id}`, {
-      credentials: "include",
-      method: "PATCH",
-      body: JSON.stringify(update),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, result, message } = await response.json();
-
-    if (success) {
+  const update = { ...product.value.info };
+  update.amount = costStripe(update.amount);
+  apiUpdate(`/api/_/products/${update.id}`, update).then(res => {
+    if (res.success) {
       const found = products.value.products.find((e) => e.id === update.id);
       found.name = update.name;
-      found.url = update.url;
+      found.slug = update.slug;
       found.amount = update.amount;
       found.description = update.description;
-      notifyMessage("Perfect", message, "success");
-      props.close();
+      showMessage(res.message);
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const deleteProduct = async (index) => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/products/${products.value.products[index].id}`, {
-      credentials: "include",
-      method: "DELETE",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
+  apiDelete(`/api/_/products/${products.value.products[index].id}`).then(res => {
+    if (res.success) {
       products.value.products.splice(index, 1);
       products.value.total--;
     } else {
-      const obj = JSON.parse(result);
+      const obj = JSON.parse(res.result);
       if (obj.code === "resource_missing") {
         console.log(obj.message);
       }
     }
     props.close();
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const addProductImage = (event) => {
   if (event.success) {
+    const update = { ...product.value.info };
+    const found = products.value.products.find((e) => e.id === update.id);
+    if (!found.images) {
+      found.images = [];
+    }
+    found.images.push(event.result);
+
     product.value.info.images.push(event.result);
   }
 };
 
 const deleteProductImage = async (index, productId) => {
-  try {
-    NProgress.start();
-    const image = product.value.info.images[index];
-
-    const response = await fetch(`/api/_/products/${productId}/image/${image.id}`, {
-      credentials: "include",
-      method: "DELETE",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
+  apiDelete(`/api/_/products/${productId}/image/${product.value.info.images[index].id}`).then(res => {
+    if (res.success) {
       product.value.info.images.splice(index, 1);
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 </script>

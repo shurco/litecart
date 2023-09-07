@@ -9,6 +9,7 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -198,7 +199,7 @@ func ProductDigital(c *fiber.Ctx) error {
 
 	digital, err := db.ProductDigital(productID)
 	if err != nil {
-		if err.Error() == "not found" {
+		if err == errors.ErrProductNotFound {
 			return webutil.StatusNotFound(c)
 		}
 		return webutil.StatusBadRequest(c, err.Error())

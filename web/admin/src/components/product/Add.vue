@@ -9,7 +9,7 @@
     </div>
     <Form @submit="addProduct" v-slot="{ errors }">
       <div class="flow-root">
-        <dl class="-my-3 text-sm mx-auto mb-0 mt-2 space-y-4">
+        <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
           <FormInput v-model.trim="product.info.name" :error="errors.name" rules="required|min:4" id="name" type="text" title="Name" ico="at-symbol" />
           <div class="flex flex-row">
             <div class="pr-3">
@@ -20,10 +20,11 @@
 
           <div class="flex">
             <div class="grow pr-3">
-              <FormInput v-model.trim="product.info.url" :error="errors.url" rules="required|alpha_num" id="url" type="text" title="Url" ico="glob-alt" />
+              <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|alpha_num|min:3" id="slug" type="text" title="Slug" ico="glob-alt" />
             </div>
             <div class="grow">
-              <FormSelect v-model="product.info.digital.type" :options="['file', 'data']" :error="errors.digital_type" rules="required" id="digital_type" title="Digital type"></FormSelect>
+              <FormSelect v-model="product.info.digital.type" :options="['file', 'data']" :error="errors.digital_type" rules="required" id="digital_type" title="Digital type"
+                ico="cube" />
             </div>
           </div>
 
@@ -87,61 +88,48 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormSelect from "@/components/form/Select.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
-import SvgIcon from 'svg-icon'
-import { notifyMessage, costStripe } from "@/utils/";
+import { costStripe } from "@/utils/";
+import { showMessage } from "@/utils/message";
+import { apiPost } from "@/utils/api";
 
-import * as NProgress from "nprogress";
-
-import { defineRule, Form } from "vee-validate";
-import { required, alpha_num, min } from "@vee-validate/rules";
-defineRule("required", required);
-defineRule("min", min);
-defineRule("alpha_num", alpha_num);
-defineRule('amount', value => {
-  if (!value || !value.length) {
-    return true;
-  }
-  if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-    return 'amount is not valid';
-  }
-  return true;
-});
+import SvgIcon from "svg-icon";
+import { Form } from "vee-validate";
 
 const props = defineProps({
   product: {
-    required: true
+    required: true,
   },
   products: {
-    required: true
+    required: true,
   },
   close: Function,
-})
+});
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(["update:modelValue"]);
 
 const product = computed({
   get: () => {
-    return props.product
+    return props.product;
   },
   set: (val) => {
-    emits('update:modelValue', val)
-  }
-})
+    emits("update:modelValue", val);
+  },
+});
 
 const products = computed({
   get: () => {
-    return props.products
+    return props.products;
   },
   set: (val) => {
-    emits('update:modelValue', val)
-  }
-})
+    emits("update:modelValue", val);
+  },
+});
 
 const addMetadataRecord = () => {
   const metadata = product.value.info.metadata || [];
@@ -164,42 +152,26 @@ const deleteAttributeRecord = (index) => {
 };
 
 const addProduct = async () => {
-  try {
-    const add = { ...product.value.info };
-    add.amount = costStripe(add.amount);
-    NProgress.start();
-
-    const response = await fetch(`/api/_/products`, {
-      credentials: "include",
-      method: "POST",
-      body: JSON.stringify(add),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
+  const add = { ...product.value.info };
+  add.amount = costStripe(add.amount);
+  apiPost(`/api/_/products`, add).then(res => {
+    if (res.success) {
       products.value.products.push({
-        id: result.id,
-        name: result.name,
-        description: result.description,
-        amount: result.amount,
-        url: result.url,
-        created: result.created,
+        id: res.result.id,
+        name: res.result.name,
+        description: res.result.description,
+        amount: res.result.amount,
+        slug: res.result.slug,
+        created: res.result.created,
         digital: {
-          type: result.digital.type,
+          type: res.result.digital.type,
         },
       });
       products.value.total++;
       props.close();
     } else {
-      notifyMessage("Error", result, "error")
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 </script>

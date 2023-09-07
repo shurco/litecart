@@ -19,7 +19,7 @@
               <FormInput v-model.trim="main.currency" :error="errors.currency" rules="required|one_of:EUR,USD" class="w-64" id="currency" type="text" title="Currency" ico="money " />
             </div>
           </div>
-          <div class="flex mt-5">
+          <div class="mt-5 flex">
             <div class="pr-3">
               <FormInput v-model.trim="main.jwt.secret" :error="errors.jwt_secret" rules="required|min:30" class="w-64" id="jwt_secret" type="text" title="JWT Secret" ico="key" />
             </div>
@@ -40,7 +40,7 @@
         <Form @submit="updateSetting('password')" v-slot="{ errors }">
           <FormInput v-model.trim="password.old" :error="errors.password_old" rules="required|min:6" class="w-96" id="password_old" type="password" title="Actual password"
             ico="finger-print" />
-          <div class="flex mt-5">
+          <div class="mt-5 flex">
             <div class="pr-3">
               <FormInput v-model.trim="password.new1" :error="errors.password_new1" rules="required|min:6" class="w-96" id="password_new1" type="password" title="New password"
                 ico="finger-print" />
@@ -60,10 +60,8 @@
       <div class="mt-5">
         <h2 class="mb-5">Stripe</h2>
 
-        <div class="flex items-center justify-between bg-red-600 px-2 py-3 text-white mb-5" v-if="!stripe.secret_key">
-          <p class="text-sm font-medium">
-            This section is required!
-          </p>
+        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!stripe.secret_key">
+          <p class="text-sm font-medium">This section is required!</p>
         </div>
 
         <Form @submit="updateSetting('stripe')" v-slot="{ errors }">
@@ -86,7 +84,7 @@
       <div class="mt-5">
         <h2 class="mb-5">Socials</h2>
         <Form @submit="updateSetting('social')" v-slot="{ errors }">
-          <div v-for="(value, key, index) in socialUrl" :key="index" class="flex mt-5">
+          <div v-for="(value, key, index) in socialUrl" :key="index" class="mt-5 flex">
             <div class="pr-3 pt-2.5">{{ socialUrl[key] }}</div>
             <div>
               <FormInput v-model.trim="social[key]" :error="errors[`social_${key}`]" rules="alpha_num" class="w-48" :id="`social_${key}`" type="text"
@@ -104,7 +102,9 @@
         <h2 class="mb-5">Mail letters</h2>
 
         <div class="flex">
-          <div class="bg-gray-200 px-3 py-3 rounded-lg cursor-pointer" @click="openDrawer('mail_letter_purchase')">Purchase letter</div>
+          <div class="cursor-pointer rounded-lg bg-gray-200 px-3 py-3" @click="openDrawer('mail_letter_purchase')">
+            Purchase letter
+          </div>
         </div>
 
         <hr class="mt-5" />
@@ -113,10 +113,12 @@
       <div class="mt-5">
         <h2 class="mb-5">Mail settings</h2>
 
-        <div class="flex items-center justify-between bg-red-600 px-2 py-3 text-white mb-5" v-if="!mail.smtp_host || !mail.smtp_port || !mail.smtp_username || !mail.smtp_password">
-          <p class="text-sm font-medium">
-            This section is required!
-          </p>
+        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!mail.smtp_host ||
+          !mail.smtp_port ||
+          !mail.smtp_username ||
+          !mail.smtp_password
+          ">
+          <p class="text-sm font-medium">This section is required!</p>
         </div>
 
         <Form @submit="updateSetting('mail')" v-slot="{ errors }">
@@ -129,11 +131,11 @@
                 ico="arrow-left-on-rectangle" />
             </div>
             <div>
-              <FormSelect v-model="mail.smtp_encryption" :options="['None', 'SSL/TLS', 'STARTTLS']" :error="errors.digital_type" rules="required"
-                id="smtp_encryption" title="SMTP encryption" ico="lock-closed"></FormSelect>
+              <FormSelect v-model="mail.smtp_encryption" :options="['None', 'SSL/TLS', 'STARTTLS']" :error="errors.digital_type" rules="required" id="smtp_encryption"
+                title="SMTP encryption" ico="lock-closed" />
             </div>
           </div>
-          <div class="flex mt-5">
+          <div class="mt-5 flex">
             <div class="pr-3">
               <FormInput v-model.trim="mail.smtp_username" :error="errors.smtp_username" rules="required" class="w-64" id="smtp_username" type="text" title="Username" ico="user" />
             </div>
@@ -142,7 +144,7 @@
                 ico="finger-print" />
             </div>
           </div>
-          <div class="pt-8 flex">
+          <div class="flex pt-8">
             <FormButton type="submit" name="Save" color="green" class="flex-none" />
             <div class="ml-5 mt-3 flex-none">
               <span @click="sendTestMail" class="cursor-pointer text-red-700">Test mail</span>
@@ -160,150 +162,97 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import * as NProgress from "nprogress";
+
 import MainLayouts from "@/layouts/Main.vue";
-import { notifyMessage } from "@/utils/";
 import SettingLetter from "@/components/setting/Letter.vue";
-
-import { defineRule, Form } from "vee-validate";
-import { required, email, one_of, alpha_num, numeric, min } from "@vee-validate/rules";
-defineRule("required", required);
-defineRule("email", email);
-defineRule("one_of", one_of);
-defineRule("alpha_num", alpha_num);
-defineRule("numeric", numeric);
-defineRule("min", min);
-defineRule('confirmed', (value, [target], ctx) => {
-  if (value === ctx.form[target]) {
-    return true;
-  }
-  return 'Passwords must match';
-});
-
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormSelect from "@/components/form/Select.vue";
 import Drawer from "@/components/Drawer.vue";
+import { showMessage } from "@/utils/message";
+import { apiGet, apiUpdate } from "@/utils/api";
+
+import { Form } from "vee-validate";
 
 const main = ref({
   jwt: {},
-})
-const password = ref({})
-const stripe = ref({})
-const social = ref({})
-const mail = ref({})
+});
+const password = ref({});
+const stripe = ref({});
+const social = ref({});
+const mail = ref({});
 
 const socialUrl = {
-  "facebook": "https://facebook.com/",
-  "instagram": "https://instagram.com/",
-  "twitter": "https://twitter.com/@",
-  "dribbble": "https://dribbble.com/",
-  "github": "https://github.com/"
-}
+  facebook: "https://facebook.com/",
+  instagram: "https://instagram.com/",
+  twitter: "https://twitter.com/@",
+  dribbble: "https://dribbble.com/",
+  github: "https://github.com/",
+};
 
 const isDrawer = ref({
   open: false,
   action: null,
 });
 
-onMounted(async () => {
+onMounted(() => {
   settingsList();
 });
 
 const settingsList = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/settings`, {
-      credentials: "include",
-      method: "GET",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      main.value = result.main;
-      stripe.value = result.stripe;
-      social.value = result.social;
-      mail.value = result.mail;
+  apiGet(`/api/_/settings`).then(res => {
+    if (res.success) {
+      main.value = res.result.main;
+      stripe.value = res.result.stripe;
+      social.value = res.result.social;
+      mail.value = res.result.mail;
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const updateSetting = async (section) => {
-  try {
-    NProgress.start();
-    var update = {};
-    switch (section) {
-      case "main":
-        update.main = main.value;
-        break;
-      case "password":
-        update.password = {
-          old: password.value.old,
-          new: password.value.new1
-        }
-        break;
-      case "stripe":
-        update.stripe = stripe.value;
-        break;
-      case "social":
-        update.social = social.value;
-        break;
-      case "mail":
-        update.mail = mail.value;
-        update.mail.smtp_port = Number(mail.value.smtp_port);
-        break;
-      default:
-        return
-    }
-
-    const response = await fetch(`/api/_/settings`, {
-      credentials: "include",
-      method: "PATCH",
-      body: JSON.stringify(update),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, message, result } = await response.json();
-
-    if (success) {
-      notifyMessage("Perfect", message, "success");
-    } else {
-      notifyMessage("Error", result, "error");
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
+  var update = {};
+  switch (section) {
+    case "main":
+      update.main = main.value;
+      break;
+    case "password":
+      update.password = {
+        old: password.value.old,
+        new: password.value.new1,
+      };
+      break;
+    case "stripe":
+      update.stripe = stripe.value;
+      break;
+    case "social":
+      update.social = social.value;
+      break;
+    case "mail":
+      update.mail = mail.value;
+      update.mail.smtp_port = Number(mail.value.smtp_port);
+      break;
+    default:
+      return;
   }
-}
+
+  apiUpdate(`/api/_/settings`, update).then(res => {
+    if (res.success) {
+      showMessage(res.message);
+    } else {
+      showMessage(res.result, "connextError");
+    }
+  });
+};
 
 const sendTestMail = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/settings/test/mail`, {
-      credentials: "include",
-      method: "GET",
-    });
-    const { success, message, result } = await response.json();
-
-    if (success) {
-      notifyMessage("Perfect", message, "success");
+  apiGet(`/api/_/settings/test/mail`).then(res => {
+    if (res.success) {
+      showMessage(res.message);
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const openDrawer = (action) => {
@@ -315,5 +264,4 @@ const closeDrawer = () => {
   isDrawer.value.open = false;
   isDrawer.value.action = null;
 };
-
 </script>

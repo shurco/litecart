@@ -7,6 +7,7 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -62,7 +63,7 @@ func SettingByKey(c *fiber.Ctx) error {
 
 	setting, err := db.SettingValueByKey(settingKey)
 	if err != nil {
-		if err.Error() == "not found" {
+		if err == errors.ErrSettingNotFound {
 			return webutil.StatusNotFound(c)
 		}
 		return webutil.StatusBadRequest(c, err.Error())

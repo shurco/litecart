@@ -13,14 +13,16 @@
           <tr>
             <th class="w-28"></th>
             <th>Name</th>
-            <th class="w-32">URL</th>
+            <th class="w-32">Slug</th>
             <th class="w-32">Price</th>
-            <th class="w-12 px-4 py-2"><SvgIcon name="cube" class="h-5 w-5" /></th>
+            <th class="w-12 px-4 py-2">
+              <SvgIcon name="cube" class="h-5 w-5" />
+            </th>
             <th class="w-24 px-4 py-2"></th>
           </tr>
         </thead>
         <tbody>
-          <tr :class="{ 'opacity-30': !item.active}" v-for="(item, index) in products.products">
+          <tr :class="{ 'opacity-30': !item.active }" v-for="(item, index) in products.products">
             <td>
               <a :href="`/uploads/${item.images[0].name}.${item.images[0].ext}`" target="_blank" v-if="item.images">
                 <img style="width: 100%; max-width: 80px" :src="`/uploads/${item.images[0].name}_sm.${item.images[0].ext}`" loading="lazy" />
@@ -31,8 +33,8 @@
               <div>{{ item.name }}</div>
             </td>
             <td>
-              <a :href="`/products/${item.url}`" target="_blank" v-if="item.active">{{ item.url }}</a>
-              <span v-else>{{ item.url }}</span>
+              <a :href="`/products/${item.slug}`" target="_blank" v-if="item.active">{{ item.slug }}</a>
+              <span v-else>{{ item.slug }}</span>
             </td>
             <td @click="openDrawer(index, 'view')">
               {{ costFormat(item.amount) }} {{ products.currency }}
@@ -67,8 +69,6 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import SvgIcon from "svg-icon";
-import { notifyMessage, costFormat } from "@/utils/";
 import MainLayouts from "@/layouts/Main.vue";
 import FormButton from "@/components/form/Button.vue";
 import Drawer from "@/components/Drawer.vue";
@@ -76,8 +76,11 @@ import ProjectView from "@/components/product/View.vue";
 import ProjectAdd from "@/components/product/Add.vue";
 import ProjectUpdate from "@/components/product/Update.vue";
 import ProjectDigital from "@/components/product/Digital.vue";
+import { costFormat } from "@/utils/";
+import { showMessage } from "@/utils/message";
+import { apiGet, apiUpdate } from "@/utils/api";
 
-import * as NProgress from "nprogress";
+import SvgIcon from "svg-icon";
 
 onMounted(() => {
   listProducts();
@@ -99,76 +102,38 @@ const product = ref({
 });
 
 const listProducts = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch("/api/_/products", {
-      credentials: "include",
-      method: "GET",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      products.value = result;
+  apiGet(`/api/_/products`).then(res => {
+    if (res.success) {
+      products.value = res.result;
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const getProduct = async (id) => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/products/${id}`, {
-      credentials: "include",
-      method: "GET",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
+  apiGet(`/api/_/products/${id}`).then(res => {
+    if (res.success) {
       const { info } = product.value;
-      Object.assign(info, result);
+      Object.assign(info, res.result);
       info.amount = costFormat(info.amount);
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const updateProductActive = async (index) => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/products/${products.value.products[index].id}/active`, {
-      credentials: "include",
-      method: "PATCH",
-    });
-    const { success } = await response.json();
-
-    if (success) {
+  apiUpdate(`/api/_/products/${products.value.products[index].id}/active`).then(res => {
+    if (res.success) {
       products.value.products[index].active = !products.value.products[index].active;
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  })
 };
 
 const openDrawer = (index, action) => {
   isDrawer.value.open = true;
   isDrawer.value.action = action;
   product.value.index = index;
-
-  const activeProduct = products.value.products[index]
-
+  const activeProduct = products.value.products[index];
   switch (action) {
     case "view":
     case "update":
@@ -190,7 +155,7 @@ const closeDrawer = () => {
   isDrawer.value.open = false;
   isDrawer.value.action = null;
   product.value.info = {
-    digital: {}
+    digital: {},
   };
   product.value.index = null;
 };
@@ -198,14 +163,11 @@ const closeDrawer = () => {
 const digitalTypeIco = (type) => {
   switch (type) {
     case "file":
-      return 'paper-clip'
-      break;
+      return "paper-clip";
     case "data":
-      return 'queue-list'
-      break;
+      return "queue-list";
     default:
-      return 'cube-transparent'
+      return "cube-transparent";
   }
 };
-
 </script>

@@ -1,6 +1,6 @@
 <template>
   <BlankLayouts>
-    <div class="py-16 sm:px-6 lg:px-8 mx-auto max-w-screen-xl px-4">
+    <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-lg text-center">
         <h1 class="text-2xl font-bold sm:text-3xl">👨‍🎨 Admin sign in</h1>
       </div>
@@ -14,49 +14,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { notifyMessage } from "@/utils/";
+import { ref } from "vue";
+
+import BlankLayouts from "@/layouts/Blank.vue";
+import FormInput from "@/components/form/Input.vue";
+import FormButton from "@/components/form/Button.vue";
+import { showMessage } from "@/utils/message";
+import { apiPost } from "@/utils/api";
 
 import * as NProgress from "nprogress";
-
-import { defineRule, Form } from 'vee-validate'
-import { required, email, min } from '@vee-validate/rules'
-defineRule('required', required)
-defineRule('email', email)
-defineRule('min', min)
-
-import BlankLayouts from '@/layouts/Blank.vue'
-import FormInput from '@/components/form/Input.vue'
-import FormButton from '@/components/form/Button.vue'
+import { Form } from "vee-validate";
 
 const state = ref({
-  email: '',
-  password: ''
-})
+  email: "",
+  password: "",
+});
 
 const onSubmit = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch('/api/sign/in', {
-      credentials: 'include',
-      method: 'POST',
-      body: JSON.stringify(state.value),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      window.location.href = '/_/'
+  apiPost(`/api/sign/in`, state.value).then(res => {
+    if (res.success) {
+      window.location.href = "/_/";
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
-}
+  });
+};
 </script>

@@ -17,12 +17,12 @@
     },
 
     mounted() {
-      this.pageContent('{#.PageUrl#}');
+      this.pageContent('{#.PageSlug#}');
     },
 
     methods: {
-      async pageContent(url) {
-        const response = await fetch(`/api/pages/${url}`, {
+      async pageContent(slug) {
+        const response = await fetch(`/api/pages/${slug}`, {
           credentials: "include",
           method: 'GET',
         });

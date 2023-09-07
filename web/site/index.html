@@ -4,12 +4,12 @@
 
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" v-if="products && load">
         <li v-for="item, index in products">
-          <a :href="`/products/${item.url}`" class="block overflow-hidden group rounded-lg">
+          <a :href="`/products/${item.slug}`" class="block overflow-hidden group rounded-lg">
             <img :src="(item.images ? `/uploads/${item.images[0].name}_md.${item.images[0].ext}` : '/assets/img/noimage.png')" alt=""
               class="h-[150px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[250px]" />
           </a>
           <div class="relative bg-white mt-3">
-            <a :href="`/products/${item.url}`" class="block overflow-hidden group"></a>
+            <a :href="`/products/${item.slug}`" class="block overflow-hidden group"></a>
             <h3 class="text-xs text-gray-700 group-hover:underline group-hover:underline-offset-4">
               {{item.name}}
             </h3>
@@ -67,7 +67,7 @@
             detail: {
               id: product.id,
               name: product.name,
-              url: product.url,
+              slug: product.slug,
               amount: product.amount,
               image: image,
             },

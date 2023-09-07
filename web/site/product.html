@@ -38,7 +38,7 @@
     },
 
     mounted() {
-      this.getProduct('{#.ProductUrl#}');
+      this.getProduct('{#.ProductSlug#}');
     },
 
     methods: {
@@ -55,7 +55,7 @@
             detail: {
               id: this.product.id,
               name: this.product.name,
-              url: this.product.url,
+              slug: this.product.slug,
               amount: this.product.amount,
               image: image,
             },
@@ -75,8 +75,8 @@
         }
       },
 
-      async getProduct(url) {
-        const response = await fetch(`/api/products/${url}`, {
+      async getProduct(slug) {
+        const response = await fetch(`/api/products/${slug}`, {
           credentials: "include",
           method: 'GET',
         });

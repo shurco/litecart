@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/security"
 )
 
@@ -30,7 +30,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 				id, 
 				name, 
 				desc, 
-				url,
+				slug,
 				amount,
 				active,
 				digital,
@@ -74,7 +74,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 			&product.ID,
 			&product.Name,
 			&product.Description,
-			&product.Url,
+			&product.Slug,
 			&product.Amount,
 			&product.Active,
 			&digitalType,
@@ -118,7 +118,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 				product.id,
 				product.name, 
 				product.desc, 
-				product.url, 
+				product.slug, 
 				product.amount,
 				product.active,
 				product.metadata, 
@@ -133,7 +133,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 	if private {
 		query = query + `WHERE product.id = ?`
 	} else {
-		query = query + `WHERE product.url = ? AND product.active = 1`
+		query = query + `WHERE product.slug = ? AND product.active = 1`
 	}
 
 	// stripeID
@@ -145,7 +145,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 			&product.ID,
 			&product.Name,
 			&product.Description,
-			&product.Url,
+			&product.Slug,
 			&product.Amount,
 			&product.Active,
 			&metadata,
@@ -157,7 +157,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 		)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("product not found")
+			return nil, errors.ErrProductNotFound
 		}
 		return nil, err
 	}
@@ -191,8 +191,8 @@ func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, e
 	metadata, _ := json.Marshal(product.Metadata)
 	attributes, _ := json.Marshal(product.Attributes)
 
-	sql := `INSERT INTO product (id, name, amount, url, metadata, attribute, desc, digital) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING strftime('%s', created)`
-	err := q.DB.QueryRow(sql, product.ID, product.Name, product.Amount, product.Url, metadata, attributes, product.Description, product.Digital.Type).Scan(&product.Created)
+	sql := `INSERT INTO product (id, name, amount, slug, metadata, attribute, desc, digital) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING strftime('%s', created)`
+	err := q.DB.QueryRow(sql, product.ID, product.Name, product.Amount, product.Slug, metadata, attributes, product.Description, product.Digital.Type).Scan(&product.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -205,10 +205,10 @@ func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 	metadata, _ := json.Marshal(product.Metadata)
 	attributes, _ := json.Marshal(product.Attributes)
 
-	_, err := q.DB.Exec(`UPDATE product SET name = ?, desc = ?, url = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
+	_, err := q.DB.Exec(`UPDATE product SET name = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
 		product.Name,
 		product.Description,
-		product.Url,
+		product.Slug,
 		product.Amount,
 		metadata,
 		attributes,
@@ -231,15 +231,15 @@ func (q *ProductQueries) DeleteProduct(id string) error {
 }
 
 // IsProduct is ...
-func (q *ProductQueries) IsProduct(url string) bool {
+func (q *ProductQueries) IsProduct(slug string) bool {
 	var id string
 	query := `
 			SELECT 
 				id
 			FROM product 
-			WHERE url = ? AND active = 1
+			WHERE slug = ? AND active = 1
 	`
-	err := q.DB.QueryRow(query, url).Scan(&id)
+	err := q.DB.QueryRow(query, slug).Scan(&id)
 	if err != nil {
 		return false
 	}
@@ -285,7 +285,7 @@ func (q *ProductQueries) ProductImages(id string) (*[]models.File, error) {
 	err := q.DB.QueryRow(query, id).Scan(&imgs)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("product not found")
+			return nil, errors.ErrProductNotFound
 		}
 		return nil, err
 	}
@@ -365,7 +365,7 @@ func (q *ProductQueries) ProductDigital(productID string) (*models.Digital, erro
 	err = q.DB.QueryRow(`SELECT digital FROM product WHERE id = ?`, productID).Scan(&digitalType)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("not found")
+			return nil, errors.ErrProductNotFound
 		}
 		return nil, err
 	}

@@ -9,7 +9,7 @@
     </div>
     <Form @submit="updateLetter" v-slot="{ errors }">
       <div class="flow-root">
-        <dl class="-my-3 text-sm mx-auto mb-0 mt-2 space-y-4">
+        <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
           <FormTextarea v-model="letter.value" id="textarea" name="Message" :rows="15" />
         </dl>
       </div>
@@ -31,66 +31,38 @@
 import { onMounted, ref } from "vue";
 import FormButton from "@/components/form/Button.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
-import { notifyMessage } from "@/utils/";
+import { showMessage } from "@/utils/message";
+import { apiGet, apiUpdate } from "@/utils/api";
 
-import * as NProgress from "nprogress";
 import { Form } from "vee-validate";
 
 const props = defineProps({
   name: String,
   close: Function,
-})
+});
 
 onMounted(() => {
   settingLetter();
 });
 
-const letter = ref({})
+const letter = ref({});
 
 const settingLetter = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/settings/${props.name}`, {
-      credentials: "include",
-      method: "GET",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      letter.value = result;
+  apiGet(`/api/_/settings/${props.name}`).then(res => {
+    if (res.success) {
+      letter.value = res.result;
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
 const updateLetter = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/settings/${props.name}`, {
-      credentials: "include",
-      method: "PATCH",
-      body: JSON.stringify(letter.value),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, result, message } = await response.json();
-
-    if (success) {
-      notifyMessage("Perfect", message, "success");
+  apiUpdate(`/api/_/settings/${props.name}`, letter.value).then(res => {
+    if (res.success) {
+      showMessage(res.message);
       props.close();
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 </script>

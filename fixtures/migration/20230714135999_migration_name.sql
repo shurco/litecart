@@ -10,6 +10,8 @@ UPDATE setting SET value = 'd58ca30c8e5ca96695451fa27af949d9' WHERE key = 'jwt_s
 UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = 'sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' WHERE key = 'stripe_secret_key';
 UPDATE setting SET value = '' WHERE key = 'stripe_webhook_secret_key';
+UPDATE setting SET value = 'username' WHERE key = 'social_facebook';
+UPDATE setting SET value = 'username' WHERE key = 'social_dribbble';
 UPDATE setting SET value = 'localhost' WHERE key = 'smtp_host';
 UPDATE setting SET value = '1025' WHERE key = 'smtp_port';
 UPDATE setting SET value = 'username' WHERE key = 'smtp_username';
@@ -19,7 +21,7 @@ UPDATE page SET content = '<h1><strong>Lorem Ipsum content</strong></h1><p>Lorem
 UPDATE page SET content = '<h1><strong>Lorem Ipsum content</strong></h1><p>Lorem ipsum dolor sit amet. Sit animi repellat aut quas fugitQui repudiandae. Non error officiis <strong>Ea tempora et dicta quos ut assumenda aliquam non distinctio quae</strong>! Rem nobis vero <em>Aut quidem et quaerat adipisci sed voluptatem velit</em> quo sunt placeat sed voluptatem alias sit voluptas sequi. Non aliquam perferendis et voluptatem minusEt rerum est voluptatum atque.</p><h2><strong>Et repudiandae galisum et assumenda excepturi aut eius aspernatur.</strong></h2><p>Qui quas accusamus et officia molestiaequi ipsum id laudantium itaque. Eum temporibus itaqueaut reprehenderit id numquam quisquam.</p><ul><li><p>Ea fugiat dolore est consequatur repellat est nobis rerum qui nostrum ipsa.</p></li><li><p>Est officia molestias et cupiditate eligendi ea molestiae quasi et quia doloribus.</p></li><li><p>Ad iusto quam quo nostrum error sit natus labore aut suscipit accusantium.</p></li><li><p>Et repudiandae aperiam ut facere aliquam et neque minima sit impedit dolorem.</p></li><li><p>Nam minus velit qui iure omnis quo debitis voluptatibus.</p></li><li><p>Et nihil sunt At dolores sequi id dolorem itaque ea rerum quia?</p></li></ul><blockquote><p>Et mollitia voluptatem ut fugiat odio et natus nulla ut exercitationem ipsum eum fuga distinctio.</p></blockquote><h3><strong>Qui ullam libero sed nobis dolores.</strong></h3><p>Qui modi dignissimos sed eius nostrum Est harum et cumque iste et commodi illum qui dolorum maiores est harum assumenda. Id labore sint <em>Aut quas aut repudiandae quasi aut cupiditate quia</em> aut consectetur dolor qui ducimus distinctio sit aspernatur recusandae.</p><ol><li><p>Rem dignissimos rerum ut commodi iusto cum iste sequi sit consectetur autem.</p></li><li><p>Aut saepe culpa aut deserunt libero ea vitae quisquam aut dolore voluptas.</p></li><li><p>Sit quae pariatur vel explicabo omnis At sequi inventore.</p></li><li><p>Cum magnam consequuntur qui veniam modi est reprehenderit enim.</p></li><li><p>Sed voluptatem odit sit dolores minima.</p></li></ol>' WHERE id = 'sdH0wGM54e3mZC2';
 UPDATE page SET content = '<h1><strong>Lorem Ipsum content</strong></h1><p>Lorem ipsum dolor sit amet. Et delectus quis ut sequi sunt Ut vitae ab tempore voluptatem in quia nesciunt qui vero aperiam! Ut natus magnam et dolore quaeratnon ducimus. At nesciunt enim in omnis iste <em>Et alias cum dolorem magnam aut dolorem voluptatem</em>.</p><h2><strong>Est provident dolorem sit voluptas molestias et dolore tempora.</strong></h2><p>Et quia deserunt non esse aliquamhic incidunt. Eum dolore animi et nisi ipsam Hic eveniet et itaque natus ut aliquam soluta. Est optio tempora sed nihil quae <em>A quia aut soluta explicabo et molestias dolores sed modi aliquid</em> et dolores mollitia. Sit aspernatur adipisciQui iure eum amet sint?</p><ul><li><p>Id inventore quam in eaque voluptatem in natus dicta.</p></li><li><p>Qui error aspernatur qui sequi recusandae sed consequuntur consequatur et aspernatur laborum.</p></li></ul><blockquote><p>Et rerum minima quo sapiente consequatur id doloribus facere vel aperiam mollitia et dolorem beatae et totam laboriosam.</p></blockquote><h3><strong>Ex voluptates rerum est galisum accusantium.</strong></h3><p>Ut doloribus tempore aut quaerat corporisaut iusto? Et error modi <em>Sit corporis aut facere itaque et voluptas aliquid</em> et optio ullam eos molestiae eveniet! Et quisquam galisum eum quod nobis Est perspiciatis et architecto quia et harum dolore.</p>' WHERE id = 'kFCjBnL25hNTRHk';
 
-INSERT INTO product (id, name, desc, url, metadata, attribute, amount, digital) VALUES 
+INSERT INTO product (id, name, desc, slug, metadata, attribute, amount, digital) VALUES 
 ('fv6c9s9cqzf36sc', 'name1', 'description1', 'url1', '[{"key":"key1", "value":"value1"}, {"key":"key2", "value":"value2"}, {"key":"key3", "value":"value3"}, {"key":"key4", "value":"value4"}, {"key":"key5", "value":"value5"}, {"key":"key6", "value":"value6"}]', '["atribute1" ,"atribute2", "atribute3"]', 2000, 'file'),
 ('xrtb1b919t2nuj9', 'name2', 'description2', 'url2', '[{"key":"key1", "value":"value1"}, {"key":"key2", "value":"value2"}, {"key":"key3", "value":"value3"}, {"key":"key4", "value":"value4"}, {"key":"key5", "value":"value5"}, {"key":"key6", "value":"value6"}]', '["atribute1" ,"atribute2", "atribute3"]', 2100, 'data'),
 ('7mweb67t8xv9pzx', 'name3', 'description3', 'url3', '[{"key":"key1", "value":"value1"}, {"key":"key2", "value":"value2"}, {"key":"key3", "value":"value3"}, {"key":"key4", "value":"value4"}, {"key":"key5", "value":"value5"}, {"key":"key6", "value":"value6"}]', '["atribute1" ,"atribute2", "atribute3"]', 2200, 'file'),
@@ -29,7 +31,6 @@ INSERT INTO product (id, name, desc, url, metadata, attribute, amount, digital) 
 ('ktorsk0xj8w5zab', 'name7', 'description7', 'url7', '[{"key":"key1", "value":"value1"}, {"key":"key2", "value":"value2"}, {"key":"key3", "value":"value3"}, {"key":"key4", "value":"value4"}, {"key":"key5", "value":"value5"}, {"key":"key6", "value":"value6"}]', '["atribute1" ,"atribute2", "atribute3"]', 2600, 'file'),
 ('6bn739vrvfp6zaw', 'name8', 'description8', 'url8', '[{"key":"key1", "value":"value1"}, {"key":"key2", "value":"value2"}, {"key":"key3", "value":"value3"}, {"key":"key4", "value":"value4"}, {"key":"key5", "value":"value5"}, {"key":"key6", "value":"value6"}]', '["atribute1" ,"atribute2", "atribute3"]', 2700, 'data');
 UPDATE product SET active = 0 WHERE id = 'zlfpc6b17gte0ot';
-
 
 INSERT INTO digital_file (id, product_id, name, ext, orig_name) VALUES 
 ('QLYUrC7p3XuXRFC', 'fv6c9s9cqzf36sc', '1ca0a335-7cde-4ba1-a700-138cca9ca852', 'png', 'secret_image_1.png'),
@@ -43,7 +44,6 @@ INSERT INTO digital_data (id, product_id, content) VALUES
 ('27tfwRp48wZ5jmt', 'xrtb1b919t2nuj9', '746becd7-59dc-4a00-aca9-e86e7290a54f');
 UPDATE digital_data SET active = 0 WHERE id = 'utkHD3W9LudJomc';
 UPDATE digital_data SET active = 0 WHERE id = 'CujBxoPx97C2GQf';
-
 
 INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES 
 ('dj9bae53oob0ukj', 'fv6c9s9cqzf36sc', '0f8e7e98-1639-40a3-97f6-0aac15538d88', 'png', 'example_image_1.png'),
@@ -59,13 +59,23 @@ INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES
 ('ki2j3qyhboozw3c', 'zlfpc6b17gte0ot', 'd3f08f52-b290-430f-9fc7-45456fe3319f', 'png', 'example_image_11.png'),
 ('ecbxi01t5kulwnz', 'ktorsk0xj8w5zab', 'e827e0be-aaf6-4008-aacf-da35cf47952f', 'png', 'example_image_12.png'),
 ('tekaawq6bd9zakc', '6bn739vrvfp6zaw', 'ecd77e90-2b35-49eb-a810-a1ecf74c21a7', 'png', 'example_image_13.png');
+
+INSERT INTO cart (id, email, name, amount_total, currency, payment_id, payment_status, cart, updated) VALUES 
+('efzs4xayz43f226', NULL, NULL, 4200, 'usd', NULL, 'cancel', '[{"id":"7mweb67t8xv9pzx","quantity":1},{"id":"fv6c9s9cqzf36sc","quantity":1}]', NULL),
+('iodz4ibf5h5zmov', 'user@gmail.com', 'User Name', 7200, 'usd', 'pi_3NnSsfBDuthUZlLW1snVpG2I', 'paid', '[{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"2wdx6k7b3lywc2o","quantity":1},{"id":"6bn739vrvfp6zaw","quantity":1}]', datetime('now'));
 -- +goose StatementEnd
 
 
 -- +goose Down
 -- +goose StatementBegin
+DELETE FROM cart;
+DELETE FROM digital_file;
+DELETE FROM digital_data;
 DELETE FROM product_image;
 DELETE FROM product;
+UPDATE page SET content = '' WHERE id = 'ig9jpCixAgAu31f';
+UPDATE page SET content = '' WHERE id = 'sdH0wGM54e3mZC2';
+UPDATE page SET content = '' WHERE id = 'kFCjBnL25hNTRHk';
 UPDATE setting SET value = 'false' WHERE key = 'installed';
 UPDATE setting SET value = '' WHERE key = 'domain';
 UPDATE setting SET value = '' WHERE key = 'email';
@@ -74,5 +84,11 @@ UPDATE setting SET value = 'secret' WHERE key = 'jwt_secret';
 UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = '' WHERE key = 'stripe_secret_key';
 UPDATE setting SET value = '' WHERE key = 'stripe_webhook_secret_key';
+UPDATE setting SET value = '' WHERE key = 'social_facebook';
+UPDATE setting SET value = '' WHERE key = 'social_dribbble';
+UPDATE setting SET value = '' WHERE key = 'smtp_host';
+UPDATE setting SET value = '' WHERE key = 'smtp_port';
+UPDATE setting SET value = '' WHERE key = 'smtp_username';
+UPDATE setting SET value = '' WHERE key = 'smtp_password';
 DELETE FROM subdomain;
 -- +goose StatementEnd

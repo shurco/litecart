@@ -3,7 +3,6 @@ package queries
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	mail "github.com/xhit/go-simple-mail/v2"
 
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/jwtutil"
 	"github.com/shurco/litecart/pkg/security"
 )
@@ -127,11 +127,11 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 	case "password":
 		var passwordHash string
 		if err := q.DB.QueryRow(`SELECT value FROM setting WHERE key = 'password'`).Scan(&passwordHash); err != nil {
-			return errors.New("not found user")
+			return errors.ErrUserNotFound
 		}
 		compareUserPassword := security.ComparePasswords(passwordHash, settings.Password.Old)
 		if !compareUserPassword {
-			return errors.New("wrong password")
+			return errors.ErrWrongPassword
 		}
 
 		sectionSettings = map[string]any{
@@ -161,7 +161,7 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 		}
 
 	default:
-		return errors.New("not found")
+		return errors.ErrSettingNotFound
 	}
 
 	for key, value := range sectionSettings {
@@ -181,7 +181,7 @@ func (q *SettingQueries) SettingValueByKey(key string) (*models.SettingName, err
 	err := q.DB.QueryRow(`SELECT id, value FROM setting WHERE key = ?`, key).Scan(&setting.ID, &setting.Value)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("not found")
+			return nil, errors.ErrSettingNotFound
 		}
 		return nil, err
 	}

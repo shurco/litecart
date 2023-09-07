@@ -9,6 +9,8 @@
 
 <script setup>
 import { getCurrentInstance } from "vue";
+import { apiPost } from "@/utils/api";
+
 import SvgIcon from "svg-icon";
 
 const props = defineProps({
@@ -30,16 +32,9 @@ const onChange = () => {
   [...instance.refs.file.files].forEach((f) => {
     const formData = new FormData();
     formData.append("document", f);
-
-    fetch(`/api/_/products/${props.productId}/${props.section}`, {
-      credentials: "include",
-      method: "POST",
-      body: formData,
+    apiPost(`/api/_/products/${props.productId}/${props.section}`, formData).then(res => {
+      emits("added", res);
     })
-      .then((response) => response.json())
-      .then((data) => {
-        emits("added", data);
-      });
   });
 };
 
@@ -74,7 +69,7 @@ const drop = (event) => {
   }
 
   label {
-    @apply block cursor-pointer p-0 border-0 shadow-none ;
+    @apply block cursor-pointer p-0 border-0 shadow-none;
   }
 }
 </style>

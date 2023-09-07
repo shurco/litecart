@@ -47,7 +47,7 @@
       <div class="border-t border-gray-100 pt-8 sm:flex sm:items-center sm:justify-between ">
         <ul class="flex flex-wrap justify-center gap-4 text-xs lg:justify-end">
           <li v-for="item in menu">
-            <a :href="`/${item.url}`" class="text-blue-500 transition hover:opacity-75" v-if="item.type==='footer'">
+            <a :href="`/${item.slug}`" class="text-blue-500 transition hover:opacity-75" v-if="item.position==='footer'">
               {{item.name}}
             </a>
           </li>

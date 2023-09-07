@@ -45,17 +45,17 @@ CREATE INDEX idx_subdomain_name ON subdomain (name);
 CREATE TABLE page (
 	id 				TEXT PRIMARY KEY NOT NULL,
 	name 			TEXT NOT NULL,
-	url 			TEXT UNIQUE NOT NULL,
+	slug 			TEXT UNIQUE NOT NULL,
 	content 	TEXT DEFAULT NULL,
-	type 		  TEXT NOT NULL CHECK (type == 'header' OR type == 'footer'),
+	position  TEXT NOT NULL CHECK (position == 'header' OR position == 'footer'),
 	active    BOOLEAN DEFAULT FALSE NOT NULL,
 	created 	TIMESTAMP DEFAULT (datetime('now')),
 	updated 	TIMESTAMP
 );
 CREATE INDEX idx_page_name ON page (name);
-CREATE INDEX idx_page_url ON page (url);
-CREATE INDEX idx_page_group ON page (type);
-INSERT INTO page (id, name, url, type, content, active) VALUES 
+CREATE INDEX idx_page_slug ON page (slug);
+CREATE INDEX idx_page_group ON page (position);
+INSERT INTO page (id, name, slug, position, content, active) VALUES 
 ('ig9jpCixAgAu31f', 'Terms & Conditions', 'terms', 'footer', '', true),
 ('sdH0wGM54e3mZC2', 'Privacy Policy', 'privacy', 'footer', '', true),
 ('kFCjBnL25hNTRHk', 'Cookies', 'cookies', 'footer', '', true);
@@ -64,7 +64,7 @@ CREATE TABLE product (
 	id         TEXT PRIMARY KEY NOT NULL,
 	name       TEXT NOT NULL,
 	desc       TEXT NOT NULL,
-	url        TEXT UNIQUE NOT NULL,
+	slug        TEXT UNIQUE NOT NULL,
 	amount     NUMERC NOT NULL,
 	metadata   JSON DEFAULT '{}' NOT NULL,
 	attribute  JSON DEFAULT '[]' NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE product (
 );
 CREATE INDEX idx_product_id ON product (id);
 CREATE INDEX idx_product_name ON product (name);
-CREATE INDEX idx_product_url ON product (url);
+CREATE INDEX idx_product_slug ON product (slug);
 
 CREATE TABLE digital_file (
 	id            TEXT PRIMARY KEY NOT NULL,
@@ -96,7 +96,6 @@ CREATE TABLE digital_data (
 	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE INDEX idx_digital_data_product_id ON digital_data (product_id);
-
 
 CREATE TABLE product_image (
 	id          TEXT PRIMARY KEY NOT NULL,

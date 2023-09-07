@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -21,14 +22,14 @@ func Pages(c *fiber.Ctx) error {
 }
 
 // Page is ...
-// [get] /api/page/:page_url
+// [get] /api/page/:page_slug
 func Page(c *fiber.Ctx) error {
-	pageUrl := c.Params("page_url")
+	pageSlug := c.Params("page_slug")
 	db := queries.DB()
 
-	page, err := db.Page(pageUrl)
+	page, err := db.Page(pageSlug)
 	if err != nil {
-		if err.Error() == "page not found" {
+		if err == errors.ErrPageNotFound {
 			return webutil.StatusNotFound(c)
 		}
 		return webutil.StatusBadRequest(c, err.Error())

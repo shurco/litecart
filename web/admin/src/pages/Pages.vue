@@ -1,6 +1,6 @@
 <template>
   <MainLayouts>
-    <div v-if="!route.params.page_url">
+    <div v-if="!route.params.page_slug">
       <header>
         <h1>Pages</h1>
         <div>
@@ -13,8 +13,8 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th class="w-32">Group</th>
-              <th class="w-32">Url</th>
+              <th class="w-32">Position</th>
+              <th class="w-32">Slug</th>
               <th class="w-32">Created</th>
               <th class="w-32">Updated</th>
               <th class="w-24 px-4 py-2"></th>
@@ -22,10 +22,12 @@
           </thead>
           <tbody>
             <tr :class="{ 'opacity-30': !item.active }" v-for="(item, index) in pages" :key="item.id">
-              <td @click="openPage(item.url)">{{ item.name }}</td>
-              <td @click="openPage(item.url)">{{ item.type }}</td>
-              <td @click="openPage(item.url)">{{ item.url }}</td>
-              <td @click="openPage(item.url)">{{ formatDate(item.created) }}</td>
+              <td @click="openPage(item.slug)">{{ item.name }}</td>
+              <td @click="openPage(item.slug)">{{ item.position }}</td>
+              <td @click="openPage(item.slug)">{{ item.slug }}</td>
+              <td @click="openPage(item.slug)">
+                {{ formatDate(item.created) }}
+              </td>
               <td v-if="item.updated">{{ formatDate(item.updated) }}</td>
               <td v-else></td>
               <td class="px-4 py-2">
@@ -44,7 +46,7 @@
       </div>
       <div class="mx-auto" v-else>Not found pages</div>
     </div>
-    <div v-else class="mt-5">
+    <div v-else>
       <header>
         <h1>{{ page.name }}</h1>
       </header>
@@ -57,84 +59,9 @@
     </div>
 
     <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
-      <div v-if="isDrawer.action === 'add'">
-        <div class="pb-8">
-          <div class="flex items-center">
-            <div class="pr-3">
-              <h1>New page</h1>
-            </div>
-          </div>
-        </div>
-
-        <Form @submit="addPage" v-slot="{ errors }">
-          <div class="flow-root">
-            <dl class="-my-3 text-sm mx-auto mb-0 mt-4 space-y-4">
-              <FormInput v-model.trim="page.name" :error="errors.name" rules="required|min:4" id="name" type="text" title="name" ico="at-symbol" />
-              <div class="flex">
-                <div class="pr-3">
-                  <FormSelect v-model="page.type" :options="typePage" :error="errors.type" rules="required" id="type" title="Type"></FormSelect>
-                </div>
-                <div>
-                  <FormInput v-model.trim="page.url" :error="errors.url" rules="required|alpha_num" id="url" type="text" title="Url" ico="glob-alt" />
-                </div>
-              </div>
-
-            </dl>
-          </div>
-
-          <div class="pt-8">
-            <div class="flex">
-              <div class="flex-none">
-                <FormButton type="submit" name="Add" color="green" class="mr-3" />
-                <FormButton type="submit" name="Close" color="gray" @click="closeDrawer" />
-              </div>
-              <div class="grow"></div>
-            </div>
-          </div>
-        </Form>
-      </div>
-
-      <div v-if="isDrawer.action === 'update'">
-        <div class="pb-8">
-          <div class="flex items-center">
-            <div class="pr-3">
-              <h1>Page setup</h1>
-            </div>
-          </div>
-        </div>
-
-        <Form @submit="updatePage" v-slot="{ errors }">
-          <div class="flow-root">
-            <dl class="-my-3 text-sm mx-auto mb-0 mt-4 space-y-4">
-              <FormInput v-model.trim="page.name" :error="errors.name" rules="required|min:4" id="name" type="text" title="name" ico="at-symbol" />
-              <div class="flex">
-                <div class="pr-3">
-                  <FormSelect v-model="page.type" :options="typePage" :error="errors.type" rules="required" id="type" title="Type"></FormSelect>
-                </div>
-                <div>
-                  <FormInput v-model.trim="page.url" :error="errors.url" rules="required|alpha_num" id="url" type="text" title="Url" ico="glob-alt" />
-                </div>
-              </div>
-
-            </dl>
-          </div>
-
-          <div class="pt-8">
-            <div class="flex">
-              <div class="flex-none">
-                <FormButton type="submit" name="Save" color="green" class="mr-3" />
-                <FormButton type="submit" name="Close" color="gray" @click="closeDrawer" />
-              </div>
-              <div class="grow"></div>
-              <div class="mt-4 flex-none">
-                <span @click="deletePage" class="cursor-pointer text-red-700">Delete</span>
-              </div>
-            </div>
-          </div>
-        </Form>
-      </div>
+      <PageAdd v-model:page="page" v-model:pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
+      <PageUpdate v-model:page="page" v-model:pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'update'" />
     </drawer>
-
   </MainLayouts>
 </template>
 
@@ -142,26 +69,19 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MainLayouts from "@/layouts/Main.vue";
-import SvgIcon from "svg-icon";
-import { notifyMessage } from "@/utils/";
-
-import * as NProgress from "nprogress";
-
-import { defineRule, Form } from "vee-validate";
-import { required, alpha_num, min } from "@vee-validate/rules";
-defineRule("required", required);
-defineRule("alpha_num", alpha_num);
-defineRule("min", min);
-
-import { formatDate } from "@/utils/";
 import Editor from "@/components/Editor.vue";
-import FormInput from "@/components/form/Input.vue";
-import FormSelect from "@/components/form/Select.vue";
 import FormButton from "@/components/form/Button.vue";
 import Drawer from "@/components/Drawer.vue";
+import PageAdd from "@/components/page/Add.vue";
+import PageUpdate from "@/components/page/Update.vue";
+import { formatDate } from "@/utils/";
+import { showMessage } from "@/utils/message";
+import { apiGet, apiUpdate } from "@/utils/api";
+
+import SvgIcon from "svg-icon";
 
 const route = useRoute();
-const router = useRouter()
+const router = useRouter();
 const pages = ref([]);
 
 const page = ref({});
@@ -172,223 +92,72 @@ const isDrawer = ref({
   action: null,
 });
 
-const typePage = ["header", "footer"];
+const positionPage = ["header", "footer"];
 
-onMounted(async () => {
+onMounted(() => {
   pagesList();
 
-  if (route.params.page_url) {
-    pageContent(route.params.page_url)
+  if (route.params.page_slug) {
+    pageContent(route.params.page_slug);
   }
 });
 
 const pagesList = async () => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/pages`, {
-      credentials: "include",
-      method: "GET",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      pages.value = result;
+  apiGet(`/api/_/pages`).then(res => {
+    if (res.success) {
+      pages.value = res.result;
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
 
-const openPage = (url) => {
-  router.push({ name: 'pagesArticle', params: { 'page_url': url } });
-  pageContent(url)
-}
-
-const pageContent = async (url) => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/pages/${url}`, {
-      credentials: "include",
-      method: "GET",
-    });
-    const { status } = response;
-    const { success, result } = await response.json();
-
-    if (success) {
-      page.value = result;
-      content.value = result.content;
-    }
-
-    if (status == 404) {
-      router.push({ name: '404' });
-    }
-
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+const openPage = (slug) => {
+  router.push({ name: "pagesArticle", params: { page_slug: slug } });
+  pageContent(slug);
 };
 
-const addPage = async () => {
-  const add = { ...page.value };
-  console.log(add);
-
-  try {
-    const response = await fetch(`/api/_/pages`, {
-      credentials: "include",
-      method: "POST",
-      body: JSON.stringify(add),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      pages.value.push({
-        id: result.id,
-        name: result.name,
-        url: result.url,
-        type: result.type,
-        created: result.created,
-        active: result.active
-      });
-      closeDrawer();
-    } else {
-      notifyMessage("Error", message, "error");
+const pageContent = async (slug) => {
+  apiGet(`/api/pages/${slug}`).then(res => {
+    if (res.success) {
+      page.value = res.result;
+      content.value = res.result.content;
+    }else{
+      router.push({ name: "404" });
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
-}
+  });
+};
+
+
 
 const updatePageContent = async () => {
-  try {
-    NProgress.start();
-    page.value.content = content.value;
-
-    const response = await fetch(`/api/_/pages/${page.value.id}/content`, {
-      credentials: "include",
-      method: "PATCH",
-      body: JSON.stringify(page.value),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, result, message } = await response.json();
-
-    if (success) {
-      notifyMessage("Perfect", message, "success");
+  apiUpdate(`/api/_/pages/${page.value.id}/content`, page.value).then(res => {
+    if (res.success) {
+      showMessage(res.message);
     } else {
-      notifyMessage("Error", result, "error");
+      showMessage(res.result, "connextError");
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  })
 };
 
 const updatePageActive = async (index) => {
-  try {
-    NProgress.start();
-
-    const response = await fetch(`/api/_/pages/${pages.value[index].id}/active`, {
-      credentials: "include",
-      method: "PATCH",
-    });
-    const { success } = await response.json();
-
-    if (success) {
+  apiUpdate(`/api/_/pages/${pages.value[index].id}/active`, null).then(res => {
+    if (res.success) {
       pages.value[index].active = !pages.value[index].active;
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
+  });
 };
-
-const updatePage = async () => {
-  try {
-    const update = { ...page.value };
-    NProgress.start();
-
-    const response = await fetch(`/api/_/pages/${update.id}`, {
-      credentials: "include",
-      method: "PATCH",
-      body: JSON.stringify(update),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { success, result, message } = await response.json();
-
-    if (success) {
-      const found = pages.value.find((e) => e.id === update.id);
-      found.name = update.name;
-      found.url = update.url;
-      found.type = update.type;
-      notifyMessage("Perfect", message, "success");
-      closeDrawer();
-    } else {
-      notifyMessage("Error", result, "error");
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
-}
-
-const deletePage = async () => {
-  try {
-    const index = page.value.index;
-    NProgress.start();
-
-    const response = await fetch(`/api/_/pages/${pages.value[index].id}`, {
-      credentials: "include",
-      method: "DELETE",
-    });
-    const { success, result } = await response.json();
-
-    if (success) {
-      pages.value.splice(index, 1);
-    } else {
-      const obj = JSON.parse(result);
-      if (obj.code === "resource_missing") {
-        console.log(obj.message);
-      }
-    }
-
-    closeDrawer();
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
-}
 
 const openDrawer = (index, action) => {
   page.value = {};
   isDrawer.value.open = true;
   isDrawer.value.action = action;
-
   if (action === "update") {
     page.value = {
       name: pages.value[index].name,
-      url: pages.value[index].url,
-      type: pages.value[index].type,
+      slug: pages.value[index].slug,
+      position: pages.value[index].position,
       id: pages.value[index].id,
       index: index,
-    }
+    };
   }
 };
 

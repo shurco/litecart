@@ -13,7 +13,7 @@
               <img :src="(item.image !== null ? `/uploads/${item.image.name}_sm.${item.image.ext}` : '/assets/img/noimage.png')" alt="" class="h-16 w-16 rounded object-cover" />
 
               <div>
-                <a :href="`/products/${item.url}`" target="_blank">
+                <a :href="`/products/${item.slug}`" target="_blank">
                   {{item.name}}
                 </a>
               </div>

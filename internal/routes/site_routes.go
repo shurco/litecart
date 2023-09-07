@@ -32,16 +32,16 @@ func SiteRoutes(c *fiber.App) {
 	})
 
 	// catalog section
-	c.Get("/products/:product_url", func(c *fiber.Ctx) error {
-		productURL := c.Params("product_url")
+	c.Get("/products/:product_slug", func(c *fiber.Ctx) error {
+		productSlug := c.Params("product_slug")
 		db := queries.DB()
 
-		if !db.IsProduct(productURL) {
+		if !db.IsProduct(productSlug) {
 			return c.Status(fiber.StatusNotFound).Render("404", fiber.Map{}, "layouts/clear")
 		}
 
 		return c.Render("product", fiber.Map{
-			"ProductUrl": productURL,
+			"ProductSlug": productSlug,
 		}, "layouts/main")
 	})
 

@@ -2,8 +2,12 @@
   <BlankLayouts>
     <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-lg text-center">
-        <h1 class="text-2xl font-bold sm:text-3xl">This is the first run! 🎉</h1>
-        <p class="mt-4 text-gray-500">To get started - fill in the following fields</p>
+        <h1 class="text-2xl font-bold sm:text-3xl">
+          This is the first run! 🎉
+        </h1>
+        <p class="mt-4 text-gray-500">
+          To get started - fill in the following fields
+        </p>
       </div>
 
       <Form @submit="onSubmit" v-slot="{ errors }" class="mx-auto mb-0 mt-8 max-w-md space-y-4">
@@ -20,47 +24,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { defineRule, Form } from 'vee-validate'
-import { required, email, min } from '@vee-validate/rules'
-import * as NProgress from "nprogress";
+import { ref } from "vue";
 
-import BlankLayouts from '@/layouts/Blank.vue'
-import FormInput from '@/components/form/Input.vue'
-import FormButton from '@/components/form/Button.vue'
+import BlankLayouts from "@/layouts/Blank.vue";
+import FormInput from "@/components/form/Input.vue";
+import FormButton from "@/components/form/Button.vue";
+import { apiPost } from "@/utils/api";
 
-defineRule('required', required)
-defineRule('email', email)
-defineRule('min', min)
+import { Form } from "vee-validate";
 
 const state = ref({
-  email: '',
-  password: '',
-  domain: '',
-  stripe_secret: ''
-})
+  email: "",
+  password: "",
+  domain: "",
+  stripe_secret: "",
+});
 
 const onSubmit = async () => {
-  try {
-    NProgress.start();
-
-    const response =   await fetch('/api/install', {
-    credentials: 'include',
-    method: 'POST',
-    body: JSON.stringify(state.value),
-    headers: {
-      'Content-Type': 'application/json'
+  apiPost(`/api/install`, state.value).then(res => {
+    if (res.success) {
+      window.location.href = "/_/signin/";
     }
-  });
-    const { success, result } = await response.json();
-
-    if (success) {
-      window.location.href = '/_/signin/'
-    }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    NProgress.done();
-  }
-}
+  })
+};
 </script>
