@@ -28,6 +28,7 @@ const colors = {
   green: ["bg-green-600", "bg-green-500"],
   yellow: ["bg-yellow-600", "bg-yellow-500"],
   red: ["bg-red-600", "bg-red-500"],
+  cyan: ["bg-cyan-600", "bg-cyan-500"],
 }
 </script>
 

@@ -122,7 +122,8 @@ const deleteDigital = async (type, index) => {
 const addDigitalData = async () => {
   apiPost(`/api/_/products/${props.product.info.id}/digital`).then(res => {
     if (res.success) {
-      digital.value.data.push(data.result);
+
+      digital.value.data.push(res.result);
     } else {
       showMessage(res.result, "connextError");
     }
