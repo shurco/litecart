@@ -24,10 +24,10 @@ const router = createRouter({
       component: () => import("@/pages/Products.vue"),
     },
     {
-      path: "/checkouts",
-      name: "checkouts",
+      path: "/carts",
+      name: "carts",
       meta: { layouts: "MainLayouts" },
-      component: () => import("@/pages/Checkouts.vue"),
+      component: () => import("@/pages/Carts.vue"),
     },
     {
       path: "/pages",

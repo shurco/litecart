@@ -7,23 +7,34 @@
         </div>
       </div>
     </div>
-    <Form @submit="updateLetter" v-slot="{ errors }">
-      <div class="flow-root">
-        <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
-          <FormTextarea v-model="letter.value" id="textarea" name="Message" :rows="15" />
-        </dl>
-      </div>
+    <div class="flow-root">
+      <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
+        <FormTextarea v-model="letter.text" id="textarea" name="Message" :rows="15" @focusout="updateLetter" />
+      </dl>
+    </div>
 
-      <div class="pt-8">
-        <div class="flex">
-          <div class="flex-none">
-            <FormButton type="submit" name="Save" color="green" class="mr-3" />
-            <FormButton type="submit" name="Close" color="gray" @click="close" />
-          </div>
-          <div class="grow"></div>
+    <div class="pt-8">
+      <div class="flex">
+        <div class="flex-none">
+          <FormButton type="submit" name="Close" color="gray" @click="close" />
+        </div>
+        <div class="grow"></div>
+        <div class="flex-none">
+          <FormButton type="submit" name="Test letter" color="cyan" @click="send(name)" />
         </div>
       </div>
-    </Form>
+    </div>
+
+
+    <table class="mt-8 text-base">
+      <tbody>
+        <tr v-for="(value, key) in legend" class="cursor-default">
+          <td class="w-32 font-bold">&#123;&#123;.{{ key }}&#125;&#125;</td>
+          <td>{{ value }}</td>
+        </tr>
+      </tbody>
+    </table>
+
   </div>
 </template>
 
@@ -34,10 +45,10 @@ import FormTextarea from "@/components/form/Textarea.vue";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 
-import { Form } from "vee-validate";
-
 const props = defineProps({
   name: String,
+  legend: Object,
+  send: Function,
   close: Function,
 });
 
@@ -50,19 +61,39 @@ const letter = ref({});
 const settingLetter = async () => {
   apiGet(`/api/_/settings/${props.name}`).then(res => {
     if (res.success) {
-      letter.value = res.result;
+      letter.value.id = res.result.id;
+      letter.value.key = res.result.key;
+      letter.value.subject = JSON.parse(res.result.value).subject;
+      letter.value.text = JSON.parse(res.result.value).text;
+      letter.value.html = JSON.parse(res.result.value).html;
     }
   });
 };
 
 const updateLetter = async () => {
-  apiUpdate(`/api/_/settings/${props.name}`, letter.value).then(res => {
+  const value = new Object();
+  value.subject = letter.value.subject;
+  value.text = letter.value.text;
+  value.html = letter.value.html;
+
+  const update = {
+    id: letter.value.id,
+    key: letter.value.key,
+    value: JSON.stringify(value),
+  };
+
+  apiUpdate(`/api/_/settings/${props.name}`, update).then(res => {
     if (res.success) {
       showMessage(res.message);
-      props.close();
+      //props.close();
     } else {
       showMessage(res.result, "connextError");
     }
   });
 };
+
+const sendTest = async () => {
+  console.log("d")
+}
+
 </script>

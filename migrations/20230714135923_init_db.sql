@@ -26,7 +26,7 @@ INSERT INTO setting (id, key, value) VALUES
 ('GIsA71Lk59h7vFa', 'smtp_username', ''),
 ('zdb4Q07blJJ8msv', 'smtp_password', ''),
 ('I0dk15zAn0d14hN', 'smtp_encryption', ''),
-('CoDDXfxF4GZxq6b', 'mail_letter_purchase', '');
+('CoDDXfxF4GZxq6b', 'mail_letter_purchase', '{"subject":"Thank you for your purchase!","text":"Dear {{.Customer_Name}},\n\nThank you for choosing our travel guide! We appreciate your support and hope that it will enhance your travel experience. \n\nAs per your order, here is a summary of your purchases:\n\n{{.Purchases}}\n\nWe believe that our guides will provide you with valuable insights and help you explore the places mentioned in them. \n\nIf you encounter any issues with downloading or accessing the files, please feel free to contact us through our feedback form {{.Admin_Email}}. We`ll be more than happy to assist you.\n\nOnce again, thank you for your purchase. We wish you an incredible journey filled with unforgettable moments!\n\nBest regards,","html":""}');
 
 CREATE TABLE session (
 	key      TEXT UNIQUE NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE digital_data (
 	id            TEXT PRIMARY KEY NOT NULL,
 	product_id    TEXT NOT NULL,
 	content       TEXT NOT NULL,
-	active        BOOLEAN DEFAULT TRUE NOT NULL,
+	cart_id       TEXT DEFAULT NULL,
 	FOREIGN KEY (product_id) REFERENCES product(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE INDEX idx_digital_data_product_id ON digital_data (product_id);

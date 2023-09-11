@@ -95,7 +95,7 @@ func (v File) Validate() error {
 type Data struct {
 	ID      string `json:"id"`
 	Content string `json:"content"`
-	Active  bool   `json:"active"`
+	CartID  string `json:"cart_id"`
 }
 
 // Validate is ...

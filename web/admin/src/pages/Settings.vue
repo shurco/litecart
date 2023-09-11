@@ -16,7 +16,8 @@
               <FormInput v-model.trim="main.email" :error="errors.email" rules="required|email" class="w-64" id="email" type="text" title="Email" ico="at-symbol" />
             </div>
             <div>
-              <FormInput v-model.trim="main.currency" :error="errors.currency" rules="required|one_of:EUR,USD" class="w-64" id="currency" type="text" title="Currency" ico="money " />
+              <FormSelect v-model="main.currency" :options="['EUR','USD']" :error="errors.currency" rules="required|one_of:EUR,USD" id="currency"
+                title="Currency" ico="money" />
             </div>
           </div>
           <div class="mt-5 flex">
@@ -111,43 +112,43 @@
       </div>
 
       <div class="mt-5">
-        <h2 class="mb-5">Mail settings</h2>
+        <h2 class="mb-5">SMTP settings</h2>
 
-        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!mail.smtp_host ||
-          !mail.smtp_port ||
-          !mail.smtp_username ||
-          !mail.smtp_password
+        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!smtp.host ||
+          !smtp.port ||
+          !smtp.username ||
+          !smtp.password
           ">
           <p class="text-sm font-medium">This section is required!</p>
         </div>
 
-        <Form @submit="updateSetting('mail')" v-slot="{ errors }">
+        <Form @submit="updateSetting('smtp')" v-slot="{ errors }">
           <div class="flex">
             <div class="pr-3">
-              <FormInput v-model.trim="mail.smtp_host" :error="errors.smtp_host" rules="required|min:4" class="w-64" id="smtp_host" type="text" title="SMTP host" ico="server" />
+              <FormInput v-model.trim="smtp.host" :error="errors.smtp_host" rules="required|min:4" class="w-64" id="smtp_host" type="text" title="SMTP host" ico="server" />
             </div>
             <div class="pr-3">
-              <FormInput v-model.trim="mail.smtp_port" :error="errors.smtp_port" rules="required|numeric" class="w-64" id="smtp_port" type="text" title="SMTP port"
+              <FormInput v-model.trim="smtp.port" :error="errors.smtp_port" rules="required|numeric" class="w-64" id="smtp_port" type="text" title="SMTP port"
                 ico="arrow-left-on-rectangle" />
             </div>
             <div>
-              <FormSelect v-model="mail.smtp_encryption" :options="['None', 'SSL/TLS', 'STARTTLS']" :error="errors.digital_type" rules="required" id="smtp_encryption"
-                title="SMTP encryption" ico="lock-closed" />
+              <FormSelect v-model="smtp.encryption" :options="['None', 'SSL/TLS', 'STARTTLS']" :error="errors.smtp_encryption" rules="required" id="smtp_encryption"
+                title="Encryption" ico="lock-closed" />
             </div>
           </div>
           <div class="mt-5 flex">
             <div class="pr-3">
-              <FormInput v-model.trim="mail.smtp_username" :error="errors.smtp_username" rules="required" class="w-64" id="smtp_username" type="text" title="Username" ico="user" />
+              <FormInput v-model.trim="smtp.username" :error="errors.smtp_username" rules="required" class="w-64" id="smtp_username" type="text" title="Username" ico="user" />
             </div>
             <div>
-              <FormInput v-model.trim="mail.smtp_password" :error="errors.smtp_password" rules="required|min:6" class="w-64" id="smtp_password" type="password" title="Password"
+              <FormInput v-model.trim="smtp.password" :error="errors.smtp_password" rules="required|min:6" class="w-64" id="smtp_password" type="password" title="Password"
                 ico="finger-print" />
             </div>
           </div>
           <div class="flex pt-8">
             <FormButton type="submit" name="Save" color="green" class="flex-none" />
             <div class="ml-5 mt-3 flex-none">
-              <span @click="sendTestMail" class="cursor-pointer text-red-700">Test mail</span>
+              <span @click="sendTestLetter('smtp')" class="cursor-pointer text-red-700">Test smtp</span>
             </div>
           </div>
         </Form>
@@ -155,7 +156,7 @@
     </div>
 
     <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
-      <SettingLetter :close="closeDrawer" name="mail_letter_purchase" v-if="isDrawer.action === 'mail_letter_purchase'" />
+      <SettingLetter :close="closeDrawer" :send="sendTestLetter" :legend="letterLegend['mail_letter_purchase']" name="mail_letter_purchase" v-if="isDrawer.action === 'mail_letter_purchase'" />
     </drawer>
   </MainLayouts>
 </template>
@@ -180,7 +181,7 @@ const main = ref({
 const password = ref({});
 const stripe = ref({});
 const social = ref({});
-const mail = ref({});
+const smtp = ref({});
 
 const socialUrl = {
   facebook: "https://facebook.com/",
@@ -195,6 +196,14 @@ const isDrawer = ref({
   action: null,
 });
 
+const letterLegend = {
+  "mail_letter_purchase": {
+    "Customer_Name": "Customer name",
+    "Purchases": "Purchases",
+    "Admin_Email": "Admin email",
+  }
+}
+
 onMounted(() => {
   settingsList();
 });
@@ -205,7 +214,7 @@ const settingsList = async () => {
       main.value = res.result.main;
       stripe.value = res.result.stripe;
       social.value = res.result.social;
-      mail.value = res.result.mail;
+      smtp.value = res.result.smtp;
     }
   });
 };
@@ -228,9 +237,9 @@ const updateSetting = async (section) => {
     case "social":
       update.social = social.value;
       break;
-    case "mail":
-      update.mail = mail.value;
-      update.mail.smtp_port = Number(mail.value.smtp_port);
+    case "smtp":
+      update.smtp = smtp.value;
+      update.smtp.port = Number(smtp.value.port);
       break;
     default:
       return;
@@ -245,8 +254,8 @@ const updateSetting = async (section) => {
   });
 };
 
-const sendTestMail = async () => {
-  apiGet(`/api/_/settings/test/mail`).then(res => {
+const sendTestLetter = async (letterName) => {
+  apiGet(`/api/_/settings/test/${letterName}`).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

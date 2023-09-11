@@ -78,7 +78,7 @@ func Checkout(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	db.AddCart(&models.Checkout{
+	db.AddCart(&models.Cart{
 		ID:            cartID,
 		Cart:          *items,
 		AmountTotal:   stripeSession.AmountTotal,
@@ -102,7 +102,7 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	err = db.UpdateCart(&models.Checkout{
+	err = db.UpdateCart(&models.Cart{
 		ID:            cartID,
 		Email:         sessionStripe.CustomerDetails.Email,
 		Name:          sessionStripe.CustomerDetails.Name,
@@ -121,7 +121,7 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 func CheckoutCancel(c *fiber.Ctx) error {
 	cartID := c.Params("cart_id")
 	db := queries.DB()
-	err := db.UpdateCart(&models.Checkout{
+	err := db.UpdateCart(&models.Cart{
 		ID:            cartID,
 		PaymentStatus: "cancel",
 	})

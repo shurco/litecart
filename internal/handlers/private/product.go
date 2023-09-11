@@ -246,7 +246,6 @@ func UpdateProductDigital(c *fiber.Ctx) error {
 	request := new(models.Data)
 	request.ID = c.Params("digital_id")
 	//request.Content = c.Params("digital_id")
-	request.Active = true
 	db := queries.DB()
 
 	if err := c.BodyParser(request); err != nil {

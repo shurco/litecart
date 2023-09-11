@@ -403,22 +403,27 @@ func (q *ProductQueries) ProductDigital(productID string) (*models.Digital, erro
 	}
 
 	// digital data
-	rows, err = q.DB.QueryContext(context.TODO(), `SELECT id, content, active FROM digital_data WHERE product_id = ?`, productID)
+	rows, err = q.DB.QueryContext(context.TODO(), `SELECT id, content, cart_id FROM digital_data WHERE product_id = ?`, productID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
+		var cartID sql.NullString
 		data := models.Data{}
 
 		err := rows.Scan(
 			&data.ID,
 			&data.Content,
-			&data.Active,
+			&cartID,
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if cartID.Valid {
+			data.CartID = cartID.String
 		}
 
 		digital.Data = append(digital.Data, data)
@@ -453,7 +458,6 @@ func (q *ProductQueries) AddDigitalData(productID, content string) (*models.Data
 	file := &models.Data{
 		ID:      security.RandomString(),
 		Content: content,
-		Active:  true,
 	}
 
 	// add db record
@@ -467,9 +471,8 @@ func (q *ProductQueries) AddDigitalData(productID, content string) (*models.Data
 
 // UpdateDigital is ...
 func (q *ProductQueries) UpdateDigital(digital *models.Data) error {
-	_, err := q.DB.ExecContext(context.TODO(), `UPDATE digital_data SET content = ?, active = ? WHERE id = ?`,
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE digital_data SET content = ? WHERE id = ?`,
 		digital.Content,
-		digital.Active,
 		digital.ID,
 	)
 	if err != nil {

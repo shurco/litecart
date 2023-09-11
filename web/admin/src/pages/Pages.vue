@@ -126,8 +126,6 @@ const pageContent = async (slug) => {
   });
 };
 
-
-
 const updatePageContent = async () => {
   apiUpdate(`/api/_/pages/${page.value.id}/content`, page.value).then(res => {
     if (res.success) {

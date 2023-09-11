@@ -21,8 +21,7 @@ func ApiPrivateRoutes(c *fiber.App) {
 	settings.Get("/:setting_key", handlers.SettingByKey)
 	settings.Patch("/:setting_key", handlers.UpdateSettingByKey)
 
-	settingsTest := settings.Group("/test")
-	settingsTest.Get("/mail", handlers.TestMail)
+	settings.Get("/test/:letter_name", handlers.TestLetter)
 
 	pages := c.Group("/api/_/pages", middleware.JWTProtected())
 	pages.Get("/", handlers.Pages)
@@ -49,6 +48,8 @@ func ApiPrivateRoutes(c *fiber.App) {
 	product.Post("/:product_id<len(15)>/image", handlers.AddProductImage)
 	product.Delete("/:product_id<len(15)>/image/:image_id<len(15)>", handlers.DeleteProductImage)
 
-	// checkouts
-	c.Get("/api/_/checkouts", handlers.Checkouts)
+	// carts
+	carts := c.Group("/api/_/carts", middleware.JWTProtected())
+	carts.Get("/", handlers.Carts)
+	carts.Post("/:cart_id<len(15)>/mail", handlers.CartSendMail)
 }

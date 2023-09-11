@@ -91,12 +91,13 @@ func UpdateSettingByKey(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Setting updated", nil)
 }
 
-// TestMail is ...
-// [get] /api/_/settings/test/mail
-func TestMail(c *fiber.Ctx) error {
+// TestLetter is ...
+// [get] /api/_/settings/test/:letter_name
+func TestLetter(c *fiber.Ctx) error {
 	db := queries.DB()
+	letter := c.Params("letter_name")
 
-	if err := db.SettingTestMail(); err != nil {
+	if err := db.SettingTestLetter(letter); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 

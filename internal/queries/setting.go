@@ -3,13 +3,13 @@ package queries
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	mail "github.com/xhit/go-simple-mail/v2"
-
+	"github.com/shurco/litecart/internal/mailer"
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/jwtutil"
@@ -53,11 +53,11 @@ func (q *SettingQueries) Settings() (*models.Setting, error) {
 		"social_twitter":            &settings.Social.Twitter,
 		"social_dribbble":           &settings.Social.Dribbble,
 		"social_github":             &settings.Social.Github,
-		"smtp_host":                 &settings.Mail.Host,
-		"smtp_port":                 &settings.Mail.Port,
-		"smtp_username":             &settings.Mail.Username,
-		"smtp_password":             &settings.Mail.Password,
-		"smtp_encryption":           &settings.Mail.Encryption,
+		"smtp_host":                 &settings.SMTP.Host,
+		"smtp_port":                 &settings.SMTP.Port,
+		"smtp_username":             &settings.SMTP.Username,
+		"smtp_password":             &settings.SMTP.Password,
+		"smtp_encryption":           &settings.SMTP.Encryption,
 	}
 
 	for rows.Next() {
@@ -114,7 +114,7 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 	}
 	defer stmt.Close()
 
-	sectionSettings := make(map[string]any)
+	var sectionSettings map[string]any
 	switch section {
 	case "main":
 		sectionSettings = map[string]any{
@@ -151,13 +151,13 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"social_dribbble":  settings.Social.Dribbble,
 			"social_github":    settings.Social.Github,
 		}
-	case "mail":
+	case "smtp":
 		sectionSettings = map[string]any{
-			"smtp_host":       settings.Mail.Host,
-			"smtp_port":       settings.Mail.Port,
-			"smtp_username":   settings.Mail.Username,
-			"smtp_password":   settings.Mail.Password,
-			"smtp_encryption": settings.Mail.Encryption,
+			"smtp_host":       settings.SMTP.Host,
+			"smtp_port":       settings.SMTP.Port,
+			"smtp_username":   settings.SMTP.Username,
+			"smtp_password":   settings.SMTP.Password,
+			"smtp_encryption": settings.SMTP.Encryption,
 		}
 
 	default:
@@ -373,9 +373,9 @@ func (q *SettingQueries) ListSocials() (*models.Social, error) {
 	return socials, nil
 }
 
-// SettingTestMail is ...
-func (q *SettingQueries) SettingMail() (*models.Mail, error) {
-	setting := new(models.Mail)
+// SettingTestSMTP is ...
+func (q *SettingQueries) SettingMail() (*models.SMTP, error) {
+	setting := new(models.SMTP)
 	keys := []any{"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption"}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
@@ -412,45 +412,43 @@ func (q *SettingQueries) SettingMail() (*models.Mail, error) {
 	return setting, nil
 }
 
-var EncryptionTypes = map[string]mail.Encryption{
-	"None":     mail.EncryptionNone,
-	"SSL/TLS":  mail.EncryptionSSL,
-	"STARTTLS": mail.EncryptionTLS,
-}
-
-// SettingTestMail is ...
-func (q *SettingQueries) SettingTestMail() error {
+// SettingTestLetter is ...
+func (q *SettingQueries) SettingTestLetter(letterName string) error {
 	smtpSetting, err := q.SettingMail()
 	if err != nil {
 		return err
 	}
 
 	settingEmail, err := q.SettingValueByKey("email")
-	emailAdmin := settingEmail.Value.(string)
-
-	server := mail.NewSMTPClient()
-	server.Host = smtpSetting.Host
-	server.Port = smtpSetting.Port
-	server.Username = smtpSetting.Username
-	server.Password = smtpSetting.Password
-	server.Encryption = EncryptionTypes[smtpSetting.Encryption]
-
-	server.KeepAlive = false
-	server.ConnectTimeout = 10 * time.Second
-	server.SendTimeout = 10 * time.Second
-
-	smtpClient, err := server.Connect()
 	if err != nil {
 		return err
 	}
+	emailAdmin := settingEmail.Value.(string)
 
-	email := mail.NewMSG()
-	email.SetFrom(emailAdmin).
-		AddTo(emailAdmin).
-		SetSubject("litecart test smtp settings")
-	email.SetBody(mail.TextHTML, "test message")
+	letter := &models.Mail{
+		From: emailAdmin,
+		To:   emailAdmin,
+		Letter: models.Letter{
+			Subject: "litecart test smtp settings",
+			Text:    "test message",
+		},
+		Data: map[string]string{
+			"Customer_Name": "Customer Name",
+			"Admin_Email":   "admin@mail.com",
+		},
+	}
 
-	if err := email.Send(smtpClient); err != nil {
+	if letterName != "smtp" {
+		settingLetter, err := q.SettingValueByKey(letterName)
+		if err != nil {
+			return err
+		}
+		if err := json.Unmarshal([]byte(settingLetter.Value.(string)), &letter.Letter); err != nil {
+			return err
+		}
+	}
+
+	if err := mailer.SendMail(smtpSetting, letter); err != nil {
 		return err
 	}
 

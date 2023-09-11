@@ -4,9 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"strings"
 
+	"github.com/shurco/litecart/internal/mailer"
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/errors"
 )
 
 // CartQueries is ...
@@ -14,9 +17,9 @@ type CartQueries struct {
 	*sql.DB
 }
 
-// Checkouts is ...
-func (q *CartQueries) Checkouts() ([]*models.Checkout, error) {
-	checkouts := []*models.Checkout{}
+// Carts is ...
+func (q *CartQueries) Carts() ([]*models.Cart, error) {
+	carts := []*models.Cart{}
 
 	query := `
 	SELECT 
@@ -41,17 +44,17 @@ func (q *CartQueries) Checkouts() ([]*models.Checkout, error) {
 	for rows.Next() {
 		var email, name, paymentID sql.NullString
 		var updated sql.NullInt64
-		checkout := &models.Checkout{}
+		cart := &models.Cart{}
 
 		err := rows.Scan(
-			&checkout.ID,
+			&cart.ID,
 			&email,
 			&name,
-			&checkout.AmountTotal,
-			&checkout.Currency,
+			&cart.AmountTotal,
+			&cart.Currency,
 			&paymentID,
-			&checkout.PaymentStatus,
-			&checkout.Created,
+			&cart.PaymentStatus,
+			&cart.Created,
 			&updated,
 		)
 		if err != nil {
@@ -59,33 +62,33 @@ func (q *CartQueries) Checkouts() ([]*models.Checkout, error) {
 		}
 
 		if email.Valid {
-			checkout.Email = email.String
+			cart.Email = email.String
 		}
 
 		if name.Valid {
-			checkout.Name = name.String
+			cart.Name = name.String
 		}
 
 		if paymentID.Valid {
-			checkout.PaymentID = paymentID.String
+			cart.PaymentID = paymentID.String
 		}
 
 		if updated.Valid {
-			checkout.Updated = updated.Int64
+			cart.Updated = updated.Int64
 		}
 
-		checkouts = append(checkouts, checkout)
+		carts = append(carts, cart)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return checkouts, nil
+	return carts, nil
 }
 
 // AddCart is ...
-func (q *CartQueries) AddCart(cart *models.Checkout) error {
+func (q *CartQueries) AddCart(cart *models.Cart) error {
 	byteCart, err := json.Marshal(cart.Cart)
 	if err != nil {
 		return err
@@ -100,7 +103,7 @@ func (q *CartQueries) AddCart(cart *models.Checkout) error {
 }
 
 // UpdateCart is ...
-func (q *CartQueries) UpdateCart(cart *models.Checkout) error {
+func (q *CartQueries) UpdateCart(cart *models.Cart) error {
 	var (
 		args []interface{}
 		sql  strings.Builder
@@ -132,6 +135,147 @@ func (q *CartQueries) UpdateCart(cart *models.Checkout) error {
 	args = append(args, cart.ID)
 
 	if _, err := q.DB.ExecContext(context.TODO(), sql.String(), args...); err != nil {
+		return err
+	}
+
+	if cart.Email != "" && cart.Name != "" && cart.PaymentStatus == "paid" {
+		if err := q.CartSendMail(cart.ID); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// CartSendMail
+func (q *CartQueries) CartSendMail(cartID string) error {
+	mail := &models.Mail{}
+	products := []models.CartProduct{}
+	keys := []models.Data{}
+	var name, cartJSON, letter string
+
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT email, name, cart FROM cart WHERE payment_status = 'paid' AND id = ?`, cartID).Scan(&mail.To, &name, &cartJSON)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.ErrPageNotFound
+		}
+		return err
+	}
+
+	if err := json.Unmarshal([]byte(cartJSON), &products); err != nil {
+		return err
+	}
+
+	tx, err := q.DB.BeginTx(context.TODO(), nil)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil || err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	for _, cart := range products {
+		var digitalType string
+		err := tx.QueryRowContext(context.TODO(), `SELECT digital FROM product WHERE id = ?`, cart.ProductID).Scan(&digitalType)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return errors.ErrPageNotFound
+			}
+			return err
+		}
+
+		if digitalType == "file" {
+			rows, err := tx.QueryContext(context.TODO(), `SELECT id, name, ext, orig_name FROM digital_file WHERE product_id = ?`, cart.ProductID)
+			if err != nil {
+				return err
+			}
+			defer rows.Close()
+
+			for rows.Next() {
+				file := models.File{}
+				err := rows.Scan(
+					&file.ID,
+					&file.Name,
+					&file.Ext,
+					&file.OrigName,
+				)
+				if err != nil {
+					return err
+				}
+				mail.Files = append(mail.Files, file)
+			}
+		}
+
+		if digitalType == "data" {
+			key := models.Data{}
+			err := tx.QueryRowContext(context.TODO(), `SELECT id, content FROM digital_data WHERE cart_id = ?`, cartID).Scan(&key.ID, &key.Content)
+			if err != nil && err != sql.ErrNoRows {
+				return err
+			}
+			if err == sql.ErrNoRows {
+				err = tx.QueryRowContext(context.TODO(), `SELECT id, content FROM digital_data WHERE cart_id IS NULL AND product_id = ? LIMIT 1`, cart.ProductID).Scan(&key.ID, &key.Content)
+				if err != nil {
+					if err == sql.ErrNoRows {
+						return errors.ErrPageNotFound
+					}
+					return err
+				}
+				if _, err := tx.ExecContext(context.TODO(), `UPDATE digital_data SET cart_id = ? WHERE id = ?`, cartID, key.ID); err != nil {
+					return err
+				}
+			}
+
+			keys = append(keys, key)
+		}
+	}
+
+	if err := tx.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'email'`).Scan(&mail.From); err != nil {
+		return err
+	}
+
+	if err := tx.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'mail_letter_purchase'`).Scan(&letter); err != nil {
+		return err
+	}
+	if err := json.Unmarshal([]byte(letter), &mail.Letter); err != nil {
+		return err
+	}
+
+	var purchases strings.Builder
+	count := 1
+
+	if len(keys) > 0 {
+		purchases.WriteString("Keys:\n")
+		for _, key := range keys {
+			purchases.WriteString(fmt.Sprintf("%v: %s\n", count, key.Content))
+			count++
+		}
+	}
+
+	if len(mail.Files) > 0 {
+		purchases.WriteString("Files:\n")
+		for _, file := range mail.Files {
+			purchases.WriteString(fmt.Sprintf("%v: %s\n", count, file.OrigName))
+			count++
+		}
+	}
+
+	mail.Data = map[string]string{
+		"Customer_Name": name,
+		"Purchases":     purchases.String(),
+		"Admin_Email":   mail.From,
+	}
+
+	setting := SettingQueries{q.DB}
+	smtpSetting, err := setting.SettingMail()
+	if err != nil {
+		return err
+	}
+
+	if err := mailer.SendMail(smtpSetting, mail); err != nil {
 		return err
 	}
 

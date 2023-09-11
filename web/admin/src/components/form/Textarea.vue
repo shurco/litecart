@@ -51,7 +51,7 @@ const model = computed({
 <style lang="scss" scoped>
 .textarea {
   & label {
-    @apply relative block rounded border border-gray-200 text-sm shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600;
+    @apply relative block rounded border border-gray-200 text-sm shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 p-0;
 
     & .text {
       @apply w-full resize-none border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0;

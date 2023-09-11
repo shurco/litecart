@@ -10,7 +10,7 @@ type Setting struct {
 	Password Password `json:"password,omitempty"`
 	Stripe   Stripe   `json:"stripe,omitempty"`
 	Social   Social   `json:"social,omitempty"`
-	Mail     Mail     `json:"mail,omitempty"`
+	SMTP     SMTP     `json:"smtp,omitempty"`
 }
 
 // Validate is ...
@@ -19,7 +19,7 @@ func (v Setting) Validate() error {
 		validation.Field(&v.Main),
 		validation.Field(&v.Stripe),
 		validation.Field(&v.Social),
-		validation.Field(&v.Mail),
+		validation.Field(&v.SMTP),
 	)
 }
 
@@ -97,16 +97,16 @@ func (v Social) Validate() error {
 	)
 }
 
-type Mail struct {
-	Host       string `json:"smtp_host,omitempty"`
-	Port       int    `json:"smtp_port,omitempty"`
-	Encryption string `json:"smtp_encryption,omitempty"`
-	Username   string `json:"smtp_username,omitempty"`
-	Password   string `json:"smtp_password,omitempty"`
+type SMTP struct {
+	Host       string `json:"host,omitempty"`
+	Port       int    `json:"port,omitempty"`
+	Encryption string `json:"encryption,omitempty"`
+	Username   string `json:"username,omitempty"`
+	Password   string `json:"password,omitempty"`
 }
 
 // Validate is ...
-func (v Mail) Validate() error {
+func (v SMTP) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Host, is.Host),
 		validation.Field(&v.Port, is.Port),
@@ -129,4 +129,29 @@ func (v SettingName) Validate() error {
 		validation.Field(&v.ID, validation.Length(15, 15)),
 		validation.Field(&v.Key, validation.Required),
 	)
+}
+
+// Mail ...
+type Mail struct {
+	From   string            `json:"from"`
+	To     string            `json:"to"`
+	Letter Letter            `json:"letter"`
+	Data   map[string]string `json:"data"`
+	Files  []File            `json:"files,omitempty"`
+}
+
+// Validate is ...
+func (v Mail) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.From, is.Email),
+		validation.Field(&v.To, is.Email),
+		//validation.Field(&v.Subject, validation.Length(4, 150)),
+	)
+}
+
+// Letter ...
+type Letter struct {
+	Subject string `json:"subject"`
+	Text    string `json:"text"`
+	Html    string `json:"html"`
 }

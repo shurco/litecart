@@ -16,10 +16,10 @@
               <router-link :to="{ name: 'products' }" :class="route.name === 'products' ? 'bg-gray-100' : 'bg-white'">Products</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'checkouts' }" :class="route.name.startsWith('checkouts')
+              <router-link :to="{ name: 'carts' }" :class="route.name.startsWith('carts')
                 ? 'bg-gray-100'
                 : 'bg-white'
-                ">Checkouts</router-link>
+                ">Carts</router-link>
             </li>
             <li>
               <router-link :to="{ name: 'pages' }" :class="route.name.startsWith('pages') ? 'bg-gray-100' : 'bg-white'

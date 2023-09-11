@@ -6,15 +6,28 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Checkouts is ...
-// [get] /api/_/checkouts
-func Checkouts(c *fiber.Ctx) error {
+// Carts is ...
+// [get] /api/_/carts
+func Carts(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	products, err := db.Checkouts()
+	products, err := db.Carts()
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Checkouts", products)
+	return webutil.Response(c, fiber.StatusOK, "Carts", products)
+}
+
+// CartSendMail
+// [post] /api/_/carts/:cart_id/mail
+func CartSendMail(c *fiber.Ctx) error {
+	cartID := c.Params("cart_id")
+	db := queries.DB()
+
+	if err := db.CartSendMail(cartID); err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Mail sended", nil)
 }

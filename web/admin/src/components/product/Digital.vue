@@ -27,7 +27,7 @@
     <div class="flow-root" v-if="digital.type === 'data'">
       <div class="-my-3 mx-auto mb-0 mt-4 space-y-4 text-sm">
         <div class="flex" v-for="(value, index) in digital.data" :key="index">
-          <div class="grow" v-if="digital.data[index].active">
+          <div class="grow" v-if="digital.data[index].cart_id === ''">
             <FormInput v-model="digital.data[index].content" :id="`${digital.data[index].id}`" type="text" title="" @focusout="saveData(index)" />
           </div>
           <div class="grow" v-else>
@@ -35,7 +35,7 @@
               {{ digital.data[index].content }}
             </div>
           </div>
-          <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteDigital('data', index)" v-if="digital.data[index].active">
+          <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteDigital('data', index)" v-if="digital.data[index].cart_id === ''">
             <SvgIcon name="trash" class="h-5 w-5" />
           </div>
         </div>

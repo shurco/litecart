@@ -16,6 +16,7 @@ UPDATE setting SET value = 'localhost' WHERE key = 'smtp_host';
 UPDATE setting SET value = '1025' WHERE key = 'smtp_port';
 UPDATE setting SET value = 'username' WHERE key = 'smtp_username';
 UPDATE setting SET value = 'password' WHERE key = 'smtp_password';
+UPDATE setting SET value = 'None' WHERE key = 'smtp_encryption';
 
 UPDATE page SET content = '<h1><strong>Lorem Ipsum content</strong></h1><p>Lorem ipsum dolor sit amet. Non culpa fugiat Aut distinctio nam placeat fuga ut eveniet natus et blanditiis ullam qui velit accusamus. Ex omnis quos <em>Sed officia ut reprehenderit autem non optio recusandae</em> ut omnis atque et totam quas cum illum laudantium. Ex doloribus ipsum qui ipsa autemNam sapiente aut dignissimos voluptas sed autem voluptatem aut quis asperiores.</p><h2><strong>33 quam voluptatum sed quia suscipit in modi quia.</strong></h2><p>Quo quos reiciendis Non laborum aut corrupti nobis qui delectus velit est vero numquam et neque aperiam. Aut quaerat autemNon deleniti et assumenda alias ut officiis laboriosam. Qui tenetur assumenda <em>Cum molestiae</em> quo nihil aliquam cum galisum minima.</p><ol><li><p>Est error saepe a placeat galisum et tempore deleniti.</p></li><li><p>Et rerum obcaecati vel alias nobis ut illo incidunt.</p></li><li><p>Non nisi itaque non atque minima.</p></li><li><p>Eum dolor fuga eos magnam omnis.</p></li><li><p>33 iure enim aut commodi magni et quis sunt quo totam enim.</p></li></ol><blockquote><p>Sit culpa impedit aut commodi cupiditate vel alias voluptatem ad enim ipsa qui saepe odit aut vitae quas!</p></blockquote><h3><strong>Et nihil repellat qui ratione doloremque aut neque tempore.</strong></h3><p>Ea molestias tenetur <em>Ea nihil ea pariatur dolores qui odio nisi</em> quo ipsum nisi! Aut quia consequatur et earum voluptassed beatae! Eum eligendi quosNon accusamus est voluptas incidunt.</p><ul><li><p>Et mollitia quos 33 quia repudiandae ab beatae dignissimos 33 pariatur architecto?</p></li><li><p>Est officia enim aut dolor sapiente et aliquam amet?</p></li><li><p>Id atque consequatur eos similique iure sed eveniet accusantium.</p></li><li><p>Aut suscipit doloribus non consequuntur perferendis et velit quam.</p></li><li><p>At animi laudantium qui mollitia earum cum cupiditate dolor.</p></li></ul>' WHERE id = 'ig9jpCixAgAu31f';
 UPDATE page SET content = '<h1><strong>Lorem Ipsum content</strong></h1><p>Lorem ipsum dolor sit amet. Sit animi repellat aut quas fugitQui repudiandae. Non error officiis <strong>Ea tempora et dicta quos ut assumenda aliquam non distinctio quae</strong>! Rem nobis vero <em>Aut quidem et quaerat adipisci sed voluptatem velit</em> quo sunt placeat sed voluptatem alias sit voluptas sequi. Non aliquam perferendis et voluptatem minusEt rerum est voluptatum atque.</p><h2><strong>Et repudiandae galisum et assumenda excepturi aut eius aspernatur.</strong></h2><p>Qui quas accusamus et officia molestiaequi ipsum id laudantium itaque. Eum temporibus itaqueaut reprehenderit id numquam quisquam.</p><ul><li><p>Ea fugiat dolore est consequatur repellat est nobis rerum qui nostrum ipsa.</p></li><li><p>Est officia molestias et cupiditate eligendi ea molestiae quasi et quia doloribus.</p></li><li><p>Ad iusto quam quo nostrum error sit natus labore aut suscipit accusantium.</p></li><li><p>Et repudiandae aperiam ut facere aliquam et neque minima sit impedit dolorem.</p></li><li><p>Nam minus velit qui iure omnis quo debitis voluptatibus.</p></li><li><p>Et nihil sunt At dolores sequi id dolorem itaque ea rerum quia?</p></li></ul><blockquote><p>Et mollitia voluptatem ut fugiat odio et natus nulla ut exercitationem ipsum eum fuga distinctio.</p></blockquote><h3><strong>Qui ullam libero sed nobis dolores.</strong></h3><p>Qui modi dignissimos sed eius nostrum Est harum et cumque iste et commodi illum qui dolorum maiores est harum assumenda. Id labore sint <em>Aut quas aut repudiandae quasi aut cupiditate quia</em> aut consectetur dolor qui ducimus distinctio sit aspernatur recusandae.</p><ol><li><p>Rem dignissimos rerum ut commodi iusto cum iste sequi sit consectetur autem.</p></li><li><p>Aut saepe culpa aut deserunt libero ea vitae quisquam aut dolore voluptas.</p></li><li><p>Sit quae pariatur vel explicabo omnis At sequi inventore.</p></li><li><p>Cum magnam consequuntur qui veniam modi est reprehenderit enim.</p></li><li><p>Sed voluptatem odit sit dolores minima.</p></li></ol>' WHERE id = 'sdH0wGM54e3mZC2';
@@ -42,8 +43,7 @@ INSERT INTO digital_data (id, product_id, content) VALUES
 ('CujBxoPx97C2GQf', 'xrtb1b919t2nuj9', 'ff0b48d1-0a75-4d67-a0ac-e6243cfd6cec'),
 ('qYUn8gM7s9KLtJ7', 'xrtb1b919t2nuj9', '165d4e99-ba1b-4d03-ba6c-3abfab65830e'),
 ('27tfwRp48wZ5jmt', 'xrtb1b919t2nuj9', '746becd7-59dc-4a00-aca9-e86e7290a54f');
-UPDATE digital_data SET active = 0 WHERE id = 'utkHD3W9LudJomc';
-UPDATE digital_data SET active = 0 WHERE id = 'CujBxoPx97C2GQf';
+UPDATE digital_data SET cart_id = 'iodz4ibf5h5zmov' WHERE id = 'CujBxoPx97C2GQf';
 
 INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES 
 ('dj9bae53oob0ukj', 'fv6c9s9cqzf36sc', '0f8e7e98-1639-40a3-97f6-0aac15538d88', 'png', 'example_image_1.png'),
@@ -62,7 +62,7 @@ INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES
 
 INSERT INTO cart (id, email, name, amount_total, currency, payment_id, payment_status, cart, updated) VALUES 
 ('efzs4xayz43f226', NULL, NULL, 4200, 'usd', NULL, 'cancel', '[{"id":"7mweb67t8xv9pzx","quantity":1},{"id":"fv6c9s9cqzf36sc","quantity":1}]', NULL),
-('iodz4ibf5h5zmov', 'user@gmail.com', 'User Name', 7200, 'usd', 'pi_3NnSsfBDuthUZlLW1snVpG2I', 'paid', '[{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"2wdx6k7b3lywc2o","quantity":1},{"id":"6bn739vrvfp6zaw","quantity":1}]', datetime('now'));
+('iodz4ibf5h5zmov', 'user@gmail.com', 'User Name', 6300, 'usd', 'pi_3NpAmuBDuthUZlLW11fS8GrB', 'paid', '[{"id":"fv6c9s9cqzf36sc","quantity":1},{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"7mweb67t8xv9pzx","quantity":1}]', datetime('now'));
 -- +goose StatementEnd
 
 
@@ -90,5 +90,6 @@ UPDATE setting SET value = '' WHERE key = 'smtp_host';
 UPDATE setting SET value = '' WHERE key = 'smtp_port';
 UPDATE setting SET value = '' WHERE key = 'smtp_username';
 UPDATE setting SET value = '' WHERE key = 'smtp_password';
+UPDATE setting SET value = '' WHERE key = 'smtp_encryption';
 DELETE FROM subdomain;
 -- +goose StatementEnd
