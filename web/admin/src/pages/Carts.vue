@@ -1,10 +1,10 @@
 <template>
   <MainLayouts>
     <header>
-      <h1>Carts</h1>
+      <h1 class="pb-4">Carts</h1>
     </header>
 
-    <div class="mx-auto" v-if="carts.length > 0">
+    <div class="mx-auto pb-16" v-if="carts.length > 0">
       <table>
         <thead>
           <tr>

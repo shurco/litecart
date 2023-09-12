@@ -8,7 +8,7 @@
         </div>
       </header>
 
-      <div class="mx-auto" v-if="pages.length > 0">
+      <div class="mx-auto pb-16" v-if="pages.length > 0">
         <table>
           <thead>
             <tr>
