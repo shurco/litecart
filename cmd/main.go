@@ -42,7 +42,7 @@ func cmdServe() *cobra.Command {
 	var httpAddr, httpsAddr string
 	cmd := &cobra.Command{
 		Use:   "serve [flags]",
-		Short: "Starts the web server (default to 127.0.0.1:8080)",
+		Short: "Starts the web server (default to 0.0.0.0:8080)",
 		Run: func(serveCmd *cobra.Command, args []string) {
 			if err := app.NewApp(httpAddr, httpsAddr, noSite, devMode); err != nil {
 				os.Exit(1)
@@ -53,7 +53,7 @@ func cmdServe() *cobra.Command {
 	cmd.PersistentFlags().StringVar(
 		&httpAddr,
 		"http",
-		"127.0.0.1:8080",
+		"0.0.0.0:8080",
 		"server address",
 	)
 

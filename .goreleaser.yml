@@ -23,7 +23,7 @@ builds:
       - -s -w
       - -X "main.version={{.Version}}"
       - -X "main.gitCommit={{.ShortCommit}}"
-      - -X "main.buildDate={{.Now.Format "2006-01-02"}}" 
+      - -X "main.buildDate={{.Now.Format "2006-01-02"}}"
     main: ./cmd/main.go
     binary: litecart
 
@@ -95,3 +95,60 @@ changelog:
       order: 400
     - title: Other work
       order: 9999
+
+dockers:
+  - image_templates:
+      - 'shurco/litecart:v{{ .Version }}-amd64'
+      - 'ghcr.io/shurco/litecart:v{{ .Version }}-amd64'
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - '--pull'
+      - '--label=io.artifacthub.package.readme-url=https://raw.githubusercontent.com/shurco/litecart/main/README.md'
+      - '--label=io.artifacthub.package.maintainers=[{"name":"Dmitry Shurco"}]'
+      - '--label=io.artifacthub.package.license=MIT'
+      - '--label=org.opencontainers.image.description=🛒 litecart - shopping-cart in 1 file'
+      - '--label=org.opencontainers.image.created={{.Date}}'
+      - '--label=org.opencontainers.image.name={{.ProjectName}}'
+      - '--label=org.opencontainers.image.revision={{.FullCommit}}'
+      - '--label=org.opencontainers.image.version={{.Version}}'
+      - '--label=org.opencontainers.image.source={{.GitURL}}'
+      - '--platform=linux/amd64'
+    goarch: amd64
+
+  - image_templates:
+      - 'shurco/litecart:v{{ .Version }}-arm64'
+      - 'ghcr.io/shurco/litecart:v{{ .Version }}-arm64'
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - '--pull'
+      - '--label=io.artifacthub.package.readme-url=https://raw.githubusercontent.com/shurco/litecart/main/README.md'
+      - '--label=io.artifacthub.package.maintainers=[{"name":"Dmitry Shurco"}]'
+      - '--label=io.artifacthub.package.license=MIT'
+      - '--label=org.opencontainers.image.description=🛒 litecart - shopping-cart in 1 file'
+      - '--label=org.opencontainers.image.created={{.Date}}'
+      - '--label=org.opencontainers.image.name={{.ProjectName}}'
+      - '--label=org.opencontainers.image.revision={{.FullCommit}}'
+      - '--label=org.opencontainers.image.version={{.Version}}'
+      - '--label=org.opencontainers.image.source={{.GitURL}}'
+      - '--platform=linux/arm64'
+    goarch: arm64
+
+docker_manifests:
+  - name_template: 'shurco/litecart:v{{ .Version }}'
+    image_templates:
+      - 'shurco/litecart:v{{ .Version }}-amd64'
+      - 'shurco/litecart:v{{ .Version }}-arm64'
+  - name_template: 'ghcr.io/shurco/litecart:v{{ .Version }}'
+    image_templates:
+      - 'ghcr.io/shurco/litecart:v{{ .Version }}-amd64'
+      - 'ghcr.io/shurco/litecart:v{{ .Version }}-arm64'
+  - name_template: 'shurco/litecart:latest'
+    image_templates:
+      - 'shurco/litecart:v{{ .Version }}-amd64'
+      - 'shurco/litecart:v{{ .Version }}-arm64'
+  - name_template: 'ghcr.io/shurco/litecart:latest'
+    image_templates:
+      - 'ghcr.io/shurco/litecart:v{{ .Version }}-amd64'
+      - 'ghcr.io/shurco/litecart:v{{ .Version }}-arm64'
