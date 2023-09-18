@@ -19,8 +19,8 @@ github.com/go-ozzo/ozzo-validation/v4 v4.3.0/go.mod h1:2NKgrcHl3z6cJs+3Oo940FPRi
 github.com/go-test/deep v1.1.0 h1:WOcxcdHcvdgThNXjw0t76K42FXTU7HpNQWHpA2HHNlg=
 github.com/go-test/deep v1.1.0/go.mod h1:5C2ZWiW0ErCdrYzpqxLbTX7MG14M9iiw8DgHncVwcsE=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
-github.com/gofiber/contrib/fiberzerolog v0.2.1 h1:yH70XuwO6gzj3PjMrOoffNmPtPX/wxMYq/DqB+N94Tg=
-github.com/gofiber/contrib/fiberzerolog v0.2.1/go.mod h1:XDcyXzvLNPt+SZFdkTRKtIzp9JVPsmgDg7BjO5e9q/4=
+github.com/gofiber/contrib/fiberzerolog v0.2.2 h1:tvHBW5k+udW02LU1eNneh65znGwhsKcv8XWf22U7dlc=
+github.com/gofiber/contrib/fiberzerolog v0.2.2/go.mod h1:CSpu4UUPGWAA/jIIuHXIhJt3W1cRxprxupXndAYuvpU=
 github.com/gofiber/contrib/jwt v1.0.7 h1:LZuCnjEq8AjiDTUjBQSd2zg3H5uDWjHxSXjo7nj9iAc=
 github.com/gofiber/contrib/jwt v1.0.7/go.mod h1:fA1apg9zQlUhax+Foc0BHATCDzBsemga1Yr9X0KSvrQ=
 github.com/gofiber/fiber/v2 v2.49.2 h1:ONEN3/Vc+dUCxxDgZZwpqvhISgHqb+bu+isBiEyKEQs=
