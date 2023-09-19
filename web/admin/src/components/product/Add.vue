@@ -169,6 +169,7 @@ const addProduct = async () => {
       });
       products.value.total++;
       props.close();
+      showMessage(res.message);
     } else {
       showMessage(res.result, "connextError");
     }

@@ -194,6 +194,7 @@ const deleteProduct = async (index) => {
     if (res.success) {
       products.value.products.splice(index, 1);
       products.value.total--;
+      showMessage(res.message);
     } else {
       const obj = JSON.parse(res.result);
       if (obj.code === "resource_missing") {

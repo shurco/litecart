@@ -124,7 +124,14 @@ const getProduct = async (id) => {
 const updateProductActive = async (index) => {
   apiUpdate(`/api/_/products/${products.value.products[index].id}/active`).then(res => {
     if (res.success) {
-      products.value.products[index].active = !products.value.products[index].active;
+      const status = !products.value.products[index].active;
+      const name = products.value.products[index].name;
+      products.value.products[index].active = status;
+      if (status) {
+        showMessage(`Product ${name} activated`);
+      }else{
+        showMessage(`Product ${name} deactivated`);
+      }
     }
   })
 };
