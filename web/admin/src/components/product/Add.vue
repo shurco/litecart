@@ -20,7 +20,7 @@
 
           <div class="flex">
             <div class="grow pr-3">
-              <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|alpha_num|min:3" id="slug" type="text" title="Slug" ico="glob-alt" />
+              <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|slug" id="slug" type="text" title="Slug" ico="glob-alt" />
             </div>
             <div class="grow">
               <FormSelect v-model="product.info.digital.type" :options="['file', 'data']" :error="errors.digital_type" rules="required" id="digital_type" title="Digital type"

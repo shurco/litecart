@@ -23,7 +23,7 @@
             </div>
             <div class="mt-3">{{ products.currency }}</div>
           </div>
-          <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|alpha_num|min:3" id="slug" type="text" title="Slug" ico="glob-alt" />
+          <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|slug" id="slug" type="text" title="Slug" ico="glob-alt" />
 
           <hr />
           <p class="font-semibold">Metadata</p>

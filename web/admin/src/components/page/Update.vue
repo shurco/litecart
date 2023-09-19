@@ -16,7 +16,7 @@
             <FormSelect v-model="page.position" :options="positionPage" :error="errors.position" rules="required" id="position" title="Position" />
           </div>
           <div>
-            <FormInput v-model.trim="page.slug" :error="errors.slug" rules="required|alpha_num|min:3" id="slug" type="text" title="Slug" ico="glob-alt" />
+            <FormInput v-model.trim="page.slug" :error="errors.slug" rules="required|slug" id="slug" type="text" title="Slug" ico="glob-alt" />
           </div>
         </div>
       </dl>

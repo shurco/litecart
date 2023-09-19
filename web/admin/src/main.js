@@ -21,6 +21,15 @@ defineRule("amount", (value) => {
   }
   return true;
 });
+defineRule("slug", (value) => {
+  if (!value || !value.length) {
+    return true;
+  }
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)) {
+    return "slug is not valid";
+  }
+  return true;
+});
 defineRule('confirmed', (value, [target], ctx) => {
   if (value === ctx.form[target]) {
     return true;
