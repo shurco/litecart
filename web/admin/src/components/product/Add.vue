@@ -32,10 +32,10 @@
           <p class="font-semibold">Metadata</p>
           <div class="flex" v-for="(data, index) in product.info.metadata" :key="index">
             <div class="grow pr-3">
-              <FormInput v-model="data.key" :id="`mtd-key-${index}`" type="text" title="" />
+              <FormInput v-model="data.key" :id="`mtd-key-${index}`" type="text" title="Key" />
             </div>
             <div class="grow">
-              <FormInput v-model="data.value" :id="`mtd-value-${index}`" type="text" title="" />
+              <FormInput v-model="data.value" :id="`mtd-value-${index}`" type="text" title="Value" />
             </div>
             <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteMetadataRecord(index)">
               <SvgIcon name="trash" class="h-5 w-5" />
