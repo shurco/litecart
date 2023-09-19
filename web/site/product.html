@@ -11,7 +11,19 @@
         <div class="lg:col-span-2">
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
           <p class="mt-4">{{product.description}}</p>
-          <p class="mt-4">{{ costFormat( product.amount ) }} {{ currency }}</p>
+
+
+            <ul class="mt-4 list-disc pl-4">
+              <li v-for="(item, index) in product.attributes">{{item}}</li>
+            </ul>
+            
+
+          
+          <p class="mt-4 text-2xl font-black">{{ costFormat( product.amount ) }} {{ currency }}</p>
+
+
+
+
 
           <form-button type="submit" name="Add" color="green" ico="plus" class="mt-4" @click="add()" v-if="!product.inCart"></form-button>
           <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="remove()" v-else></form-button>
