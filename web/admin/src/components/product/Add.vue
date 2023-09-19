@@ -108,6 +108,9 @@ const props = defineProps({
   products: {
     required: true,
   },
+  drawer: {
+    required: true,
+  },
   close: Function,
 });
 
@@ -130,6 +133,16 @@ const products = computed({
     emits("update:modelValue", val);
   },
 });
+
+const drawer = computed({
+  get: () => {
+    return props.drawer;
+  },
+  set: (val) => {
+    emits("update:modelValue", val);
+  },
+});
+
 
 const addMetadataRecord = () => {
   const metadata = product.value.info.metadata || [];
@@ -170,6 +183,11 @@ const addProduct = async () => {
       products.value.total++;
       props.close();
       showMessage(res.message);
+
+      product.value.info.id = res.result.id;
+      product.value.info.digital.type = res.result.digital.type;
+      drawer.value.open = true;
+      drawer.value.action = 'digital';
     } else {
       showMessage(res.result, "connextError");
     }

@@ -4,6 +4,8 @@
       <div class="flex items-center">
         <div class="pr-3">
           <h1>Digital {{ digital.type }}</h1>
+          <p class="mt-4" v-if="digital.type === 'file'">This is the product that the user purchases. Upload the files that will be sent to the buyer after payment to the email address provided during checkout.</p>
+          <p class="mt-4" v-if="digital.type === 'data'">Enter the digital product that you intend to sell. It can be a unique item, such as a license key.</p>
         </div>
       </div>
     </div>

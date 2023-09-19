@@ -60,7 +60,7 @@
 
     <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
       <ProjectView :product="product" :products="products" :updateActive="updateProductActive" :close="closeDrawer" v-if="isDrawer.action === 'view'" />
-      <ProjectAdd v-model:product="product" v-model:products="products" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
+      <ProjectAdd v-model:product="product" v-model:products="products" v-model:drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
       <ProjectUpdate v-model:product="product" v-model:products="products" :updateActive="updateProductActive" :close="closeDrawer" v-if="isDrawer.action === 'update'" />
       <ProjectDigital :product="product" :close="closeDrawer" v-if="isDrawer.action === 'digital'" />
     </drawer>
