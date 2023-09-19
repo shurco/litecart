@@ -1,4 +1,9 @@
-# 🛒 litecart
+<p align="center">
+    <a href="#" target="_blank" rel="noopener">
+        <img src="/.github/media/banner.png" alt="litecart - shopping-cart in 1 file" />
+    </a>
+</p>
+
 
 <a href="https://github.com/shurco/litecart/releases"><img src="https://img.shields.io/github/v/release/shurco/litecart?sort=semver&label=Release&color=651FFF"></a>
 <a href="https://goreportcard.com/report/github.com/shurco/litecart"><img src="https://goreportcard.com/badge/github.com/shurco/litecart"></a>
@@ -17,21 +22,131 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 
 ## 🏆&nbsp;&nbsp;Features
 
-Payment systems:
-- [x] Stripe
-- [ ] Square
-- [ ] Adyen
-- [ ] 2Checkout
-
-
-## 📚&nbsp;&nbsp;Documentation
-
-... coming soon ...
+🚀 Simple and fast one-click installation  
+💰 Support for popular payment systems  
+🔑 Support for selling both files and license keys  
+⚙️ Uses SQLite instead of heavy databases like Mysql, Postgresql, MongoDB  
+☁️ Lightweight website that can be easily modified  
+🧞‍♂️Convenient administration panel  
+⚡️ Works on any hardware, server  
+🔒 Built-in support for HTTPS  
 
 
 ## 🏁&nbsp;&nbsp;Installation
 
-... coming soon ...
+## Macos
+
+```shell
+brew install shurco/tap/litecart
+```
+
+Alternately, you can configure the tap and install the package separately:
+
+``` shell
+$ brew tap shurco/tap
+$ brew install litecart
+```
+
+
+## Linux/Macos/Windows
+
+Download the [latest release here](https://github.com/shurco/litecart/releases/latest)
+
+
+## Try using Docker
+Want to give litecart a quick spin on your local machine? You can run the following command from your terminal to have litecart up and running right away.
+
+**For Docker hub containers:**
+```bash
+docker run \
+  --name litecart \
+  --restart unless-stopped \
+  -p '8080:8080' \
+  -v ./lc_base:./lc_base \
+  -v ./lc_digitals:./lc_digitals \
+  -v ./lc_uploads:./lc_uploads \
+  shurco/litecart:latest
+```
+
+**For Github containers:**
+```bash
+docker run \
+  --name litecart \
+  --restart unless-stopped \
+  -p '8080:8080' \
+  -v ./lc_base:./lc_base \
+  -v ./lc_digitals:./lc_digitals \
+  -v ./lc_uploads:./lc_uploads \
+  ghcr.io/shurco/litecart:latest
+```
+
+
+## 📚&nbsp;&nbsp;Documentation
+```
+🛒 litecart - shopping-cart in 1 file
+
+Usage:
+  litecart [command]
+
+Available Commands:
+  serve       Starts the web server (default to 0.0.0.0:8080)
+
+Flags:
+  -h, --help      help for litecart
+  -v, --version   version for litecart
+
+Use "litecart [command] --help" for more information about a command.
+```
+
+Parameters for `serve` command:
+```
+Starts the web server (default to 0.0.0.0:8080)
+
+Usage:
+  litecart serve [flags]
+
+Flags:
+  -h, --help           help for serve
+      --http string    server address (default "0.0.0.0:8080")
+      --https string   HTTPS server address (auto TLS)
+      --no-site        disable create site
+```
+
+
+Default run for Linux/Mac:
+```
+./litecart serve
+```
+
+For Windows:
+```
+litecart.exe serve
+```
+
+When launched for the first time, necessary folders will be created in the directory with the executable file. The default links for access are:  
+[http://localhost:8080](http://localhost:8080) - website  
+[http://localhost:8080/_](http://localhost:8080/_) - control panel  
+
+If you need to run on a different port, use the flag `--http`:
+```
+./litecart serve --http 0.0.0.0:8088
+```
+
+> ⚠️&nbsp;&nbsp; Ports <= 1024 are privileged ports. You can't use them unless you're root or have the explicit permission to use them. See this answer for an explanation or wikipedia or something you trust more. Use:
+**sudo setcap 'cap_net_bind_service=+ep' /path_to/litecart**
+
+
+## 🗺️&nbsp;&nbsp;Roadmap
+- [x] Product in the form of files
+- [x] Product in the form of license keys
+- [x] Product returned via API to another site (example license keys)
+- [x] Payment Stripe
+- [ ] Payment PayPal
+- [ ] Payment Square
+- [ ] Payment Adyen
+- [ ] Payment Checkout
+- [ ] Support for payment using crypto
+- [ ] Support WebHook
 
 
 ## 👍&nbsp;&nbsp;Contribute
