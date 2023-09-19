@@ -100,7 +100,7 @@ dockers:
   - image_templates:
       - 'shurco/litecart:v{{ .Version }}-amd64'
       - 'ghcr.io/shurco/litecart:v{{ .Version }}-amd64'
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.goreleaser
     use: buildx
     build_flag_templates:
       - '--pull'
@@ -119,7 +119,7 @@ dockers:
   - image_templates:
       - 'shurco/litecart:v{{ .Version }}-arm64'
       - 'ghcr.io/shurco/litecart:v{{ .Version }}-arm64'
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.goreleaser
     use: buildx
     build_flag_templates:
       - '--pull'
