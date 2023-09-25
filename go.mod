@@ -14,7 +14,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.1
 	github.com/pressly/goose/v3 v3.15.0
-	github.com/rs/zerolog v1.30.0
+	github.com/rs/zerolog v1.31.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stripe/stripe-go/v74 v74.30.0
 	github.com/xhit/go-simple-mail/v2 v2.16.0
