@@ -1,9 +1,5 @@
 @host = http://localhost:8080
 
 ###
-# @name pages
-GET {{host}}/api/pages
-
-###
 # @name pages_terms
 GET {{host}}/api/pages/terms

@@ -16,7 +16,7 @@ import (
 func Settings(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	settings, err := db.Settings()
+	settings, err := db.Settings(true)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}

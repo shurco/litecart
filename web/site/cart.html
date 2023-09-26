@@ -6,44 +6,34 @@
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl" v-if="cart.length>0">Your Cart</h1>
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl" v-else>Your Cart is empty</h1>
         </header>
-
         <div class="mt-8" v-if="cart.length>0">
           <ul class="space-y-4">
             <li class="flex items-center gap-4" v-for="item, index in cart">
               <img :src="(item.image !== null ? `/uploads/${item.image.name}_sm.${item.image.ext}` : '/assets/img/noimage.png')" alt="" class="h-16 w-16 rounded object-cover" />
-
               <div>
                 <a :href="`/products/${item.slug}`" target="_blank">
                   {{item.name}}
                 </a>
               </div>
-
               <div class="flex flex-1 items-center justify-end gap-2">
                 {{costFormat(item.amount)}} {{item.currency}}
-
                 <button class="text-gray-600 transition hover:text-red-600" @click="remote(index)">
                   <span class="sr-only">Remove item</span>
-
                   <svg class="h-4 w-4">
                     <use xlink:href="/assets/img/sprite.svg#trash" />
                   </svg>
-
                 </button>
               </div>
             </li>
-
           </ul>
-
           <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
             <div class="w-screen max-w-lg space-y-4">
               <dl class="space-y-0.5 text-sm text-gray-700">
-
                 <div class="flex justify-between !text-base">
                   <dt>Total</dt>
                   <dd>{{total}} {{currency}}</dd>
                 </div>
               </dl>
-
               <div class="flex justify-end">
                 <a href="#" class="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600" @click="checkOut()">
                   Checkout
@@ -61,7 +51,7 @@
   Vue.createApp({
     data() {
       return {
-        currency: localStorage.getItem('currency'),
+        currency: sessionStorage.getItem('currency'),
         cart: JSON.parse(localStorage.getItem('cart')) || ref([]),
       };
     },

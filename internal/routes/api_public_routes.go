@@ -11,15 +11,12 @@ import (
 func ApiPublicRoutes(c *fiber.App) {
 	c.Get("/ping", handlers.Ping)
 
-	page := c.Group("/api/pages")
-	page.Get("/", handlers.Pages)
-	page.Get("/:page_slug", handlers.Page)
+	c.Get("/api/settings", handlers.Settings)
+	c.Get("/api/pages/:page_slug", handlers.Page)
 
 	product := c.Group("/api/products")
 	product.Get("/", handlers.Products)
 	product.Get("/:product_id", handlers.Product)
-
-	c.Get("/api/socials", handlers.Socials)
 
 	c.Get("/api/cart", func(c *fiber.Ctx) error {
 		return webutil.Response(c, fiber.StatusOK, "Cart", "ok")

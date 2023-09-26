@@ -1,7 +1,6 @@
 <div id="app">
   <section>
     <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
-
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" v-if="products && load">
         <li v-for="item, index in products">
           <a :href="`/products/${item.slug}`" class="block overflow-hidden group rounded-lg">
@@ -14,22 +13,18 @@
               {{item.name}}
             </h3>
             </a>
-
             <div class="flex justify-between mb-5 cursor-pointer">
               <span class="tracking-wider text-gray-900">{{ costFormat( item.amount ) }} {{ currency }}</span>
-
               <span @click="add(index)" v-if="!inCart(item.id) && !item.inCart || item.inCart === false">
                 <svg class="h-4 w-4">
                   <use xlink:href="/assets/img/sprite.svg#cart" />
                 </svg>
               </span>
-
               <span @click="remove(index)" v-else>
                 <svg class="h-4 w-4 text-red-600">
                   <use xlink:href="/assets/img/sprite.svg#trash" />
                 </svg>
               </span>
-
             </div>
         </li>
       </ul>
@@ -57,7 +52,6 @@
         const product = this.products[index]
         if (!this.inCart(product.id)) {
           this.products[index].inCart = true
-
           const image = product.images ? {
             name: product.images[0].name,
             ext: product.images[0].ext
@@ -95,12 +89,7 @@
         });
         this.resp = await response.json();
         if (this.resp.success) {
-          if (localStorage.getItem('currency')) {
-            this.currency = localStorage.getItem('currency');
-          } else {
-            localStorage.setItem('currency', this.resp.result.currency);
-            this.currency = this.resp.result.currency;
-          }
+          this.currency = sessionStorage.getItem('currency');
           this.products = this.resp.result.products;
           this.load = true;
         }
@@ -121,6 +110,5 @@
         return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
       },
     },
-
   }).mount("#app");
 </script>

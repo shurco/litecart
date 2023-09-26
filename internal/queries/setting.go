@@ -22,15 +22,19 @@ type SettingQueries struct {
 }
 
 // Settings is ...
-func (q *SettingQueries) Settings() (*models.Setting, error) {
-	settings := &models.Setting{}
-
+func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
+	settings := new(models.Setting)
 	keys := []any{
-		"domain", "email", "currency", // 3
-		"jwt_secret", "jwt_secret_expire_hours", // 2
-		"stripe_secret_key", "stripe_webhook_secret_key", // 2
+		"site_name", "domain", "email", "currency", // 3
 		"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github", // 5
-		"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // 5
+	}
+
+	if private {
+		keys = append(keys,
+			"jwt_secret", "jwt_secret_expire_hours", // 2
+			"stripe_secret_key", "stripe_webhook_secret_key", // 2
+			"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // 5
+		)
 	}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
@@ -41,6 +45,7 @@ func (q *SettingQueries) Settings() (*models.Setting, error) {
 	defer rows.Close()
 
 	fieldMap := map[string]interface{}{
+		"site_name":                 &settings.Main.SiteName,
 		"domain":                    &settings.Main.Domain,
 		"email":                     &settings.Main.Email,
 		"currency":                  &settings.Main.Currency,
@@ -118,6 +123,7 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 	switch section {
 	case "main":
 		sectionSettings = map[string]any{
+			"site_name":               settings.Main.SiteName,
 			"domain":                  settings.Main.Domain,
 			"email":                   settings.Main.Email,
 			"currency":                settings.Main.Currency,

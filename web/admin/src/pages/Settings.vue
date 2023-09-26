@@ -8,7 +8,8 @@
       <div>
         <h2 class="mb-5">Main</h2>
         <Form @submit="updateSetting('main')" v-slot="{ errors }">
-          <div class="flex">
+          <FormInput v-model.trim="main.site_name" :error="errors.site_name" rules="required|min:6" class="max-w-md" id="site_name" type="text" title="Site name" ico="glob-alt" />
+          <div class="mt-5 flex">
             <div class="pr-3">
               <FormInput v-model.trim="main.domain" :error="errors.domain" rules="required|min:4" class="w-64" id="domain" type="text" title="Domain" ico="glob-alt" />
             </div>

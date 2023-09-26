@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 
-<head>
+<head id="head">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>litecart</title>
@@ -26,7 +26,6 @@
               fill="currentColor" />
           </svg>
         </a>
-
         <div class="flex flex-1 items-center justify-end md:justify-between">
           <div></div>
           <div class="flex">
@@ -46,7 +45,7 @@
 
       <div class="border-t border-gray-100 pt-8 sm:flex sm:items-center sm:justify-between ">
         <ul class="flex flex-wrap justify-center gap-4 text-xs lg:justify-end">
-          <li v-for="item in menu">
+          <li v-for="item in pages">
             <a :href="`/${item.slug}`" class="text-blue-500 transition hover:opacity-75" v-if="item.position==='footer'">
               {{item.name}}
             </a>
@@ -54,7 +53,7 @@
         </ul>
 
         <ul class="mt-8 flex justify-center gap-6 sm:mt-0 lg:justify-end">
-          <li v-for="(item, key, index) in social">
+          <li v-for="(item, key, index) in socials">
             <a :href="item" rel="noreferrer" target="_blank" class="text-blue-700 transition hover:opacity-75">
               <span class="sr-only">{{key}}</span>
               <svg class="h-6 w-6">
@@ -71,77 +70,66 @@
     import FormButton from '/assets/js/form/button.js';
 
     Vue.createApp({
+      mounted() {
+          document.title = sessionStorage.getItem('title') || ref("litecart")
+      }
+    }).mount("#head");
+
+    Vue.createApp({
       components: {
         FormButton,
       },
 
       data() {
         return {
-          cart: JSON.parse(localStorage.getItem('cart')) || ref([])
+          cart: JSON.parse(localStorage.getItem('cart')) || ref([]),
+          pages: JSON.parse(sessionStorage.getItem('pages')) || ref([])
         };
       },
 
       mounted() {
+        this.Settings();
         window.addEventListener('addProduct', (event) => {
           this.cart.push(event.detail)
           localStorage.setItem("cart", JSON.stringify(this.cart))
         });
-
         window.addEventListener('delProduct', () => {
           this.cart = JSON.parse(localStorage.getItem('cart'))
         });
-
       },
 
       methods: {
+        async Settings() {
+          const response = await fetch(`/api/settings`, {
+            credentials: "include",
+            method: 'GET',
+          });
+          this.resp = await response.json()
+          if (this.resp.success) {
+            if (!sessionStorage.getItem('currency')) {
+              sessionStorage.setItem('currency', this.resp.result.main.currency);
+              sessionStorage.setItem('title', this.resp.result.main.site_name);
+              sessionStorage.setItem('pages', JSON.stringify(this.resp.result.pages));
+              sessionStorage.setItem('socials', JSON.stringify(this.resp.result.socials));
+            }
+          }
+        },
+
         costFormat(cost) {
           return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
         },
       },
-
     }).mount("#header");
 
     Vue.createApp({
       data() {
         return {
-          menu: ref([]),
-          social: ref([]),
+          pages: JSON.parse(sessionStorage.getItem('pages')) || ref([]),
+          socials: JSON.parse(sessionStorage.getItem('socials')) || ref([])
         };
       },
-
-      mounted() {
-        this.listPages();
-        this.listSocials();
-      },
-
-      methods: {
-        async listPages() {
-          const response = await fetch(`/api/pages`, {
-            credentials: "include",
-            method: 'GET',
-          });
-          this.resp = await response.json()
-          if (this.resp.success) {
-            this.menu = this.resp.result
-          }
-        },
-
-        async listSocials() {
-          const response = await fetch(`/api/socials`, {
-            credentials: "include",
-            method: 'GET',
-          });
-          this.resp = await response.json()
-          if (this.resp.success) {
-            this.social = this.resp.result
-          }
-        },
-
-      },
-
     }).mount("#footer");
   </script>
-
 </body>
 
 </html>

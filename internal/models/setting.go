@@ -24,6 +24,7 @@ func (v Setting) Validate() error {
 }
 
 type Main struct {
+	SiteName string `json:"site_name"`
 	Domain   string `json:"domain"`
 	Email    string `json:"email"`
 	Currency string `json:"currency"`
@@ -33,6 +34,7 @@ type Main struct {
 // Validate is ...
 func (v Main) Validate() error {
 	return validation.ValidateStruct(&v,
+		validation.Field(&v.SiteName, validation.Min(6)),
 		validation.Field(&v.Domain, is.Domain),
 		validation.Field(&v.Email, is.Email),
 		validation.Field(&v.Currency, is.CurrencyCode),

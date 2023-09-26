@@ -59,7 +59,7 @@ run_goose() {
     print_help dev "Development fixtures"
     echo
     echo "option:"
-    print_help create "Core version"
+    print_help create "Create cleare migration"
     print_help up "Migrate the DB to the most recent version available"
     print_help up1 "Migrate the DB up by 1"
     print_help down "Roll back all migrations"

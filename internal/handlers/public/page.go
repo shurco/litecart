@@ -8,19 +8,6 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Pages is ...
-// [get] /api/pages
-func Pages(c *fiber.Ctx) error {
-	db := queries.DB()
-
-	pages, err := db.ListPages(false)
-	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Pages", pages)
-}
-
 // Page is ...
 // [get] /api/page/:page_slug
 func Page(c *fiber.Ctx) error {

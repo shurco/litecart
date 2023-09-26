@@ -1,9 +1,9 @@
 @host = http://localhost:8080
 
 ###
-# @name socials
-GET {{host}}/api/socials
-
-###
 # @name ping
 GET {{host}}/ping
+
+###
+# @name settings
+GET {{host}}/api/settings
