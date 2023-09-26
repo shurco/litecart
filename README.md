@@ -22,19 +22,19 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 
 ## 🏆&nbsp;&nbsp;Features
 
-🚀 Simple and fast one-click installation  
-💰 Support for popular payment systems  
-🔑 Support for selling both files and license keys  
-⚙️ Uses SQLite instead of heavy databases like Mysql, Postgresql, MongoDB  
-☁️ Lightweight website that can be easily modified  
-🧞‍♂️Convenient administration panel  
-⚡️ Works on any hardware, server  
-🔒 Built-in support for HTTPS  
+- 🚀 Simple and fast one-click installation  
+- 💰 Support for popular payment systems  
+- 🔑 Support for selling both files and license keys  
+- ⚙️ Uses SQLite instead of heavy databases like Mysql, Postgresql, MongoDB  
+- ☁️ Lightweight website that can be easily modified  
+- 🧞‍♂️Convenient administration panel  
+- ⚡️ Works on any hardware, server  
+- 🔒 Built-in support for HTTPS  
 
 
 ## 🏁&nbsp;&nbsp;Installation
 
-## Macos
+## MacOS
 
 ```shell
 brew install shurco/tap/litecart
@@ -48,7 +48,7 @@ $ brew install litecart
 ```
 
 
-## Linux/Macos/Windows
+## Linux/MacOS/Windows
 
 Download the [latest release here](https://github.com/shurco/litecart/releases/latest)
 
@@ -113,7 +113,7 @@ Flags:
 ```
 
 
-Default run for Linux/Mac:
+Default run for Linux/MacOS:
 ```
 ./litecart serve
 ```
@@ -124,8 +124,8 @@ litecart.exe serve
 ```
 
 When launched for the first time, necessary folders will be created in the directory with the executable file. The default links for access are:  
-[http://localhost:8080](http://localhost:8080) - website  
-[http://localhost:8080/_](http://localhost:8080/_) - control panel  
+- [http://localhost:8080](http://localhost:8080) - website  
+- [http://localhost:8080/_/](http://localhost:8080/_/) - control panel  
 
 If you need to run on a different port, use the flag `--http`:
 ```
@@ -139,7 +139,7 @@ If you need to run on a different port, use the flag `--http`:
 ## 🗺️&nbsp;&nbsp;Roadmap
 - [x] Product in the form of files
 - [x] Product in the form of license keys
-- [x] Product returned via API to another site (example license keys)
+- [ ] Product returned via API to another site (example license keys)
 - [x] Payment Stripe
 - [ ] Payment PayPal
 - [ ] Payment Square
