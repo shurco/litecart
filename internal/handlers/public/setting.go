@@ -19,3 +19,9 @@ func Socials(c *fiber.Ctx) error {
 
 	return webutil.Response(c, fiber.StatusOK, "Socials", socials)
 }
+
+// Ping is ...
+// [get] /ping
+func Ping(c *fiber.Ctx) error {
+	return webutil.Response(c, fiber.StatusOK, "Pong", nil)
+}

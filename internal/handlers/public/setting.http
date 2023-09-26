@@ -3,3 +3,7 @@
 ###
 # @name socials
 GET {{host}}/api/socials
+
+###
+# @name ping
+GET {{host}}/ping

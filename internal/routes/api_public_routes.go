@@ -9,6 +9,8 @@ import (
 
 // ApiPublicRoutes is ...
 func ApiPublicRoutes(c *fiber.App) {
+	c.Get("/ping", handlers.Ping)
+
 	page := c.Group("/api/pages")
 	page.Get("/", handlers.Pages)
 	page.Get("/:page_slug", handlers.Page)
