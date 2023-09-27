@@ -35,6 +35,9 @@
                   <div class="pr-3">
                     <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" />
                   </div>
+                  <div class="pr-3">
+                    <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" />
+                  </div>
                   <div>
                     <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updatePageActive(index)" />
                   </div>
@@ -59,8 +62,9 @@
     </div>
 
     <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
-      <PageAdd v-model:page="page" v-model:pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
-      <PageUpdate v-model:page="page" v-model:pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'update'" />
+      <PageAdd    :page="page" :pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
+      <PageUpdate :page="page" :pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'update'" />
+      <ProjectSeo :page="page" :close="closeDrawer" v-if="isDrawer.action === 'seo'" />
     </drawer>
   </MainLayouts>
 </template>
@@ -74,6 +78,7 @@ import FormButton from "@/components/form/Button.vue";
 import Drawer from "@/components/Drawer.vue";
 import PageAdd from "@/components/page/Add.vue";
 import PageUpdate from "@/components/page/Update.vue";
+import ProjectSeo from "@/components/page/Seo.vue";
 import { formatDate } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
@@ -91,8 +96,6 @@ const isDrawer = ref({
   open: false,
   action: null,
 });
-
-const positionPage = ["header", "footer"];
 
 onMounted(() => {
   pagesList();
@@ -120,7 +123,7 @@ const pageContent = async (slug) => {
     if (res.success) {
       page.value = res.result;
       content.value = res.result.content;
-    }else{
+    } else {
       router.push({ name: "404" });
     }
   });
@@ -145,18 +148,9 @@ const updatePageActive = async (index) => {
 };
 
 const openDrawer = (index, action) => {
-  page.value = {};
   isDrawer.value.open = true;
   isDrawer.value.action = action;
-  if (action === "update") {
-    page.value = {
-      name: pages.value[index].name,
-      slug: pages.value[index].slug,
-      position: pages.value[index].position,
-      id: pages.value[index].id,
-      index: index,
-    };
-  }
+  page.value = pages.value[index]
 };
 
 const closeDrawer = () => {

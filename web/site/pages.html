@@ -30,6 +30,20 @@
         this.resp = await response.json()
         if (this.resp.success) {
           this.content = this.resp.result
+
+          if (this.content.seo.title){
+            document.title = this.content.seo.title;
+            document.querySelector('meta[name="title"]').setAttribute("content", this.content.seo.title);
+          }
+
+          if (this.content.seo.keywords){
+            document.querySelector('meta[name="keywords"]').setAttribute("content", this.content.seo.keywords)
+          }
+
+          if (this.content.seo.description){
+            document.querySelector('meta[name="description"]').setAttribute("content", this.content.seo.description)
+            document.querySelector('meta[property="og:description"]').setAttribute("content", this.content.seo.description)
+          }
         }
       }
     }

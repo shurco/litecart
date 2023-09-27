@@ -4,14 +4,13 @@ import validation "github.com/go-ozzo/ozzo-validation/v4"
 
 // Page is ...
 type Page struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Slug     string `json:"slug"`
-	Position string `json:"position,omitempty"`
-	Content  string `json:"content"`
-	Active   bool   `json:"active"`
-	Created  int64  `json:"created,omitempty"`
-	Updated  int64  `json:"updated,omitempty"`
+	Core
+	Name     string  `json:"name"`
+	Slug     string  `json:"slug"`
+	Position string  `json:"position,omitempty"`
+	Content  *string `json:"content,omitempty"`
+	Active   bool    `json:"active"`
+	Seo      *Seo    `json:"seo,omitempty"`
 }
 
 // Validate is ...

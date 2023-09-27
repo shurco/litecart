@@ -3,6 +3,7 @@ package queries
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/errors"
@@ -26,7 +27,7 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 	pages := []models.Page{}
 
 	queryPrivate := ` WHERE active = 1`
-	query := `SELECT id, name, slug, position, active, strftime('%s', created), strftime('%s', updated) FROM page`
+	query := `SELECT id, name, slug, position, active, seo, strftime('%s', created), strftime('%s', updated) FROM page`
 
 	if !private {
 		query = query + queryPrivate
@@ -39,16 +40,21 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 	defer rows.Close()
 
 	for rows.Next() {
+		var seo sql.NullString
 		var updated sql.NullInt64
 
 		page := models.Page{}
-		err := rows.Scan(&page.ID, &page.Name, &page.Slug, &page.Position, &page.Active, &page.Created, &updated)
+		err := rows.Scan(&page.ID, &page.Name, &page.Slug, &page.Position, &page.Active, &seo, &page.Created, &updated)
 		if err != nil {
 			return nil, err
 		}
 
 		if updated.Valid {
 			page.Updated = updated.Int64
+		}
+
+		if seo.Valid {
+			json.Unmarshal([]byte(seo.String), &page.Seo)
 		}
 
 		pages = append(pages, page)
@@ -67,8 +73,8 @@ func (q *PageQueries) Page(slug string) (*models.Page, error) {
 		Slug: slug,
 	}
 
-	var content sql.NullString
-	err := q.DB.QueryRowContext(context.TODO(), `SELECT id, name, content FROM page WHERE slug = ?`, slug).Scan(&page.ID, &page.Name, &content)
+	var content, seo sql.NullString
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT id, name, content, active, seo FROM page WHERE slug = ?`, slug).Scan(&page.ID, &page.Name, &content, &page.Active, &seo)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.ErrPageNotFound
@@ -77,7 +83,11 @@ func (q *PageQueries) Page(slug string) (*models.Page, error) {
 	}
 
 	if content.Valid {
-		page.Content = content.String
+		page.Content = &content.String
+	}
+
+	if seo.Valid {
+		json.Unmarshal([]byte(seo.String), &page.Seo)
 	}
 
 	return &page, nil
@@ -99,10 +109,13 @@ func (q *PageQueries) AddPage(page *models.Page) (*models.Page, error) {
 
 // UpdatePage is ...
 func (q *PageQueries) UpdatePage(page *models.Page) error {
-	_, err := q.DB.ExecContext(context.TODO(), `UPDATE page SET name = ?, slug = ?, position = ?, updated = datetime('now') WHERE id = ?`,
+	seo, _ := json.Marshal(page.Seo)
+
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE page SET name = ?, slug = ?, position = ?, seo = ?, updated = datetime('now') WHERE id = ?`,
 		page.Name,
 		page.Slug,
 		page.Position,
+		seo,
 		page.ID,
 	)
 	if err != nil {

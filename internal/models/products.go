@@ -14,9 +14,9 @@ type Products struct {
 
 // Product is ...
 type Product struct {
-	ID          string     `json:"id"`
+	Core
 	Name        string     `json:"name"`
-	Description string     `json:"description"`
+	Description string     `json:"description,omitempty"`
 	Images      []File     `json:"images,omitempty"`
 	Slug        string     `json:"slug"`
 	Amount      int        `json:"amount"`
@@ -24,8 +24,7 @@ type Product struct {
 	Attributes  []string   `json:"attributes,omitempty"`
 	Digital     Digital    `json:"digital,omitempty"`
 	Active      bool       `json:"active"`
-	Created     int64      `json:"created"`
-	Updated     int64      `json:"updated,omitempty"`
+	Seo         *Seo       `json:"seo,omitempty"`
 }
 
 // Validate is ...
@@ -40,7 +39,7 @@ func (v Product) Validate() error {
 		validation.Field(&v.Metadata),
 		validation.Field(&v.Attributes, validation.Each(validation.Length(3, 254))),
 		validation.Field(&v.Digital),
-		validation.Field(&v.Active),
+		validation.Field(&v.Seo),
 	)
 }
 

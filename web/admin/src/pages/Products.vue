@@ -47,6 +47,9 @@
                 <div class="pr-3">
                   <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" />
                 </div>
+                <div class="pr-3">
+                  <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" />
+                </div>
                 <div>
                   <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updateProductActive(index)" />
                 </div>
@@ -59,10 +62,11 @@
     <div class="mx-auto" v-else>Add first product</div>
 
     <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
-      <ProjectView :product="product" :products="products" :updateActive="updateProductActive" :close="closeDrawer" v-if="isDrawer.action === 'view'" />
-      <ProjectAdd v-model:product="product" v-model:products="products" v-model:drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
-      <ProjectUpdate v-model:product="product" v-model:products="products" :updateActive="updateProductActive" :close="closeDrawer" v-if="isDrawer.action === 'update'" />
-      <ProjectDigital :product="product" :close="closeDrawer" v-if="isDrawer.action === 'digital'" />
+      <ProjectView    :drawer="isDrawer" :close="closeDrawer" :updateActive="updateProductActive" v-if="isDrawer.action === 'view'" />
+      <ProjectAdd     :drawer="isDrawer" :close="closeDrawer" :products="products" v-if="isDrawer.action === 'add'" />
+      <ProjectUpdate  :drawer="isDrawer" :close="closeDrawer" :products="products" :updateActive="updateProductActive" v-if="isDrawer.action === 'update'" />
+      <ProjectSeo     :drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'seo'" />
+      <ProjectDigital :drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'digital'" />
     </drawer>
   </MainLayouts>
 </template>
@@ -75,6 +79,7 @@ import Drawer from "@/components/Drawer.vue";
 import ProjectView from "@/components/product/View.vue";
 import ProjectAdd from "@/components/product/Add.vue";
 import ProjectUpdate from "@/components/product/Update.vue";
+import ProjectSeo from "@/components/product/Seo.vue";
 import ProjectDigital from "@/components/product/Digital.vue";
 import { costFormat } from "@/utils/";
 import { showMessage } from "@/utils/message";
@@ -89,34 +94,21 @@ onMounted(() => {
 const isDrawer = ref({
   open: false,
   action: null,
+  product: {
+    id: null,
+    index: null,
+    digital: null,
+    currency: null,
+  }
 });
 
 const products = ref([]);
-const product = ref({
-  info: {
-    digital: {},
-  },
-  action: null,
-  index: 0,
-  name: null,
-});
 
 const listProducts = async () => {
   apiGet(`/api/_/products`).then(res => {
     if (res.success) {
       products.value = res.result;
-    }
-  });
-};
-
-const getProduct = async (id) => {
-  apiGet(`/api/_/products/${id}`).then(res => {
-    if (res.success) {
-      const { info } = product.value;
-      Object.assign(info, res.result);
-      info.amount = costFormat(info.amount);
-    } else {
-      showMessage(res.result, "connextError");
+      isDrawer.value.currency = res.result.currency;
     }
   });
 };
@@ -124,12 +116,12 @@ const getProduct = async (id) => {
 const updateProductActive = async (index) => {
   apiUpdate(`/api/_/products/${products.value.products[index].id}/active`).then(res => {
     if (res.success) {
-      const status = !products.value.products[index].active;
       const name = products.value.products[index].name;
+      const status = !products.value.products[index].active;
       products.value.products[index].active = status;
       if (status) {
         showMessage(`Product ${name} activated`);
-      }else{
+      } else {
         showMessage(`Product ${name} deactivated`);
       }
     }
@@ -139,32 +131,21 @@ const updateProductActive = async (index) => {
 const openDrawer = (index, action) => {
   isDrawer.value.open = true;
   isDrawer.value.action = action;
-  product.value.index = index;
-  const activeProduct = products.value.products[index];
-  switch (action) {
-    case "view":
-    case "update":
-      getProduct(activeProduct.id);
-      break;
-    case "add":
-      product.value.info.metadata = [];
-      product.value.info.attributes = [];
-      product.value.info.description = "";
-      break;
-    case "digital":
-      product.value.info.id = activeProduct.id;
-      product.value.info.digital.type = activeProduct.digital.type;
-      break;
+  if (index!==null) {
+    isDrawer.value.product = {
+      index: index,
+      id: products.value.products[index].id,
+    }
   }
 };
 
 const closeDrawer = () => {
   isDrawer.value.open = false;
   isDrawer.value.action = null;
-  product.value.info = {
-    digital: {},
-  };
-  product.value.index = null;
+  isDrawer.value.product = {
+    index: null,
+    id: null,
+  }
 };
 
 const digitalTypeIco = (type) => {

@@ -5,6 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>litecart</title>
+  <meta name="title" content="litecart" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="litecart" />
+  <meta property="og:description" content="" />
+  
   <script src="/assets/js/vue.js?v=3.3.4"></script>
   <script src="/assets/js/main.js" type="module"></script>
   <link href="/assets/css/style.css" rel="stylesheet">
@@ -71,7 +80,10 @@
 
     Vue.createApp({
       mounted() {
-          document.title = sessionStorage.getItem('title') || ref("litecart")
+        const title = sessionStorage.getItem('title') || "litecart"
+        document.title = title
+        document.querySelector('meta[name="title"]').setAttribute("content", title)
+        document.querySelector('meta[property="og:title"]').setAttribute("content", title)
       }
     }).mount("#head");
 
@@ -88,7 +100,10 @@
       },
 
       mounted() {
-        this.Settings();
+        if (!sessionStorage.getItem('currency')) {
+          this.Settings();
+        }
+
         window.addEventListener('addProduct', (event) => {
           this.cart.push(event.detail)
           localStorage.setItem("cart", JSON.stringify(this.cart))
@@ -106,12 +121,10 @@
           });
           this.resp = await response.json()
           if (this.resp.success) {
-            if (!sessionStorage.getItem('currency')) {
-              sessionStorage.setItem('currency', this.resp.result.main.currency);
-              sessionStorage.setItem('title', this.resp.result.main.site_name);
-              sessionStorage.setItem('pages', JSON.stringify(this.resp.result.pages));
-              sessionStorage.setItem('socials', JSON.stringify(this.resp.result.socials));
-            }
+            sessionStorage.setItem('currency', this.resp.result.main.currency);
+            sessionStorage.setItem('title', this.resp.result.main.site_name);
+            sessionStorage.setItem('pages', JSON.stringify(this.resp.result.pages));
+            sessionStorage.setItem('socials', JSON.stringify(this.resp.result.socials));
           }
         },
 

@@ -90,7 +90,6 @@ const updatePage = async () => {
       found.slug = update.slug;
       found.position = update.position;
       showMessage(res.message);
-      //props.close();
     } else {
       showMessage(res.result, "connextError");
     }

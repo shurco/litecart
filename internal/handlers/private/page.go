@@ -77,7 +77,9 @@ func UpdatePageContent(c *fiber.Ctx) error {
 	db := queries.DB()
 	pageID := c.Params("page_id")
 	request := &models.Page{
-		ID: pageID,
+		Core: models.Core{
+			ID: pageID,
+		},
 	}
 
 	if err := c.BodyParser(request); err != nil {

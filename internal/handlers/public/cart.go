@@ -79,7 +79,9 @@ func Checkout(c *fiber.Ctx) error {
 	}
 
 	db.AddCart(&models.Cart{
-		ID:            cartID,
+		Core: models.Core{
+			ID: cartID,
+		},
 		Cart:          *items,
 		AmountTotal:   stripeSession.AmountTotal,
 		Currency:      string(stripeSession.Currency),
@@ -103,7 +105,9 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 	}
 
 	err = db.UpdateCart(&models.Cart{
-		ID:            cartID,
+		Core: models.Core{
+			ID: cartID,
+		},
 		Email:         sessionStripe.CustomerDetails.Email,
 		Name:          sessionStripe.CustomerDetails.Name,
 		PaymentID:     sessionStripe.PaymentIntent.ID,
@@ -122,7 +126,9 @@ func CheckoutCancel(c *fiber.Ctx) error {
 	cartID := c.Params("cart_id")
 	db := queries.DB()
 	err := db.UpdateCart(&models.Cart{
-		ID:            cartID,
+		Core: models.Core{
+			ID: cartID,
+		},
 		PaymentStatus: "cancel",
 	})
 	if err != nil {

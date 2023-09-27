@@ -73,7 +73,7 @@ export function costFormat(cost) {
 }
 
 export function costStripe(cost) {
-  return Number(cost) * 100;
+  return Math.round(Number(cost) * 100);
 }
 
 export function formatDate(timestamp) {

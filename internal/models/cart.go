@@ -1,7 +1,7 @@
 package models
 
 type Cart struct {
-	ID            string        `json:"id"`
+	Core
 	Email         string        `json:"email"`
 	Name          string        `json:"name"`
 	Cart          []CartProduct `json:"cart"`
@@ -9,8 +9,6 @@ type Cart struct {
 	Currency      string        `json:"currency"`
 	PaymentID     string        `json:"payment_id"`
 	PaymentStatus string        `json:"payment_status"`
-	Created       int64         `json:"created"`
-	Updated       int64         `json:"updated,omitempty"`
 }
 
 type CartProduct struct {

@@ -20,8 +20,9 @@ type ProductQueries struct {
 
 // ListProducts is ...
 func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.Products, error) {
+	currency := db.GetCurrency()
 	products := &models.Products{
-		Currency: "USD",
+		Currency: currency,
 	}
 
 	queryPrivate := ` WHERE deleted = 0 AND active = 1`
@@ -29,12 +30,11 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 			SELECT 
 				id, 
 				name, 
-				desc, 
 				slug,
 				amount,
 				active,
 				digital,
-				(SELECT json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images FROM product_image WHERE product_id = product.id LIMIT 3) as image,
+				(SELECT json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images FROM product_image WHERE product_id = product.id GROUP BY id LIMIT 1) as image,
 				strftime('%s', created)
 			FROM product
 		`
@@ -69,11 +69,9 @@ func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.P
 	for rows.Next() {
 		var image, digitalType sql.NullString
 		product := models.Product{}
-
 		err := rows.Scan(
 			&product.ID,
 			&product.Name,
-			&product.Description,
 			&product.Slug,
 			&product.Amount,
 			&product.Active,
@@ -124,6 +122,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 				product.metadata, 
 				product.attribute, 
 				product.digital,
+				product.seo, 
 				json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
 				strftime('%s', product.created), 
 				strftime('%s', product.updated)
@@ -137,7 +136,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 	}
 
 	// stripeID
-	var images, metadata, attributes, digitalType sql.NullString
+	var images, metadata, attributes, digitalType, seo sql.NullString
 	var updated sql.NullInt64
 
 	err := q.DB.QueryRowContext(context.TODO(), query, id).
@@ -151,6 +150,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 			&metadata,
 			&attributes,
 			&digitalType,
+			&seo,
 			&images,
 			&product.Created,
 			&updated,
@@ -182,6 +182,10 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 		product.Digital.Type = digitalType.String
 	}
 
+	if seo.Valid {
+		json.Unmarshal([]byte(seo.String), &product.Seo)
+	}
+
 	return product, nil
 }
 
@@ -191,7 +195,7 @@ func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, e
 	metadata, _ := json.Marshal(product.Metadata)
 	attributes, _ := json.Marshal(product.Attributes)
 
-	sql := `INSERT INTO product (id, name, amount, slug, metadata, attribute, desc, digital) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING strftime('%s', created)`
+	sql := `INSERT INTO product (id, name, amount, slug, metadata, attribute, desc, digital, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE) RETURNING strftime('%s', created)`
 	err := q.DB.QueryRowContext(context.TODO(), sql, product.ID, product.Name, product.Amount, product.Slug, metadata, attributes, product.Description, product.Digital.Type).Scan(&product.Created)
 	if err != nil {
 		return nil, err
@@ -204,14 +208,16 @@ func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, e
 func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 	metadata, _ := json.Marshal(product.Metadata)
 	attributes, _ := json.Marshal(product.Attributes)
+	seo, _ := json.Marshal(product.Seo)
 
-	_, err := q.DB.ExecContext(context.TODO(), `UPDATE product SET name = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute=?, updated = datetime('now') WHERE id = ?`,
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE product SET name = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute = ?, seo = ?, updated = datetime('now') WHERE id = ?`,
 		product.Name,
 		product.Description,
 		product.Slug,
 		product.Amount,
 		metadata,
 		attributes,
+		seo,
 		product.ID,
 	)
 	if err != nil {

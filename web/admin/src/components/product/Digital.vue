@@ -21,7 +21,7 @@
             <SvgIcon name="trash" class="ml-3 mt-3 h-5 w-5 cursor-pointer" @click="deleteDigital('file', index)" />
           </div>
         </div>
-        <FormUpload :productId="`${product.info.id}`" section="digital" @added="addDigitalFile" />
+        <FormUpload :productId="`${drawer.product.id}`" section="digital" @added="addDigitalFile" />
       </div>
     </div>
 
@@ -66,7 +66,7 @@ import { showMessage } from "@/utils/message";
 import { apiGet, apiPost, apiUpdate, apiDelete } from "@/utils/api";
 
 const props = defineProps({
-  product: {
+  drawer: {
     required: true,
   },
   close: Function,
@@ -75,11 +75,11 @@ const props = defineProps({
 const digital = ref({});
 
 onMounted(() => {
-  listDigitals(props.product.info.id);
+  listDigitals();
 });
 
-const listDigitals = async (productId) => {
-  apiGet(`/api/_/products/${productId}/digital`).then(res => {
+const listDigitals = async () => {
+  apiGet(`/api/_/products/${props.drawer.product.id}/digital`).then(res => {
     if (res.success && res.result !== null) {
       digital.value.type = res.result.type;
       digital.value.files = res.result.files ?? [];
@@ -88,24 +88,24 @@ const listDigitals = async (productId) => {
   });
 };
 
-const addDigitalFile = (event) => {
-  if (event.success) {
-    digital.value.files.push(event.result);
+const addDigitalFile = (e) => {
+  if (e.success) {
+    digital.value.files.push(e.result);
   }
 };
 
 const deleteDigital = async (type, index) => {
-  var digitalID;
+  var digitalId;
   switch (type) {
     case "file":
-      digitalID = digital.value.files[index].id;
+    digitalId = digital.value.files[index].id;
       break;
     case "data":
-      digitalID = digital.value.data[index].id;
+    digitalId = digital.value.data[index].id;
       break;
   }
 
-  apiDelete(`/api/_/products/${props.product.info.id}/digital/${digitalID}`).then(res => {
+  apiDelete(`/api/_/products/${props.drawer.product.id}/digital/${digitalId}`).then(res => {
     if (res.success) {
       switch (type) {
         case "file":
@@ -122,7 +122,7 @@ const deleteDigital = async (type, index) => {
 };
 
 const addDigitalData = async () => {
-  apiPost(`/api/_/products/${props.product.info.id}/digital`).then(res => {
+  apiPost(`/api/_/products/${props.drawer.product.id}/digital`).then(res => {
     if (res.success) {
 
       digital.value.data.push(res.result);
@@ -136,6 +136,6 @@ const saveData = async (index) => {
   const update = {
     content: digital.value.data[index].content,
   };
-  apiUpdate(`/api/_/products/${props.product.info.id}/digital/${digital.value.data[index].id}`, update)
+  apiUpdate(`/api/_/products/${props.drawer.product.id}/digital/${digital.value.data[index].id}`, update)
 };
 </script>

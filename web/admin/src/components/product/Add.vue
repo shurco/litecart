@@ -10,27 +10,27 @@
     <Form @submit="addProduct" v-slot="{ errors }">
       <div class="flow-root">
         <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
-          <FormInput v-model.trim="product.info.name" :error="errors.name" rules="required|min:4" id="name" type="text" title="Name" ico="at-symbol" />
+          <FormInput v-model.trim="product.name" :error="errors.name" rules="required|min:4" id="name" type="text" title="Name" ico="at-symbol" />
           <div class="flex flex-row">
             <div class="pr-3">
-              <FormInput v-model.trim="product.info.amount" :error="errors.amount" rules="required|amount" id="amount" type="text" title="Amount" ico="money" />
+              <FormInput v-model.trim="amount" :error="errors.amount" rules="required|amount" id="amount" type="text" title="Amount" ico="money" />
             </div>
-            <div class="mt-3">{{ product.currency }}</div>
+            <div class="mt-3">{{ drawer.currency }}</div>
           </div>
 
           <div class="flex">
             <div class="grow pr-3">
-              <FormInput v-model.trim="product.info.slug" :error="errors.slug" rules="required|slug" id="slug" type="text" title="Slug" ico="glob-alt" />
+              <FormInput v-model.trim="product.slug" :error="errors.slug" rules="required|slug" id="slug" type="text" title="Slug" ico="glob-alt" />
             </div>
             <div class="grow">
-              <FormSelect v-model="product.info.digital.type" :options="['file', 'data']" :error="errors.digital_type" rules="required" id="digital_type" title="Digital type"
+              <FormSelect v-model="product.digital.type" :options="['file', 'data']" :error="errors.digital_type" rules="required" id="digital_type" title="Digital type"
                 ico="cube" />
             </div>
           </div>
 
           <hr />
           <p class="font-semibold">Metadata</p>
-          <div class="flex" v-for="(data, index) in product.info.metadata" :key="index">
+          <div class="flex" v-for="(data, index) in product.metadata" :key="index">
             <div class="grow pr-3">
               <FormInput v-model="data.key" :id="`mtd-key-${index}`" type="text" title="Key" />
             </div>
@@ -52,9 +52,9 @@
 
           <hr />
           <p class="font-semibold">Attributes</p>
-          <div class="flex" v-for="(value, index) in product.info.attributes" :key="index">
+          <div class="flex" v-for="(value, index) in product.attributes" :key="index">
             <div class="grow">
-              <FormInput v-model="product.info.attributes[index]" :id="`atr-key-${index}`" type="text" title="" />
+              <FormInput v-model="product.attributes[index]" :id="`atr-key-${index}`" type="text" title="" />
             </div>
             <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteAttributeRecord(index)">
               <SvgIcon name="trash" class="h-5 w-5" />
@@ -70,7 +70,7 @@
           </div>
 
           <hr />
-          <FormTextarea v-model="product.info.description" id="textarea" name="Description" />
+          <FormTextarea v-model="product.description" id="textarea" name="Description" />
         </dl>
       </div>
 
@@ -88,7 +88,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
@@ -102,9 +102,6 @@ import SvgIcon from "svg-icon";
 import { Form } from "vee-validate";
 
 const props = defineProps({
-  product: {
-    required: true,
-  },
   products: {
     required: true,
   },
@@ -114,16 +111,17 @@ const props = defineProps({
   close: Function,
 });
 
-const emits = defineEmits(["update:modelValue"]);
+const amount = ref()
+const product = ref({
+  metadata: [],
+  attributes: [],
+  description: "",
+  digital: {
+    type: "",
+  }
+})
 
-const product = computed({
-  get: () => {
-    return props.product;
-  },
-  set: (val) => {
-    emits("update:modelValue", val);
-  },
-});
+const emits = defineEmits(["update:modelValue"]);
 
 const products = computed({
   get: () => {
@@ -134,40 +132,29 @@ const products = computed({
   },
 });
 
-const drawer = computed({
-  get: () => {
-    return props.drawer;
-  },
-  set: (val) => {
-    emits("update:modelValue", val);
-  },
-});
-
-
-const addMetadataRecord = () => {
-  const metadata = product.value.info.metadata || [];
+const addMetadataRecord = async () => {
+  const metadata = product.value.metadata || [];
   metadata.push({ key: "", value: "" });
-  product.value.info.metadata = metadata;
+  product.value.metadata = metadata;
 };
 
-const deleteMetadataRecord = (key) => {
-  product.value.info.metadata.splice(key, 1);
+const deleteMetadataRecord = async (key) => {
+  product.value.metadata.splice(key, 1);
 };
 
-const addAttributeRecord = () => {
-  const attributes = product.value.info.attributes || [];
+const addAttributeRecord = async () => {
+  const attributes = product.value.attributes || [];
   attributes.push("");
-  product.value.info.attributes = attributes;
+  product.value.attributes = attributes;
 };
 
-const deleteAttributeRecord = (index) => {
-  product.value.info.attributes.splice(index, 1);
+const deleteAttributeRecord = async (index) => {
+  product.value.attributes.splice(index, 1);
 };
 
 const addProduct = async () => {
-  const add = { ...product.value.info };
-  add.amount = costStripe(add.amount);
-  apiPost(`/api/_/products`, add).then(res => {
+  product.value.amount = costStripe(amount.value);
+  apiPost(`/api/_/products`, product.value).then(res => {
     if (res.success) {
       products.value.products.push({
         id: res.result.id,
@@ -184,10 +171,12 @@ const addProduct = async () => {
       props.close();
       showMessage(res.message);
 
-      product.value.info.id = res.result.id;
-      product.value.info.digital.type = res.result.digital.type;
-      drawer.value.open = true;
-      drawer.value.action = 'digital';
+      props.drawer.open = true;
+      props.drawer.action = 'digital';
+      props.drawer.product = {
+        id: res.result.id,
+        digital: res.result.digital.type,
+      }
     } else {
       showMessage(res.result, "connextError");
     }
