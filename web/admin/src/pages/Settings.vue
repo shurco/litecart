@@ -17,8 +17,8 @@
               <FormInput v-model.trim="main.email" :error="errors.email" rules="required|email" class="w-64" id="email" type="text" title="Email" ico="at-symbol" />
             </div>
             <div>
-              <FormSelect v-model="main.currency" :options="['EUR','USD']" :error="errors.currency" rules="required|one_of:EUR,USD" id="currency"
-                title="Currency" ico="money" />
+              <FormSelect v-model="main.currency" :options="['EUR','USD','JPY','GBP','AUD','CAD','CHF','CNY','SEK']" :error="errors.currency"
+                rules="required|one_of:EUR,USD,JPY,GBP,AUD,CAD,CHF,CNY,SEK" id="currency" title="Currency" ico="money" />
             </div>
           </div>
           <div class="mt-5 flex">
