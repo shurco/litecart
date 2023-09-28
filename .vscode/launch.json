@@ -8,6 +8,7 @@
       "mode": "auto",
       "program": "${workspaceFolder}/cmd",
       "args": ["serve", "--dev"]
+      //"args": ["init"]
       //"args": ["serve", "--no-site"]
       //"args": ["serve"]
       //"args": ["serve", "--help"]

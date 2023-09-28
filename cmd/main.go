@@ -30,6 +30,7 @@ func main() {
 		Hidden: true,
 	})
 
+	rootCmd.AddCommand(cmdInit())
 	rootCmd.AddCommand(cmdServe())
 
 	if err := rootCmd.Execute(); err != nil {
@@ -71,6 +72,18 @@ func cmdServe() *cobra.Command {
 
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
 	cmd.PersistentFlags().MarkHidden("dev")
+
+	return cmd
+}
+
+func cmdInit() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Init structure",
+		Run: func(serveCmd *cobra.Command, args []string) {
+			app.Init()
+		},
+	}
 
 	return cmd
 }
