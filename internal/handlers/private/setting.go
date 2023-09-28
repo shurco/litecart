@@ -1,15 +1,62 @@
 package handlers
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/errors"
+	"github.com/shurco/litecart/pkg/update"
 	"github.com/shurco/litecart/pkg/webutil"
 )
+
+// Version is ...
+// [get] /api/_/version
+func Version(c *fiber.Ctx) error {
+	db := queries.DB()
+
+	session, err := db.GetSession("update")
+	if err != nil && err != sql.ErrNoRows {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	version := (*update.Version)(nil)
+	if err == sql.ErrNoRows {
+		version = update.VersionInfo()
+
+		release, err := update.FetchLatestRelease(context.Background(), "shurco", "litecart")
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+
+		if version.CurrentVersion != release.Name {
+			version.NewVersion = release.Name
+			version.ReleaseURL = release.GetUrl()
+		}
+
+		if err := db.DeleteSession("update"); err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+
+		json, _ := json.Marshal(version)
+		expires := time.Now().Add(24 * time.Hour).Unix()
+		if err := db.AddSession("update", string(json), expires); err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+	}
+
+	if session != "" {
+		version = new(update.Version)
+		json.Unmarshal([]byte(session), version)
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Version", version)
+}
 
 // Settings is ...
 // [get] /api/_/settings

@@ -11,6 +11,10 @@ Content-Type: application/json
 }
 
 ###
+# @name version
+GET {{host}}/api/_/version
+
+###
 # @name settings
 GET {{host}}/api/_/settings
 

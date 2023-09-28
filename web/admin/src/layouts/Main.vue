@@ -16,23 +16,24 @@
               <router-link :to="{ name: 'products' }" :class="route.name === 'products' ? 'bg-gray-100' : 'bg-white'">Products</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'carts' }" :class="route.name.startsWith('carts')
-                ? 'bg-gray-100'
-                : 'bg-white'
-                ">Carts</router-link>
+              <router-link :to="{ name: 'carts' }" :class="route.name.startsWith('carts') ? 'bg-gray-100' : 'bg-white'">Carts</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'pages' }" :class="route.name.startsWith('pages') ? 'bg-gray-100' : 'bg-white'
-                ">Pages</router-link>
+              <router-link :to="{ name: 'pages' }" :class="route.name.startsWith('pages') ? 'bg-gray-100' : 'bg-white'">Pages</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'settings' }" :class="route.name.startsWith('settings') ? 'bg-gray-100' : 'bg-white'
-                ">Settings</router-link>
+              <router-link :to="{ name: 'settings' }" :class="route.name.startsWith('settings') ? 'bg-gray-100' : 'bg-white'">Settings</router-link>
             </li>
           </ul>
         </div>
 
+
+
         <div class="footer">
+          <div class="update" @click="goToRelease" v-if="version.new">
+            Version: <span class="current">{{ version.current_version }}</span>→<span class="new">{{ version.new }}</span>
+          </div>
+          <div @click="goToRelease" v-else>Version: {{ version.current_version }}</div>
           <a href="/" target="_blank" class="bg-white hover:bg-green-50 hover:text-green-500">Open site</a>
           <a href="#" class="bg-white hover:bg-red-50 hover:text-red-500" @click="signOut">Logout</a>
         </div>
@@ -46,12 +47,35 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { setCookie } from "@/utils/";
-import { apiPost } from "@/utils/api";
+import { apiGet } from "@/utils/api";
 
 const route = useRoute();
 const router = useRouter();
+const version = ref({}); 
+
+onMounted(() => {
+  if (!JSON.parse(sessionStorage.getItem('version'))) {
+    versionInfo();
+  }else{
+    version.value = JSON.parse(sessionStorage.getItem('version')) 
+  }
+});
+
+const versionInfo = async () => {
+  apiGet(`/api/_/version`).then(res => {
+    if (res.success) {
+      version.value = res.result;
+      sessionStorage.setItem('version', JSON.stringify(res.result));
+    }
+  });
+};
+
+const goToRelease = async () => {
+  window.open(version.value.release_url, "_blank");
+};
 
 const signOut = async () => {
   await fetch("/api/sign/out", {
@@ -77,7 +101,21 @@ const signOut = async () => {
   }
 
   .footer {
-    @apply sticky inset-x-0 bottom-0 border-t border-gray-100;
+    div {
+      @apply p-4 px-6 first-line:sticky inset-x-0 bottom-0 border-b border-gray-100 text-xs text-gray-300;
+
+      &.update {
+        @apply bg-yellow-50 cursor-pointer;
+
+        .current {
+          @apply pr-1 text-gray-400;
+        }
+
+        .new {
+          @apply pl-1 text-red-500;
+        }
+      }
+    }
 
     a {
       @apply flex items-center p-4 px-6 text-sm font-medium text-gray-500;

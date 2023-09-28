@@ -25,9 +25,9 @@ import (
 )
 
 var (
-	DevMode    bool
-	MainDomain string
-	log        zerolog.Logger
+	DevMode bool
+	//MainDomain string
+	log zerolog.Logger
 )
 
 // NewApp is ...

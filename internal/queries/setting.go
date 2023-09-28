@@ -234,7 +234,8 @@ func (q *SettingQueries) CheckSubdomain(name string) bool {
 // GetSession is ...
 func (q *SettingQueries) GetSession(key string) (string, error) {
 	var value string
-	err := q.DB.QueryRowContext(context.TODO(), `SELECT value FROM session WHERE key = ?`, key).Scan(&value)
+	expires := time.Now().Unix()
+	err := q.DB.QueryRowContext(context.TODO(), `SELECT value FROM session WHERE key = ? AND expires > ?`, key, expires).Scan(&value)
 	if err != nil {
 		return "", err
 	}

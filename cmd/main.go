@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	app "github.com/shurco/litecart/internal"
+	"github.com/shurco/litecart/pkg/update"
 )
 
 var (
@@ -25,6 +26,12 @@ var rootCmd = &cobra.Command{
 }
 
 func main() {
+	update.SetVersion(&update.Version{
+		CurrentVersion: version,
+		GitCommit:      gitCommit,
+		BuildDate:      buildDate,
+	})
+
 	rootCmd.SetHelpCommand(&cobra.Command{
 		Use:    "no-help",
 		Hidden: true,
@@ -32,6 +39,7 @@ func main() {
 
 	rootCmd.AddCommand(cmdInit())
 	rootCmd.AddCommand(cmdServe())
+	rootCmd.AddCommand(cmdUpdate())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -46,6 +54,7 @@ func cmdServe() *cobra.Command {
 		Short: "Starts the web server (default to 0.0.0.0:8080)",
 		Run: func(serveCmd *cobra.Command, args []string) {
 			if err := app.NewApp(httpAddr, httpsAddr, noSite, devMode); err != nil {
+				fmt.Print(err)
 				os.Exit(1)
 			}
 		},
@@ -82,6 +91,28 @@ func cmdInit() *cobra.Command {
 		Short: "Init structure",
 		Run: func(serveCmd *cobra.Command, args []string) {
 			app.Init()
+		},
+	}
+
+	return cmd
+}
+
+func cmdUpdate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update",
+		Short: "Update app to the latest version",
+		Run: func(serveCmd *cobra.Command, args []string) {
+			cfg := &update.Config{
+				Owner:             "shurco",
+				Repo:              "litecart",
+				CurrentVersion:    version,
+				ArchiveExecutable: "litecart",
+			}
+			err := update.Init(cfg)
+			if err != nil {
+				fmt.Print(err)
+				os.Exit(1)
+			}
 		},
 	}
 

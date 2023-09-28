@@ -9,6 +9,7 @@
       "program": "${workspaceFolder}/cmd",
       "args": ["serve", "--dev"]
       //"args": ["init"]
+      //"args": ["update"]
       //"args": ["serve", "--no-site"]
       //"args": ["serve"]
       //"args": ["serve", "--help"]
