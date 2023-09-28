@@ -1,4 +1,4 @@
-<div id="page">
+<div>
   <section>
     <div class="tiptap max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
       <h1><strong>{{content.name}}</strong></h1>
@@ -7,45 +7,3 @@
     </div>
   </section>
 </div>
-
-<script>
-  Vue.createApp({
-    data() {
-      return {
-        content: ref([])
-      }
-    },
-
-    mounted() {
-      const path = window.location.pathname
-      this.pageContent(path.substring(1))
-    },
-
-    methods: {
-      async pageContent(slug) {
-        const response = await fetch(`/api/pages/${slug}`, {
-          credentials: 'include',
-          method: 'GET'
-        })
-        this.resp = await response.json()
-        if (this.resp.success) {
-          this.content = this.resp.result
-
-          if (this.content.seo.title){
-            document.title = this.content.seo.title;
-            document.querySelector('meta[name="title"]').setAttribute("content", this.content.seo.title);
-          }
-
-          if (this.content.seo.keywords){
-            document.querySelector('meta[name="keywords"]').setAttribute("content", this.content.seo.keywords)
-          }
-
-          if (this.content.seo.description){
-            document.querySelector('meta[name="description"]').setAttribute("content", this.content.seo.description)
-            document.querySelector('meta[property="og:description"]').setAttribute("content", this.content.seo.description)
-          }
-        }
-      }
-    }
-  }).mount('#page')
-</script>

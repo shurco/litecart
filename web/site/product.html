@@ -1,4 +1,4 @@
-<div id="product">
+<div>
   <section>
     <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8" v-if="load">
@@ -15,8 +15,8 @@
               <li v-for="(item, index) in product.attributes">{{item}}</li>
             </ul>
           <p class="mt-4 text-2xl font-black">{{ costFormat( product.amount ) }} {{ currency }}</p>
-          <form-button type="submit" name="Add" color="green" ico="plus" class="mt-4" @click="add()" v-if="!product.inCart"></form-button>
-          <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="remove()" v-else></form-button>
+          <form-button type="submit" name="Add" color="green" ico="plus" class="mt-4" @click="addCart(product.id)" v-if="!product.inCart"></form-button>
+          <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="removeCart(product.id)" v-else></form-button>
         </div>
       </div>
     </div>
@@ -24,6 +24,8 @@
 </div>
 
 <script type="module">
+  /*
+  import { costFormat } from '/assets/js/utils.js';
   import FormButton from '/assets/js/form/button.js';
 
   Vue.createApp({
@@ -48,9 +50,9 @@
         if (!this.inCart(this.product.id)) {
           this.product.inCart = true
 
-          const image = product.images ? {
-            name: product.images[0].name,
-            ext: product.images[0].ext
+          const image = this.product.images ? {
+            name: this.product.images[0].name,
+            ext: this.product.images[0].ext
           } : null;
 
           window.dispatchEvent(new CustomEvent("addProduct", {
@@ -67,13 +69,12 @@
 
       remove() {
         const cart = JSON.parse(localStorage.getItem('cart'))
-
         if (cart.find(x => x.id === this.product.id)) {
           this.product.inCart = false
           const indexCart = cart.findIndex(item => item.id === this.product.id);
           cart.splice(indexCart, 1);
-          localStorage.setItem("cart", JSON.stringify(cart))
-          window.dispatchEvent(new CustomEvent("delProduct"))
+          localStorage.setItem("cart", JSON.stringify(cart));
+          window.dispatchEvent(new CustomEvent("delProduct"));
         }
       },
 
@@ -89,18 +90,16 @@
           this.product.inCart = this.inCart(this.product.id);
           this.load = true;
 
-          if (this.content.seo.title){
-            document.title = this.content.seo.title;
-            document.querySelector('meta[name="title"]').setAttribute("content", this.content.seo.title);
+          if (this.product.seo.title){
+            document.title = this.product.seo.title;
+            document.querySelector('meta[name="title"]').setAttribute("content", this.product.seo.title);
           }
-
-          if (this.content.seo.keywords){
-            document.querySelector('meta[name="keywords"]').setAttribute("content", this.content.seo.keywords)
+          if (this.product.seo.keywords){
+            document.querySelector('meta[name="keywords"]').setAttribute("content", this.product.seo.keywords);
           }
-
-          if (this.content.seo.description){
-            document.querySelector('meta[name="description"]').setAttribute("content", this.content.seo.description)
-            document.querySelector('meta[property="og:description"]').setAttribute("content", this.content.seo.description)
+          if (this.product.seo.description){
+            document.querySelector('meta[name="description"]').setAttribute("content", this.product.seo.description);
+            document.querySelector('meta[property="og:description"]').setAttribute("content", this.product.seo.description);
           }
         }
       },
@@ -116,9 +115,10 @@
         }
       },
 
-      costFormat(cost) {
-        return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
+      amount(cost) {
+        return costFormat(cost);
       },
     },
   }).mount("#product");
+  */
 </script>

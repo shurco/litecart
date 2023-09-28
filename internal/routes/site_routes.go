@@ -13,26 +13,6 @@ func SiteRoutes(c *fiber.App) {
 		return c.Render("index", nil, "layouts/main")
 	})
 
-	/*
-		c.Get("/terms", func(c *fiber.Ctx) error {
-			return c.Render("pages", fiber.Map{
-				"PageSlug": "terms",
-			}, "layouts/main")
-		})
-
-		c.Get("/privacy", func(c *fiber.Ctx) error {
-			return c.Render("pages", fiber.Map{
-				"PageSlug": "privacy",
-			}, "layouts/main")
-		})
-
-		c.Get("/cookies", func(c *fiber.Ctx) error {
-			return c.Render("pages", fiber.Map{
-				"PageSlug": "cookies",
-			}, "layouts/main")
-		})
-	*/
-
 	// catalog section
 	c.Get("/products/:product_slug", func(c *fiber.Ctx) error {
 		productSlug := c.Params("product_slug")

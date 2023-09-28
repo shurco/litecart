@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 
-<head id="head">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>litecart</title>
@@ -13,18 +13,15 @@
   <meta property="og:type" content="article" />
   <meta property="og:title" content="litecart" />
   <meta property="og:description" content="" />
-  
+
   <script src="/assets/js/vue.js?v=3.3.4"></script>
   <script src="/assets/js/main.js" type="module"></script>
   <link href="/assets/css/style.css" rel="stylesheet">
   <link href="/assets/css/main.css" rel="stylesheet">
-  <script>
-    const { onMounted, onUpdated, onUnmounted, ref, toRefs, watch, reactive, computed, created, getCurrentInstance } = Vue;
-  </script>
 </head>
 
-<body>
-  <div id="header">
+<body id="app">
+  <div>
     <header class="bg-white">
       <div class="mx-auto flex h-16 max-w-screen-xl items-center gap-8 px-4 sm:px-6 lg:px-8">
         <a class="block text-blue-600" href="/">
@@ -49,15 +46,12 @@
 
   {# embed #}
 
-  <footer class="bg-white" id="footer">
+  <footer class="bg-white">
     <div class="mx-auto max-w-screen-xl px-4 pb-8  sm:px-6 lg:px-8 ">
-
       <div class="border-t border-gray-100 pt-8 sm:flex sm:items-center sm:justify-between ">
         <ul class="flex flex-wrap justify-center gap-4 text-xs lg:justify-end">
           <li v-for="item in pages">
-            <a :href="`/${item.slug}`" class="text-blue-500 transition hover:opacity-75" v-if="item.position==='footer'">
-              {{item.name}}
-            </a>
+            <a :href="`/${item.slug}`" class="text-blue-500 transition hover:opacity-75" v-if="item.position==='footer'">{{item.name}}</a>
           </li>
         </ul>
 
@@ -74,75 +68,6 @@
       </div>
     </div>
   </footer>
-
-  <script type="module">
-    import FormButton from '/assets/js/form/button.js';
-
-    Vue.createApp({
-      mounted() {
-        const title = sessionStorage.getItem('title') || "litecart"
-        document.title = title
-        document.querySelector('meta[name="title"]').setAttribute("content", title)
-        document.querySelector('meta[property="og:title"]').setAttribute("content", title)
-      }
-    }).mount("#head");
-
-    Vue.createApp({
-      components: {
-        FormButton,
-      },
-
-      data() {
-        return {
-          cart: JSON.parse(localStorage.getItem('cart')) || ref([]),
-          pages: JSON.parse(sessionStorage.getItem('pages')) || ref([])
-        };
-      },
-
-      mounted() {
-        if (!sessionStorage.getItem('currency')) {
-          this.Settings();
-        }
-
-        window.addEventListener('addProduct', (event) => {
-          this.cart.push(event.detail)
-          localStorage.setItem("cart", JSON.stringify(this.cart))
-        });
-        window.addEventListener('delProduct', () => {
-          this.cart = JSON.parse(localStorage.getItem('cart'))
-        });
-      },
-
-      methods: {
-        async Settings() {
-          const response = await fetch(`/api/settings`, {
-            credentials: "include",
-            method: 'GET',
-          });
-          this.resp = await response.json()
-          if (this.resp.success) {
-            sessionStorage.setItem('currency', this.resp.result.main.currency);
-            sessionStorage.setItem('title', this.resp.result.main.site_name);
-            sessionStorage.setItem('pages', JSON.stringify(this.resp.result.pages));
-            sessionStorage.setItem('socials', JSON.stringify(this.resp.result.socials));
-          }
-        },
-
-        costFormat(cost) {
-          return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
-        },
-      },
-    }).mount("#header");
-
-    Vue.createApp({
-      data() {
-        return {
-          pages: JSON.parse(sessionStorage.getItem('pages')) || ref([]),
-          socials: JSON.parse(sessionStorage.getItem('socials')) || ref([])
-        };
-      },
-    }).mount("#footer");
-  </script>
 </body>
 
 </html>

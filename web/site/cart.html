@@ -1,4 +1,4 @@
-<div id="cart">
+<div>
   <section>
     <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <div class="mx-auto max-w-3xl">
@@ -16,8 +16,8 @@
                 </a>
               </div>
               <div class="flex flex-1 items-center justify-end gap-2">
-                {{costFormat(item.amount)}} {{item.currency}}
-                <button class="text-gray-600 transition hover:text-red-600" @click="remote(index)">
+                {{costFormat(item.amount)}} {{currency}}
+                <button class="text-gray-600 transition hover:text-red-600" @click="removeCart(item.id)">
                   <span class="sr-only">Remove item</span>
                   <svg class="h-4 w-4">
                     <use xlink:href="/assets/img/sprite.svg#trash" />
@@ -31,7 +31,7 @@
               <dl class="space-y-0.5 text-sm text-gray-700">
                 <div class="flex justify-between !text-base">
                   <dt>Total</dt>
-                  <dd>{{total}} {{currency}}</dd>
+                  <dd>{{totalCartAmount()}} {{currency}}</dd>
                 </div>
               </dl>
               <div class="flex justify-end">
@@ -46,61 +46,3 @@
     </div>
   </section>
 </div>
-
-<script>
-  Vue.createApp({
-    data() {
-      return {
-        currency: sessionStorage.getItem('currency'),
-        cart: JSON.parse(localStorage.getItem('cart')) || ref([]),
-      };
-    },
-
-    computed: {
-      total: {
-        get() {
-          let total = 0
-          for (const item of this.cart) {
-            total = total + item.amount
-          }
-          return this.costFormat(total);
-        },
-      },
-    },
-
-    methods: {
-      remote(index) {
-        this.cart.splice(index, 1);
-        localStorage.setItem("cart", JSON.stringify(this.cart))
-        window.dispatchEvent(new CustomEvent("delProduct"))
-      },
-
-      async checkOut() {
-        var cart = []
-        for (const item of this.cart) {
-          cart.push({
-            "id": item.id,
-            "quantity": 1
-          })
-        }
-        
-        const response = await fetch(`/cart/checkout`, {
-          credentials: "include",
-          method: 'POST',
-          body: JSON.stringify(cart),
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        });
-        this.resp = await response.json();
-        if (this.resp.success) {
-          window.location.href = this.resp.result;
-        }
-      },
-
-      costFormat(cost) {
-        return (Number(cost) ? (Number(cost) / 100).toFixed(2) : "0.00");
-      },
-    },
-  }).mount("#cart");
-</script>
