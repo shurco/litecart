@@ -40,6 +40,7 @@ func main() {
 	rootCmd.AddCommand(cmdInit())
 	rootCmd.AddCommand(cmdServe())
 	rootCmd.AddCommand(cmdUpdate())
+	rootCmd.AddCommand(cmdMigrate())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -74,7 +75,7 @@ func cmdServe() *cobra.Command {
 		&httpsAddr,
 		"https",
 		"",
-		"HTTPS server address (auto TLS)",
+		"https server address (auto TLS)",
 	)
 
 	cmd.PersistentFlags().BoolVar(&noSite, "no-site", false, "disable create site")
@@ -88,7 +89,7 @@ func cmdServe() *cobra.Command {
 func cmdInit() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Init structure",
+		Short: "Creating the basic structure",
 		Run: func(serveCmd *cobra.Command, args []string) {
 			app.Init()
 		},
@@ -100,7 +101,7 @@ func cmdInit() *cobra.Command {
 func cmdUpdate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update",
-		Short: "Update app to the latest version",
+		Short: "Updating the application to the latest version",
 		Run: func(serveCmd *cobra.Command, args []string) {
 			cfg := &update.Config{
 				Owner:             "shurco",
@@ -110,6 +111,21 @@ func cmdUpdate() *cobra.Command {
 			}
 			err := update.Init(cfg)
 			if err != nil {
+				fmt.Print(err)
+				os.Exit(1)
+			}
+		},
+	}
+
+	return cmd
+}
+
+func cmdMigrate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "migrate",
+		Short: "Migrate on the latest version of database schema",
+		Run: func(serveCmd *cobra.Command, args []string) {
+			if err := app.Migrate(); err != nil {
 				fmt.Print(err)
 				os.Exit(1)
 			}

@@ -125,9 +125,10 @@ Usage:
 
 Available commands:
 ```
-init        Init structure
+init        Creating the basic structure
+migrate     Migrate on the latest version of database schema
 serve       Starts the web server (default to 0.0.0.0:8080)
-update      Update app to the latest version
+update      Updating the application to the latest version
 ```
 
 Global flags `./litecart [flags]`:
@@ -139,7 +140,7 @@ Global flags `./litecart [flags]`:
 Serve flags `./litecart serve [flags]`:
 ```
 --http string    server address (default "0.0.0.0:8080")
---https string   HTTPS server address (auto TLS)
+--https string   https server address (auto TLS)
 --no-site        disable create site
 ```
 

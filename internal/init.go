@@ -30,3 +30,12 @@ func Init() error {
 
 	return nil
 }
+
+// Migrate is ...
+func Migrate() error {
+	if err := queries.Migrate("./lc_base/data.db", migrations.Embed()); err != nil {
+		return err
+	}
+
+	return nil
+}
