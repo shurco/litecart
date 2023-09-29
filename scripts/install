@@ -29,11 +29,11 @@ install() {
   echo "Fetching the latest version..."
   local _ver
   if [ "$_cmd" = curl ]; then
-    _ver=$(curl --silent "https://api.github.com/repos/shurco/litecart/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed -E 's/.{,1}//') || {
+    _ver=$(curl --silent "https://api.github.com/repos/shurco/litecart/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') || {
       err "Error: could not fetch the latest litecart version number"
     }
   elif [ "$_cmd" = wget ]; then
-    _ver=$(wget -qO- "https://api.github.com/repos/shurco/litecart/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed -E 's/.{,1}//') || {
+    _ver=$(wget -qO- "https://api.github.com/repos/shurco/litecart/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') || {
       err "Error: could not fetch the latest litecart version number"
     }
   fi

@@ -7,10 +7,10 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/cmd",
-      //"args": ["serve", "--dev"]
+      "args": ["serve", "--dev"]
       //"args": ["init"]
       //"args": ["update"]
-      "args": ["migrate"]
+      //"args": ["migrate"]
       //"args": ["serve", "--no-site"]
       //"args": ["serve"]
       //"args": ["serve", "--help"]
