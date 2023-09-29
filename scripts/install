@@ -1,0 +1,110 @@
+#!/usr/bin/env sh
+
+install() {
+  command -v uname >/dev/null 2>&1 || {
+    err "Error: you need to have 'uname' installed and in your path"
+  }
+  command -v tar >/dev/null 2>&1 || {
+    err "Error: you need to have 'tar' installed and in your path"
+  }
+  command -v unzip >/dev/null 2>&1 || {
+    err "Error: you need to have 'unzip' installed and in your path"
+  }
+
+  local _cmd
+  if command -v curl >/dev/null 2>&1; then
+    _cmd=curl
+  elif command -v wget >/dev/null 2>&1; then
+    _cmd=wget
+  else
+    err "Error: you need to have 'curl' or 'wget' installed and in your path"
+  fi
+
+  get_latest_release() {
+    echo $(curl --silent "https://api.github.com/repos/$1/releases/latest" |
+      grep '"tag_name":' |
+      sed -E 's/.*"([^"]+)".*/\1/')
+  }
+
+  echo "Fetching the latest version..."
+  local _ver
+  if [ "$_cmd" = curl ]; then
+    _ver=$(curl --silent "https://api.github.com/repos/shurco/litecart/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed -E 's/.{,1}//') || {
+      err "Error: could not fetch the latest litecart version number"
+    }
+  elif [ "$_cmd" = wget ]; then
+    _ver=$(wget -qO- "https://api.github.com/repos/shurco/litecart/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed -E 's/.{,1}//') || {
+      err "Error: could not fetch the latest litecart version number"
+    }
+  fi
+
+  echo "Fetching the host system architecture..."
+  local _oss
+  local _cpu
+  local _arc
+
+  _oss="$(uname -s)"
+  _cpu="$(uname -m)"
+
+  case "$_oss" in
+  Linux) _oss=linux ;;
+  Darwin) _oss=darwin ;;
+  MINGW* | MSYS* | CYGWIN*) _oss=windows ;;
+  *) err "Error: unsupported operating system: $_oss" ;;
+  esac
+  case "$_cpu" in
+  arm64 | aarch64) _cpu=arm64 ;;
+  x86_64 | x86-64 | x64 | amd64) _cpu=amd64 ;;
+  *) err "Error: unsupported CPU architecture: $_cpu" ;;
+  esac
+  _arc="${_oss}-${_cpu}"
+
+  local _ext
+  case "$_oss" in
+  linux) _ext="tar.gz" ;;
+  darwin) _ext="tar.gz" ;;
+  windows) _ext="zip" ;;
+  esac
+
+  local _url
+  _url="https://github.com/shurco/litecart/releases/download/v${_ver}/litecart_${_ver}_${_arc}.${_ext}"
+
+  echo "Installing litecart_${_ver} for ${_arc}..."
+  if [ "$_cmd" = curl ]; then
+    curl --silent --fail --location "$_url" --output "litecart_${_ver}.${_arc}.${_ext}" || {
+      err "Error: could not fetch the latest litecart file"
+    }
+  elif [ "$_cmd" = wget ]; then
+    wget --quiet "$_url" -O "litecart_${_ver}.${_arc}.${_ext}" || {
+      err "Error: could not fetch the latest litecart file"
+    }
+  fi
+
+  if [ "$_ext" = "zip" ]; then
+    unzip -o "litecart_${_ver}.${_arc}.${_ext}" || {
+      err "Error: unable to extract the downloaded archive file"
+    }
+  else
+    tar -zxf "litecart_${_ver}.${_arc}.${_ext}" || {
+      err "Error: unable to extract the downloaded archive file"
+    }
+  fi
+
+  rm -rf "litecart_${_ver}.${_arc}.${_ext}"
+
+  echo ""
+  echo "litecart successfully installed"
+  echo ""
+  echo "To see the command-line options run:"
+  echo "  ./litecart --help"
+  echo "To start server run:"
+  echo "  ./litecart serve"
+  echo ""
+  exit 0
+}
+
+err() {
+  echo "$1" >&2 && exit 1
+}
+
+install "$@" || exit 1

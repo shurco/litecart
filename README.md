@@ -22,41 +22,51 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 
 ## 🏆&nbsp;&nbsp;Features
 
-- 🚀 Simple and fast one-click installation  
-- 💰 Support for popular payment systems  
-- 🔑 Support for selling both files and license keys  
-- ⚙️ Uses SQLite instead of heavy databases like Mysql, Postgresql, MongoDB  
-- ☁️ Lightweight website that can be easily modified  
-- 🧞‍♂️Convenient administration panel  
-- ⚡️ Works on any hardware, server  
-- 🔒 Built-in support for HTTPS  
+- [x] 🚀 Simple and fast one-click installation  
+- [x] 💰 Support for popular payment systems  
+- [x] 🔑 Support for selling both files and license keys  
+- [x] ⚙️ Uses SQLite instead of heavy databases like Mysql, Postgresql, MongoDB  
+- [x] ☁️ Lightweight website that can be easily modified  
+- [x] 🧞‍♂️Convenient administration panel  
+- [x] ⚡️ Works on any hardware, server  
+- [x] 🔒 Built-in support for HTTPS  
 
 
-## 🏁&nbsp;&nbsp;Installation
+## ⬇️&nbsp;&nbsp;Installation
 
-## MacOS
+`litecart` is engineered for easy installation and operation, requiring just a single command from your terminal. Besides the conventional installation method, `litecart` can also be set up and operated via HomeBrew, Docker, or any other container orchestration tools like Docker Compose, Docker Swarm, Rancher, or Kubernetes.
 
+#### <img width="20" src="/.github/media/platforms/apple.svg">&nbsp;Install on macOS
+The fastest method to install `litecart` on macOS involves using Homebrew. This will install the command-line tools and the `litecart` server as a combined executable. If you don't utilize Homebrew, adhere to the Linux instructions below for `litecart` installation.
 ```shell
 brew install shurco/tap/litecart
 ```
 
 Alternately, you can configure the tap and install the package separately:
-
 ``` shell
 $ brew tap shurco/tap
 $ brew install litecart
 ```
 
 
-## Linux/MacOS/Windows
+#### <img width="20" src="/.github/media/platforms/linux.svg">&nbsp;Install on Linux 
+The most straightforward and recommended method to start using `litecart` on Unix operating systems involves installing and utilizing the `litecart` command-line tool. Execute the given command in your terminal and adhere to the instructions displayed on the screen.
 
-Download the [latest release here](https://github.com/shurco/litecart/releases/latest)
+```bash
+curl -L https://raw.githubusercontent.com/shurco/litecart/main/scripts/install | sh
+```
+
+#### <img width="20" src="/.github/media/platforms/windows.svg">&nbsp;Install on Windows
+The simplest and most recommended method to start using `litecart` on Windows is by installing and utilizing the `litecart` command-line tool. Execute the given command in your terminal and adhere to the instructions displayed on the screen.
+```bash
+curl -L https://raw.githubusercontent.com/shurco/litecart/main/scripts/install | sh
+```
+or download and unzip the [latest version](https://github.com/shurco/litecart/releases/latest) for Windows.
 
 
-## Try using Docker
-Want to give litecart a quick spin on your local machine? You can run the following command from your terminal to have litecart up and running right away.
+#### <img width="20" src="/.github/media/platforms/docker.svg">&nbsp;Run using Docker
+Docker enables the management and operation of a Litecart instance without requiring the installation of any command-line tools. The Litecart Docker container includes all necessary command-line tools  or even for server execution.
 
-**For Docker hub containers:**
 ```bash
 docker run \
   --name litecart \
@@ -67,8 +77,8 @@ docker run \
   -v ./lc_uploads:./lc_uploads \
   shurco/litecart:latest
 ```
+or 
 
-**For Github containers:**
 ```bash
 docker run \
   --name litecart \
@@ -81,40 +91,11 @@ docker run \
 ```
 
 
-## 📚&nbsp;&nbsp;Documentation
-```
-🛒 litecart - shopping-cart in 1 file
+## 🚀&nbsp;&nbsp;Getting started
+Getting started with litecart is as easy as starting up the litecart server
 
-Usage:
-  litecart [command]
-
-Available Commands:
-  serve       Starts the web server (default to 0.0.0.0:8080)
-
-Flags:
-  -h, --help      help for litecart
-  -v, --version   version for litecart
-
-Use "litecart [command] --help" for more information about a command.
-```
-
-Parameters for `serve` command:
-```
-Starts the web server (default to 0.0.0.0:8080)
-
-Usage:
-  litecart serve [flags]
-
-Flags:
-  -h, --help           help for serve
-      --http string    server address (default "0.0.0.0:8080")
-      --https string   HTTPS server address (auto TLS)
-      --no-site        disable create site
-```
-
-
-Default run for Linux/MacOS:
-```
+Default run for Linux/macOS:
+```bash
 ./litecart serve
 ```
 
@@ -134,9 +115,36 @@ If you need to run on a different port, use the flag `--http`:
 
 > ⚠️&nbsp;&nbsp; Ports <= 1024 are privileged ports. You can't use them unless you're root or have the explicit permission to use them. See this answer for an explanation or wikipedia or something you trust more. Use:
 **sudo setcap 'cap_net_bind_service=+ep' /path_to/litecart**
+> 
+
+## 📚&nbsp;&nbsp;Commands
+Usage:
+```
+./litecart [command] [flags]
+```
+
+Available commands:
+```
+init        Init structure
+serve       Starts the web server (default to 0.0.0.0:8080)
+update      Update app to the latest version
+```
+
+Global flags `./litecart [flags]`:
+```
+-h, --help      help for litecart
+-v, --version   version for litecart
+```
+
+Serve flags `./litecart serve [flags]`:
+```
+--http string    server address (default "0.0.0.0:8080")
+--https string   HTTPS server address (auto TLS)
+--no-site        disable create site
+```
 
 
-## 🗺️&nbsp;&nbsp;Roadmap
+## 🗺️&nbsp;&nbsp;ToDo
 - [x] Product in the form of files
 - [x] Product in the form of license keys
 - [ ] Product returned via API to another site (example license keys)
@@ -159,4 +167,3 @@ If you want to say **thank you** and/or support the active development of `litec
 4. Support the project by donating a [cup of coffee](https://github.com/sponsors/shurco).
 
 You can learn more about how you can contribute to this project in the [contribution guide](https://github.com/shurco/litecart/blob/master/.github/CONTRIBUTING.md).
-

@@ -38,6 +38,7 @@ go.work
 
 cmd/__debug_bin*
 cmd/main
+cmd/cmd
 cmd/lc_*/
 cmd/site/
 fixtures/migration/*_private.sql
