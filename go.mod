@@ -19,7 +19,7 @@ require (
 	github.com/stripe/stripe-go/v74 v74.30.0
 	github.com/xhit/go-simple-mail/v2 v2.16.0
 	golang.org/x/crypto v0.13.0
-	modernc.org/sqlite v1.25.0
+	modernc.org/sqlite v1.26.0
 )
 
 require (
