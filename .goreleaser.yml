@@ -152,3 +152,24 @@ docker_manifests:
     image_templates:
       - 'ghcr.io/shurco/litecart:v{{ .Version }}-amd64'
       - 'ghcr.io/shurco/litecart:v{{ .Version }}-arm64'
+
+release:
+  name_template: "v{{ .Version }}"
+  header: |
+    > *To update the prebuilt executable you can run `./litecart update`*
+
+  footer: |
+    **Full Changelog**: https://github.com/shurco/litecart/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+announce:
+  mastodon:
+    enabled: true
+    message_template: "#litecart {{ .Tag }} is out! Check it out: https://github.com/shurco/litecart/releases/tag/{{ .Tag }}"
+    server: https://mastodon.social
+
+  reddit:
+    enabled: true
+    application_id: "7ujWVZoKuuQhpYfGgCVtTw"
+    username: "shnuroc"
+    url_template: 'https://github.com/shurco/litecart/releases/tag/{{ .Tag }}'
+    title_template: ''litecart {{ .Tag }} was just released!''
