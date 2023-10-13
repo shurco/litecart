@@ -22,14 +22,16 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 
 ## 🏆&nbsp;&nbsp;Features
 
-- [x] 🚀 Simple and fast one-click installation  
-- [x] 💰 Support for popular payment systems  
-- [x] 🔑 Support for selling both files and license keys  
-- [x] ⚙️ Uses SQLite instead of heavy databases like Mysql, Postgresql, MongoDB  
-- [x] ☁️ Lightweight website that can be easily modified  
-- [x] 🧞‍♂️Convenient administration panel  
-- [x] ⚡️ Works on any hardware, server  
-- [x] 🔒 Built-in support for HTTPS  
+- [x] 🚀 **Simple and Fast**: Enjoy a one-click installation process that gets your store up and running quickly, saving you time and effort. 
+- [x] 💰 **Support for Popular Payment Systems**: Accept payments seamlessly with support for popular payment systems, ensuring a smooth checkout experience for your customers. 
+- [x] 🔑 **Sell Files and License Keys**: Whether you're selling digital files or license keys, litecart has you covered, providing flexibility in the types of products you can offer.
+- [x] ⚙️ **Lightweight and Efficient**: litecart utilizes SQLite as its embedded database, eliminating the need for heavy databases like MySQL, PostgreSQL, or MongoDB. This results in a lightweight website that performs exceptionally well.
+- [x] ☁️ **Easily Customizable**: Modify and customize your litecart website effortlessly to match your branding and unique requirements, making it truly your own.
+- [x] 🧞‍♂️ **Convenient Administration Panel**: With a user-friendly dashboard UI, litecart offers a hassle-free administration panel, allowing you to manage your store, inventory, and orders with ease. 
+- [x] ⚡️ **Hardware Compatibility**: Whether you're running litecart on a powerful server or a modest hardware setup, rest assured that it will work seamlessly, providing a consistent shopping experience for your customers.
+- [x] 🔒 **Built-in HTTPS Support**: Prioritizing security, litecart comes with built-in support for HTTPS, ensuring the safety of your customers' data.
+
+
 
 
 ## ⬇️&nbsp;&nbsp;Installation
@@ -65,34 +67,92 @@ or download and unzip the [latest version](https://github.com/shurco/litecart/re
 
 
 #### <img width="20" src="/.github/media/platforms/docker.svg">&nbsp;Run using Docker
-Docker enables the management and operation of a Litecart instance without requiring the installation of any command-line tools. The Litecart Docker container includes all necessary command-line tools  or even for server execution.
+Docker enables the management and operation of a `litecart` instance without requiring the installation of any command-line tools. The `litecart` Docker container includes all necessary command-line tools  or even for server execution.
 
+For [Docker Hub](https://hub.docker.com/r/shurco/litecart):
 ```bash
+docker run \
+  -v ./lc_base:/lc_base \
+  -v ./lc_digitals:/lc_digitals \
+  -v ./lc_uploads:/lc_uploads \
+  -v ./site:/site \
+  --rm shurco/litecart:latest init
+
 docker run \
   --name litecart \
   --restart unless-stopped \
   -p '8080:8080' \
-  -v ./lc_base:./lc_base \
-  -v ./lc_digitals:./lc_digitals \
-  -v ./lc_uploads:./lc_uploads \
+  -v ./lc_base:/lc_base \
+  -v ./lc_digitals:/lc_digitals \
+  -v ./lc_uploads:/lc_uploads \
+  -v ./site:/site \
   shurco/litecart:latest
 ```
-or 
+or if use [Github Packages Hub](https://github.com/shurco/litecart/pkgs/container/litecart):
 
 ```bash
+docker run \
+  -v ./lc_base:/lc_base \
+  -v ./lc_digitals:/lc_digitals \
+  -v ./lc_uploads:/lc_uploads \
+  -v ./site:/site \
+  --rm ghcr.io/shurco/litecart:latest init
+
 docker run \
   --name litecart \
   --restart unless-stopped \
   -p '8080:8080' \
-  -v ./lc_base:./lc_base \
-  -v ./lc_digitals:./lc_digitals \
-  -v ./lc_uploads:./lc_uploads \
+  -v ./lc_base:/lc_base \
+  -v ./lc_digitals:/lc_digitals \
+  -v ./lc_uploads:/lc_uploads \
+  -v ./site:/site \
   ghcr.io/shurco/litecart:latest
 ```
 
+## ⬇️&nbsp;&nbsp;Updating
+> ⚠️&nbsp;&nbsp;Before any update, be sure to make a backup of the *./lc_base* folder and the *./site* folder.
+
+#### Update on macOS / Linux / Windows
+The easiest way to update `litecart` to the latest version is to execute the command:
+
+```bash
+./litecart update
+```
+
+If there were changes in the database structure during the update, it is necessary to perform migration. To do this, you need to run the command from the `litecart` folder:
+```bash
+./litecart migrate
+```
+
+
+#### <img width="20" src="/.github/media/platforms/docker.svg">&nbsp; Update using Docker
+Our mantra is to make updating a seamless experience. Simply download the new image and launch the container as you normally would. For example, if use [Docker Hub](https://hub.docker.com/r/shurco/litecart):
+
+```bash
+docker stop litecart
+docker pull shurco/litecart:latest # download new image
+docker rename litecart litecart-backup # do image backup
+docker run \
+  --name litecart \
+  --restart unless-stopped \
+  -p '8080:8080' \
+  -v ./lc_base:/lc_base \
+  -v ./lc_digitals:/lc_digitals \
+  -v ./lc_uploads:/lc_uploads \
+  -v ./site:/site \
+  shurco/litecart:latest
+```
+
+If there were changes in the database structure during the update, it is necessary to perform migration. To do this, you need to run the command from the `litecart` folder:
+```bash
+docker run \
+-v ./lc_base:/lc_base \
+-v ./site:/site \
+--rm shurco/litecart migrate
+```
 
 ## 🚀&nbsp;&nbsp;Getting started
-Getting started with litecart is as easy as starting up the litecart server
+Getting started with `litecart` is as easy as starting up the `litecart` server
 
 Default run for Linux/macOS:
 ```bash
@@ -146,6 +206,8 @@ Serve flags `./litecart serve [flags]`:
 
 
 ## 🗺️&nbsp;&nbsp;ToDo
+`litecart` has a [roadmap](https://github.com/users/shurco/projects/2) and I try to work on issues in specific order and such PRs often come in out of nowhere and skew all initial planning with tedious back-and-forth communication.
+
 - [x] Product in the form of files
 - [x] Product in the form of license keys
 - [ ] Product returned via API to another site (example license keys)
