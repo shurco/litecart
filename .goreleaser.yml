@@ -166,10 +166,3 @@ announce:
     enabled: true
     message_template: "#litecart {{ .Tag }} is out! Check it out: https://github.com/shurco/litecart/releases/tag/{{ .Tag }}"
     server: https://mastodon.social
-
-  reddit:
-    enabled: true
-    application_id: "7ujWVZoKuuQhpYfGgCVtTw"
-    username: "shnuroc"
-    url_template: 'https://github.com/shurco/litecart/releases/tag/{{ .Tag }}'
-    title_template: ''litecart {{ .Tag }} was just released!''

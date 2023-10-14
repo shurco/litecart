@@ -47,18 +47,23 @@ func Checkout(c *fiber.Ctx) error {
 			images = append(images, path)
 		}
 
-		lineItems = append(lineItems, &stripe.CheckoutSessionLineItemParams{
+		itemCart := &stripe.CheckoutSessionLineItemParams{
 			PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 				UnitAmount: stripe.Int64(int64(item.Amount)),
 				Currency:   stripe.String(currency),
 				ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-					Name:        stripe.String(item.Name),
-					Description: stripe.String(item.Description),
-					Images:      stripe.StringSlice(images),
+					Name:   stripe.String(item.Name),
+					Images: stripe.StringSlice(images),
 				},
 			},
 			Quantity: stripe.Int64(1),
-		})
+		}
+
+		if item.Description != "" {
+			itemCart.PriceData.ProductData.Description = stripe.String(item.Description)
+		}
+
+		lineItems = append(lineItems, itemCart)
 	}
 
 	cartID := security.RandomString()
