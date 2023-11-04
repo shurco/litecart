@@ -71,6 +71,7 @@ func (v JWT) Validate() error {
 type Stripe struct {
 	SecretKey        string `json:"secret_key"`
 	WebhookSecretKey string `json:"webhook_secret_key"`
+	WebhookUrl string `json:"webhook_url"`
 }
 
 // Validate is ...

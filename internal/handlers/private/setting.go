@@ -15,6 +15,8 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
+
+
 // Version is ...
 // [get] /api/_/version
 func Version(c *fiber.Ctx) error {
@@ -57,6 +59,8 @@ func Version(c *fiber.Ctx) error {
 
 	return webutil.Response(c, fiber.StatusOK, "Version", version)
 }
+
+
 
 // Settings is ...
 // [get] /api/_/settings

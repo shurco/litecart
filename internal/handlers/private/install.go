@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
-
+	"log"
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/webutil"
@@ -14,7 +14,14 @@ func Install(c *fiber.Ctx) error {
 	db := queries.DB()
 	request := new(models.Install)
 
+	log.Print("the request body is below: \n\n\n")
+	log.Println(request)
+	log.Print("the request body ends \n\n\n")
+
 	if err := c.BodyParser(request); err != nil {
+		log.Print("the bodyparser: \n\n\n")
+		log.Println(err)
+		log.Print("if there was an error 👆🏿 thats it  \n\n\n")
 		return webutil.StatusBadRequest(c, err)
 	}
 
@@ -26,5 +33,6 @@ func Install(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
+	
 	return webutil.Response(c, fiber.StatusOK, "Cart installed", nil)
 }

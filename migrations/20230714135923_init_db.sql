@@ -16,6 +16,7 @@ INSERT INTO setting (id, key, value) VALUES
 ('6o20io9hb27n0v9', 'currency', 'USD'),
 ('2r59p9nudtykndd', 'stripe_secret_key', ''),
 ('hzmhlamxdwo6ca3', 'stripe_webhook_secret_key', ''),
+('rqb5kxy9oyhgypz', 'stripe_webhook_url', ''),
 ('yLR1176FQj1BQks', 'social_facebook', ''),
 ('rKVq63So91kMuN7', 'social_instagram', ''),
 ('NVv27ea47Yo7gPm', 'social_twitter', ''),
