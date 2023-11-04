@@ -76,6 +76,12 @@
                 title="Webhook secret key" ico="key" />
             </div>
           </div>
+          <div class="mt-5 flex">
+            <div>
+              <FormInput v-model.trim="stripe.webhook_url" :error="errors.webhook_url" rules="required" class="w-96" id="webhook_url" type="text"
+                title="Webhook url" ico="key" />
+            </div>
+          </div>
           <div class="pt-8">
             <FormButton type="submit" name="Save" color="green" />
           </div>
