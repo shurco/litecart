@@ -54,4 +54,10 @@ func ApiPrivateRoutes(c *fiber.App) {
 	carts := c.Group("/api/_/carts", middleware.JWTProtected())
 	carts.Get("/", handlers.Carts)
 	carts.Post("/:cart_id<len(15)>/mail", handlers.CartSendMail)
+
+	// webhook 
+	webhook := c.Group("/api/_/stripe-webhook") 
+	webhook.Post("/", handlers.StripeWebHookListen)
+
+	
 }

@@ -32,7 +32,7 @@ func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
 	if private {
 		keys = append(keys,
 			"jwt_secret", "jwt_secret_expire_hours", // 2
-			"stripe_secret_key", "stripe_webhook_secret_key", "stripe_webhook_url", // 3
+			"stripe_secret_key", "stripe_webhook_secret_key", "stripe_webhook_url", "stripe_webhook_id", // 4
 			"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // 5
 		)
 	}
@@ -54,6 +54,7 @@ func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
 		"stripe_secret_key":         &settings.Stripe.SecretKey,
 		"stripe_webhook_secret_key": &settings.Stripe.WebhookSecretKey,
 		"stripe_webhook_url":        &settings.Stripe.WebhookUrl,
+		"stripe_webhook_id":         &settings.Stripe.WebhookId,
 		"social_facebook":           &settings.Social.Facebook,
 		"social_instagram":          &settings.Social.Instagram,
 		"social_twitter":            &settings.Social.Twitter,
@@ -149,7 +150,8 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 		sectionSettings = map[string]any{
 			"stripe_secret_key":         settings.Stripe.SecretKey,
 			"stripe_webhook_secret_key": settings.Stripe.WebhookSecretKey,
-			"stripe_webhook_url": settings.Stripe.WebhookUrl,
+			"stripe_webhook_url":        settings.Stripe.WebhookUrl,
+			"stripe_webhook_id":         settings.Stripe.WebhookId,
 		}
 	case "social":
 		sectionSettings = map[string]any{

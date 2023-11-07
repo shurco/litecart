@@ -72,12 +72,6 @@
               <FormInput v-model.trim="stripe.secret_key" :error="errors.secret_key" rules="required|min:100" class="w-96" id="secret_key" type="text" title="Secret key" ico="key" />
             </div>
             <div>
-              <FormInput v-model.trim="stripe.webhook_secret_key" :error="errors.webhook_secret_key" rules="min:100" class="w-96" id="webhook_secret_key" type="text"
-                title="Webhook secret key" ico="key" />
-            </div>
-          </div>
-          <div class="mt-5 flex">
-            <div>
               <FormInput v-model.trim="stripe.webhook_url" :error="errors.webhook_url" rules="required" class="w-96" id="webhook_url" type="text"
                 title="Webhook url" ico="key" />
             </div>
