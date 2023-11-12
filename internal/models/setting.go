@@ -10,6 +10,7 @@ type Setting struct {
 	Password Password `json:"password,omitempty"`
 	Stripe   Stripe   `json:"stripe,omitempty"`
 	Social   Social   `json:"social,omitempty"`
+	Payment Payment   `json:"payment,omitempty"`
 	SMTP     SMTP     `json:"smtp,omitempty"`
 }
 
@@ -79,6 +80,17 @@ func (v Stripe) Validate() error {
 		validation.Field(&v.SecretKey, validation.Length(100, 130)),
 		validation.Field(&v.WebhookSecretKey, validation.Length(100, 130)),
 	)
+}
+
+
+type Payment struct {
+	WebhookUrl string `json:"webhook_url"`
+}
+
+// Validate is ...
+func (v Payment) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.WebhookUrl, is.URL))
 }
 
 type Social struct {

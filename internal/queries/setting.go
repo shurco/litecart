@@ -33,6 +33,7 @@ func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
 		keys = append(keys,
 			"jwt_secret", "jwt_secret_expire_hours", // 2
 			"stripe_secret_key", "stripe_webhook_secret_key", // 2
+			"payment_webhook_url", // 1
 			"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // 5
 		)
 	}
@@ -53,6 +54,7 @@ func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
 		"jwt_secret_expire_hours":   &settings.Main.JWT.ExpireHours,
 		"stripe_secret_key":         &settings.Stripe.SecretKey,
 		"stripe_webhook_secret_key": &settings.Stripe.WebhookSecretKey,
+		"payment_webhook_url":       &settings.Payment.WebhookUrl,
 		"social_facebook":           &settings.Social.Facebook,
 		"social_instagram":          &settings.Social.Instagram,
 		"social_twitter":            &settings.Social.Twitter,
@@ -156,6 +158,10 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"social_twitter":   settings.Social.Twitter,
 			"social_dribbble":  settings.Social.Dribbble,
 			"social_github":    settings.Social.Github,
+		}
+	case "payment":
+		sectionSettings = map[string]any{
+			"payment_webhook_url":  settings.Payment.WebhookUrl,
 		}
 	case "smtp":
 		sectionSettings = map[string]any{
@@ -306,8 +312,8 @@ func (q *SettingQueries) SettingJWT() (*jwtutil.Setting, error) {
 func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 	settings := &models.Setting{}
 
-	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?)`
-	rows, err := q.DB.QueryContext(context.TODO(), query, "stripe_secret_key", "stripe_webhook_secret_key", "domain")
+	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?, ?)`
+	rows, err := q.DB.QueryContext(context.TODO(), query, "stripe_secret_key", "stripe_webhook_secret_key", "domain", "payment_webhook_url")
 	if err != nil {
 		return nil, err
 	}
@@ -327,6 +333,8 @@ func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 			settings.Stripe.WebhookSecretKey = value
 		case "domain":
 			settings.Main.Domain = fmt.Sprintf("https://%s", value)
+		case "payment_webhook_url":
+			settings.Payment.WebhookUrl = value
 		}
 	}
 
