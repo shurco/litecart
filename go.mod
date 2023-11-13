@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/contrib/jwt v1.0.7
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/gofiber/template/html/v2 v2.0.5
-	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/google/uuid v1.4.0
 	github.com/pressly/goose/v3 v3.16.0
 	github.com/rs/zerolog v1.31.0
