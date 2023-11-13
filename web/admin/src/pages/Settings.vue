@@ -84,6 +84,26 @@
       </div>
 
       <div class="mt-5">
+        <h2 class="mb-5">Payment Event</h2>
+
+        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!payment.webhook_url">
+          <p class="text-sm font-medium">This section is required to recieve payment events externally!</p>
+        </div>
+
+        <Form @submit="updateSetting('payment')" v-slot="{ errors }">
+          <div class="flex">
+            <div>
+              <FormInput v-model.trim="payment.webhook_url" :error="errors.webhook_url" rules="required" class="w-96" id="webhook_url" type="text" title="webhook url" ico="key" />
+            </div>
+          </div>
+          <div class="pt-8">
+            <FormButton type="submit" name="Save" color="green" />
+          </div>
+        </Form>
+        <hr class="mt-5" />
+      </div>
+
+      <div class="mt-5">
         <h2 class="mb-5">Socials</h2>
         <Form @submit="updateSetting('social')" v-slot="{ errors }">
           <div v-for="(value, key, index) in socialUrl" :key="index" class="mt-5 flex">
@@ -181,6 +201,7 @@ const main = ref({
 });
 const password = ref({});
 const stripe = ref({});
+const payment = ref({});
 const social = ref({});
 const smtp = ref({});
 
@@ -216,8 +237,10 @@ const settingsList = async () => {
       stripe.value = res.result.stripe;
       social.value = res.result.social;
       smtp.value = res.result.smtp;
+      payment.value = res.result.payment;
     }
   });
+
 };
 
 const updateSetting = async (section) => {
@@ -234,6 +257,9 @@ const updateSetting = async (section) => {
       break;
     case "stripe":
       update.stripe = stripe.value;
+      break;
+    case "payment":
+      update.payment = payment.value;
       break;
     case "social":
       update.social = social.value;

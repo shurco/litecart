@@ -87,6 +87,56 @@ func (q *CartQueries) Carts() ([]*models.Cart, error) {
 	return carts, nil
 }
 
+// Carts is ...
+func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
+
+	query := `
+	SELECT 
+    id, 
+    email, 
+    name, 
+    amount_total,
+    currency,
+    payment_id,
+    payment_status,
+    strftime('%s', created),
+    strftime('%s', updated)
+	FROM cart
+	WHERE id = ?
+	`
+
+	rows, err := q.DB.QueryContext(context.TODO(), query, cartId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var email, name, paymentID sql.NullString
+	var updated sql.NullInt64
+	cart := &models.Cart{}
+
+	err = rows.Scan(
+		&cart.ID,
+		&email,
+		&name,
+		&cart.AmountTotal,
+		&cart.Currency,
+		&paymentID,
+		&cart.PaymentStatus,
+		&cart.Created,
+		&updated,
+	)
+	if err != nil {
+		return nil, err
+	}
+	
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return cart, nil
+}
+
 // AddCart is ...
 func (q *CartQueries) AddCart(cart *models.Cart) error {
 	byteCart, err := json.Marshal(cart.Cart)

@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stripe/stripe-go/v74"
@@ -10,6 +13,7 @@ import (
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/security"
+	"github.com/shurco/litecart/pkg/webhook"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -41,6 +45,7 @@ func Checkout(c *fiber.Ctx) error {
 
 	lineItems := []*stripe.CheckoutSessionLineItemParams{}
 	for _, item := range products.Products {
+
 		images := []string{}
 		for _, image := range item.Images {
 			path := fmt.Sprintf("https://%s/uploads/%s_md.%s", domain, image.Name, image.Ext)
@@ -93,6 +98,38 @@ func Checkout(c *fiber.Ctx) error {
 		PaymentStatus: string(stripeSession.PaymentStatus),
 	})
 
+	if err = settingStripe.Payment.Validate(); err != nil {
+		log.Printf("update payment webhook url", err)
+	} else {
+		resData := map[string]any{
+			"event":     "payment_initiation",
+			"timestamp": stripeSession.Created,
+			"data": map[string]any{
+				"payment_id":     stripeSession.ID,
+				"total_amount":   stripeSession.AmountTotal,
+				"currency":       stripeSession.Currency,
+				"cart_items":     items,
+			},
+		}
+
+		jsonData, err := json.Marshal(resData)
+		if err != nil {
+			log.Println("Error:", err)
+		}
+
+		go func() {
+			res, err := webhook.SendHook(settingStripe.Payment.WebhookUrl, jsonData)
+
+			if err != nil {
+				log.Println(err)
+			}
+			if res.StatusCode != 200 {
+				log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
+			}
+		}()
+
+	}
+
 	return webutil.Response(c, fiber.StatusOK, "Checkout url", stripeSession.URL)
 }
 
@@ -100,6 +137,8 @@ func Checkout(c *fiber.Ctx) error {
 // [get] /cart/success/:cart_id/:session_id
 func CheckoutSuccess(c *fiber.Ctx) error {
 	db := queries.DB()
+
+	settingStripe, err := db.SettingStripe()
 
 	cartID := c.Params("cart_id")
 	sessionID := c.Params("session_id")
@@ -122,6 +161,40 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err)
 	}
 
+	if err = settingStripe.Payment.Validate(); err != nil {
+		log.Printf("update payment webhook url", err)
+	} else {
+		resData := map[string]any{
+			"event":     "payment_success",
+			"timestamp": sessionStripe.Created,
+			"data": map[string]any{
+				"payment_system": "stripe",
+				"cart_id":        cartID,
+				"payment_id":     sessionStripe.PaymentIntent.ID,
+				"total_amount":   sessionStripe.PaymentIntent.Amount,
+				"currency":       sessionStripe.PaymentIntent.Currency,
+				"user_email":     sessionStripe.Customer.Email,
+			},
+		}
+
+		jsonData, err := json.Marshal(resData)
+		if err != nil {
+			log.Println("Error:", err)
+		}
+
+		go func() {
+		res, err := webhook.SendHook(settingStripe.Payment.WebhookUrl, jsonData)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		if res.StatusCode != 200 {
+			log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
+		}
+			}()
+	}
+
 	return c.Render("success", nil, "layouts/main")
 }
 
@@ -130,14 +203,54 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 func CheckoutCancel(c *fiber.Ctx) error {
 	cartID := c.Params("cart_id")
 	db := queries.DB()
-	err := db.UpdateCart(&models.Cart{
+	settingStripe, err := db.SettingStripe()
+	cartStripe, err := db.Cart(cartID)
+
+	err = db.UpdateCart(&models.Cart{
 		Core: models.Core{
 			ID: cartID,
 		},
 		PaymentStatus: "cancel",
 	})
+
 	if err != nil {
 		return webutil.StatusBadRequest(c, err)
+	}
+
+	currentTime := time.Now().UTC()
+
+	if err = settingStripe.Payment.Validate(); err != nil {
+		log.Print("update payment webhook url", err)
+	} else {
+		resData := map[string]any{
+			"event":     "payment_error",
+			"timestamp": currentTime.Unix(),
+			"data": map[string]any{
+				"payment_system": "stripe",
+				"cart_id":        cartID,
+				"payment_id":     cartStripe.PaymentID,
+				"total_amount":   cartStripe.AmountTotal,
+				"currency":       cartStripe.Currency,
+				"user_email":     cartStripe.Email,
+			},
+		}
+
+		jsonData, err := json.Marshal(resData)
+		if err != nil {
+			log.Println("Error:", err)
+		}
+
+		go func() {
+		res, err := webhook.SendHook(settingStripe.Payment.WebhookUrl, jsonData)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		if res.StatusCode != 200 {
+			log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
+		}
+		}()
 	}
 
 	return c.Render("cancel", nil, "layouts/main")
