@@ -123,7 +123,7 @@ func Checkout(c *fiber.Ctx) error {
 			if err != nil {
 				log.Println(err)
 			}
-			if res.Status != "200 OK" {
+			if res.StatusCode != 200 {
 				log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
 			}
 		}()
@@ -189,7 +189,7 @@ func CheckoutSuccess(c *fiber.Ctx) error {
 			log.Println(err)
 		}
 
-		if res.Status != "200 OK" {
+		if res.StatusCode != 200 {
 			log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
 		}
 			}()
@@ -247,7 +247,7 @@ func CheckoutCancel(c *fiber.Ctx) error {
 			log.Println(err)
 		}
 
-		if res.Status != "200 OK" {
+		if res.StatusCode != 200 {
 			log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
 		}
 		}()

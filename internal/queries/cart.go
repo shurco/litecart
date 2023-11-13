@@ -129,22 +129,6 @@ func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if email.Valid {
-		cart.Email = email.String
-	}
-
-	if name.Valid {
-		cart.Name = name.String
-	}
-
-	if paymentID.Valid {
-		cart.PaymentID = paymentID.String
-	}
-
-	if updated.Valid {
-		cart.Updated = updated.Int64
-	}
 	
 	if err := rows.Err(); err != nil {
 		return nil, err
