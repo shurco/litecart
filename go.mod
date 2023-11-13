@@ -1,8 +1,6 @@
 module github.com/shurco/litecart
 
-go 1.21
-
-toolchain go1.21.0
+go 1.21.3
 
 require (
 	github.com/disintegration/imaging v1.6.2

@@ -21,11 +21,11 @@ Linux*)
   GO_RELEASE=$(get_latest_go_version)
   GO_PATH="$HOME/go"
   
-  maybe_sudo mkdir -p $GO_PATH
+  mkdir -p $GO_PATH
   echo -e "\nexport PATH=\$PATH:${GO_PATH}/bin\nexport PATH=\$PATH:\$HOME/go/bin\n" >>~/.bashrc
   source ~/.bashrc
   
-  curl --silent https://dl.google.com/go/go${GO_RELEASE}.linux-amd64.tar.gz | sudo tar -vxz --strip-components 1 -C ${GO_PATH} >/dev/null 2>&1
+  curl --silent https://dl.google.com/go/go${GO_RELEASE}.linux-amd64.tar.gz | tar -vxz --strip-components 1 -C ${GO_PATH} >/dev/null 2>&1
   ;;
 *)
   print_answer "ERROR" red

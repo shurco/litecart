@@ -16,7 +16,7 @@ Linux)
   mkdir -p "${HOME}/.local/bin"
 
   print_header "Install/Update sqlite3"
-  sudo apt-get install sqlite3 -y >/dev/null 2>&1
+  maybe_sudo apt-get install sqlite3 -y >/dev/null 2>&1
   print_answer "SUCCESS" green
 
   print_header "Install/Update golangci-lint"
