@@ -6,7 +6,7 @@
           <h1>View {{ product.name }}</h1>
         </div>
         <div>
-          <SvgIcon :name="product.active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="active" />
+          <SvgIcon :name="product.active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="active" stroke="currentColor" />
         </div>
       </div>
     </div>
@@ -52,8 +52,6 @@ import FormButton from "@/components/form/Button.vue";
 import DetailList from "@/components/DetailList.vue";
 import { costFormat, formatDate } from "@/utils/";
 import { apiGet } from "@/utils/api";
-
-import SvgIcon from "svg-icon";
 
 const props = defineProps({
   drawer: {

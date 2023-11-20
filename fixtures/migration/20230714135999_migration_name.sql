@@ -3,13 +3,13 @@
 INSERT INTO subdomain (id, name, desc) VALUES ('62zonbnpdrzeje0', 'name', 'description');
 
 UPDATE setting SET value = 'true' WHERE key = 'installed';
+UPDATE setting SET value = 'Site name' WHERE key = 'site_name';
 UPDATE setting SET value = 'site.com' WHERE key = 'domain';
 UPDATE setting SET value = 'user@mail.com' WHERE key = 'email';
-UPDATE setting SET value = '$2a$04$pZgnMHAxGfXeAyWSAQELkemsW4AE2D9xDwHFQ95ROOgWt53S2Tk2i' WHERE key = 'password';
+UPDATE setting SET value = '$2a$04$pZgnMHAxGfXeAyWSAQELkemsW4AE2D9xDwHFQ95ROOgWt53S2Tk2i' WHERE key = 'password'; -- Pass123
 UPDATE setting SET value = 'd58ca30c8e5ca96695451fa27af949d9' WHERE key = 'jwt_secret';
 UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = 'sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' WHERE key = 'stripe_secret_key';
-UPDATE setting SET value = '' WHERE key = 'stripe_webhook_secret_key';
 UPDATE setting SET value = 'username' WHERE key = 'social_facebook';
 UPDATE setting SET value = 'username' WHERE key = 'social_dribbble';
 UPDATE setting SET value = 'localhost' WHERE key = 'smtp_host';
@@ -60,9 +60,9 @@ INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES
 ('ecbxi01t5kulwnz', 'ktorsk0xj8w5zab', 'e827e0be-aaf6-4008-aacf-da35cf47952f', 'png', 'example_image_12.png'),
 ('tekaawq6bd9zakc', '6bn739vrvfp6zaw', 'ecd77e90-2b35-49eb-a810-a1ecf74c21a7', 'png', 'example_image_13.png');
 
-INSERT INTO cart (id, email, name, amount_total, currency, payment_id, payment_status, cart, updated) VALUES 
-('efzs4xayz43f226', NULL, NULL, 4200, 'usd', NULL, 'cancel', '[{"id":"7mweb67t8xv9pzx","quantity":1},{"id":"fv6c9s9cqzf36sc","quantity":1}]', NULL),
-('iodz4ibf5h5zmov', 'user@gmail.com', 'User Name', 6300, 'usd', 'pi_3NpAmuBDuthUZlLW11fS8GrB', 'paid', '[{"id":"fv6c9s9cqzf36sc","quantity":1},{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"7mweb67t8xv9pzx","quantity":1}]', datetime('now'));
+INSERT INTO cart (id, email, amount_total, currency, payment_id, payment_status, payment_system, cart, updated) VALUES 
+('efzs4xayz43f226', NULL, 4200, 'USD', NULL, 'cancel', 'stripe', '[{"id":"7mweb67t8xv9pzx","quantity":1},{"id":"fv6c9s9cqzf36sc","quantity":1}]', NULL),
+('iodz4ibf5h5zmov', 'user@gmail.com', 6300, 'USD', 'pi_3NpAmuBDuthUZlLW11fS8GrB', 'pay', 'stripe', '[{"id":"fv6c9s9cqzf36sc","quantity":1},{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"7mweb67t8xv9pzx","quantity":1}]', datetime('now'));
 -- +goose StatementEnd
 
 
@@ -77,13 +77,13 @@ UPDATE page SET content = '' WHERE id = 'ig9jpCixAgAu31f';
 UPDATE page SET content = '' WHERE id = 'sdH0wGM54e3mZC2';
 UPDATE page SET content = '' WHERE id = 'kFCjBnL25hNTRHk';
 UPDATE setting SET value = 'false' WHERE key = 'installed';
+UPDATE setting SET value = '' WHERE key = 'site_name';
 UPDATE setting SET value = '' WHERE key = 'domain';
 UPDATE setting SET value = '' WHERE key = 'email';
 UPDATE setting SET value = '' WHERE key = 'password';
 UPDATE setting SET value = 'secret' WHERE key = 'jwt_secret';
 UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = '' WHERE key = 'stripe_secret_key';
-UPDATE setting SET value = '' WHERE key = 'stripe_webhook_secret_key';
 UPDATE setting SET value = '' WHERE key = 'social_facebook';
 UPDATE setting SET value = '' WHERE key = 'social_dribbble';
 UPDATE setting SET value = '' WHERE key = 'smtp_host';

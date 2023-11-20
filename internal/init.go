@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/internal/base"
 	"github.com/shurco/litecart/migrations"
 	"github.com/shurco/litecart/pkg/fsutil"
 )
@@ -17,13 +17,13 @@ func Init() error {
 	}
 
 	for _, dir := range dirsToCheck {
-		if err := fsutil.MkDirs(0775, dir.path); err != nil {
+		if err := fsutil.MkDirs(0o775, dir.path); err != nil {
 			log.Err(err).Send()
 			return err
 		}
 	}
 
-	if _, err := queries.InitDB("./lc_base/data.db", migrations.Embed()); err != nil {
+	if _, err := base.New("./lc_base/data.db", migrations.Embed()); err != nil {
 		log.Err(err).Send()
 		return err
 	}
@@ -33,7 +33,7 @@ func Init() error {
 
 // Migrate is ...
 func Migrate() error {
-	if err := queries.Migrate("./lc_base/data.db", migrations.Embed()); err != nil {
+	if err := base.Migrate("./lc_base/data.db", migrations.Embed()); err != nil {
 		return err
 	}
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/shurco/litecart/internal/mailer"
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/errors"
@@ -87,6 +88,13 @@ func UpdateSettings(c *fiber.Ctx) error {
 		break
 	}
 
+	switch section {
+	case "stripe", "spectrocoin":
+		if err := json.Unmarshal(c.Body(), &request.PaymentSystem); err != nil {
+			return webutil.StatusBadRequest(c, err)
+		}
+	}
+
 	if err := c.BodyParser(request); err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
@@ -104,19 +112,28 @@ func SettingByKey(c *fiber.Ctx) error {
 	db := queries.DB()
 	settingKey := c.Params("setting_key")
 
-	if settingKey == "password" {
+	switch settingKey {
+	case "password":
 		return webutil.StatusNotFound(c)
-	}
-
-	setting, err := db.SettingValueByKey(settingKey)
-	if err != nil {
-		if err == errors.ErrSettingNotFound {
-			return webutil.StatusNotFound(c)
+	case "main", "social", "jwt", "webhook", "smtp", "stripe", "spectrocoin":
+		section, err := db.SettingBySection(settingKey)
+		if err != nil {
+			if err == errors.ErrSettingNotFound {
+				return webutil.StatusNotFound(c)
+			}
+			return webutil.StatusBadRequest(c, err.Error())
 		}
-		return webutil.StatusBadRequest(c, err.Error())
+		return webutil.Response(c, fiber.StatusOK, "Setting section", section)
+	default:
+		setting, err := db.SettingValueByKey(settingKey)
+		if err != nil {
+			if err == errors.ErrSettingNotFound {
+				return webutil.StatusNotFound(c)
+			}
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		return webutil.Response(c, fiber.StatusOK, "Setting", setting)
 	}
-
-	return webutil.Response(c, fiber.StatusOK, "Setting", setting)
 }
 
 // UpdateSettingByKey is ...
@@ -139,14 +156,13 @@ func UpdateSettingByKey(c *fiber.Ctx) error {
 }
 
 // TestLetter is ...
-// [get] /api/_/settings/test/:letter_name
+// [get] /api/_/test/letter/:letter_name
 func TestLetter(c *fiber.Ctx) error {
-	db := queries.DB()
 	letter := c.Params("letter_name")
 
-	if err := db.SettingTestLetter(letter); err != nil {
+	if err := mailer.SendTestLetter(letter); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Test mail", "Message sent to your mailbox")
+	return webutil.Response(c, fiber.StatusOK, "Test letter", "Message sent to your mailbox")
 }

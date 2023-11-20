@@ -45,7 +45,7 @@ func SendMail(smtp *models.SMTP, mail *models.Mail) error {
 		return err
 	}
 	email.SetBodyData(mailer.TextPlain, bodyText)
-	//email.AddAlternativeData(mail.TextPlain, "Hello Gophers!")
+	// email.AddAlternativeData(mail.TextPlain, "Hello Gophers!")
 
 	if len(mail.Files) > 0 {
 		for _, file := range mail.Files {
@@ -75,5 +75,4 @@ func textTemplate(tmp string, data any) ([]byte, error) {
 	}
 
 	return body.Bytes(), nil
-
 }

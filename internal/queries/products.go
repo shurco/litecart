@@ -19,45 +19,49 @@ type ProductQueries struct {
 }
 
 // ListProducts is ...
-func (q *ProductQueries) ListProducts(private bool, idList ...string) (*models.Products, error) {
+func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct) (*models.Products, error) {
 	currency := db.GetCurrency()
 	products := &models.Products{
 		Currency: currency,
 	}
 
-	queryPrivate := ` WHERE deleted = 0 AND active = 1`
+	queryPublic := ` LEFT JOIN digital_data ON digital_data.product_id = product.id   
+									 LEFT JOIN digital_file ON digital_file.product_id = product.id 
+									 WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) AND product.deleted = 0 AND product.active = 1`
+
 	query := `
-			SELECT 
-				id, 
-				name, 
-				slug,
-				amount,
-				active,
-				digital,
+			SELECT DISTINCT
+			  product.id, 
+				product.name, 
+				product.slug,
+				product.amount,
+				product.active,
+				product.digital,
 				(SELECT json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images FROM product_image WHERE product_id = product.id GROUP BY id LIMIT 1) as image,
 				strftime('%s', created)
 			FROM product
 		`
-	queryTotal := `SELECT COUNT(id) FROM product`
+
+	queryTotal := `SELECT COUNT(DISTINCT product.id) FROM product`
 
 	queryList := ""
 	if len(idList) > 0 {
-		var queryType = map[bool]string{
+		queryType := map[bool]string{
 			false: "AND",
 			true:  "WHERE",
 		}
 
 		list := ""
-		for _, id := range idList {
-			list += list + fmt.Sprintf(",'%s'", id)
+		for _, item := range idList {
+			list += list + fmt.Sprintf(",'%s'", item.ProductID)
 		}
 
-		queryList = fmt.Sprintf(" %s id IN (%s)", queryType[private], list[1:])
+		queryList = fmt.Sprintf(" %s product.id IN (%s)", queryType[private], list[1:])
 	}
 
-	if !private {
-		query = query + queryPrivate
-		queryTotal = queryTotal + queryPrivate
+	if !private { // public show
+		query = query + queryPublic
+		queryTotal = queryTotal + queryPublic
 	}
 
 	rows, err := q.DB.QueryContext(context.TODO(), query+queryList)
@@ -112,7 +116,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 	product := &models.Product{}
 
 	query := `
-			SELECT 
+			SELECT DISTINCT
 				product.id,
 				product.name, 
 				product.desc, 
@@ -123,7 +127,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 				product.attribute, 
 				product.digital,
 				product.seo, 
-				json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
+				json_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
 				strftime('%s', product.created), 
 				strftime('%s', product.updated)
 			FROM product 
@@ -132,10 +136,12 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 	if private {
 		query = query + `WHERE product.id = ?`
 	} else {
-		query = query + `WHERE product.slug = ? AND product.active = 1`
+		query = query + `LEFT JOIN digital_data ON digital_data.product_id = product.id   
+										 LEFT JOIN digital_file ON digital_file.product_id = product.id 
+										 WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) AND
+										 product.slug = ? AND product.active = 1`
 	}
 
-	// stripeID
 	var images, metadata, attributes, digitalType, seo sql.NullString
 	var updated sql.NullInt64
 
@@ -241,9 +247,12 @@ func (q *ProductQueries) IsProduct(slug string) bool {
 	var id string
 	query := `
 			SELECT 
-				id
+				product.id
 			FROM product 
-			WHERE slug = ? AND active = 1
+			LEFT JOIN digital_data ON digital_data.product_id = product.id   
+			LEFT JOIN digital_file ON digital_file.product_id = product.id 
+			WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) AND
+			product.slug = ? AND product.active = 1
 	`
 	err := q.DB.QueryRowContext(context.TODO(), query, slug).Scan(&id)
 	if err != nil {

@@ -24,4 +24,4 @@ GET {{host}}/api/_/settings/mail_letter_purchase
 
 ###
 # @name settings
-GET {{host}}/api/_/settings/test/mail
+GET {{host}}/api/_/test/letter/mail

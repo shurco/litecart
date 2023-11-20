@@ -1,17 +1,18 @@
 <template>
   <div class="textarea">
-    <label :for="id" :class="error ? 'border-red-500' : ''">
-      <textarea v-model="model" id="id" :name="id" class="text peer" :rows="rows" placeholder="Enter any additional order notes..." style="">
+    <label :for="id" :class="error ? '!border-red-500' : ''">
+      <Field as="textarea" v-model="model" :rules="rules" :id="id" :name="id" class="text peer" :rows="rows" placeholder="Enter any additional order notes...">
         {{ $slots.default ? $slots.default()[0].children : "" }}
-      </textarea>
+      </Field>
       <span class="title">{{ name }}</span>
     </label>
-    <span class="error" v-if="error">{{ error }}</span>
+    <span class="text-sm text-red-500 pl-4" v-if="error">{{ error }}</span>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import { Field } from 'vee-validate'
 
 const props = defineProps({
   modelValue: {
@@ -33,6 +34,7 @@ const props = defineProps({
     type: Number,
     default: 4,
   },
+  rules: String,
   error: String,
 });
 
@@ -52,7 +54,7 @@ const model = computed({
 .textarea {
   & label {
     @apply relative block rounded border border-gray-200 text-sm shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 p-0;
-
+    
     & .text {
       @apply w-full resize-none border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0;
     }

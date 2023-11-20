@@ -9,30 +9,30 @@
         <thead>
           <tr>
             <th>Email</th>
-            <th>Name</th>
             <th>Price</th>
             <th>Status</th>
+            <th>Payment</th>
             <th class="w-32">Created</th>
             <th class="w-32">Updated</th>
             <th class="w-12"></th>
           </tr>
         </thead>
         <tbody>
-          <tr :class="{ 'bg-green-50': item.payment_status === 'paid' }" v-for="(item, index) in carts">
+          <tr :class="{ 'bg-green-50': item.payment_status === 'pay' }" v-for="(item, index) in carts">
             <td>{{ item.email }}</td>
-            <td>{{ item.name }}</td>
             <td>
               <a :href="`https://dashboard.stripe.com/payments/${item.payment_id}`" target="_blank">
                 {{ costFormat(item.amount_total) }} {{ item.currency }}
               </a>
             </td>
             <td>{{ item.payment_status }}</td>
+            <td>{{ item.payment_system }}</td>
             <td>{{ formatDate(item.created) }}</td>
             <td v-if="item.updated">{{ formatDate(item.updated) }}</td>
             <td v-else></td>
             <td>
-              <SvgIcon name="envelope" class="h-5 w-5 opacity-30" v-if="item.payment_status === 'cancel'" />
-              <SvgIcon name="envelope" class="h-5 w-5" @click="sendEmail(item.id)" v-else />
+              <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5" v-if="item.payment_status === 'pay'" @click="sendEmail(item.id)" />
+              <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5 opacity-30" v-else />
             </td>
           </tr>
         </tbody>
@@ -48,8 +48,6 @@ import MainLayouts from "@/layouts/Main.vue";
 import { costFormat, formatDate } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiPost } from "@/utils/api";
-
-import SvgIcon from "svg-icon";
 
 const carts = ref([]);
 

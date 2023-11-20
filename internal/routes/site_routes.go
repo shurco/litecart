@@ -28,13 +28,16 @@ func SiteRoutes(c *fiber.App) {
 	})
 
 	// cart section
-	cart := c.Group("/cart")
-
-	cart.Get("/", func(c *fiber.Ctx) error {
+	c.Get("/cart", func(c *fiber.Ctx) error {
 		return c.Render("cart", nil, "layouts/main")
 	})
 
-	cart.Post("/checkout", handlers.Checkout)
-	cart.Get("/success/:cart_id<len(15)>/:session_id", handlers.CheckoutSuccess)
-	cart.Get("/cancel/:cart_id<len(15)>", handlers.CheckoutCancel)
+	payment := c.Group("/cart/payment")
+	payment.Post("/", handlers.Payment)
+	// payment.Get("/callback/:cart_id<len(15)>", handlers.PaymentCallback)
+	// payment.Get("/success/:cart_id<len(15)>/:session_id", handlers.PaymentSuccess)
+	// payment.Get("/cancel/:cart_id<len(15)>", handlers.PaymentCancel)
+	payment.Post("/callback", handlers.PaymentCallback)
+	payment.Get("/success", handlers.PaymentSuccess)
+	payment.Get("/cancel", handlers.PaymentCancel)
 }

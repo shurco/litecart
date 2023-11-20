@@ -2,15 +2,13 @@ package webhook
 
 import (
 	"bytes"
-	"net/http"
 	"fmt"
-	
+	"net/http"
 )
 
-func SendHook(url string, payload []byte) (*http.Response, error) {
-	
+func Send(url string, payload []byte) (*http.Response, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
-	if err != nil {	
+	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
 

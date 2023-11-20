@@ -8,7 +8,7 @@
           <div v-for="notification in notifications" :key="notification.id">
             <div v-if="notification.type === 'error'" class="notification">
               <div class="ico bg-red-500">
-                <SvgIcon name="exclamation" class="h-6 w-6 text-white fill-current" />
+                <SvgIcon name="exclamation" stroke="currentColor" class="h-6 w-6 text-white fill-current" />
               </div>
 
               <div class="message">
@@ -21,7 +21,7 @@
 
             <div v-if="notification.type === 'info'" class="notification">
               <div class="ico bg-blue-500">
-                <SvgIcon name="exclamation" class="h-6 w-6 text-white fill-current" />
+                <SvgIcon name="exclamation" stroke="currentColor" class="h-6 w-6 text-white fill-current" />
               </div>
 
               <div class="message">
@@ -34,7 +34,7 @@
 
             <div v-if="notification.type === 'success'" class="notification">
               <div class="ico bg-green-500">
-                <SvgIcon name="exclamation" class="h-6 w-6 text-white fill-current" />
+                <SvgIcon name="exclamation" stroke="currentColor" class="h-6 w-6 text-white fill-current" />
               </div>
 
               <div class="message">
@@ -47,7 +47,7 @@
 
             <div v-if="notification.type === 'warning'" class="notification">
               <div class="ico bg-yellow-500">
-                <SvgIcon name="exclamation" class="h-6 w-6 text-white fill-current" />
+                <SvgIcon name="exclamation" stroke="currentColor" class="h-6 w-6 text-white fill-current" />
               </div>
 
               <div class="message">
@@ -66,7 +66,6 @@
 
 <script setup>
 import { notify, Notification, NotificationGroup } from "notiwind";
-import SvgIcon from "svg-icon";
 
 const NOTIFICATION_DURATION = 4000;
 

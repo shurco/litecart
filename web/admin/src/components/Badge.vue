@@ -1,6 +1,6 @@
 <template>
   <span class="badge">
-    <SvgIcon :name="ico" :class="ico ? '-ms-0.5 me-1.5 ' + svgClass : 'h-0 w-0'" v-if="ico" />
+    <SvgIcon :name="ico" stroke="currentColor"  :class="ico ? '-ms-0.5 me-1.5 ' + svgClass : 'h-0 w-0'" v-if="ico" />
     <p>
       <slot />
     </p>
@@ -8,8 +8,6 @@
 </template>
 
 <script setup>
-import SvgIcon from "svg-icon";
-
 const props = defineProps({
   ico: String,
   svgClass: {

@@ -1,43 +1,43 @@
 <template>
   <div v-if="editor">
     <button @click="editor.chain().focus().undo().run()" :disabled="!editor.can().chain().focus().undo().run()">
-      <SvgIcon name="undo" />
+      <SvgIcon name="undo" class="h-5 w-5" stroke="currentColor" />
     </button>
     <button @click="editor.chain().focus().redo().run()" :disabled="!editor.can().chain().focus().redo().run()">
-      <SvgIcon name="redo" />
+      <SvgIcon name="redo" class="h-5 w-5" stroke="currentColor" />
     </button>
 
     <button @click="editor.chain().focus().toggleBold().run()" :disabled="!editor.can().chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
-      <SvgIcon name="bold" />
+      <SvgIcon name="bold" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleItalic().run()" :disabled="!editor.can().chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">
-      <SvgIcon name="italic" />
+      <SvgIcon name="italic" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleStrike().run()" :disabled="!editor.can().chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
-      <SvgIcon name="strike" />
+      <SvgIcon name="strike" class="h-5 w-5" />
     </button>
 
     <button @click="editor.chain().focus().setParagraph().run()" :class="{ 'is-active': editor.isActive('paragraph') }">
-      <SvgIcon name="paragraph" />
+      <SvgIcon name="paragraph" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
-      <SvgIcon name="h1" />
+      <SvgIcon name="h1" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
-      <SvgIcon name="h2" />
+      <SvgIcon name="h2" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
-      <SvgIcon name="h3" />
+      <SvgIcon name="h3" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleBulletList().run()" :class="{ 'is-active': editor.isActive('bulletList') }">
-      <SvgIcon name="bulletlist" />
+      <SvgIcon name="bulletlist" class="h-5 w-5" />
     </button>
     <button @click="editor.chain().focus().toggleOrderedList().run()" :class="{ 'is-active': editor.isActive('orderedList') }">
-      <SvgIcon name="orderedlist" />
+      <SvgIcon name="orderedlist" class="h-5 w-5" />
     </button>
 
     <button @click="editor.chain().focus().toggleBlockquote().run()" :class="{ 'is-active': editor.isActive('blockquote') }">
-      <SvgIcon name="blockquote" />
+      <SvgIcon name="blockquote" class="h-5 w-5" />
     </button>
   </div>
 
@@ -50,7 +50,6 @@
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { EditorContent, Editor } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
-import SvgIcon from "svg-icon";
 
 const emits = defineEmits(["update:modelValue"]);
 const editor = ref();

@@ -1,10 +1,13 @@
 import { createApp } from "vue";
+import { createPinia } from 'pinia';
 import App from "@/App.vue";
 import router from "@/router";
-import Notifications from 'notiwind'
+import Notifications from 'notiwind';
+
+import SvgIcon from 'virtual:svg-icon';
 
 import { defineRule } from 'vee-validate';
-import rules from '@vee-validate/rules';
+import * as rules from '@vee-validate/rules';
 
 import "@/assets/app.css";
 
@@ -37,7 +40,12 @@ defineRule('confirmed', (value, [target], ctx) => {
   return 'Passwords must match';
 });
 
+
+const pinia = createPinia();
+
 const app = createApp(App);
+app.use(pinia);
 app.use(router);
 app.use(Notifications);
+app.component('SvgIcon', SvgIcon);
 app.mount("#app");

@@ -1,6 +1,6 @@
 <template>
   <button class="group" :class="color ? colors[color][0] + ' active:' + colors[color][1] : '', ico ? 'focus:outline-none focus:ring' : ''">
-    <SvgIcon :name="ico" class="h-4 w-4 absolute -start-full transition-all group-hover:start-4" v-if="ico" />
+    <SvgIcon :name="ico" stroke="currentColor" class="h-4 w-4 absolute -start-full transition-all group-hover:start-4" v-if="ico" />
     <span :class="ico ? 'transition-all group-hover:ms-4' : ''">
       {{ name }}
     </span>
@@ -8,8 +8,6 @@
 </template>
 
 <script setup>
-import SvgIcon from 'svg-icon'
-
 const props = defineProps({
   color: {
     type: String,

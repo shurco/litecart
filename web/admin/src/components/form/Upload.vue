@@ -2,7 +2,7 @@
   <div class="upload bg-gray-200" @dragover="dragover" @dragleave="dragleave" @drop="drop">
     <input type="file" multiple name="fields[assetsFieldHandle][]" id="assetsFieldHandle" @change="onChange" ref="file" :accept="accept" />
     <label for="assetsFieldHandle">
-      <SvgIcon name="plus" class="h-5 w-5" />
+      <SvgIcon name="plus" class="h-5 w-5" stroke="currentColor" />
     </label>
   </div>
 </template>
@@ -10,8 +10,6 @@
 <script setup>
 import { getCurrentInstance } from "vue";
 import { apiPost } from "@/utils/api";
-
-import SvgIcon from "svg-icon";
 
 const props = defineProps({
   section: {
