@@ -3,36 +3,36 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
+    "dev": "VITE_CJS_IGNORE_WARNING=true vite --host",
+    "build": "VITE_CJS_IGNORE_WARNING=true vite build",
     "preview": "vite preview --host",
     "update": "ncu -i --format group"
   },
   "dependencies": {
-    "@tiptap/extension-link": "^2.1.8",
-    "@tiptap/pm": "^2.1.8",
-    "@tiptap/starter-kit": "^2.1.8",
-    "@tiptap/vue-3": "^2.1.8",
-    "@vee-validate/rules": "^4.11.3",
+    "@tiptap/extension-link": "^2.1.12",
+    "@tiptap/pm": "^2.1.12",
+    "@tiptap/starter-kit": "^2.1.12",
+    "@tiptap/vue-3": "^2.1.12",
+    "@vee-validate/rules": "^4.11.8",
     "notiwind": "^2.0.2",
     "nprogress": "^0.2.0",
-    "vee-validate": "^4.11.3",
-    "vue": "^3.3.4",
-    "vue-router": "^4.2.4"
+    "pinia": "^2.1.7",
+    "vee-validate": "^4.11.8",
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.6",
-    "@vitejs/plugin-vue": "^4.3.4",
-    "autoprefixer": "^10.4.15",
+    "@tailwindcss/forms": "^0.5.7",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "postcss-import": "^15.1.0",
     "postcss-nesting": "^12.0.1",
-    "prettier": "^3.0.3",
-    "prettier-plugin-tailwindcss": "^0.5.4",
-    "sass": "^1.66.1",
-    "tailwindcss": "^3.3.3",
-    "vite": "^4.4.9",
-    "vite-plugin-vue-devtools": "^1.0.0-rc.3",
-    "vite-plugin-vue-svg-icons": "^3.1.4"
+    "prettier": "^3.1.0",
+    "prettier-plugin-tailwindcss": "^0.5.7",
+    "sass": "^1.69.5",
+    "tailwindcss": "^3.3.5",
+    "vite": "^5.0.0",
+    "vite-plugin-svgs-icons": "^1.0.2"
   }
 }

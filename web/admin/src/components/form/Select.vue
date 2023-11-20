@@ -11,7 +11,7 @@
       <span class="title">{{ title }}</span>
       
       <span class="ico" v-if="ico">
-        <SvgIcon :name="ico" class="h-5 w-5" :class="error ? 'text-red-500' : 'text-gray-400'" />
+        <SvgIcon :name="ico" stroke="currentColor" class="h-5 w-5" :class="error ? 'text-red-500' : 'text-gray-400'" />
       </span>
     </label>
     <span class="error" v-if="error">{{ error }}</span>
@@ -21,7 +21,6 @@
 <script setup>
 import { computed } from "vue";
 import { Field } from "vee-validate";
-import SvgIcon from 'svg-icon'
 
 const props = defineProps({
   modelValue: {

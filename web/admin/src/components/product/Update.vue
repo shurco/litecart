@@ -6,7 +6,7 @@
           <h1>Edit {{ product.name }}</h1>
         </div>
         <div>
-          <SvgIcon :name="product.active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="active" />
+          <SvgIcon :name="product.active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="active" stroke="currentColor" />
         </div>
       </div>
     </div>
@@ -34,7 +34,7 @@
               <FormInput v-model="data.value" :id="`mtd-value-${index}`" type="text" title="Value" />
             </div>
             <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteMetadataRecord(index)">
-              <SvgIcon name="trash" class="h-5 w-5" />
+              <SvgIcon name="trash" class="h-5 w-5" stroke="currentColor" />
             </div>
           </div>
           <div class="flex">
@@ -53,7 +53,7 @@
               <FormInput v-model="product.attributes[index]" :id="`atr-key-${index}`" type="text" title="" />
             </div>
             <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteAttributeRecord(index)">
-              <SvgIcon name="trash" class="h-5 w-5" />
+              <SvgIcon name="trash" class="h-5 w-5" stroke="currentColor" />
             </div>
           </div>
           <div class="flex">
@@ -73,7 +73,7 @@
                 <img :src="`/uploads/${item.name}_sm.${item.ext}`" />
               </a>
               <div class="absolute end-4 top-4 cursor-pointer bg-white p-2" @click="deleteProductImage(index)">
-                <SvgIcon name="trash" class="h-5 w-5" />
+                <SvgIcon name="trash" class="h-5 w-5" stroke="currentColor" />
               </div>
             </div>
           </div>
@@ -111,7 +111,6 @@ import { costFormat, costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate, apiDelete } from "@/utils/api";
 
-import SvgIcon from "svg-icon";
 import { Form } from "vee-validate";
 
 const props = defineProps({

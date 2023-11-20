@@ -2,25 +2,7 @@
 
 
 ###
-# @name checkout
-POST {{host}}/cart/checkout
-Content-Type: application/json
-
-[
-  {
-    "price":"price_1NdxK4BDuthUZlLWoFhUFxwi",
-    "quantity":1,
-    "test":"ooo"
-  },
-  {
-    "price":"price_1NdxK6BDuthUZlLWtISR4bmQ",
-    "quantity":1
-  }
-]
-
-
-###
-# @name checkout
-POST {{host}}/cart/checkout
+# @name payment
+GET {{host}}/api/cart/payment
 Content-Type: application/json
 

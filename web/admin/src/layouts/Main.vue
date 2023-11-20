@@ -27,13 +27,11 @@
           </ul>
         </div>
 
-
-
         <div class="footer">
-          <div class="update" @click="goToRelease" v-if="version.new">
-            Version: <span class="current">{{ version.current_version }}</span>→<span class="new">{{ version.new }}</span>
+          <div class="update" @click="goToRelease" v-if="store.version.new">
+            Version: <span class="current">{{ store.version.current_version }}</span>→<span class="new">{{ store.version.new }}</span>
           </div>
-          <div @click="goToRelease" v-else>Version: {{ version.current_version }}</div>
+          <div @click="goToRelease" v-else>Version: {{ store.version.current_version }}</div>
           <a href="/" target="_blank" class="bg-white hover:bg-green-50 hover:text-green-500">Open site</a>
           <a href="#" class="bg-white hover:bg-red-50 hover:text-red-500" @click="signOut">Logout</a>
         </div>
@@ -50,31 +48,31 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { setCookie } from "@/utils/";
+
+import { useSystemStore } from '@/store/system';
 import { apiGet } from "@/utils/api";
+
+const store = useSystemStore();
 
 const route = useRoute();
 const router = useRouter();
-const version = ref({}); 
 
 onMounted(() => {
-  if (!JSON.parse(sessionStorage.getItem('version'))) {
+  if (Object.keys(store.version).length===0) {
     versionInfo();
-  }else{
-    version.value = JSON.parse(sessionStorage.getItem('version')) 
   }
 });
 
 const versionInfo = async () => {
   apiGet(`/api/_/version`).then(res => {
     if (res.success) {
-      version.value = res.result;
-      sessionStorage.setItem('version', JSON.stringify(res.result));
+      store.version = res.result;
     }
   });
 };
 
 const goToRelease = async () => {
-  window.open(version.value.release_url, "_blank");
+  window.open(store.version.release_url, "_blank");
 };
 
 const signOut = async () => {

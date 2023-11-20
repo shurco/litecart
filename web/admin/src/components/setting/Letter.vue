@@ -8,7 +8,14 @@
       </div>
     </div>
     <div class="flow-root">
-      <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
+
+      <div class="flow-root">
+        <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
+          <FormInput v-model.trim="letter.subject" id="subject" type="text" title="Subject" @focusout="updateLetter" />
+        </dl>
+      </div>
+
+      <dl class="-my-3 mx-auto mb-0 space-y-4 text-sm mt-5">
         <FormTextarea v-model="letter.text" id="textarea" name="Message" :rows="15" @focusout="updateLetter" />
       </dl>
     </div>
@@ -25,7 +32,6 @@
       </div>
     </div>
 
-
     <table class="mt-8 text-base">
       <tbody>
         <tr v-for="(value, key) in legend" class="cursor-default">
@@ -40,8 +46,9 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import FormButton from "@/components/form/Button.vue";
+import FormInput from "@/components/form/Input.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
+import FormButton from "@/components/form/Button.vue";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 
@@ -71,6 +78,8 @@ const settingLetter = async () => {
 };
 
 const updateLetter = async () => {
+  console.log("xx")
+
   const value = new Object();
   value.subject = letter.value.subject;
   value.text = letter.value.text;
@@ -91,9 +100,5 @@ const updateLetter = async () => {
     }
   });
 };
-
-const sendTest = async () => {
-  console.log("d")
-}
 
 </script>

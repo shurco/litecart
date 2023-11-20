@@ -1,256 +1,318 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/stripe/stripe-go/v74"
-	"github.com/stripe/stripe-go/v74/checkout/session"
 
+	"github.com/shurco/litecart/internal/mailer"
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/internal/webhook"
+	"github.com/shurco/litecart/pkg/litepay"
 	"github.com/shurco/litecart/pkg/security"
-	"github.com/shurco/litecart/pkg/webhook"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Checkout is ...
-// [post] /cart/checkout
-func Checkout(c *fiber.Ctx) error {
-	items := &[]models.CartProduct{}
-	if err := c.BodyParser(items); err != nil {
-		return webutil.StatusBadRequest(c, err)
-	}
-
-	idList := []string{}
-	for _, item := range *items {
-		idList = append(idList, item.ProductID)
-	}
-
+// Payment is ...
+// [get] /cart/payment
+func PaymentList(c *fiber.Ctx) error {
 	db := queries.DB()
-	domain := db.GetDomain()
-	currency := db.GetCurrency()
-	products, err := db.ListProducts(false, idList...)
+	paymentList, err := db.PaymentList()
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	settingStripe, err := db.SettingStripe()
-	if err != nil {
+	return webutil.Response(c, fiber.StatusOK, "Payment list", paymentList)
+}
+
+// Payment is ...
+// [post] /cart/payment
+func Payment(c *fiber.Ctx) error {
+	payment := new(models.Payment)
+
+	if err := c.BodyParser(payment); err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	lineItems := []*stripe.CheckoutSessionLineItemParams{}
-	for _, item := range products.Products {
+	db := queries.DB()
 
+	domain := db.GetDomain()
+	products, err := db.ListProducts(false, payment.Products...)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	items := make([]litepay.Item, len(products.Products))
+	for i, product := range products.Products {
 		images := []string{}
-		for _, image := range item.Images {
+		for _, image := range product.Images {
 			path := fmt.Sprintf("https://%s/uploads/%s_md.%s", domain, image.Name, image.Ext)
 			images = append(images, path)
 		}
 
-		itemCart := &stripe.CheckoutSessionLineItemParams{
-			PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
-				UnitAmount: stripe.Int64(int64(item.Amount)),
-				Currency:   stripe.String(currency),
-				ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
-					Name:   stripe.String(item.Name),
-					Images: stripe.StringSlice(images),
+		quantity := 1
+		for _, cartProduct := range payment.Products {
+			if cartProduct.ProductID == product.ID {
+				quantity = cartProduct.Quantity
+			}
+		}
+
+		items[i] = litepay.Item{
+			PriceData: litepay.Price{
+				UnitAmount: product.Amount,
+				Product: litepay.Product{
+					Name:   product.Name,
+					Images: images,
 				},
 			},
-			Quantity: stripe.Int64(1),
+			Quantity: quantity,
 		}
 
-		if item.Description != "" {
-			itemCart.PriceData.ProductData.Description = stripe.String(item.Description)
+		if product.Description != "" {
+			items[i].PriceData.Product.Description = product.Description
 		}
-
-		lineItems = append(lineItems, itemCart)
 	}
 
-	cartID := security.RandomString()
-	stripe.Key = settingStripe.Stripe.SecretKey
-	params := &stripe.CheckoutSessionParams{
-		LineItems: lineItems,
-		//AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{
-		//	Enabled: stripe.Bool(true),
-		//},
-		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-		SuccessURL: stripe.String(settingStripe.Main.Domain + "/cart/success/" + cartID + "/{CHECKOUT_SESSION_ID}"),
-		CancelURL:  stripe.String(settingStripe.Main.Domain + "/cart/cancel/" + cartID),
+	cart := litepay.Cart{
+		ID:       security.RandomString(),
+		Currency: db.GetCurrency(),
+		Items:    items,
 	}
 
-	stripeSession, err := session.New(params)
+	settingPayment, err := db.SettingBySection(string(payment.Provider))
 	if err != nil {
 		return webutil.StatusBadRequest(c, err)
+	}
+
+	callbackURL := fmt.Sprintf("https://%s/cart/payment/callback", domain)
+	successURL := fmt.Sprintf("https://%s/cart/payment/success", domain)
+	cancelURL := fmt.Sprintf("https://%s/cart/payment/cancel", domain)
+	pay := litepay.New(callbackURL, successURL, cancelURL)
+
+	paymentURL := fmt.Sprintf("https://%s/cart", domain)
+	paymentSystem := payment.Provider
+	switch paymentSystem {
+	case litepay.STRIPE:
+		setting := settingPayment.(models.Stripe)
+		if !setting.Active {
+			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
+		}
+		session := pay.Stripe(setting.SecretKey)
+		response, err := session.Pay(cart)
+		if err != nil {
+			return webutil.StatusBadRequest(c, err)
+		}
+		paymentURL = response.URL
+
+	case litepay.SPECTROCOIN:
+		setting := settingPayment.(models.Spectrocoin)
+		if !setting.Active {
+			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
+		}
+		session := pay.Spectrocoin(setting.MerchantID, setting.ProjectID, setting.PrivateKey)
+		response, err := session.Pay(cart)
+		if err != nil {
+			return webutil.StatusBadRequest(c, err)
+		}
+		paymentURL = response.URL
+	}
+
+	var amountTotal int
+	for _, s := range cart.Items {
+		amountTotal += s.PriceData.UnitAmount * s.Quantity
 	}
 
 	db.AddCart(&models.Cart{
 		Core: models.Core{
-			ID: cartID,
+			ID: cart.ID,
 		},
-		Cart:          *items,
-		AmountTotal:   stripeSession.AmountTotal,
-		Currency:      string(stripeSession.Currency),
-		PaymentStatus: string(stripeSession.PaymentStatus),
+		Email:         payment.Email,
+		Cart:          payment.Products,
+		AmountTotal:   amountTotal,
+		Currency:      cart.Currency,
+		PaymentStatus: litepay.NEW,
+		PaymentSystem: paymentSystem,
 	})
 
-	if err = settingStripe.Payment.Validate(); err != nil {
-		log.Printf("update payment webhook url", err)
-	} else {
-		resData := map[string]any{
-			"event":     "payment_initiation",
-			"timestamp": stripeSession.Created,
-			"data": map[string]any{
-				"payment_id":     stripeSession.ID,
-				"total_amount":   stripeSession.AmountTotal,
-				"currency":       stripeSession.Currency,
-				"cart_items":     items,
-			},
-		}
-
-		jsonData, err := json.Marshal(resData)
-		if err != nil {
-			log.Println("Error:", err)
-		}
-
-		go func() {
-			res, err := webhook.SendHook(settingStripe.Payment.WebhookUrl, jsonData)
-
-			if err != nil {
-				log.Println(err)
-			}
-			if res.StatusCode != 200 {
-				log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
-			}
-		}()
-
+	// send email
+	if err := mailer.SendPrepaymentLetter(payment.Email, fmt.Sprintf("%.2f %s", float64(amountTotal)/100, cart.Currency), paymentURL); err != nil {
+		return webutil.StatusBadRequest(c, err)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Checkout url", stripeSession.URL)
+	// send hook
+	hook := &webhook.Payment{
+		Event:     webhook.PAYMENT_INITIATION,
+		TimeStamp: time.Now().Unix(),
+		Data: webhook.Data{
+			PaymentSystem: paymentSystem,
+			PaymentStatus: litepay.NEW,
+			CartID:        cart.ID,
+			TotalAmount:   amountTotal,
+			Currency:      cart.Currency,
+			CartItems:     items,
+		},
+	}
+	if err := webhook.SendPaymentHook(hook); err != nil {
+		return webutil.StatusBadRequest(c, err)
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
 }
 
-// CheckoutSuccess is ...
-// [get] /cart/success/:cart_id/:session_id
-func CheckoutSuccess(c *fiber.Ctx) error {
+// PaymentCallback is ...
+// [get] /cart/payment/callback
+func PaymentCallback(c *fiber.Ctx) error {
+	payment := &litepay.Payment{
+		CartID:        c.Query("cart_id"),
+		PaymentSystem: litepay.PaymentSystem(c.Query("payment_system")),
+	}
+
+	switch payment.PaymentSystem {
+	// case litepay.STRIPE:
+	//	return webutil.Response(c, fiber.StatusOK, "Callback", payment)
+	case litepay.SPECTROCOIN:
+		response := new(litepay.CallbackSpectrocoin)
+		if err := c.BodyParser(response); err != nil {
+			return webutil.StatusBadRequest(c, err)
+		}
+		payment.Status = litepay.StatusPayment(string(rune(response.Status)))
+		payment.MerchantID = response.MerchantApiID
+		payment.Coin = &litepay.Coin{
+			AmountTotal: response.ReceiveAmount,
+			Currency:    response.ReceiveCurrency,
+		}
+	}
+
+	// send email
+	if payment.Status == litepay.PAY {
+		if err := mailer.SendCartLetter(payment.CartID); err != nil {
+			return err
+		}
+	}
+
+	// send hook
+	hook := &webhook.Payment{
+		Event:     webhook.PAYMENT_CALLBACK,
+		TimeStamp: time.Now().Unix(),
+		Data: webhook.Data{
+			PaymentSystem: payment.PaymentSystem,
+			PaymentStatus: payment.Status,
+			CartID:        payment.CartID,
+		},
+	}
+	if err := webhook.SendPaymentHook(hook); err != nil {
+		return webutil.StatusBadRequest(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).SendString("*ok*")
+}
+
+// PaymentSuccess is ...
+// [get] /cart/payment/success
+func PaymentSuccess(c *fiber.Ctx) error {
+	payment := &litepay.Payment{
+		CartID:        c.Query("cart_id"),
+		PaymentSystem: litepay.PaymentSystem(c.Query("payment_system")),
+	}
+
+	if err := payment.Validate(); err != nil {
+		return c.Redirect("/")
+	}
+
 	db := queries.DB()
-
-	settingStripe, err := db.SettingStripe()
-
-	cartID := c.Params("cart_id")
-	sessionID := c.Params("session_id")
-
-	sessionStripe, err := session.Get(sessionID, nil)
+	settingPayment, err := db.SettingBySection(string(payment.PaymentSystem))
 	if err != nil {
 		return webutil.StatusBadRequest(c, err)
+	}
+
+	switch payment.PaymentSystem {
+	case litepay.STRIPE:
+		sessionStripe := c.Query("session")
+
+		setting := settingPayment.(models.Stripe)
+		if !setting.Active {
+			return webutil.StatusBadRequest(c, err)
+		}
+
+		response, err := litepay.New("", "", "").Stripe(setting.SecretKey).Checkout(payment, sessionStripe)
+		if err != nil {
+			return webutil.StatusBadRequest(c, err)
+		}
+		payment.Status = response.Status
+
+	case litepay.SPECTROCOIN:
+		fmt.Print(payment)
 	}
 
 	err = db.UpdateCart(&models.Cart{
 		Core: models.Core{
-			ID: cartID,
+			ID: payment.CartID,
 		},
-		Email:         sessionStripe.CustomerDetails.Email,
-		Name:          sessionStripe.CustomerDetails.Name,
-		PaymentID:     sessionStripe.PaymentIntent.ID,
-		PaymentStatus: string(sessionStripe.PaymentStatus),
+		PaymentStatus: payment.Status,
+		PaymentSystem: payment.PaymentSystem,
 	})
 	if err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	if err = settingStripe.Payment.Validate(); err != nil {
-		log.Printf("update payment webhook url", err)
-	} else {
-		resData := map[string]any{
-			"event":     "payment_success",
-			"timestamp": sessionStripe.Created,
-			"data": map[string]any{
-				"payment_system": "stripe",
-				"cart_id":        cartID,
-				"payment_id":     sessionStripe.PaymentIntent.ID,
-				"total_amount":   sessionStripe.PaymentIntent.Amount,
-				"currency":       sessionStripe.PaymentIntent.Currency,
-				"user_email":     sessionStripe.Customer.Email,
-			},
+	// send email
+	if payment.Status == litepay.PAY {
+		if err := mailer.SendCartLetter(payment.CartID); err != nil {
+			return webutil.StatusBadRequest(c, err)
 		}
+	}
 
-		jsonData, err := json.Marshal(resData)
-		if err != nil {
-			log.Println("Error:", err)
-		}
-
-		go func() {
-		res, err := webhook.SendHook(settingStripe.Payment.WebhookUrl, jsonData)
-
-		if err != nil {
-			log.Println(err)
-		}
-
-		if res.StatusCode != 200 {
-			log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
-		}
-			}()
+	// send hook
+	hook := &webhook.Payment{
+		Event:     webhook.PAYMENT_SUCCESS,
+		TimeStamp: time.Now().Unix(),
+		Data: webhook.Data{
+			PaymentSystem: payment.PaymentSystem,
+			PaymentStatus: payment.Status,
+			CartID:        payment.CartID,
+		},
+	}
+	if err := webhook.SendPaymentHook(hook); err != nil {
+		return webutil.StatusBadRequest(c, err)
 	}
 
 	return c.Render("success", nil, "layouts/main")
 }
 
-// CheckoutCancel is ...
-// [get] /cart/cancel/:cart_id
-func CheckoutCancel(c *fiber.Ctx) error {
-	cartID := c.Params("cart_id")
+// PaymentCancel is ...
+// [get] /cart/payment/cancel
+func PaymentCancel(c *fiber.Ctx) error {
+	payment := &litepay.Payment{
+		CartID:        c.Query("cart_id"),
+		PaymentSystem: litepay.PaymentSystem(c.Query("payment_system")),
+	}
+
 	db := queries.DB()
-	settingStripe, err := db.SettingStripe()
-	cartStripe, err := db.Cart(cartID)
-
-	err = db.UpdateCart(&models.Cart{
+	err := db.UpdateCart(&models.Cart{
 		Core: models.Core{
-			ID: cartID,
+			ID: payment.CartID,
 		},
-		PaymentStatus: "cancel",
+		PaymentStatus: litepay.CANCELED,
+		PaymentSystem: payment.PaymentSystem,
 	})
-
 	if err != nil {
 		return webutil.StatusBadRequest(c, err)
 	}
 
-	currentTime := time.Now().UTC()
-
-	if err = settingStripe.Payment.Validate(); err != nil {
-		log.Print("update payment webhook url", err)
-	} else {
-		resData := map[string]any{
-			"event":     "payment_error",
-			"timestamp": currentTime.Unix(),
-			"data": map[string]any{
-				"payment_system": "stripe",
-				"cart_id":        cartID,
-				"payment_id":     cartStripe.PaymentID,
-				"total_amount":   cartStripe.AmountTotal,
-				"currency":       cartStripe.Currency,
-				"user_email":     cartStripe.Email,
-			},
-		}
-
-		jsonData, err := json.Marshal(resData)
-		if err != nil {
-			log.Println("Error:", err)
-		}
-
-		go func() {
-		res, err := webhook.SendHook(settingStripe.Payment.WebhookUrl, jsonData)
-
-		if err != nil {
-			log.Println(err)
-		}
-
-		if res.StatusCode != 200 {
-			log.Print("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200 OK.")
-		}
-		}()
+	// send hook
+	hook := &webhook.Payment{
+		Event:     webhook.PAYMENT_CANCEL,
+		TimeStamp: time.Now().Unix(),
+		Data: webhook.Data{
+			PaymentSystem: payment.PaymentSystem,
+			PaymentStatus: litepay.CANCELED,
+			CartID:        payment.CartID,
+		},
+	}
+	if err := webhook.SendPaymentHook(hook); err != nil {
+		return webutil.StatusBadRequest(c, err)
 	}
 
 	return c.Render("cancel", nil, "layouts/main")

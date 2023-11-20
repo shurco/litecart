@@ -17,7 +17,7 @@
               <FormInput v-model.trim="main.email" :error="errors.email" rules="required|email" class="w-64" id="email" type="text" title="Email" ico="at-symbol" />
             </div>
             <div>
-              <FormSelect v-model="main.currency" :options="['EUR','USD','JPY','GBP','AUD','CAD','CHF','CNY','SEK']" :error="errors.currency"
+              <FormSelect v-model="main.currency" :options="['EUR', 'USD', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'SEK']" :error="errors.currency"
                 rules="required|one_of:EUR,USD,JPY,GBP,AUD,CAD,CHF,CNY,SEK" id="currency" title="Currency" ico="money" />
             </div>
           </div>
@@ -59,43 +59,21 @@
         <hr class="mt-5" />
       </div>
 
+
       <div class="mt-5">
-        <h2 class="mb-5">Stripe</h2>
-
-        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!stripe.secret_key">
-          <p class="text-sm font-medium">This section is required!</p>
+        <h2 class="mb-5">Payment</h2>
+        <div class="flex mb-7">
+          <div class="cursor-pointer rounded-lg px-3 py-3" @click="openDrawer('stripe')" :class="store.payments[`stripe`] ? 'bg-green-200 ' : 'bg-gray-200'">Stripe</div>
+          <div class="cursor-pointer rounded-lg px-3 py-3 ml-5" @click="openDrawer('spectrocoin')" :class="store.payments[`spectrocoin`] ? 'bg-green-200 ' : 'bg-gray-200'">Spectrocoin
+          </div>
         </div>
-
-        <Form @submit="updateSetting('stripe')" v-slot="{ errors }">
-          <div class="flex">
-            <div class="pr-3">
-              <FormInput v-model.trim="stripe.secret_key" :error="errors.secret_key" rules="required|min:100" class="w-96" id="secret_key" type="text" title="Secret key" ico="key" />
-            </div>
-            <div>
-              <FormInput v-model.trim="stripe.webhook_secret_key" :error="errors.webhook_secret_key" rules="min:100" class="w-96" id="webhook_secret_key" type="text"
-                title="Webhook secret key" ico="key" />
-            </div>
-          </div>
-          <div class="pt-8">
-            <FormButton type="submit" name="Save" color="green" />
-          </div>
-        </Form>
         <hr class="mt-5" />
       </div>
 
       <div class="mt-5">
-        <h2 class="mb-5">Payment Event</h2>
-
-        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!payment.webhook_url">
-          <p class="text-sm font-medium">This section is required to recieve payment events externally!</p>
-        </div>
-
-        <Form @submit="updateSetting('payment')" v-slot="{ errors }">
-          <div class="flex">
-            <div>
-              <FormInput v-model.trim="payment.webhook_url" :error="errors.webhook_url" rules="required" class="w-96" id="webhook_url" type="text" title="webhook url" ico="key" />
-            </div>
-          </div>
+        <h2 class="mb-5">Webhook events</h2>
+        <Form @submit="updateSetting('webhook')" v-slot="{ errors }">
+          <FormInput v-model.trim="webhook.url" :error="errors.webhook_url" rules="url" class="max-w-md" id="webhook_url" type="text" title="webhook url" ico="key" />
           <div class="pt-8">
             <FormButton type="submit" name="Save" color="green" />
           </div>
@@ -124,8 +102,12 @@
         <h2 class="mb-5">Mail letters</h2>
 
         <div class="flex">
-          <div class="cursor-pointer rounded-lg bg-gray-200 px-3 py-3" @click="openDrawer('mail_letter_purchase')">
-            Purchase letter
+          <div class="cursor-pointer rounded-lg bg-gray-200 px-3 py-3" @click="openDrawer('mail_letter_payment')">
+            Letter of payment
+          </div>
+
+          <div class="cursor-pointer rounded-lg bg-gray-200 px-3 py-3 ml-5" @click="openDrawer('mail_letter_purchase')">
+            Letter of purchase
           </div>
         </div>
 
@@ -176,8 +158,14 @@
       </div>
     </div>
 
-    <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
-      <SettingLetter :close="closeDrawer" :send="sendTestLetter" :legend="letterLegend['mail_letter_purchase']" name="mail_letter_purchase" v-if="isDrawer.action === 'mail_letter_purchase'" />
+    <drawer :is-open="isDrawer.open" max-width="725px" @close="closeDrawer">
+      <Stripe :close="closeDrawer" v-if="isDrawer.action === 'stripe'" />
+      <Spectrocoin :close="closeDrawer" v-if="isDrawer.action === 'spectrocoin'" />
+
+      <Letter :close="closeDrawer" :send="sendTestLetter" :legend="letterLegend['mail_letter_payment']" name="mail_letter_payment"
+        v-if="isDrawer.action === 'mail_letter_payment'" />
+      <Letter :close="closeDrawer" :send="sendTestLetter" :legend="letterLegend['mail_letter_purchase']" name="mail_letter_purchase"
+        v-if="isDrawer.action === 'mail_letter_purchase'" />
     </drawer>
   </MainLayouts>
 </template>
@@ -186,11 +174,15 @@
 import { onMounted, ref } from "vue";
 
 import MainLayouts from "@/layouts/Main.vue";
-import SettingLetter from "@/components/setting/Letter.vue";
+import Stripe from "@/components/setting/Stripe.vue";
+import Spectrocoin from "@/components/setting/Spectrocoin.vue";
+import Letter from "@/components/setting/Letter.vue";
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormSelect from "@/components/form/Select.vue";
 import Drawer from "@/components/Drawer.vue";
+
+import { useSystemStore } from '@/store/system';
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 
@@ -200,10 +192,11 @@ const main = ref({
   jwt: {},
 });
 const password = ref({});
-const stripe = ref({});
-const payment = ref({});
+const webhook = ref({});
 const social = ref({});
 const smtp = ref({});
+
+const store = useSystemStore();
 
 const socialUrl = {
   facebook: "https://facebook.com/",
@@ -219,8 +212,12 @@ const isDrawer = ref({
 });
 
 const letterLegend = {
+  "mail_letter_payment": {
+    "Site_Name": "Site name",
+    "Amount_Payment": "Amount of payment",
+    "Payment_URL": "Payment link",
+  },
   "mail_letter_purchase": {
-    "Customer_Name": "Customer name",
     "Purchases": "Purchases",
     "Admin_Email": "Admin email",
   }
@@ -234,13 +231,18 @@ const settingsList = async () => {
   apiGet(`/api/_/settings`).then(res => {
     if (res.success) {
       main.value = res.result.main;
-      stripe.value = res.result.stripe;
       social.value = res.result.social;
       smtp.value = res.result.smtp;
-      payment.value = res.result.payment;
+      webhook.value = res.result.webhook;
     }
   });
 
+  apiGet(`/api/cart/payment`).then(res => {
+    if (res.success) {
+      
+      store.payments = res.result;
+    }
+  });
 };
 
 const updateSetting = async (section) => {
@@ -255,11 +257,8 @@ const updateSetting = async (section) => {
         new: password.value.new1,
       };
       break;
-    case "stripe":
-      update.stripe = stripe.value;
-      break;
-    case "payment":
-      update.payment = payment.value;
+    case "webhook":
+      update.webhook = webhook.value;
       break;
     case "social":
       update.social = social.value;
@@ -282,7 +281,7 @@ const updateSetting = async (section) => {
 };
 
 const sendTestLetter = async (letterName) => {
-  apiGet(`/api/_/settings/test/${letterName}`).then(res => {
+  apiGet(`/api/_/test/letter/${letterName}`).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

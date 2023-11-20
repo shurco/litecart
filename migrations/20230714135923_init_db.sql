@@ -6,27 +6,26 @@ CREATE TABLE setting (
 	value  TEXT DEFAULT NULL
 );
 CREATE INDEX idx_setting_key ON setting (key);
-INSERT INTO setting (id, key, value) VALUES 
-('fkzjyd1p4z866mj', 'installed', 0),
-('j3j2kaq67n0v9op', 'domain', ''),
-('vlr2rtp82fewd1o', 'email', ''),
-('zg7kdyrm9c9ivi5', 'password', ''),
-('0oh908z9r28133g', 'jwt_secret', 'secret'),
-('o9h0oh90b2qt8c2', 'jwt_secret_expire_hours', '48'),
-('6o20io9hb27n0v9', 'currency', 'USD'),
-('2r59p9nudtykndd', 'stripe_secret_key', ''),
-('hzmhlamxdwo6ca3', 'stripe_webhook_secret_key', ''),
-('yLR1176FQj1BQks', 'social_facebook', ''),
-('rKVq63So91kMuN7', 'social_instagram', ''),
-('NVv27ea47Yo7gPm', 'social_twitter', ''),
-('VjdMVG7LcUL274G', 'social_dribbble', ''),
-('8sz9yVDNvNBa97b', 'social_github', ''),
-('AC3of7o9pS9HdB1', 'smtp_host', ''),
-('p47ale7NBl2nqaB', 'smtp_port', '0'),
-('GIsA71Lk59h7vFa', 'smtp_username', ''),
-('zdb4Q07blJJ8msv', 'smtp_password', ''),
-('I0dk15zAn0d14hN', 'smtp_encryption', ''),
-('CoDDXfxF4GZxq6b', 'mail_letter_purchase', '{"subject":"Thank you for your purchase!","text":"Dear {{.Customer_Name}},\n\nThank you for choosing our travel guide! We appreciate your support and hope that it will enhance your travel experience. \n\nAs per your order, here is a summary of your purchases:\n\n{{.Purchases}}\n\nWe believe that our guides will provide you with valuable insights and help you explore the places mentioned in them. \n\nIf you encounter any issues with downloading or accessing the files, please feel free to contact us through our feedback form {{.Admin_Email}}. We`ll be more than happy to assist you.\n\nOnce again, thank you for your purchase. We wish you an incredible journey filled with unforgettable moments!\n\nBest regards,","html":""}');
+INSERT INTO setting VALUES ('fkzjyd1p4z866mj', 'installed', 0);
+INSERT INTO setting VALUES ('j3j2kaq67n0v9op', 'domain', '');
+INSERT INTO setting VALUES ('vlr2rtp82fewd1o', 'email', '');
+INSERT INTO setting VALUES ('zg7kdyrm9c9ivi5', 'password', '');
+INSERT INTO setting VALUES ('0oh908z9r28133g', 'jwt_secret', 'secret');
+INSERT INTO setting VALUES ('o9h0oh90b2qt8c2', 'jwt_secret_expire_hours', '48');
+INSERT INTO setting VALUES ('6o20io9hb27n0v9', 'currency', 'USD');
+INSERT INTO setting VALUES ('2r59p9nudtykndd', 'stripe_secret_key', '');
+INSERT INTO setting VALUES ('hzmhlamxdwo6ca3', 'stripe_webhook_secret_key', '');
+INSERT INTO setting VALUES ('yLR1176FQj1BQks', 'social_facebook', '');
+INSERT INTO setting VALUES ('rKVq63So91kMuN7', 'social_instagram', '');
+INSERT INTO setting VALUES ('NVv27ea47Yo7gPm', 'social_twitter', '');
+INSERT INTO setting VALUES ('VjdMVG7LcUL274G', 'social_dribbble', '');
+INSERT INTO setting VALUES ('8sz9yVDNvNBa97b', 'social_github', '');
+INSERT INTO setting VALUES ('AC3of7o9pS9HdB1', 'smtp_host', '');
+INSERT INTO setting VALUES ('p47ale7NBl2nqaB', 'smtp_port', '0');
+INSERT INTO setting VALUES ('GIsA71Lk59h7vFa', 'smtp_username', '');
+INSERT INTO setting VALUES ('zdb4Q07blJJ8msv', 'smtp_password', '');
+INSERT INTO setting VALUES ('I0dk15zAn0d14hN', 'smtp_encryption', '');
+INSERT INTO setting VALUES ('CoDDXfxF4GZxq6b', 'mail_letter_purchase', '{"subject":"Thank you for your purchase!","text":"Dear {{.Customer_Name}},\n\nThank you for choosing our travel guide! We appreciate your support and hope that it will enhance your travel experience. \n\nAs per your order, here is a summary of your purchases:\n\n{{.Purchases}}\n\nWe believe that our guides will provide you with valuable insights and help you explore the places mentioned in them. \n\nIf you encounter any issues with downloading or accessing the files, please feel free to contact us through our feedback form {{.Admin_Email}}. We`ll be more than happy to assist you.\n\nOnce again, thank you for your purchase. We wish you an incredible journey filled with unforgettable moments!\n\nBest regards,","html":""}');
 
 CREATE TABLE session (
 	key      TEXT UNIQUE NOT NULL,

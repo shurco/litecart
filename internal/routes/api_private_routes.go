@@ -23,7 +23,8 @@ func ApiPrivateRoutes(c *fiber.App) {
 	settings.Get("/:setting_key", handlers.SettingByKey)
 	settings.Patch("/:setting_key", handlers.UpdateSettingByKey)
 
-	settings.Get("/test/:letter_name", handlers.TestLetter)
+	test := c.Group("/api/_/test", middleware.JWTProtected())
+	test.Get("/letter/:letter_name", handlers.TestLetter)
 
 	pages := c.Group("/api/_/pages", middleware.JWTProtected())
 	pages.Get("/", handlers.Pages)

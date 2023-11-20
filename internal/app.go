@@ -26,7 +26,7 @@ import (
 
 var (
 	DevMode bool
-	//MainDomain string
+	// MainDomain string
 	log zerolog.Logger
 )
 
@@ -42,14 +42,14 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 		mainAddr = httpsAddr
 	}
 
-	if err := queries.InitQueries(migrations.Embed()); err != nil {
+	if err := queries.New(migrations.Embed()); err != nil {
 		log.Err(err).Send()
 		return err
 	}
 
 	// web web server
-	var fiberConfig = fiber.Config{
-		//Prefork:               true,
+	fiberConfig := fiber.Config{
+		// Prefork:               true,
 		DisableStartupMessage: true,
 	}
 	var sitePath string
@@ -167,7 +167,7 @@ func InstallCheck(c *fiber.Ctx) error {
 }
 
 func SubdomainCheck(c *fiber.Ctx) error {
-	//db := queries.DB()
+	// db := queries.DB()
 
 	/*
 		if MainDomain == "" {

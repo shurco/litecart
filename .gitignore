@@ -40,8 +40,10 @@ cmd/__debug_bin*
 cmd/main
 cmd/cmd
 cmd/lc_*/
-cmd/site/
+cmd/site
 fixtures/migration/*_private.sql
 .DS_Store
 
 web/site/public/assets/js/vue.js
+
+/main.go

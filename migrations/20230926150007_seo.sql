@@ -1,7 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-INSERT INTO setting (id, key, value) VALUES ('EepD9r9nRHrIAXp', 'site_name', '');
-
+INSERT INTO setting VALUES ('EepD9r9nRHrIAXp', 'site_name', '');
 ALTER TABLE product ADD COLUMN "seo" JSON DEFAULT '{}' NOT NULL;
 ALTER TABLE page ADD COLUMN "seo" JSON DEFAULT '{}' NOT NULL;
 -- +goose StatementEnd

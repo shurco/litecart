@@ -33,13 +33,13 @@
               <td class="px-4 py-2">
                 <div class="flex">
                   <div class="pr-3">
-                    <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" />
+                    <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" stroke="currentColor" />
                   </div>
                   <div class="pr-3">
-                    <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" />
+                    <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" stroke="currentColor" />
                   </div>
                   <div>
-                    <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updatePageActive(index)" />
+                    <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updatePageActive(index)" stroke="currentColor" />
                   </div>
                 </div>
               </td>
@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
+    <drawer :is-open="isDrawer.open" max-width="710px" @close="closeDrawer">
       <PageAdd    :page="page" :pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'add'" />
       <PageUpdate :page="page" :pages="pages" :close="closeDrawer" v-if="isDrawer.action === 'update'" />
       <ProjectSeo :page="page" :close="closeDrawer" v-if="isDrawer.action === 'seo'" />
@@ -82,8 +82,6 @@ import ProjectSeo from "@/components/page/Seo.vue";
 import { formatDate } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
-
-import SvgIcon from "svg-icon";
 
 const route = useRoute();
 const router = useRouter();

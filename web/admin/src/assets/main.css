@@ -39,7 +39,11 @@ header {
 }
 
 label {
-  @apply relative block rounded border border-gray-200 pe-10 text-sm shadow-sm bg-white  focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600;
+  @apply relative block rounded border border-gray-200 pe-10 text-sm shadow-sm bg-white focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600;
+
+  &.none {
+    @apply border-none shadow-none bg-transparent;
+  }
 
   .field {
     @apply w-full border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0;

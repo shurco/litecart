@@ -18,7 +18,7 @@
             <a :href="`/secrets/${value.name}.${value.ext}`" target="_blank" class="rounded-lg bg-gray-200 px-3 py-3">
               {{ value.name }}.{{ value.ext }}
             </a>
-            <SvgIcon name="trash" class="ml-3 mt-3 h-5 w-5 cursor-pointer" @click="deleteDigital('file', index)" />
+            <SvgIcon name="trash" stroke="currentColor" class="ml-3 mt-3 h-5 w-5 cursor-pointer" @click="deleteDigital('file', index)" />
           </div>
         </div>
         <FormUpload :productId="`${drawer.product.id}`" section="digital" @added="addDigitalFile" />
@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteDigital('data', index)" v-if="digital.data[index].cart_id === ''">
-            <SvgIcon name="trash" class="h-5 w-5" />
+            <SvgIcon name="trash" stroke="currentColor" class="h-5 w-5" />
           </div>
         </div>
         <div class="flex">
@@ -61,7 +61,6 @@ import { onMounted, ref } from "vue";
 
 import FormInput from "@/components/form/Input.vue";
 import FormUpload from "@/components/form/Upload.vue";
-import SvgIcon from "svg-icon";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiPost, apiUpdate, apiDelete } from "@/utils/api";
 

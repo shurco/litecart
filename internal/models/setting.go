@@ -6,19 +6,18 @@ import (
 )
 
 type Setting struct {
-	Main     Main     `json:"main,omitempty"`
-	Password Password `json:"password,omitempty"`
-	Stripe   Stripe   `json:"stripe,omitempty"`
-	Social   Social   `json:"social,omitempty"`
-	Payment Payment   `json:"payment,omitempty"`
-	SMTP     SMTP     `json:"smtp,omitempty"`
+	Main          Main          `json:"main,omitempty"`
+	Password      Password      `json:"password,omitempty"`
+	Social        Social        `json:"social,omitempty"`
+	PaymentSystem PaymentSystem `json:"provider,omitempty"`
+	Webhook       Webhook       `json:"webhook,omitempty"`
+	SMTP          SMTP          `json:"smtp,omitempty"`
 }
 
 // Validate is ...
 func (v Setting) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Main),
-		validation.Field(&v.Stripe),
 		validation.Field(&v.Social),
 		validation.Field(&v.SMTP),
 	)
@@ -70,27 +69,55 @@ func (v JWT) Validate() error {
 }
 
 type Stripe struct {
-	SecretKey        string `json:"secret_key"`
-	WebhookSecretKey string `json:"webhook_secret_key"`
+	SecretKey string `json:"secret_key"`
+	Active    bool   `json:"active"`
 }
 
 // Validate is ...
 func (v Stripe) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.SecretKey, validation.Length(100, 130)),
-		validation.Field(&v.WebhookSecretKey, validation.Length(100, 130)),
 	)
 }
 
-
-type Payment struct {
-	WebhookUrl string `json:"webhook_url"`
+type Spectrocoin struct {
+	MerchantID string `json:"merchant_id"`
+	ProjectID  string `json:"project_id"`
+	PrivateKey string `json:"private_key"`
+	Active     bool   `json:"active"`
 }
 
 // Validate is ...
-func (v Payment) Validate() error {
+func (v Spectrocoin) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.WebhookUrl, is.URL))
+		validation.Field(&v.MerchantID, is.UUID),
+		validation.Field(&v.ProjectID, is.UUID),
+		validation.Field(&v.PrivateKey, validation.Length(1700, 2200)),
+	)
+}
+
+type PaymentSystem struct {
+	Active      []string    `json:"active"`
+	Stripe      Stripe      `json:"stripe"`
+	Spectrocoin Spectrocoin `json:"spectrocoin"`
+}
+
+// Validate is ...
+func (v PaymentSystem) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Stripe),
+		validation.Field(&v.Spectrocoin),
+	)
+}
+
+type Webhook struct {
+	Url string `json:"url"`
+}
+
+// Validate is ...
+func (v Webhook) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Url, is.URL))
 }
 
 type Social struct {
@@ -124,7 +151,7 @@ func (v SMTP) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Host, is.Host),
 		validation.Field(&v.Port, is.Port),
-		//validation.Field(&v.Encryption),
+		// validation.Field(&v.Encryption),
 		validation.Field(&v.Username, validation.Length(3, 20)),
 		validation.Field(&v.Password, validation.Length(3, 20)),
 	)
@@ -159,7 +186,7 @@ func (v Mail) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.From, is.Email),
 		validation.Field(&v.To, is.Email),
-		//validation.Field(&v.Subject, validation.Length(4, 150)),
+		// validation.Field(&v.Subject, validation.Length(4, 150)),
 	)
 }
 

@@ -6,42 +6,119 @@
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl" v-if="cart.length>0">Your Cart</h1>
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl" v-else>Your Cart is empty</h1>
         </header>
-        <div class="mt-8" v-if="cart.length>0">
-          <ul class="space-y-4">
-            <li class="flex items-center gap-4" v-for="item, index in cart">
-              <img :src="(item.image !== null ? `/uploads/${item.image.name}_sm.${item.image.ext}` : '/assets/img/noimage.png')" alt="" class="h-16 w-16 rounded object-cover" />
-              <div>
-                <a :href="`/products/${item.slug}`" target="_blank">
-                  {{item.name}}
-                </a>
-              </div>
-              <div class="flex flex-1 items-center justify-end gap-2">
-                {{costFormat(item.amount)}} {{currency}}
-                <button class="text-gray-600 transition hover:text-red-600" @click="removeCart(item.id)">
-                  <span class="sr-only">Remove item</span>
-                  <svg class="h-4 w-4">
-                    <use xlink:href="/assets/img/sprite.svg#trash" />
-                  </svg>
-                </button>
-              </div>
-            </li>
-          </ul>
-          <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-            <div class="w-screen max-w-lg space-y-4">
-              <dl class="space-y-0.5 text-sm text-gray-700">
-                <div class="flex justify-between !text-base">
-                  <dt>Total</dt>
-                  <dd>{{totalCartAmount()}} {{currency}}</dd>
+
+        <form @submit.prevent="checkOut()">
+          <div class="mt-8" v-if="cart.length>0">
+            <ul class="space-y-4">
+              <li class="flex items-center gap-4" v-for="item, index in cart">
+                <img :src="(item.image !== null ? `/uploads/${item.image.name}_sm.${item.image.ext}` : '/assets/img/noimage.png')" alt="" class="h-16 w-16 rounded object-cover" />
+                <div>
+                  <a :href="`/products/${item.slug}`" target="_blank"> {{item.name}} </a>
                 </div>
-              </dl>
-              <div class="flex justify-end">
-                <a href="#" class="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600" @click="checkOut()">
-                  Checkout
-                </a>
+                <div class="flex flex-1 items-center justify-end gap-2">
+                  {{costFormat(item.amount)}} {{currency}}
+                  <button class="text-gray-600 transition hover:text-red-600" @click="removeCart(item.id)">
+                    <span class="sr-only">Remove item</span>
+                    <svg class="h-4 w-4">
+                      <use xlink:href="/assets/img/sprite.svg#trash" />
+                    </svg>
+                  </button>
+                </div>
+              </li>
+            </ul>
+            <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
+              <div class="w-screen max-w-lg">
+                <dl class="space-y-0.5 text-sm text-gray-700">
+                  <div class="flex justify-between !text-base">
+                    <dt>Total</dt>
+                    <dd>{{totalCartAmount()}} {{currency}}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-100 pt-8">
+              <div class="mx-auto max-w-xl text-center">
+                <p class="mt-4 text-gray-400">
+                  To continue, you need to enter the email address to which the item will be sent after payment.
+                  <span v-if="showPayments()">Also, choose the payment system through which the payment will be made.</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-100 pt-8">
+              <div class="text-center">
+                <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl">Enter email</sppan>
+              </div>
+              <div class="flex place-content-center">
+                <label for="email" class="min-w-[50%] relative block rounded-md border border-gray-200 shadow-sm 
+                  focus-within:border-blue-500 
+                  focus-within:ring-1 
+                  focus-within:ring-blue-500" :class="email?'border-blue-500 bg-blue-100 border-2':''">
+                  <input type="text" v-model="email" id="email"
+                    class="min-w-full peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0" placeholder="Email" />
+                  <span class="rounded pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-blue-500 py-0.5 px-1 text-xs text-white transition-all 
+                    peer-placeholder-shown:top-1/2 
+                    peer-placeholder-shown:text-sm
+                    peer-placeholder-shown:bg-white
+                    peer-placeholder-shown:text-gray-700
+                    peer-focus:top-0 
+                    peer-focus:text-xs">Email</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-100 pt-8" v-if="showPayments()">
+              <div class="text-center">
+                <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl">Select payment system</p>
+              </div>
+              <div class="flex place-content-center">
+                <fieldset class="space-y-4 min-w-[50%]">
+                  <div v-if="payments['stripe']">
+                    <input type="radio" v-model="provider" name="provider" value="stripe" id="stripe" class="peer hidden" />
+                    <label for="stripe" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
+                          peer-checked:border-blue-500 
+                          peer-checked:ring-1 
+                          peer-checked:bg-blue-100
+                          peer-checked:ring-blue-500
+                          ">
+                      <dl class="flex flex-col">
+                        <p class="text-gray-700 text-sm font-medium">Stripe</p>
+                        <p class="text-gray-400 text-xs">Popular payment system for accepting online payments</p>
+                      </dl>
+                    </label>
+                  </div>
+
+                  <div v-if="payments['spectrocoin']">
+                    <input type="radio" v-model="provider" name="provider" value="spectrocoin" id="spectrocoin" class="peer hidden" />
+                    <label for="spectrocoin" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
+                        peer-checked:border-blue-500 
+                          peer-checked:ring-1 
+                        peer-checked:bg-blue-100
+                        peer-checked:ring-blue-500
+                        ">
+                      <dl class="flex flex-col">
+                        <p class="text-gray-700 text-sm font-medium">Spectrocoin</p>
+                        <p class="text-gray-400 text-xs">Payment system allowing to pay bills with cryptocurrency</p>
+                      </dl>
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+
+            <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
+              <div class="w-screen max-w-lg space-y-4 flex justify-end" v-if="showPayments()">
+                <input v-if="email && provider" type="submit" value="Checkout" class="cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+              </div>
+
+              <div class="w-screen max-w-lg space-y-4 flex justify-end" v-else>
+                <input v-if="email" type="submit" value="Checkout" class="cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
               </div>
             </div>
           </div>
-        </div>
+        </form>
+
       </div>
     </div>
   </section>

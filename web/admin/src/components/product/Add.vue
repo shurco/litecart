@@ -38,7 +38,7 @@
               <FormInput v-model="data.value" :id="`mtd-value-${index}`" type="text" title="Value" />
             </div>
             <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteMetadataRecord(index)">
-              <SvgIcon name="trash" class="h-5 w-5" />
+              <SvgIcon name="trash" class="h-5 w-5" stroke="currentColor" />
             </div>
           </div>
           <div class="flex">
@@ -57,7 +57,7 @@
               <FormInput v-model="product.attributes[index]" :id="`atr-key-${index}`" type="text" title="" />
             </div>
             <div class="flex-none cursor-pointer pl-3 pt-3" @click="deleteAttributeRecord(index)">
-              <SvgIcon name="trash" class="h-5 w-5" />
+              <SvgIcon name="trash" class="h-5 w-5" stroke="currentColor" />
             </div>
           </div>
           <div class="flex">
@@ -98,7 +98,6 @@ import { costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiPost } from "@/utils/api";
 
-import SvgIcon from "svg-icon";
 import { Form } from "vee-validate";
 
 const props = defineProps({

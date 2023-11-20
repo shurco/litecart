@@ -16,7 +16,7 @@
             <th class="w-32">Slug</th>
             <th class="w-32">Price</th>
             <th class="w-12 px-4 py-2">
-              <SvgIcon name="cube" class="h-5 w-5" />
+              <SvgIcon name="cube" class="h-5 w-5" stroke="currentColor" />
             </th>
             <th class="w-24 px-4 py-2"></th>
           </tr>
@@ -40,18 +40,18 @@
               {{ costFormat(item.amount) }} {{ products.currency }}
             </td>
             <td class="px-4 py-2">
-              <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" @click="openDrawer(index, 'digital')" />
+              <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" @click="openDrawer(index, 'digital')" stroke="currentColor" />
             </td>
             <td class="px-4 py-2">
               <div class="flex">
                 <div class="pr-3">
-                  <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" />
+                  <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" stroke="currentColor" />
                 </div>
                 <div class="pr-3">
-                  <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" />
+                  <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" stroke="currentColor" />
                 </div>
                 <div>
-                  <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updateProductActive(index)" />
+                  <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updateProductActive(index)" stroke="currentColor" />
                 </div>
               </div>
             </td>
@@ -61,7 +61,7 @@
     </div>
     <div class="mx-auto" v-else>Add first product</div>
 
-    <drawer :is-open="isDrawer.open" max-width="700px" @close="closeDrawer">
+    <drawer :is-open="isDrawer.open" max-width="710px" @close="closeDrawer">
       <ProjectView    :drawer="isDrawer" :close="closeDrawer" :updateActive="updateProductActive" v-if="isDrawer.action === 'view'" />
       <ProjectAdd     :drawer="isDrawer" :close="closeDrawer" :products="products" v-if="isDrawer.action === 'add'" />
       <ProjectUpdate  :drawer="isDrawer" :close="closeDrawer" :products="products" :updateActive="updateProductActive" v-if="isDrawer.action === 'update'" />
@@ -84,8 +84,6 @@ import ProjectDigital from "@/components/product/Digital.vue";
 import { costFormat } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
-
-import SvgIcon from "svg-icon";
 
 onMounted(() => {
   listProducts();

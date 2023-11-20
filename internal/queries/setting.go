@@ -3,13 +3,11 @@ package queries
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/shurco/litecart/internal/mailer"
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/jwtutil"
@@ -25,16 +23,15 @@ type SettingQueries struct {
 func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
 	settings := new(models.Setting)
 	keys := []any{
-		"site_name", "domain", "email", "currency", // 3
-		"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github", // 5
+		"site_name", "domain", "email", "currency",
+		"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github",
 	}
 
 	if private {
 		keys = append(keys,
-			"jwt_secret", "jwt_secret_expire_hours", // 2
-			"stripe_secret_key", "stripe_webhook_secret_key", // 2
-			"payment_webhook_url", // 1
-			"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // 5
+			"jwt_secret", "jwt_secret_expire_hours", // jwt
+			"webhook_url",                                                                 // webhook
+			"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption", // smtp
 		)
 	}
 
@@ -45,26 +42,24 @@ func (q *SettingQueries) Settings(private bool) (*models.Setting, error) {
 	}
 	defer rows.Close()
 
-	fieldMap := map[string]interface{}{
-		"site_name":                 &settings.Main.SiteName,
-		"domain":                    &settings.Main.Domain,
-		"email":                     &settings.Main.Email,
-		"currency":                  &settings.Main.Currency,
-		"jwt_secret":                &settings.Main.JWT.Secret,
-		"jwt_secret_expire_hours":   &settings.Main.JWT.ExpireHours,
-		"stripe_secret_key":         &settings.Stripe.SecretKey,
-		"stripe_webhook_secret_key": &settings.Stripe.WebhookSecretKey,
-		"payment_webhook_url":       &settings.Payment.WebhookUrl,
-		"social_facebook":           &settings.Social.Facebook,
-		"social_instagram":          &settings.Social.Instagram,
-		"social_twitter":            &settings.Social.Twitter,
-		"social_dribbble":           &settings.Social.Dribbble,
-		"social_github":             &settings.Social.Github,
-		"smtp_host":                 &settings.SMTP.Host,
-		"smtp_port":                 &settings.SMTP.Port,
-		"smtp_username":             &settings.SMTP.Username,
-		"smtp_password":             &settings.SMTP.Password,
-		"smtp_encryption":           &settings.SMTP.Encryption,
+	fieldMap := map[string]any{
+		"site_name":               &settings.Main.SiteName,
+		"domain":                  &settings.Main.Domain,
+		"email":                   &settings.Main.Email,
+		"currency":                &settings.Main.Currency,
+		"jwt_secret":              &settings.Main.JWT.Secret,
+		"jwt_secret_expire_hours": &settings.Main.JWT.ExpireHours,
+		"webhook_url":             &settings.Webhook.Url,
+		"social_facebook":         &settings.Social.Facebook,
+		"social_instagram":        &settings.Social.Instagram,
+		"social_twitter":          &settings.Social.Twitter,
+		"social_dribbble":         &settings.Social.Dribbble,
+		"social_github":           &settings.Social.Github,
+		"smtp_host":               &settings.SMTP.Host,
+		"smtp_port":               &settings.SMTP.Port,
+		"smtp_username":           &settings.SMTP.Username,
+		"smtp_password":           &settings.SMTP.Password,
+		"smtp_encryption":         &settings.SMTP.Encryption,
 	}
 
 	for rows.Next() {
@@ -145,11 +140,17 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 		sectionSettings = map[string]any{
 			"password": security.GeneratePassword(settings.Password.New),
 		}
-
 	case "stripe":
 		sectionSettings = map[string]any{
-			"stripe_secret_key":         settings.Stripe.SecretKey,
-			"stripe_webhook_secret_key": settings.Stripe.WebhookSecretKey,
+			"stripe_secret_key": settings.PaymentSystem.Stripe.SecretKey,
+			"stripe_active":     settings.PaymentSystem.Stripe.Active,
+		}
+	case "spectrocoin":
+		sectionSettings = map[string]any{
+			"spectrocoin_merchant_id": &settings.PaymentSystem.Spectrocoin.MerchantID,
+			"spectrocoin_project_id":  &settings.PaymentSystem.Spectrocoin.ProjectID,
+			"spectrocoin_private_key": &settings.PaymentSystem.Spectrocoin.PrivateKey,
+			"spectrocoin_active":      &settings.PaymentSystem.Spectrocoin.Active,
 		}
 	case "social":
 		sectionSettings = map[string]any{
@@ -159,9 +160,9 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"social_dribbble":  settings.Social.Dribbble,
 			"social_github":    settings.Social.Github,
 		}
-	case "payment":
+	case "webhook":
 		sectionSettings = map[string]any{
-			"payment_webhook_url":  settings.Payment.WebhookUrl,
+			"webhook_url": settings.Webhook.Url,
 		}
 	case "smtp":
 		sectionSettings = map[string]any{
@@ -171,7 +172,6 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"smtp_password":   settings.SMTP.Password,
 			"smtp_encryption": settings.SMTP.Encryption,
 		}
-
 	default:
 		return errors.ErrSettingNotFound
 	}
@@ -183,6 +183,142 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 	}
 
 	return nil
+}
+
+// SettingBySection is ...
+func (q *SettingQueries) SettingBySection(section string) (any, error) {
+	settings := &models.Setting{}
+	sectionMap := map[string]struct {
+		Keys     []any
+		FieldMap map[string]any
+	}{
+		"main": {
+			Keys: []any{"site_name", "domain", "email", "currency"},
+			FieldMap: map[string]any{
+				"site_name": &settings.Main.SiteName,
+				"domain":    &settings.Main.Domain,
+				"email":     &settings.Main.Email,
+				"currency":  &settings.Main.Currency,
+			},
+		},
+		"social": {
+			Keys: []any{"social_facebook", "social_instagram", "social_twitter", "social_dribbble", "social_github"},
+			FieldMap: map[string]any{
+				"social_facebook":  &settings.Social.Facebook,
+				"social_instagram": &settings.Social.Instagram,
+				"social_twitter":   &settings.Social.Twitter,
+				"social_dribbble":  &settings.Social.Dribbble,
+				"social_github":    &settings.Social.Github,
+			},
+		},
+		"jwt": {
+			Keys: []any{"jwt_secret", "jwt_secret_expire_hours"},
+			FieldMap: map[string]any{
+				"jwt_secret":              &settings.Main.JWT.Secret,
+				"jwt_secret_expire_hours": &settings.Main.JWT.ExpireHours,
+			},
+		},
+		"stripe": {
+			Keys: []any{"stripe_secret_key", "stripe_active"},
+			FieldMap: map[string]any{
+				"stripe_secret_key": &settings.PaymentSystem.Stripe.SecretKey,
+				"stripe_active":     &settings.PaymentSystem.Stripe.Active,
+			},
+		},
+		"spectrocoin": {
+			Keys: []any{"spectrocoin_merchant_id", "spectrocoin_project_id", "spectrocoin_private_key", "spectrocoin_active"},
+			FieldMap: map[string]any{
+				"spectrocoin_merchant_id": &settings.PaymentSystem.Spectrocoin.MerchantID,
+				"spectrocoin_project_id":  &settings.PaymentSystem.Spectrocoin.ProjectID,
+				"spectrocoin_private_key": &settings.PaymentSystem.Spectrocoin.PrivateKey,
+				"spectrocoin_active":      &settings.PaymentSystem.Spectrocoin.Active,
+			},
+		},
+		"webhook": {
+			Keys: []any{"webhook_url"},
+			FieldMap: map[string]any{
+				"webhook_url": &settings.Webhook.Url,
+			},
+		},
+		"smtp": {
+			Keys: []any{"smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_encryption"},
+			FieldMap: map[string]any{
+				"smtp_host":       &settings.SMTP.Host,
+				"smtp_port":       &settings.SMTP.Port,
+				"smtp_username":   &settings.SMTP.Username,
+				"smtp_password":   &settings.SMTP.Password,
+				"smtp_encryption": &settings.SMTP.Encryption,
+			},
+		},
+	}
+
+	sectionData, ok := sectionMap[section]
+	if !ok {
+		return nil, errors.ErrSettingNotFound
+	}
+
+	keys := sectionData.Keys
+	fieldMap := sectionData.FieldMap
+
+	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
+	rows, err := q.DB.QueryContext(context.TODO(), query, keys...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var key, value string
+		err := rows.Scan(&key, &value)
+		if err != nil {
+			return nil, err
+		}
+
+		fieldPtr, ok := fieldMap[key]
+		if !ok {
+			continue
+		}
+
+		switch v := fieldPtr.(type) {
+		case *string:
+			*v = value
+		case *bool:
+			vBool, err := strconv.ParseBool(value)
+			if err != nil {
+				return nil, err
+			}
+			*v = vBool
+		case *int:
+			vInt, err := strconv.Atoi(value)
+			if err != nil {
+				return nil, err
+			}
+			*v = vInt
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	switch section {
+	case "main":
+		return settings.Main, nil
+	case "social":
+		return settings.Social, nil
+	case "jwt":
+		return settings.Main.JWT, nil
+	case "stripe":
+		return settings.PaymentSystem.Stripe, nil
+	case "spectrocoin":
+		return settings.PaymentSystem.Spectrocoin, nil
+	case "webhook":
+		return settings.Webhook, nil
+	case "smtp":
+		return settings.SMTP, nil
+	}
+
+	return nil, errors.ErrSettingNotFound
 }
 
 // SettingValueByKey is ...
@@ -308,12 +444,14 @@ func (q *SettingQueries) SettingJWT() (*jwtutil.Setting, error) {
 	return settings, nil
 }
 
+/*
 // SettingStripe is ...
+// TODO: delete it !!!
 func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 	settings := &models.Setting{}
 
-	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?, ?)`
-	rows, err := q.DB.QueryContext(context.TODO(), query, "stripe_secret_key", "stripe_webhook_secret_key", "domain", "payment_webhook_url")
+	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?)`
+	rows, err := q.DB.QueryContext(context.TODO(), query, "stripe_secret_key", "domain", "webhook_url")
 	if err != nil {
 		return nil, err
 	}
@@ -328,13 +466,11 @@ func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 
 		switch key {
 		case "stripe_secret_key":
-			settings.Stripe.SecretKey = value
-		case "stripe_webhook_secret_key":
-			settings.Stripe.WebhookSecretKey = value
+			settings.PaymentSystem.Stripe.SecretKey = value
 		case "domain":
 			settings.Main.Domain = fmt.Sprintf("https://%s", value)
-		case "payment_webhook_url":
-			settings.Payment.WebhookUrl = value
+		case "webhook_url":
+			settings.Webhook.Url = value
 		}
 	}
 
@@ -344,6 +480,7 @@ func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
 
 	return settings, nil
 }
+*/
 
 // ListSocials is ...
 func (q *SettingQueries) ListSocials() (*models.Social, error) {
@@ -425,47 +562,4 @@ func (q *SettingQueries) SettingMail() (*models.SMTP, error) {
 	}
 
 	return setting, nil
-}
-
-// SettingTestLetter is ...
-func (q *SettingQueries) SettingTestLetter(letterName string) error {
-	smtpSetting, err := q.SettingMail()
-	if err != nil {
-		return err
-	}
-
-	settingEmail, err := q.SettingValueByKey("email")
-	if err != nil {
-		return err
-	}
-	emailAdmin := settingEmail.Value.(string)
-
-	letter := &models.Mail{
-		From: emailAdmin,
-		To:   emailAdmin,
-		Letter: models.Letter{
-			Subject: "litecart test smtp settings",
-			Text:    "test message",
-		},
-		Data: map[string]string{
-			"Customer_Name": "Customer Name",
-			"Admin_Email":   "admin@mail.com",
-		},
-	}
-
-	if letterName != "smtp" {
-		settingLetter, err := q.SettingValueByKey(letterName)
-		if err != nil {
-			return err
-		}
-		if err := json.Unmarshal([]byte(settingLetter.Value.(string)), &letter.Letter); err != nil {
-			return err
-		}
-	}
-
-	if err := mailer.SendMail(smtpSetting, letter); err != nil {
-		return err
-	}
-
-	return nil
 }
