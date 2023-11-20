@@ -16,22 +16,28 @@
 
 Litecart is an open source shopping-cart in 1 file of embedded database (SQLite), convenient dashboard UI and simple site.
 
-> ⚠️&nbsp;&nbsp;Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users. Please keep in mind that litecart is still under active development and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
+> [!WARNING]
+> Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users. Please keep in mind that litecart is still under active development and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
 
 ![Example](/.github/media/demo.gif)
 
 ## 🏆&nbsp;&nbsp;Features
 
-- [x] 🚀 **Simple and Fast**: Enjoy a one-click installation process that gets your store up and running quickly, saving you time and effort. 
-- [x] 💰 **Support for Popular Payment Systems**: Accept payments seamlessly with support for popular payment systems, ensuring a smooth checkout experience for your customers. 
-- [x] 🔑 **Sell Files and License Keys**: Whether you're selling digital files or license keys, litecart has you covered, providing flexibility in the types of products you can offer.
-- [x] ⚙️ **Lightweight and Efficient**: litecart utilizes SQLite as its embedded database, eliminating the need for heavy databases like MySQL, PostgreSQL, or MongoDB. This results in a lightweight website that performs exceptionally well.
-- [x] ☁️ **Easily Customizable**: Modify and customize your litecart website effortlessly to match your branding and unique requirements, making it truly your own.
-- [x] 🧞‍♂️ **Convenient Administration Panel**: With a user-friendly dashboard UI, litecart offers a hassle-free administration panel, allowing you to manage your store, inventory, and orders with ease. 
-- [x] ⚡️ **Hardware Compatibility**: Whether you're running litecart on a powerful server or a modest hardware setup, rest assured that it will work seamlessly, providing a consistent shopping experience for your customers.
-- [x] 🔒 **Built-in HTTPS Support**: Prioritizing security, litecart comes with built-in support for HTTPS, ensuring the safety of your customers' data.
+🚀 **Simple and Fast**: Enjoy a one-click installation process that gets your store up and running quickly, saving you time and effort.  
 
+💰 **Support for Popular Payment Systems**: Accept payments seamlessly with support for popular payment systems, ensuring a smooth checkout experience for your customers.  
 
+🔑 **Sell Files and License Keys**: Whether you're selling digital files or license keys, litecart has you covered, providing flexibility in the types of products you can offer.  
+
+⚙️ **Lightweight and Efficient**: litecart utilizes SQLite as its embedded database, eliminating the need for heavy databases like MySQL, PostgreSQL, or MongoDB. This results in a lightweight website that performs exceptionally well.  
+
+☁️ **Easily Customizable**: Modify and customize your litecart website effortlessly to match your branding and unique requirements, making it truly your own.  
+
+🧞‍♂️ **Convenient Administration Panel**: With a user-friendly dashboard UI, litecart offers a hassle-free administration panel, allowing you to manage your store, inventory, and orders with ease.  
+
+⚡️ **Hardware Compatibility**: Whether you're running litecart on a powerful server or a modest hardware setup, rest assured that it will work seamlessly, providing a consistent shopping experience for your customers.  
+
+🔒 **Built-in HTTPS Support**: Prioritizing security, litecart comes with built-in support for HTTPS, ensuring the safety of your customers' data.
 
 
 ## ⬇️&nbsp;&nbsp;Installation
@@ -110,7 +116,8 @@ docker run \
 ```
 
 ## ⬇️&nbsp;&nbsp;Updating
-> ⚠️&nbsp;&nbsp;Before any update, be sure to make a backup of the *./lc_base* folder and the *./site* folder.
+> [!WARNING]
+> Before any update, be sure to make a backup of the *./lc_base* folder and the *./site* folder.
 
 #### Update on macOS / Linux / Windows
 The easiest way to update `litecart` to the latest version is to execute the command:
@@ -173,9 +180,9 @@ If you need to run on a different port, use the flag `--http`:
 ./litecart serve --http 0.0.0.0:8088
 ```
 
-> ⚠️&nbsp;&nbsp; Ports <= 1024 are privileged ports. You can't use them unless you're root or have the explicit permission to use them. See this answer for an explanation or wikipedia or something you trust more. Use:
-**sudo setcap 'cap_net_bind_service=+ep' /path_to/litecart**
-> 
+> [!NOTE]
+> Ports <= 1024 are privileged ports. You can't use them unless you're root or have the explicit permission to use them. See this answer for an explanation or wikipedia or something you trust more. Use:
+> **sudo setcap 'cap_net_bind_service=+ep' /path_to/litecart**
 
 ## 📚&nbsp;&nbsp;Commands
 Usage:
@@ -204,6 +211,61 @@ Serve flags `./litecart serve [flags]`:
 --no-site        disable create site
 ```
 
+## 🏦&nbsp;&nbsp;Adding payment systems
+#### Stripe
+Stripe is a popular payment system that allows you to accept online payments from customers. It provides various tools and APIs for processing payments, including the ability to accept credit and debit cards, digital wallets, and bank transfers. Stripe ensures payment security, currency processing, and support for various payment methods.
+
+To obtain the Secret key in Stripe, follow these steps:
+
+1. Log in to your <a href="https://dashboard.stripe.com" target="_blank">Stripe account</a> on the official Stripe website. If you don't have an account, <a href="https://dashboard.stripe.com/register" target="_blank">register</a> for one.
+2. In the top right corner, select the <a href="https://dashboard.stripe.com/developers" target="_blank">Developers section</a>.
+3. In the dropdown menu, choose "<a href="https://dashboard.stripe.com/apikeys" target="_blank">API Keys</a>".
+4. In the "Standard keys" section, you will find your "Secret key".
+
+> [!WARNING]
+> Please note that the "Secret key" is confidential information that should be kept secure.
+
+#### SpectroCoin
+<a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> is a payment system and cryptocurrency wallet that allows users to send and receive payments in various currencies, including cryptocurrencies such as Bitcoin, Ethereum, and others. It also offers currency exchange operations between different currencies and the ability to deposit and withdraw funds to bank accounts. <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> ensures the security of payments and cryptocurrency storage, as well as offering additional features such as debit cards.
+
+To obtain a "Merchant ID", "Project (API) ID" and "Private key" in <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a>, follow these steps:
+
+1. Register on <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> if you don't have an account yet.
+2. Log in to your <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> account.
+3. Go to the "Business" section in the navigation menu.
+4. Navigate to the "New project" section in the navigation menu.
+5. Fill in the project name and make sure to enable the "Public key" section. A window with a "Private key" will appear, copy and save it. You can activate other options if needed.
+6. After filling in the details, you will be redirected to the projects page. Go to the created project and in the header, copy the "Merchant ID" and "Project (API) ID".
+
+> [!WARNING]
+> Please note that creating a project may require you to complete the verification process for your <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> account.  
+> Please note that the "Private key" is confidential information that should be kept secure.
+
+
+## 🧩&nbsp;&nbsp;For developers
+The backend is developed in Go language. The frontend (admin site and base site) operates on the Vue3 and TailwindCSS.  
+
+There are a number of scripts (in the ./scripts folder) that simplify development:  
+`./scripts/golang` - Installs or updates a previously installed version of go (if needed).  
+`./scripts/migration` - Helps to work with migrations. For instance, the `./scripts/migration dev up` command will apply new migrations from folder ./migrations, then implement the migrations from folder ./fixtures.  
+`./scripts/sqlite` - Optimizes the existing database.  
+`./scripts/tools` - Sets up the necessary environment for development (if needed).  
+`./scripts/webscripts` - For the basic site, updates vue3 to the latest version.  
+
+> [!NOTE]
+> I recommend running the `./scripts/migration dev up` command. It will add test data to the database, which makes it easier to work with. For example, it will create products, transfer test images and create a test user for access to the admin panel:  
+> login - user@mail.com  
+> password - Pass123
+
+#### Admin panel (frontend)
+To develop the web interface of the admin panel, you need to start the litepay server (for example, execute the command from the project root `go run ./cmd/main.go serve`).
+The entire code is located in the folder ./web/admin.  
+All the code is located in the folder ./web/admin. The command `cd ./web/admin && yarn run dev` will start the development server for the admin panel web interface. By default, it will be available at http://localhost:5173/_/.
+
+#### Base site (frontend)
+To develop the web interface of the admin panel, you need to start the litepay server (for example, execute the command from the project root `go run ./cmd/main.go serve`).  
+To update the styles, it is necessary to execute the command `cd ./web/site && yarn run build`.  
+If you actively change styles, you can run the command `cd ./web/site && yarn run dev`. It will monitor changes in files and automatically update the style file.
 
 ## 🗺️&nbsp;&nbsp;ToDo
 `litecart` has a [roadmap](https://github.com/users/shurco/projects/2) and I try to work on issues in specific order and such PRs often come in out of nowhere and skew all initial planning with tedious back-and-forth communication.
@@ -211,13 +273,13 @@ Serve flags `./litecart serve [flags]`:
 - [x] Product in the form of files
 - [x] Product in the form of license keys
 - [ ] Product returned via API to another site (example license keys)
-- [x] Payment Stripe
+- [x] <a href="#stripe">Payment Stripe</a>
 - [ ] Payment PayPal
 - [ ] Payment Square
 - [ ] Payment Adyen
 - [ ] Payment Checkout
-- [ ] Support for payment using crypto
-- [ ] Support WebHook
+- [x] <a href="#spectrocoin">Support for payment using crypto</a>
+- [x] Support WebHook (<a href="https://github.com/msalbrain" target="_blank">@nicksnyder</a> in <a href="https://github.com/shurco/litecart/pull/61" target="_blank">#61</a>)
 
 
 ## 👍&nbsp;&nbsp;Contribute
