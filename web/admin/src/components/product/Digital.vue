@@ -4,7 +4,8 @@
       <div class="flex items-center">
         <div class="pr-3">
           <h1>Digital {{ digital.type }}</h1>
-          <p class="mt-4" v-if="digital.type === 'file'">This is the product that the user purchases. Upload the files that will be sent to the buyer after payment to the email address provided during checkout.</p>
+          <p class="mt-4" v-if="digital.type === 'file'">This is the product that the user purchases. Upload the files that will be sent to the buyer after payment to the email
+            address provided during checkout.</p>
           <p class="mt-4" v-if="digital.type === 'data'">Enter the digital product that you intend to sell. It can be a unique item, such as a license key.</p>
         </div>
       </div>
@@ -57,7 +58,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 
 import FormInput from "@/components/form/Input.vue";
 import FormUpload from "@/components/form/Upload.vue";
@@ -68,10 +69,23 @@ const props = defineProps({
   drawer: {
     required: true,
   },
+  products: {
+    required: true,
+  },
   close: Function,
 });
 
 const digital = ref({});
+
+const emits = defineEmits(["update:modelValue"]);
+const products = computed({
+  get: () => {
+    return props.products;
+  },
+  set: (val) => {
+    emits("update:modelValue", val);
+  },
+});
 
 onMounted(() => {
   listDigitals();
@@ -89,41 +103,22 @@ const listDigitals = async () => {
 
 const addDigitalFile = (e) => {
   if (e.success) {
+    const productToUpdate = products.value.products.find((e) => e.id === props.drawer.product.id)
+    if (!productToUpdate.digital.filled) {
+      productToUpdate.digital.filled = true;
+    }
     digital.value.files.push(e.result);
   }
 };
 
-const deleteDigital = async (type, index) => {
-  var digitalId;
-  switch (type) {
-    case "file":
-    digitalId = digital.value.files[index].id;
-      break;
-    case "data":
-    digitalId = digital.value.data[index].id;
-      break;
-  }
-
-  apiDelete(`/api/_/products/${props.drawer.product.id}/digital/${digitalId}`).then(res => {
-    if (res.success) {
-      switch (type) {
-        case "file":
-          digital.value.files.splice(index, 1);
-          break;
-        case "data":
-          digital.value.data.splice(index, 1);
-          break;
-      }
-    } else {
-      showMessage(res.result, "connextError");
-    }
-  });
-};
 
 const addDigitalData = async () => {
   apiPost(`/api/_/products/${props.drawer.product.id}/digital`).then(res => {
     if (res.success) {
-
+      const productToUpdate = products.value.products.find((e) => e.id === props.drawer.product.id)
+      if (!productToUpdate.digital.filled) {
+        productToUpdate.digital.filled = true;
+      }
       digital.value.data.push(res.result);
     } else {
       showMessage(res.result, "connextError");
@@ -137,4 +132,33 @@ const saveData = async (index) => {
   };
   apiUpdate(`/api/_/products/${props.drawer.product.id}/digital/${digital.value.data[index].id}`, update)
 };
+
+const deleteDigital = async (type, index) => {
+  const digitalId = type === "file" ? digital.value.files[index].id : digital.value.data[index].id;
+
+  apiDelete(`/api/_/products/${props.drawer.product.id}/digital/${digitalId}`).then(res => {
+    if (res.success) {
+      const productToUpdate = products.value.products.find((e) => e.id === props.drawer.product.id);
+
+      switch (type) {
+        case "file":
+          digital.value.files.splice(index, 1);
+          if (digital.value.files.length === 0) {
+            productToUpdate.digital.filled = false;
+          }
+          break;
+        case "data":
+          digital.value.data.splice(index, 1);
+          const free_data = digital.value.data.filter((e) => e.cart_id === "").length
+          if (free_data === 0) {
+            productToUpdate.digital.filled = false;
+          }
+          break;
+      }
+    } else {
+      showMessage(res.result, "connextError");
+    }
+  });
+};
+
 </script>

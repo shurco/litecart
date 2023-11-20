@@ -37,6 +37,11 @@ func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct
 				product.amount,
 				product.active,
 				product.digital,
+				CASE
+					WHEN (SELECT COUNT(id) FROM digital_data WHERE product_id = product.id AND cart_id IS NULL) > 0 THEN TRUE
+					WHEN (SELECT COUNT(id) FROM digital_file WHERE product_id = product.id) > 0 THEN TRUE
+					ELSE FALSE
+				END digital_filled,
 				(SELECT json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images FROM product_image WHERE product_id = product.id GROUP BY id LIMIT 1) as image,
 				strftime('%s', created)
 			FROM product
@@ -72,6 +77,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct
 
 	for rows.Next() {
 		var image, digitalType sql.NullString
+		var digitalFilled sql.NullBool
 		product := models.Product{}
 		err := rows.Scan(
 			&product.ID,
@@ -80,6 +86,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct
 			&product.Amount,
 			&product.Active,
 			&digitalType,
+			&digitalFilled,
 			&image,
 			&product.Created,
 		)
@@ -93,6 +100,10 @@ func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct
 
 		if digitalType.Valid {
 			product.Digital.Type = digitalType.String
+		}
+
+		if private && digitalType.Valid {
+			product.Digital.Filled = digitalFilled.Bool
 		}
 
 		products.Products = append(products.Products, product)

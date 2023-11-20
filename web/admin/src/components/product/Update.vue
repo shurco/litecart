@@ -128,7 +128,6 @@ const amount = ref()
 const product = ref({})
 
 const emits = defineEmits(["update:modelValue"]);
-
 const products = computed({
   get: () => {
     return props.products;

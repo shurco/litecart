@@ -40,7 +40,7 @@
               {{ costFormat(item.amount) }} {{ products.currency }}
             </td>
             <td class="px-4 py-2">
-              <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" @click="openDrawer(index, 'digital')" stroke="currentColor" />
+              <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" :class="{ 'text-red-500': !item.digital.filled }" @click="openDrawer(index, 'digital')" stroke="currentColor" />
             </td>
             <td class="px-4 py-2">
               <div class="flex">
@@ -62,11 +62,11 @@
     <div class="mx-auto" v-else>Add first product</div>
 
     <drawer :is-open="isDrawer.open" max-width="710px" @close="closeDrawer">
-      <ProjectView    :drawer="isDrawer" :close="closeDrawer" :updateActive="updateProductActive" v-if="isDrawer.action === 'view'" />
-      <ProjectAdd     :drawer="isDrawer" :close="closeDrawer" :products="products" v-if="isDrawer.action === 'add'" />
-      <ProjectUpdate  :drawer="isDrawer" :close="closeDrawer" :products="products" :updateActive="updateProductActive" v-if="isDrawer.action === 'update'" />
-      <ProjectSeo     :drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'seo'" />
-      <ProjectDigital :drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'digital'" />
+      <ProjectView :drawer="isDrawer" :close="closeDrawer" :updateActive="updateProductActive" v-if="isDrawer.action === 'view'" />
+      <ProjectAdd :drawer="isDrawer" :close="closeDrawer" :products="products" v-if="isDrawer.action === 'add'" />
+      <ProjectUpdate :drawer="isDrawer" :close="closeDrawer" :products="products" :updateActive="updateProductActive" v-if="isDrawer.action === 'update'" />
+      <ProjectSeo :drawer="isDrawer" :close="closeDrawer" v-if="isDrawer.action === 'seo'" />
+      <ProjectDigital :drawer="isDrawer" :close="closeDrawer" :products="products" v-if="isDrawer.action === 'digital'" />
     </drawer>
   </MainLayouts>
 </template>
@@ -129,7 +129,7 @@ const updateProductActive = async (index) => {
 const openDrawer = (index, action) => {
   isDrawer.value.open = true;
   isDrawer.value.action = action;
-  if (index!==null) {
+  if (index !== null) {
     isDrawer.value.product = {
       index: index,
       id: products.value.products[index].id,

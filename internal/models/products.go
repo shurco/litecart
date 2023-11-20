@@ -59,9 +59,10 @@ func (v Metadata) Validate() error {
 
 // Digital is ...
 type Digital struct {
-	Type  string `json:"type"`
-	Files []File `json:"files,omitempty"`
-	Data  []Data `json:"data,omitempty"`
+	Type   string `json:"type"`
+	Filled bool   `json:"filled,omitempty"`
+	Files  []File `json:"files,omitempty"`
+	Data   []Data `json:"data,omitempty"`
 }
 
 // Validate is ...
@@ -86,7 +87,7 @@ func (v File) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.ID, validation.Length(15, 15)),
 		validation.Field(&v.Name, is.UUIDv4),
-		//validation.Field(&v.Ext, validation.In("jpeg", "png")),
+		// validation.Field(&v.Ext, validation.In("jpeg", "png")),
 	)
 }
 
@@ -102,6 +103,6 @@ func (v Data) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.ID, validation.Length(15, 15)),
 		validation.Field(&v.Content, validation.Length(1, 254)),
-		//validation.Field(&v.Ext, validation.In("jpeg", "png")),
+		// validation.Field(&v.Ext, validation.In("jpeg", "png")),
 	)
 }
