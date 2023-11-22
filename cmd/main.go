@@ -114,6 +114,10 @@ func cmdUpdate() *cobra.Command {
 				fmt.Print(err)
 				os.Exit(1)
 			}
+			if err := app.Migrate(); err != nil {
+				fmt.Print(err)
+				os.Exit(1)
+			}
 		},
 	}
 
