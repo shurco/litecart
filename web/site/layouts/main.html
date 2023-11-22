@@ -57,7 +57,7 @@
 
         <ul class="mt-8 flex justify-center gap-6 sm:mt-0 lg:justify-end">
           <li v-for="(item, key, index) in socials">
-            <a :href="item" rel="noreferrer" target="_blank" class="text-blue-700 transition hover:opacity-75">
+            <a :href="socialUrl[key]+item" rel="noreferrer" target="_blank" class="text-blue-700 transition hover:opacity-75">
               <span class="sr-only">{{key}}</span>
               <svg class="h-6 w-6">
                 <use v-bind="{'xlink:href':'/assets/img/socials.svg#'+key}" />

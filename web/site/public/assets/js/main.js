@@ -27,7 +27,15 @@ const App = {
       products: ref([]),
 
       // pages
-      content: ref([])
+      content: ref([]),
+
+      socialUrl: {
+        facebook: "https://facebook.com/",
+        instagram: "https://instagram.com/",
+        twitter: "https://twitter.com/@",
+        dribbble: "https://dribbble.com/",
+        github: "https://github.com/",
+      }
     }
   },
 
