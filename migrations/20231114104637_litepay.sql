@@ -10,7 +10,7 @@ INSERT INTO setting VALUES ('UXMw8hijBLb7K59', 'spectrocoin_project_id', '');
 INSERT INTO setting VALUES ('cPw4L82dsCLFKxr', 'spectrocoin_private_key', '');
 INSERT INTO setting VALUES ('pF1gvf3AAiTL8uN', 'mail_letter_payment', '{"subject":"New payment transaction","text":"Hello,\nWe would like to inform you about the registration of a new payment transaction on the [{{.Site_Name}}] website.\n\nTransaction information:\nAmount payment: {{.Amount_Payment}}\nPayment url: {{.Payment_URL}}\n\nBest regards,","html":""}');
 ALTER TABLE cart DROP COLUMN "name";
-ALTER TABLE cart ADD COLUMN "payment_system" TEXT NOT NULL;
+ALTER TABLE cart ADD COLUMN "payment_system" TEXT NOT NULL DEFAULT "";
 -- +goose StatementEnd
 
 -- +goose Down

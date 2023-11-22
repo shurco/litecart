@@ -1,6 +1,9 @@
 package fsutil
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 // IsDir reports whether the named directory exists.
 func IsDir(path string) bool {
@@ -12,6 +15,18 @@ func IsDir(path string) bool {
 		return fi.IsDir()
 	}
 	return false
+}
+
+// IsEmptyDir reports whether the named directory is empty.
+func IsEmptyDir(dirPath string) bool {
+	f, err := os.Open(dirPath)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	return err == io.EOF
 }
 
 // Workdir get

@@ -222,6 +222,14 @@ const App = {
     },
 
     showPayments() {
+      if (!this.payments['stripe'] && !this.payments['spectrocoin']) {
+        localStorage.removeItem('provider')
+        return false
+      }
+      return true
+    },
+
+    showSelectPayments() {
       if (this.payments['stripe'] && !this.payments['spectrocoin']) {
         localStorage.setItem('provider', 'stripe')
         return false
@@ -230,7 +238,6 @@ const App = {
         localStorage.setItem('provider', 'spectrocoin')
         return false
       }
-
       return true
     },
 

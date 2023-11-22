@@ -59,7 +59,7 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 		if DevMode {
 			sitePath = "../web/site"
 		} else {
-			if !fsutil.IsDir(sitePath) {
+			if !fsutil.IsDir(sitePath) || fsutil.IsEmptyDir(sitePath) {
 				fsutil.EmbedExtract(web.EmbedSite(), "")
 			}
 		}

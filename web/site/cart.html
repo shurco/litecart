@@ -37,88 +37,102 @@
               </div>
             </div>
 
-            <div class="mt-8 border-t border-gray-100 pt-8">
-              <div class="mx-auto max-w-xl text-center">
-                <p class="mt-4 text-gray-400">
-                  To continue, you need to enter the email address to which the item will be sent after payment.
-                  <span v-if="showPayments()">Also, choose the payment system through which the payment will be made.</span>
-                </p>
+            <div v-if="showPayments()">
+              <div class="mt-8 border-t border-gray-100 pt-8">
+                <div class="mx-auto max-w-xl text-center">
+                  <p class="mt-4 text-gray-400">
+                    To continue, you need to enter the email address to which the item will be sent after payment.
+                    <span v-if="showSelectPayments()">Also, choose the payment system through which the payment will be made.</span>
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div class="mt-8 border-t border-gray-100 pt-8">
-              <div class="text-center">
-                <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl">Enter email</sppan>
-              </div>
-              <div class="flex place-content-center">
-                <label for="email" class="min-w-[50%] relative block rounded-md border border-gray-200 shadow-sm 
+              <div class="mt-8 border-t border-gray-100 pt-8">
+                <div class="text-center">
+                  <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl">Enter email</sppan>
+                </div>
+                <div class="flex place-content-center">
+                  <label for="email" class="min-w-[50%] relative block rounded-md border border-gray-200 shadow-sm 
                   focus-within:border-blue-500 
                   focus-within:ring-1 
                   focus-within:ring-blue-500" :class="email?'border-blue-500 bg-blue-100 border-2':''">
-                  <input type="text" v-model="email" id="email"
-                    class="min-w-full peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0" placeholder="Email" />
-                  <span class="rounded pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-blue-500 py-0.5 px-1 text-xs text-white transition-all 
+                    <input type="text" v-model="email" id="email"
+                      class="min-w-full peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0" placeholder="Email" />
+                    <span class="rounded pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-blue-500 py-0.5 px-1 text-xs text-white transition-all 
                     peer-placeholder-shown:top-1/2 
                     peer-placeholder-shown:text-sm
                     peer-placeholder-shown:bg-white
                     peer-placeholder-shown:text-gray-700
                     peer-focus:top-0 
                     peer-focus:text-xs">Email</span>
-                </label>
+                  </label>
+                </div>
               </div>
-            </div>
 
-            <div class="mt-8 border-t border-gray-100 pt-8" v-if="showPayments()">
-              <div class="text-center">
-                <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl">Select payment system</p>
-              </div>
-              <div class="flex place-content-center">
-                <fieldset class="space-y-4 min-w-[50%]">
-                  <div v-if="payments['stripe']">
-                    <input type="radio" v-model="provider" name="provider" value="stripe" id="stripe" class="peer hidden" />
-                    <label for="stripe" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
+              <div class="mt-8 border-t border-gray-100 pt-8" v-if="showSelectPayments()">
+                <div class="text-center">
+                  <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl">Select payment system</p>
+                </div>
+                <div class="flex place-content-center">
+                  <fieldset class="space-y-4 min-w-[50%]">
+                    <div v-if="payments['stripe']">
+                      <input type="radio" v-model="provider" name="provider" value="stripe" id="stripe" class="peer hidden" />
+                      <label for="stripe" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
                           peer-checked:border-blue-500 
                           peer-checked:ring-1 
                           peer-checked:bg-blue-100
                           peer-checked:ring-blue-500
                           ">
-                      <dl class="flex flex-col">
-                        <p class="text-gray-700 text-sm font-medium">Stripe</p>
-                        <p class="text-gray-400 text-xs">Popular payment system for accepting online payments</p>
-                      </dl>
-                    </label>
-                  </div>
+                        <dl class="flex flex-col">
+                          <p class="text-gray-700 text-sm font-medium">Stripe</p>
+                          <p class="text-gray-400 text-xs">Popular payment system for accepting online payments</p>
+                        </dl>
+                      </label>
+                    </div>
 
-                  <div v-if="payments['spectrocoin']">
-                    <input type="radio" v-model="provider" name="provider" value="spectrocoin" id="spectrocoin" class="peer hidden" />
-                    <label for="spectrocoin" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
+                    <div v-if="payments['spectrocoin']">
+                      <input type="radio" v-model="provider" name="provider" value="spectrocoin" id="spectrocoin" class="peer hidden" />
+                      <label for="spectrocoin" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
                         peer-checked:border-blue-500 
                           peer-checked:ring-1 
                         peer-checked:bg-blue-100
                         peer-checked:ring-blue-500
                         ">
-                      <dl class="flex flex-col">
-                        <p class="text-gray-700 text-sm font-medium">Spectrocoin</p>
-                        <p class="text-gray-400 text-xs">Payment system allowing to pay bills with cryptocurrency</p>
-                      </dl>
-                    </label>
-                  </div>
-                </fieldset>
+                        <dl class="flex flex-col">
+                          <p class="text-gray-700 text-sm font-medium">Spectrocoin</p>
+                          <p class="text-gray-400 text-xs">Payment system allowing to pay bills with cryptocurrency</p>
+                        </dl>
+                      </label>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+
+              <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
+                <div class="w-screen max-w-lg space-y-4 flex justify-end" v-if="showSelectPayments()">
+                  <input v-if="email && provider" type="submit" value="Checkout"
+                    class="disabled:opacity-25 disabled:bg-gray-400 cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                </div>
+
+                <div class="w-screen max-w-lg space-y-4 flex justify-end" v-else>
+                  <input type="submit" value="Checkout" :disabled="email ? false : true"
+                    class="disabled:opacity-25 disabled:bg-gray-400 cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                </div>
               </div>
             </div>
 
-            <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-              <div class="w-screen max-w-lg space-y-4 flex justify-end" v-if="showPayments()">
-                <input v-if="email && provider" type="submit" value="Checkout" class="cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
-              </div>
-
-              <div class="w-screen max-w-lg space-y-4 flex justify-end" v-else>
-                <input v-if="email" type="submit" value="Checkout" class="cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+            <div v-else>
+              <div class="mt-8 border-t border-gray-100 pt-8">
+                <div class="mx-auto max-w-xl text-center">
+                  <p class="mt-4 text-red-400">
+                    To continue with the payment, the administrator must activate at least one payment system.</span>
+                  </p>
+                </div>
               </div>
             </div>
+
           </div>
         </form>
-
       </div>
     </div>
   </section>
