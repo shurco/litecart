@@ -2,7 +2,7 @@ const { createApp, ref } = Vue
 
 import FormButton from '/assets/js/form/button.js'
 
-createApp({
+const App = {
   components: {
     FormButton
   },
@@ -10,10 +10,11 @@ createApp({
   data() {
     return {
       // settings
-      currency: sessionStorage.getItem('currency'),
+      currency: sessionStorage.getItem('currency') || '',
       pages: JSON.parse(sessionStorage.getItem('pages')) || ref([]),
       socials: JSON.parse(sessionStorage.getItem('socials')) || ref([]),
       payments: ref([]),
+      title: sessionStorage.getItem('title') || 'litecart',
 
       // cart
       cart: JSON.parse(localStorage.getItem('cart')) || ref([]),
@@ -29,11 +30,23 @@ createApp({
     }
   },
 
-  mounted() {
-    if (!sessionStorage.getItem('currency')) {
+  created() {
+    if (
+      !sessionStorage.getItem('currency') ||
+      !sessionStorage.getItem('pages') ||
+      !sessionStorage.getItem('socials') ||
+      !sessionStorage.getItem('title') ||
+      !sessionStorage.getItem('timestamp')
+    ) {
       this.settings()
     }
 
+    if (Date.now() > sessionStorage.getItem('timestamp')) {
+      this.settings()
+    }
+  },
+
+  beforeMount() {
     const currentPathname = window.location.pathname
     switch (true) {
       case currentPathname.startsWith('/cart'):
@@ -55,12 +68,17 @@ createApp({
         this.listProducts()
         break
     }
+  },
+
+  mounted() {
+    this.$nextTick(function () {
+      console.log('mounted2')
+    })
 
     // init meta tags
-    const title = sessionStorage.getItem('title') || 'litecart'
-    document.title = title
-    document.querySelector('meta[name="title"]').setAttribute('content', title)
-    document.querySelector('meta[property="og:title"]').setAttribute('content', title)
+    document.title = this.title
+    document.querySelector('meta[name="title"]').setAttribute('content', this.title)
+    document.querySelector('meta[property="og:title"]').setAttribute('content', this.title)
 
     // init cart events
     window.addEventListener('addProduct', (event) => {
@@ -80,9 +98,20 @@ createApp({
       })
       const resp = await response.json()
       if (resp.success) {
-        sessionStorage.setItem('currency', resp.result.main.currency)
-        sessionStorage.setItem('title', resp.result.main.site_name)
+        var timestamp = new Date(Date.now())
+        timestamp.setTime(timestamp.getTime() + 5 * 60 * 1000)
+        sessionStorage.setItem('timestamp', timestamp.getTime())
+
+        this.currency = resp.result.main.currency
+        sessionStorage.setItem('currency', this.currency)
+
+        this.title = resp.result.main.site_name
+        sessionStorage.setItem('title', this.title)
+
+        this.pages = resp.result.pages
         sessionStorage.setItem('pages', JSON.stringify(resp.result.pages))
+
+        this.socials = resp.result.socials
         sessionStorage.setItem('socials', JSON.stringify(resp.result.socials))
       }
     },
@@ -111,9 +140,9 @@ createApp({
         product.inCart = true
         const image = product.images
           ? {
-              name: product.images[0].name,
-              ext: product.images[0].ext
-            }
+            name: product.images[0].name,
+            ext: product.images[0].ext
+          }
           : null
 
         window.dispatchEvent(
@@ -259,6 +288,7 @@ createApp({
         if (this.content.seo.title) {
           document.title = this.content.seo.title
           document.querySelector('meta[name="title"]').setAttribute('content', this.content.seo.title)
+          document.querySelector('meta[property="og:title"]').setAttribute('content', this.content.seo.title)
         }
         if (this.content.seo.keywords) {
           document.querySelector('meta[name="keywords"]').setAttribute('content', this.content.seo.keywords)
@@ -277,4 +307,7 @@ createApp({
       return Number(cost) ? (Number(cost) / 100).toFixed(2) : '0.00'
     }
   }
-}).mount('#app')
+}
+
+const app = createApp(App)
+app.mount('#app')

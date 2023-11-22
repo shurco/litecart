@@ -1,11 +1,14 @@
 {
+  "name": "litecart-site",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
     "dev": "npx tailwindcss -o ./public/assets/css/style.css --watch  --minify",
-    "build": "npx tailwindcss -o ./public/assets/css/style.css --minify"
+    "build": "npx tailwindcss -o ./public/assets/css/style.css --minify",
+    "update": "ncu -i --format group"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.4",
-    "tailwindcss": "^3.3.3"
-  },
-  "dependencies": {}
+    "@tailwindcss/forms": "^0.5.7",
+    "tailwindcss": "^3.3.5"
+  }
 }
