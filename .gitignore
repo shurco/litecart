@@ -45,5 +45,9 @@ fixtures/migration/*_private.sql
 .DS_Store
 
 web/site/public/assets/js/vue.js
+web/site/public/assets/js/nprogress.js
+web/site/public/assets/js/vue-demi.js
+web/site/public/assets/js/pinia.js
+web/site/public/assets/css/nprogress.css
 
 /main.go

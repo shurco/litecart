@@ -264,6 +264,7 @@ All the code is located in the folder ./web/admin. The command `cd ./web/admin &
 
 #### Base site (frontend)
 To develop the web interface of the admin panel, you need to start the litepay server (for example, execute the command from the project root `go run ./cmd/main.go serve`).  
+Run `./scripts/webscripts` to download and install the necessary JavaScript libraries into the folder ./web/site/public/assets/js/.
 To update the styles, it is necessary to execute the command `cd ./web/site && yarn run build`.  
 If you actively change styles, you can run the command `cd ./web/site && yarn run dev`. It will monitor changes in files and automatically update the style file.
 

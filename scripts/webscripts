@@ -1,11 +1,49 @@
 #!/usr/bin/env bash
 
-#set -e
-
 ROOT_PATH="$(git rev-parse --show-toplevel)"
 source ${ROOT_PATH}/scripts/_helper
 
+NODE_ENV=".prod"
+[[ $1 == "dev" ]] && NODE_ENV=""
+
 print_header "Install/Update vue"
 VUECORE_LATEST=$(get_latest_release "vuejs/core")
-wget "https://unpkg.com/vue@${VUECORE_LATEST:1}/dist/vue.global.prod.js" -4 -q -O ${ROOT_PATH}/web/site/public/assets/js/vue.js
-print_answer "SUCCESS" green
+wget "https://unpkg.com/vue@${VUECORE_LATEST:1}/dist/vue.global${NODE_ENV}.js" -4 -q -O ${ROOT_PATH}/web/site/public/assets/js/vue.js
+if [ -s "${ROOT_PATH}/web/site/public/assets/js/vue.js" ]; then
+  print_answer "SUCCESS" green
+else
+  print_answer "ERROR" red
+  rm ${ROOT_PATH}/web/site/public/assets/js/vue.js
+fi
+
+# print_header "Install/Update nprogress"
+# NPROGRESS_LATEST=$(get_latest_release "rstacruz/nprogress")
+# wget "https://unpkg.com/nprogress@${NPROGRESS_LATEST:1}/nprogress.js" -4 -q -O ${ROOT_PATH}/web/site/public/assets/js/nprogress.js
+# wget "https://unpkg.com/nprogress@${NPROGRESS_LATEST:1}/nprogress.css" -4 -q -O ${ROOT_PATH}/web/site/public/assets/css/nprogress.css
+# if [ -s "${ROOT_PATH}/web/site/public/assets/js/nprogress.js" ] && [ -s "${ROOT_PATH}/web/site/public/assets/css/nprogress.css" ]; then
+#   print_answer "SUCCESS" green
+# else
+#   print_answer "ERROR" red
+#   rm ${ROOT_PATH}/web/site/public/assets/js/nprogress.js
+#   rm ${ROOT_PATH}/web/site/public/assets/css/nprogress.css
+# fi
+
+# print_header "Install/Update vue-demi"
+# VUEDEMI_LATEST=$(get_latest_release "vueuse/vue-demi")
+# wget "https://unpkg.com/vue-demi@${VUEDEMI_LATEST:1}/lib/index.iife.js" -4 -q -O ${ROOT_PATH}/web/site/public/assets/js/vue-demi.js
+# if [ -s "${ROOT_PATH}/web/site/public/assets/js/vue-demi.js" ]; then
+#   print_answer "SUCCESS" green
+# else
+#   print_answer "ERROR" red
+#   rm ${ROOT_PATH}/web/site/public/assets/js/vue-demi.js
+# fi
+
+# print_header "Install/Update pinia"
+# PINIA_LATEST=$(get_latest_release "vuejs/pinia")
+# wget "https://unpkg.com/pinia@${PINIA_LATEST:6}/dist/pinia.iife${NODE_ENV}.js" -4 -q -O ${ROOT_PATH}/web/site/public/assets/js/pinia.js
+# if [ -s "${ROOT_PATH}/web/site/public/assets/js/pinia.js" ]; then
+#   print_answer "SUCCESS" green
+# else
+#   print_answer "ERROR" red
+#   rm ${ROOT_PATH}/web/site/public/assets/js/pinia.js
+# fi

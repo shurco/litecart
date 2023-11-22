@@ -10,6 +10,7 @@ const App = {
   data() {
     return {
       // settings
+      loaded: false,
       currency: sessionStorage.getItem('currency') || '',
       pages: JSON.parse(sessionStorage.getItem('pages')) || ref([]),
       socials: JSON.parse(sessionStorage.getItem('socials')) || ref([]),
@@ -72,7 +73,7 @@ const App = {
 
   mounted() {
     this.$nextTick(function () {
-      console.log('mounted2')
+      this.loaded = true;
     })
 
     // init meta tags
