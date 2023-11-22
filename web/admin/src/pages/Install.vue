@@ -15,8 +15,6 @@
         <FormInput v-model="state.password" :error="errors.password" id="password" type="password" rules="required|min:6" title="Password*" ico="finger-print" />
         <hr />
         <FormInput v-model="state.domain" :error="errors.domain" id="domain" type="text" rules="required" title="Domain*" ico="glob-alt" />
-        <FormInput v-model="state.stripe_secret" :error="errors.stripe_secret" id="stripe_secret" type="text" rules="min:100" title="Stripe secret key" ico="key" />
-
         <FormButton type="submit" name="Create my cart" color="green" ico="arrow-right" />
       </Form>
     </div>
@@ -37,7 +35,6 @@ const state = ref({
   email: "",
   password: "",
   domain: "",
-  stripe_secret: "",
 });
 
 const onSubmit = async () => {

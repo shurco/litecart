@@ -51,12 +51,11 @@ func (q *InstallQueries) Install(i *models.Install) error {
 	}
 
 	settings := map[string]string{
-		"installed":         "true",
-		"domain":            i.Domain,
-		"email":             i.Email,
-		"password":          security.GeneratePassword(i.Password),
-		"jwt_secret":        jwt_secret,
-		"stripe_secret_key": i.StripeSecret,
+		"installed":  "true",
+		"domain":     i.Domain,
+		"email":      i.Email,
+		"password":   security.GeneratePassword(i.Password),
+		"jwt_secret": jwt_secret,
 	}
 
 	for key, value := range settings {
