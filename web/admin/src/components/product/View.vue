@@ -35,7 +35,7 @@
           </div>
         </DetailList>
 
-        <DetailList name="description">{{ product.description }}</DetailList>
+        <DetailList name="description" v-html="product.description"></DetailList>
       </dl>
     </div>
 

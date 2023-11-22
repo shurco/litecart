@@ -80,7 +80,10 @@
           <FormUpload :productId="`${product.id}`" accept=".jpg,.jpeg,.png" section="image" @added="addProductImage" />
 
           <hr />
-          <FormTextarea v-model="product.description" id="textarea" name="Description" />
+          
+          <span>Description</span>
+          <Editor v-model:model-value="product.description"/>
+
         </dl>
       </div>
 
@@ -106,6 +109,7 @@ import { onMounted, computed, ref } from "vue";
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
+import Editor from "@/components/Editor.vue"
 import FormUpload from "@/components/form/Upload.vue";
 import { costFormat, costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
