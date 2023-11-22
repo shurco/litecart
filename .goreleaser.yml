@@ -21,7 +21,7 @@ builds:
       - arm64
     ldflags:
       - -s -w
-      - -X "main.version={{.Version}}"
+      - -X "main.version=v{{.Version}}"
       - -X "main.gitCommit={{.ShortCommit}}"
       - -X "main.buildDate={{.Now.Format "2006-01-02"}}"
     main: ./cmd/main.go
