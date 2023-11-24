@@ -1,14 +1,15 @@
 <template>
   <div>
-    <div class="pb-8">
-      <div class="flex items-center">
-        <div class="pr-3">
-          <h1>Stripe</h1>
-        </div>
-        <FormToggle v-model="settings.active" class="pt-1" @change="active" />
-      </div>
-    </div>
     <Form @submit="updateSetting()" v-slot="{ errors }">
+      <div class="pb-8">
+        <div class="flex items-center">
+          <div class="pr-3">
+            <h1>Stripe</h1>
+          </div>
+          <FormToggle v-model="settings.active" :disabled="Object.keys(errors).length > 0" class="pt-1" @change="active" />
+        </div>
+      </div>
+
       <div class="flow-root">
         <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
           <FormInput v-model.trim="settings.secret_key" :error="errors.secret_key" rules="required|min:100" id="secret_key" type="text" title="Secret key" ico="key" />
@@ -28,7 +29,6 @@
         </div>
       </div>
     </Form>
-
   </div>
 </template>
 

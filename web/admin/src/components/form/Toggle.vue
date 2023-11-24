@@ -1,6 +1,6 @@
 <template>
-  <label :for="`toggle_` + id" class="relative h-6 w-10 cursor-pointer [-webkit-tap-highlight-color:_transparent] none">
-    <input type="checkbox" :id="`toggle_` + id" v-model="model" :checked="Boolean(model)"
+  <label :for="`toggle_` + id" class="none relative h-6 w-10 cursor-pointer [-webkit-tap-highlight-color:_transparent]" :class="{ 'opacity-25': disabled }">
+    <input type="checkbox" :id="`toggle_` + id" v-model="model" :checked="Boolean(model)" :disabled="disabled"
       class="peer sr-only [&:checked_+_span_svg[data-checked-icon]]:block [&:checked_+_span_svg[data-unchecked-icon]]:hidden" />
 
     <span
@@ -21,25 +21,26 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
   modelValue: {
-    required: true
+    required: true,
   },
   id: {
     type: String,
-    default: 'name'
+    default: "name",
   },
-})
+  disabled: Boolean,
+});
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(["update:modelValue"]);
 const model = computed({
   get: () => {
-    return props.modelValue
+    return props.modelValue;
   },
   set: (val) => {
-    emits('update:modelValue', val)
-  }
-})
+    emits("update:modelValue", val);
+  },
+});
 </script>
