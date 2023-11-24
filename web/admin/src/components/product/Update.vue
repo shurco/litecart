@@ -82,7 +82,7 @@
           <hr />
           
           <span>Description</span>
-          <Editor v-model:model-value="product.description"/>
+          <Editor v-model:model-value="product.description" placeholder="type description here"/>
 
         </dl>
       </div>

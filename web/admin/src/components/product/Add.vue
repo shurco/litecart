@@ -70,10 +70,14 @@
           </div>
 
           <hr />
-          
-          <span>Description</span>
-          <Editor v-model:model-value="product.description"  />
+          <br />
+          <br />
 
+          <b style="font-weight: 550;">Description</b>
+          <Editor v-model:model-value="product.description"  placeholder="type description here"/>
+          
+          <br />
+          <br />
         </dl>
       </div>
 

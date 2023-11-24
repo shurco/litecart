@@ -49,6 +49,7 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { EditorContent, Editor } from "@tiptap/vue-3";
+import Placeholder from '@tiptap/extension-placeholder'
 import StarterKit from "@tiptap/starter-kit";
 
 const emits = defineEmits(["update:modelValue"]);
@@ -58,12 +59,14 @@ const props = defineProps({
     type: String,
     required: true,
     default: "",
-  },
+  }, placeholder: String
 });
 
 onMounted(() => {
   editor.value = new Editor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Placeholder.configure({
+      placeholder: props.placeholder,
+    })],
     content: props.modelValue,
     onUpdate: () => {
       emits("update:modelValue", editor.value.getHTML());
@@ -88,8 +91,17 @@ watch(
 </script>
 
 <style lang="scss">
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+
 .ProseMirror:focus {
-  outline: none;
+  outline:none;
 }
 
 button,
