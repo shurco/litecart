@@ -63,3 +63,35 @@ h3 {
   border-top: 2px solid rgba(13, 13, 13, 0.1);
   margin: 2rem 0;
 }
+
+
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+  quotes: "\201C""\201D""\2018""\2019";
+}
+
+blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+
+blockquote p {
+  display: inline;
+}
+
+ul {
+  list-style: circle inside none;
+  margin: 1.5em 10px;
+}
+
+ol {
+  list-style: decimal-leading-zero;
+  margin: 1.5em 10px;
+}
