@@ -65,30 +65,46 @@ func parseBody(r io.Reader) (map[string]any, error) {
 }
 
 // StatusPayment is ...
-func StatusPayment(status string) Status {
-	statusBase := map[string]Status{
-		// stripe status
-		"pay":                     PAY,
-		"paid":                    PAY,
-		"unpaid":                  UNPAID,
-		"open":                    PROCESSED,
-		"complete":                PAY,
-		"expired":                 CANCELED,
-		"requires_payment_method": FAILED,
-		"requires_confirmation":   FAILED,
-		"requires_action":         FAILED,
-		"processing":              PROCESSED,
-		"requires_capture":        PROCESSED,
-		"canceled":                CANCELED,
-		"succeeded":               PAY,
+func StatusPayment(system PaymentSystem, status string) Status {
+	statusBase := map[string]Status{}
 
-		// spectrocoin status
-		"1": UNPAID,    // new
-		"2": PROCESSED, // pending, Payment (or part of it) was received, but still waiting for confirmation
-		"3": PAY,       // paid, Order is completed
-		"4": FAILED,    // failed, Some error occurred
-		"5": FAILED,    // expired, Payment was not received in time
-		"6": TEST,      // test, Test order
+	switch system {
+	case STRIPE:
+		statusBase = map[string]Status{
+			"pay":                     PAID,
+			"paid":                    PAID,
+			"unpaid":                  UNPAID,
+			"open":                    PROCESSED,
+			"complete":                PAID,
+			"expired":                 CANCELED,
+			"requires_payment_method": FAILED,
+			"requires_confirmation":   FAILED,
+			"requires_action":         FAILED,
+			"processing":              PROCESSED,
+			"requires_capture":        PROCESSED,
+			"canceled":                CANCELED,
+			"succeeded":               PAID,
+		}
+
+	case PAYPAL:
+		statusBase = map[string]Status{
+			"CREATED":               PROCESSED,
+			"SAVED":                 PROCESSED,
+			"APPROVED":              PROCESSED,
+			"VOIDED":                CANCELED,
+			"COMPLETED":             PAID,
+			"PAYER_ACTION_REQUIRED": PROCESSED,
+		}
+
+	case SPECTROCOIN:
+		statusBase = map[string]Status{
+			"1": UNPAID,    // new
+			"2": PROCESSED, // pending, Payment (or part of it) was received, but still waiting for confirmation
+			"3": PAID,      // paid, Order is completed
+			"4": FAILED,    // failed, Some error occurred
+			"5": FAILED,    // expired, Payment was not received in time
+			"6": TEST,      // test, Test order
+		}
 	}
 
 	statusTmp := statusBase[status]

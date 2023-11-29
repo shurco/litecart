@@ -80,7 +80,7 @@ func UpdateSettings(c *fiber.Ctx) error {
 
 	sectionTmp := map[string]any{}
 	if err := json.Unmarshal(c.Body(), &sectionTmp); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 	section := ""
 	for key := range sectionTmp {
@@ -89,14 +89,14 @@ func UpdateSettings(c *fiber.Ctx) error {
 	}
 
 	switch section {
-	case "stripe", "spectrocoin":
+	case "stripe", "paypal", "spectrocoin":
 		if err := json.Unmarshal(c.Body(), &request.PaymentSystem); err != nil {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
 		}
 	}
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdateSettings(request, section); err != nil {
@@ -115,7 +115,7 @@ func SettingByKey(c *fiber.Ctx) error {
 	switch settingKey {
 	case "password":
 		return webutil.StatusNotFound(c)
-	case "main", "social", "jwt", "webhook", "smtp", "stripe", "spectrocoin":
+	case "main", "social", "jwt", "webhook", "smtp", "stripe", "paypal", "spectrocoin":
 		section, err := db.SettingBySection(settingKey)
 		if err != nil {
 			if err == errors.ErrSettingNotFound {
@@ -145,7 +145,7 @@ func UpdateSettingByKey(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdateSettingValueByKey(request); err != nil {

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/shurco/litecart/internal/models"
+	"github.com/shurco/litecart/pkg/errors"
 )
 
 // CartQueries is ...
@@ -20,7 +21,7 @@ type CartQueries struct {
 func (q *CartQueries) PaymentList() (map[string]bool, error) {
 	payments := map[string]bool{}
 	keys := []any{
-		"stripe_active", "spectrocoin_active",
+		"stripe_active", "paypal_active", "spectrocoin_active",
 	}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
@@ -134,27 +135,25 @@ func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
 	WHERE id = ?
 	`
 
-	rows, err := q.DB.QueryContext(context.TODO(), query, cartId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var email, paymentID sql.NullString
-	var updated sql.NullInt64
+	var created, updated sql.NullInt64
 	cart := &models.Cart{}
 
-	err = rows.Scan(
-		&cart.ID,
-		&email,
-		&cart.AmountTotal,
-		&cart.Currency,
-		&paymentID,
-		&cart.PaymentStatus,
-		&cart.Created,
-		&updated,
-	)
+	err := q.DB.QueryRowContext(context.TODO(), query, cartId).
+		Scan(
+			&cart.ID,
+			&email,
+			&cart.AmountTotal,
+			&cart.Currency,
+			&paymentID,
+			&cart.PaymentStatus,
+			&created,
+			&updated,
+		)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.ErrProductNotFound
+		}
 		return nil, err
 	}
 
@@ -166,12 +165,12 @@ func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
 		cart.PaymentID = paymentID.String
 	}
 
-	if updated.Valid {
-		cart.Updated = updated.Int64
+	if created.Valid {
+		cart.Created = created.Int64
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
+	if updated.Valid {
+		cart.Updated = updated.Int64
 	}
 
 	return cart, nil

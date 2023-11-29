@@ -225,6 +225,21 @@ To obtain the Secret key in Stripe, follow these steps:
 > [!WARNING]
 > Please note that the "Secret key" is confidential information that should be kept secure.
 
+
+#### PayPal
+PayPal is an online payment system that allows individuals and businesses to send and receive money over the internet. It enables payments for goods and services, as well as transfers between users. PayPal provides a secure and convenient way to make electronic payments.
+
+To obtain a Client ID and Secret Key for using the PayPal API, you need to follow these steps:
+
+1. To use the API, you will need a PayPal business account.
+2. Go to the <a href="https://developer.paypal.com/" target="_blank">PayPal Developer</a> website and sign in with your PayPal business account credentials.
+3. In the Dashboard, find the "My Apps & Credentials" section and create a new application by clicking the "Create App" button.
+4. On the application page, you will see your Client ID. It will be visible immediately after creating the application. To see the Secret Key, click on the "Show" button under the "Secret" label.
+
+> [!WARNING]
+> Please note that the "Secret key" is confidential information that should be kept secure.
+
+
 #### SpectroCoin
 <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> is a payment system and cryptocurrency wallet that allows users to send and receive payments in various currencies, including cryptocurrencies such as Bitcoin, Ethereum, and others. It also offers currency exchange operations between different currencies and the ability to deposit and withdraw funds to bank accounts. <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> ensures the security of payments and cryptocurrency storage, as well as offering additional features such as debit cards.
 
@@ -275,7 +290,7 @@ If you actively change styles, you can run the command `cd ./web/site && yarn ru
 - [x] Product in the form of license keys
 - [ ] Product returned via API to another site (example license keys)
 - [x] <a href="#stripe">Payment Stripe</a>
-- [ ] Payment PayPal
+- [x] <a href="#paypal">Payment PayPal</a>
 - [ ] Payment Square
 - [ ] Payment Adyen
 - [ ] Payment Checkout

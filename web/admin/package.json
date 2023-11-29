@@ -13,12 +13,12 @@
     "@tiptap/pm": "^2.1.12",
     "@tiptap/starter-kit": "^2.1.12",
     "@tiptap/vue-3": "^2.1.12",
-    "@vee-validate/rules": "^4.11.8",
+    "@vee-validate/rules": "^4.12.1",
     "notiwind": "^2.0.2",
     "nprogress": "^0.2.0",
     "pinia": "^2.1.7",
-    "vee-validate": "^4.11.8",
-    "vue": "^3.3.8",
+    "vee-validate": "^4.12.1",
+    "vue": "^3.3.9",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

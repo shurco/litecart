@@ -85,7 +85,22 @@
                           ">
                         <dl class="flex flex-col">
                           <p class="text-gray-700 text-sm font-medium">Stripe</p>
-                          <p class="text-gray-400 text-xs">Popular payment system for accepting online payments</p>
+                          <p class="text-gray-400 text-xs">A popular payment system that allows payments with cards and<br />other widely available methods</p>
+                        </dl>
+                      </label>
+                    </div>
+
+                    <div v-if="payments['paypal']">
+                      <input type="radio" v-model="provider" name="provider" value="paypal" id="paypal" class="peer hidden" />
+                      <label for="paypal" class="flex cursor-pointer items-center rounded-lg border border-gray-100 bg-white p-4 shadow-sm hover:border-gray-200 
+                        peer-checked:border-blue-500 
+                          peer-checked:ring-1 
+                        peer-checked:bg-blue-100
+                        peer-checked:ring-blue-500
+                        ">
+                        <dl class="flex flex-col">
+                          <p class="text-gray-700 text-sm font-medium">Paypal</p>
+                          <p class="text-gray-400 text-xs">A popular payment system that allows payments with cards and<br /> funds from a PayPal account.</p>
                         </dl>
                       </label>
                     </div>

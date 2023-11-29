@@ -230,7 +230,7 @@ const App = {
     },
 
     showPayments() {
-      if (!this.payments['stripe'] && !this.payments['spectrocoin']) {
+      if (!this.payments['stripe'] && !this.payments['paypal'] && !this.payments['spectrocoin']) {
         localStorage.removeItem('provider')
         return false
       }
@@ -238,11 +238,16 @@ const App = {
     },
 
     showSelectPayments() {
-      if (this.payments['stripe'] && !this.payments['spectrocoin']) {
+      if (this.payments['stripe'] && !this.payments['paypal'] && !this.payments['spectrocoin']) {
         localStorage.setItem('provider', 'stripe')
         return false
       }
-      if (!this.payments['stripe'] && this.payments['spectrocoin']) {
+      if (!this.payments['stripe'] && this.payments['paypal'] && !this.payments['spectrocoin']) {
+        localStorage.setItem('provider', 'paypal')
+        return false
+      }
+
+      if (!this.payments['stripe'] && !this.payments['paypal'] && this.payments['spectrocoin']) {
         localStorage.setItem('provider', 'spectrocoin')
         return false
       }

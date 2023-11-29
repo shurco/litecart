@@ -123,7 +123,7 @@ func SendCartLetter(cartID string) error {
 	keys := []models.Data{}
 	var cartJSON, letter string
 
-	err := db.QueryRowContext(context.TODO(), `SELECT email, cart FROM cart WHERE payment_status = ? AND id = ?`, litepay.PAY, cartID).Scan(&mail.To, &cartJSON)
+	err := db.QueryRowContext(context.TODO(), `SELECT email, cart FROM cart WHERE payment_status = ? AND id = ?`, litepay.PAID, cartID).Scan(&mail.To, &cartJSON)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.ErrPageNotFound

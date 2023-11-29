@@ -80,6 +80,20 @@ func (v Stripe) Validate() error {
 	)
 }
 
+type Paypal struct {
+	ClientID  string `json:"client_id"`
+	SecretKey string `json:"secret_key"`
+	Active    bool   `json:"active"`
+}
+
+// Validate is ...
+func (v Paypal) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.ClientID, validation.Length(80, 80)),
+		validation.Field(&v.SecretKey, validation.Length(80, 80)),
+	)
+}
+
 type Spectrocoin struct {
 	MerchantID string `json:"merchant_id"`
 	ProjectID  string `json:"project_id"`
@@ -99,6 +113,7 @@ func (v Spectrocoin) Validate() error {
 type PaymentSystem struct {
 	Active      []string    `json:"active"`
 	Stripe      Stripe      `json:"stripe"`
+	Paypal      Paypal      `json:"paypal"`
 	Spectrocoin Spectrocoin `json:"spectrocoin"`
 }
 
@@ -106,6 +121,7 @@ type PaymentSystem struct {
 func (v PaymentSystem) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Stripe),
+		validation.Field(&v.Paypal),
 		validation.Field(&v.Spectrocoin),
 	)
 }
