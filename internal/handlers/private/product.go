@@ -34,7 +34,7 @@ func AddProduct(c *fiber.Ctx) error {
 	request := &models.Product{}
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	product, err := db.AddProduct(request)
@@ -68,7 +68,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	request.ID = productID
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdateProduct(request); err != nil {
@@ -245,11 +245,11 @@ func AddProductDigital(c *fiber.Ctx) error {
 func UpdateProductDigital(c *fiber.Ctx) error {
 	request := new(models.Data)
 	request.ID = c.Params("digital_id")
-	//request.Content = c.Params("digital_id")
+	// request.Content = c.Params("digital_id")
 	db := queries.DB()
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdateDigital(request); err != nil {

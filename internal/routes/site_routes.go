@@ -34,9 +34,6 @@ func SiteRoutes(c *fiber.App) {
 
 	payment := c.Group("/cart/payment")
 	payment.Post("/", handlers.Payment)
-	// payment.Get("/callback/:cart_id<len(15)>", handlers.PaymentCallback)
-	// payment.Get("/success/:cart_id<len(15)>/:session_id", handlers.PaymentSuccess)
-	// payment.Get("/cancel/:cart_id<len(15)>", handlers.PaymentCancel)
 	payment.Post("/callback", handlers.PaymentCallback)
 	payment.Get("/success", handlers.PaymentSuccess)
 	payment.Get("/cancel", handlers.PaymentCancel)

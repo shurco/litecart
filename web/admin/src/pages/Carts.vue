@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr :class="{ 'bg-green-50': item.payment_status === 'pay' }" v-for="(item, index) in carts">
+          <tr :class="{ 'bg-green-50': item.payment_status === 'paid' }" v-for="(item, index) in carts">
             <td>{{ item.email }}</td>
             <td>
               <a :href="`https://dashboard.stripe.com/payments/${item.payment_id}`" target="_blank">
@@ -31,7 +31,7 @@
             <td v-if="item.updated">{{ formatDate(item.updated) }}</td>
             <td v-else></td>
             <td>
-              <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5" v-if="item.payment_status === 'pay'" @click="sendEmail(item.id)" />
+              <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5" v-if="item.payment_status === 'paid'" @click="sendEmail(item.id)" />
               <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5 opacity-30" v-else />
             </td>
           </tr>

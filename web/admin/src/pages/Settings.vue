@@ -64,8 +64,8 @@
         <h2 class="mb-5">Payment</h2>
         <div class="flex mb-7">
           <div class="cursor-pointer rounded-lg px-3 py-3" @click="openDrawer('stripe')" :class="store.payments[`stripe`] ? 'bg-green-200 ' : 'bg-gray-200'">Stripe</div>
-          <div class="cursor-pointer rounded-lg px-3 py-3 ml-5" @click="openDrawer('spectrocoin')" :class="store.payments[`spectrocoin`] ? 'bg-green-200 ' : 'bg-gray-200'">Spectrocoin
-          </div>
+          <div class="cursor-pointer rounded-lg px-3 py-3 ml-5" @click="openDrawer('paypal')" :class="store.payments[`paypal`] ? 'bg-green-200 ' : 'bg-gray-200'">Paypal</div>
+          <div class="cursor-pointer rounded-lg px-3 py-3 ml-5" @click="openDrawer('spectrocoin')" :class="store.payments[`spectrocoin`] ? 'bg-green-200 ' : 'bg-gray-200'">Spectrocoin</div>
         </div>
         <hr class="mt-5" />
       </div>
@@ -160,6 +160,7 @@
 
     <drawer :is-open="isDrawer.open" max-width="725px" @close="closeDrawer">
       <Stripe :close="closeDrawer" v-if="isDrawer.action === 'stripe'" />
+      <Paypal :close="closeDrawer" v-if="isDrawer.action === 'paypal'" />
       <Spectrocoin :close="closeDrawer" v-if="isDrawer.action === 'spectrocoin'" />
 
       <Letter :close="closeDrawer" :send="sendTestLetter" :legend="letterLegend['mail_letter_payment']" name="mail_letter_payment"
@@ -175,6 +176,7 @@ import { onMounted, ref } from "vue";
 
 import MainLayouts from "@/layouts/Main.vue";
 import Stripe from "@/components/setting/Stripe.vue";
+import Paypal from "@/components/setting/Paypal.vue";
 import Spectrocoin from "@/components/setting/Spectrocoin.vue";
 import Letter from "@/components/setting/Letter.vue";
 import FormInput from "@/components/form/Input.vue";

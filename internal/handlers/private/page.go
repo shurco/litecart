@@ -28,7 +28,7 @@ func AddPage(c *fiber.Ctx) error {
 	request := new(models.Page)
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	page, err := db.AddPage(request)
@@ -48,7 +48,7 @@ func UpdatePage(c *fiber.Ctx) error {
 	request.ID = pageID
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdatePage(request); err != nil {
@@ -83,7 +83,7 @@ func UpdatePageContent(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdatePageContent(request); err != nil {

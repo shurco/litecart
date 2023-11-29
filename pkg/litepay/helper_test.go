@@ -92,32 +92,33 @@ func Test_parseBody(t *testing.T) {
 
 func Test_statusPayment(t *testing.T) {
 	cases := []struct {
+		payment  PaymentSystem
 		status   string
 		expected Status
 	}{
-		{"pay", PAY},
-		{"paid", PAY},
-		{"unpaid", UNPAID},
-		{"open", PROCESSED},
-		{"complete", PAY},
-		{"expired", CANCELED},
-		{"requires_payment_method", FAILED},
-		{"requires_confirmation", FAILED},
-		{"requires_action", FAILED},
-		{"processing", PROCESSED},
-		{"requires_capture", PROCESSED},
-		{"canceled", CANCELED},
-		{"succeeded", PAY},
-		{"2", PROCESSED},
-		{"3", PAY},
-		{"4", FAILED},
-		{"5", FAILED},
-		{"6", TEST},
-		{"", FAILED},
+		{STRIPE, "pay", PAID},
+		{STRIPE, "paid", PAID},
+		{STRIPE, "unpaid", UNPAID},
+		{STRIPE, "open", PROCESSED},
+		{STRIPE, "complete", PAID},
+		{STRIPE, "expired", CANCELED},
+		{STRIPE, "requires_payment_method", FAILED},
+		{STRIPE, "requires_confirmation", FAILED},
+		{STRIPE, "requires_action", FAILED},
+		{STRIPE, "processing", PROCESSED},
+		{STRIPE, "requires_capture", PROCESSED},
+		{STRIPE, "canceled", CANCELED},
+		{STRIPE, "succeeded", PAID},
+		{SPECTROCOIN, "2", PROCESSED},
+		{SPECTROCOIN, "3", PAID},
+		{SPECTROCOIN, "4", FAILED},
+		{SPECTROCOIN, "5", FAILED},
+		{SPECTROCOIN, "6", TEST},
+		{SPECTROCOIN, "", FAILED},
 	}
 
 	for _, tt := range cases {
-		result := StatusPayment(tt.status)
+		result := StatusPayment(tt.payment, tt.status)
 		assert.Equal(t, tt.expected, result)
 	}
 }

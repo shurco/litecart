@@ -145,6 +145,12 @@ func (q *SettingQueries) UpdateSettings(settings *models.Setting, section string
 			"stripe_secret_key": settings.PaymentSystem.Stripe.SecretKey,
 			"stripe_active":     settings.PaymentSystem.Stripe.Active,
 		}
+	case "paypal":
+		sectionSettings = map[string]any{
+			"paypal_client_id":  settings.PaymentSystem.Paypal.ClientID,
+			"paypal_secret_key": settings.PaymentSystem.Paypal.SecretKey,
+			"paypal_active":     settings.PaymentSystem.Paypal.Active,
+		}
 	case "spectrocoin":
 		sectionSettings = map[string]any{
 			"spectrocoin_merchant_id": &settings.PaymentSystem.Spectrocoin.MerchantID,
@@ -223,6 +229,14 @@ func (q *SettingQueries) SettingBySection(section string) (any, error) {
 			FieldMap: map[string]any{
 				"stripe_secret_key": &settings.PaymentSystem.Stripe.SecretKey,
 				"stripe_active":     &settings.PaymentSystem.Stripe.Active,
+			},
+		},
+		"paypal": {
+			Keys: []any{"paypal_client_id", "paypal_secret_key", "paypal_active"},
+			FieldMap: map[string]any{
+				"paypal_client_id":  &settings.PaymentSystem.Paypal.ClientID,
+				"paypal_secret_key": &settings.PaymentSystem.Paypal.SecretKey,
+				"paypal_active":     &settings.PaymentSystem.Paypal.Active,
 			},
 		},
 		"spectrocoin": {
@@ -310,6 +324,8 @@ func (q *SettingQueries) SettingBySection(section string) (any, error) {
 		return settings.Main.JWT, nil
 	case "stripe":
 		return settings.PaymentSystem.Stripe, nil
+	case "paypal":
+		return settings.PaymentSystem.Paypal, nil
 	case "spectrocoin":
 		return settings.PaymentSystem.Spectrocoin, nil
 	case "webhook":
@@ -443,44 +459,6 @@ func (q *SettingQueries) SettingJWT() (*jwtutil.Setting, error) {
 
 	return settings, nil
 }
-
-/*
-// SettingStripe is ...
-// TODO: delete it !!!
-func (q *SettingQueries) SettingStripe() (*models.Setting, error) {
-	settings := &models.Setting{}
-
-	query := `SELECT key, value FROM setting WHERE key IN (?, ?, ?)`
-	rows, err := q.DB.QueryContext(context.TODO(), query, "stripe_secret_key", "domain", "webhook_url")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var key, value string
-		err := rows.Scan(&key, &value)
-		if err != nil {
-			return nil, err
-		}
-
-		switch key {
-		case "stripe_secret_key":
-			settings.PaymentSystem.Stripe.SecretKey = value
-		case "domain":
-			settings.Main.Domain = fmt.Sprintf("https://%s", value)
-		case "webhook_url":
-			settings.Webhook.Url = value
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return settings, nil
-}
-*/
 
 // ListSocials is ...
 func (q *SettingQueries) ListSocials() (*models.Social, error) {

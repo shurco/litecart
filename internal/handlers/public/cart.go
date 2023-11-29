@@ -33,7 +33,7 @@ func Payment(c *fiber.Ctx) error {
 	payment := new(models.Payment)
 
 	if err := c.BodyParser(payment); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	db := queries.DB()
@@ -83,7 +83,7 @@ func Payment(c *fiber.Ctx) error {
 
 	settingPayment, err := db.SettingBySection(string(payment.Provider))
 	if err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	callbackURL := fmt.Sprintf("https://%s/cart/payment/callback", domain)
@@ -102,7 +102,19 @@ func Payment(c *fiber.Ctx) error {
 		session := pay.Stripe(setting.SecretKey)
 		response, err := session.Pay(cart)
 		if err != nil {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		paymentURL = response.URL
+
+	case litepay.PAYPAL:
+		setting := settingPayment.(models.Paypal)
+		if !setting.Active {
+			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
+		}
+		session := pay.Paypal(setting.ClientID, setting.SecretKey)
+		response, err := session.Pay(cart)
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
 		}
 		paymentURL = response.URL
 
@@ -114,7 +126,7 @@ func Payment(c *fiber.Ctx) error {
 		session := pay.Spectrocoin(setting.MerchantID, setting.ProjectID, setting.PrivateKey)
 		response, err := session.Pay(cart)
 		if err != nil {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
 		}
 		paymentURL = response.URL
 	}
@@ -138,7 +150,7 @@ func Payment(c *fiber.Ctx) error {
 
 	// send email
 	if err := mailer.SendPrepaymentLetter(payment.Email, fmt.Sprintf("%.2f %s", float64(amountTotal)/100, cart.Currency), paymentURL); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	// send hook
@@ -155,7 +167,7 @@ func Payment(c *fiber.Ctx) error {
 		},
 	}
 	if err := webhook.SendPaymentHook(hook); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
@@ -175,9 +187,9 @@ func PaymentCallback(c *fiber.Ctx) error {
 	case litepay.SPECTROCOIN:
 		response := new(litepay.CallbackSpectrocoin)
 		if err := c.BodyParser(response); err != nil {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
 		}
-		payment.Status = litepay.StatusPayment(string(rune(response.Status)))
+		payment.Status = litepay.StatusPayment(litepay.SPECTROCOIN, string(rune(response.Status)))
 		payment.MerchantID = response.MerchantApiID
 		payment.Coin = &litepay.Coin{
 			AmountTotal: response.ReceiveAmount,
@@ -185,8 +197,21 @@ func PaymentCallback(c *fiber.Ctx) error {
 		}
 	}
 
+	db := queries.DB()
+	err := db.UpdateCart(&models.Cart{
+		Core: models.Core{
+			ID: payment.CartID,
+		},
+		PaymentID:     payment.MerchantID,
+		PaymentStatus: payment.Status,
+		PaymentSystem: payment.PaymentSystem,
+	})
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
 	// send email
-	if payment.Status == litepay.PAY {
+	if payment.Status == litepay.PAID {
 		if err := mailer.SendCartLetter(payment.CartID); err != nil {
 			return err
 		}
@@ -203,7 +228,7 @@ func PaymentCallback(c *fiber.Ctx) error {
 		},
 	}
 	if err := webhook.SendPaymentHook(hook); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return c.Status(fiber.StatusOK).SendString("*ok*")
@@ -212,6 +237,10 @@ func PaymentCallback(c *fiber.Ctx) error {
 // PaymentSuccess is ...
 // [get] /cart/payment/success
 func PaymentSuccess(c *fiber.Ctx) error {
+	if c.Query("cart_id") == "" {
+		return webutil.StatusBadRequest(c, nil)
+	}
+
 	payment := &litepay.Payment{
 		CartID:        c.Query("cart_id"),
 		PaymentSystem: litepay.PaymentSystem(c.Query("payment_system")),
@@ -224,22 +253,43 @@ func PaymentSuccess(c *fiber.Ctx) error {
 	db := queries.DB()
 	settingPayment, err := db.SettingBySection(string(payment.PaymentSystem))
 	if err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	cartInfo, err := db.Cart(c.Query("cart_id"))
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	if cartInfo.PaymentStatus == "paid" {
+		return c.Render("success", nil, "layouts/main")
 	}
 
 	switch payment.PaymentSystem {
 	case litepay.STRIPE:
 		sessionStripe := c.Query("session")
-
 		setting := settingPayment.(models.Stripe)
 		if !setting.Active {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
 		}
-
 		response, err := litepay.New("", "", "").Stripe(setting.SecretKey).Checkout(payment, sessionStripe)
 		if err != nil {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
 		}
+		payment.MerchantID = response.MerchantID
+		payment.Status = response.Status
+
+	case litepay.PAYPAL:
+		tokenPaypal := c.Query("token")
+		setting := settingPayment.(models.Paypal)
+		if !setting.Active {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		response, err := litepay.New("", "", "").Paypal(setting.ClientID, setting.SecretKey).Checkout(payment, tokenPaypal)
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		payment.MerchantID = response.MerchantID
 		payment.Status = response.Status
 
 	case litepay.SPECTROCOIN:
@@ -250,17 +300,18 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		Core: models.Core{
 			ID: payment.CartID,
 		},
+		PaymentID:     payment.MerchantID,
 		PaymentStatus: payment.Status,
 		PaymentSystem: payment.PaymentSystem,
 	})
 	if err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	// send email
-	if payment.Status == litepay.PAY {
+	if payment.Status == litepay.PAID {
 		if err := mailer.SendCartLetter(payment.CartID); err != nil {
-			return webutil.StatusBadRequest(c, err)
+			return webutil.StatusBadRequest(c, err.Error())
 		}
 	}
 
@@ -275,7 +326,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		},
 	}
 	if err := webhook.SendPaymentHook(hook); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return c.Render("success", nil, "layouts/main")
@@ -298,7 +349,7 @@ func PaymentCancel(c *fiber.Ctx) error {
 		PaymentSystem: payment.PaymentSystem,
 	})
 	if err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	// send hook
@@ -312,7 +363,7 @@ func PaymentCancel(c *fiber.Ctx) error {
 		},
 	}
 	if err := webhook.SendPaymentHook(hook); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return c.Render("cancel", nil, "layouts/main")

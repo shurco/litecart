@@ -20,11 +20,11 @@ func SignIn(c *fiber.Ctx) error {
 	request := new(models.SignIn)
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := request.Validate(); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	passwordHash, err := db.GetPasswordByEmail(request.Email)
@@ -86,7 +86,7 @@ func SignOut(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:    "token",
 		Expires: time.Now().Add(-(time.Hour * 2)),
-		//HTTPOnly: true,
+		// HTTPOnly: true,
 		SameSite: "lax",
 	})
 

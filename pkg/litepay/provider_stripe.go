@@ -75,7 +75,7 @@ func (c *stripe) Pay(cart Cart) (*Payment, error) {
 	checkout := &Payment{
 		AmountTotal:   int(data["amount_total"].(float64)),
 		Currency:      strings.ToUpper(data["currency"].(string)),
-		Status:        StatusPayment(data["payment_status"].(string)),
+		Status:        StatusPayment(STRIPE, data["payment_status"].(string)),
 		URL:           data["url"].(string),
 		PaymentSystem: c.paymentSystem,
 	}
@@ -109,9 +109,10 @@ func (c *stripe) Checkout(payment *Payment, session string) (*Payment, error) {
 		return nil, err
 	}
 
+	payment.MerchantID = data["payment_intent"].(string)
 	payment.AmountTotal = int(data["amount_total"].(float64))
 	payment.Currency = strings.ToUpper(data["currency"].(string))
-	payment.Status = StatusPayment(data["payment_status"].(string))
+	payment.Status = StatusPayment(STRIPE, data["payment_status"].(string))
 
 	return payment, nil
 }

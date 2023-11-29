@@ -15,11 +15,11 @@ func Install(c *fiber.Ctx) error {
 	request := new(models.Install)
 
 	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := request.Validate(); err != nil {
-		return webutil.StatusBadRequest(c, err)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.Install(request); err != nil {

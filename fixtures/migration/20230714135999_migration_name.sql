@@ -62,7 +62,7 @@ INSERT INTO product_image (id, product_id, name, ext, orig_name) VALUES
 
 INSERT INTO cart (id, email, amount_total, currency, payment_id, payment_status, payment_system, cart, updated) VALUES 
 ('efzs4xayz43f226', NULL, 4200, 'USD', NULL, 'cancel', 'stripe', '[{"id":"7mweb67t8xv9pzx","quantity":1},{"id":"fv6c9s9cqzf36sc","quantity":1}]', NULL),
-('iodz4ibf5h5zmov', 'user@gmail.com', 6300, 'USD', 'pi_3NpAmuBDuthUZlLW11fS8GrB', 'pay', 'stripe', '[{"id":"fv6c9s9cqzf36sc","quantity":1},{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"7mweb67t8xv9pzx","quantity":1}]', datetime('now'));
+('iodz4ibf5h5zmov', 'user@gmail.com', 6300, 'USD', 'pi_3NpAmuBDuthUZlLW11fS8GrB', 'paid', 'stripe', '[{"id":"fv6c9s9cqzf36sc","quantity":1},{"id":"xrtb1b919t2nuj9","quantity":1},{"id":"7mweb67t8xv9pzx","quantity":1}]', datetime('now'));
 -- +goose StatementEnd
 
 
