@@ -70,7 +70,14 @@
           </div>
 
           <hr />
-          <FormTextarea v-model="product.description" id="textarea" name="Description" />
+          <br />
+          <br />
+
+          <b style="font-weight: 550;">Description</b>
+          <Editor v-model:model-value="product.description"  placeholder="type description here"/>
+          
+          <br />
+          <br />
         </dl>
       </div>
 
@@ -94,6 +101,7 @@ import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormSelect from "@/components/form/Select.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
+import Editor from "@/components/Editor.vue"
 import { costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiPost } from "@/utils/api";

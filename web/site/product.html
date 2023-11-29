@@ -3,20 +3,27 @@
     <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8" v-if="load">
         <div class="relative h-[350px] sm:h-[450px]">
-          <img :src="(product.images ? `/uploads/${product.images[0].name}_md.${product.images[0].ext}` : '/assets/img/noimage.png')" alt=""
+          <img
+            :src="(product.images ? `/uploads/${product.images[0].name}_md.${product.images[0].ext}` : '/assets/img/noimage.png')"
+            alt
             class="rounded-lg absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0" />
-          <img :src="(product.images ? `/uploads/${product.images[0].name}_md.${product.images[0].ext}` : '/assets/img/noimage.png')" alt=""
+          <img
+            :src="(product.images ? `/uploads/${product.images[0].name}_md.${product.images[0].ext}` : '/assets/img/noimage.png')"
+            alt
             class="rounded-lg absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100" />
         </div>
         <div class="lg:col-span-2">
-          <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
-          <p class="mt-4">{{product.description}}</p>
-            <ul class="mt-4 list-disc pl-4">
-              <li v-for="(item, index) in product.attributes">{{item}}</li>
-            </ul>
-          <p class="mt-4 text-2xl font-black">{{ costFormat( product.amount ) }} {{ currency }}</p>
-          <form-button type="submit" name="Add" color="green" ico="plus" class="mt-4" @click="addCart(product.id)" v-if="!product.inCart"></form-button>
-          <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="removeCart(product.id)" v-else></form-button>
+          <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>        
+        <div class="mt-4" v-html="product.description"></div>
+          <ul class="mt-4 list-disc pl-4">
+            <li v-for="(item, index) in product.attributes">{{item}}</li>
+          </ul>
+          <p class="mt-4 text-2xl font-black">{{ costFormat( product.amount ) }}
+            {{ currency }}</p>
+          <form-button type="submit" name="Add" color="green" ico="plus"
+            class="mt-4" @click="addCart(product.id)" v-if="!product.inCart"></form-button>
+          <form-button type="submit" name="Remove" color="red" ico="trash"
+            class="mt-4" @click="removeCart(product.id)" v-else></form-button>
         </div>
       </div>
     </div>
