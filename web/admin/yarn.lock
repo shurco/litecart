@@ -764,6 +764,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-paragraph/-/extension-paragraph-2.1.12.tgz#922447b2aa1c7184787d351ceec593a74d24ed03"
   integrity sha512-hoH/uWPX+KKnNAZagudlsrr4Xu57nusGekkJWBcrb5MCDE91BS+DN2xifuhwXiTHxnwOMVFjluc0bPzQbkArsw==
 
+"@tiptap/extension-placeholder@^2.1.12":
+  version "2.1.12"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-placeholder/-/extension-placeholder-2.1.12.tgz#f6267a563d17a5ae8a04da32231eac8d8868519e"
+  integrity sha512-K52o7B1zkP4vaVy3z4ZwHn+tQy6KlXtedj1skLg+796ImwH2GYS5z6MFOTfKzBO2hLncUzLco/s0C5PLCD6SDw==
+
 "@tiptap/extension-strike@^2.1.12":
   version "2.1.12"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-strike/-/extension-strike-2.1.12.tgz#2b049aedf2985e9c9e3c3f1cc0b203a574c85bd8"
@@ -846,12 +851,12 @@
   resolved "https://registry.yarnpkg.com/@types/throttle-debounce/-/throttle-debounce-2.1.0.tgz#1c3df624bfc4b62f992d3012b84c56d41eab3776"
   integrity sha512-5eQEtSCoESnh2FsiLTxE121IiE60hnMqcb435fShf4bpLRjEu1Eoekht23y6zXS9Ts3l+Szu3TARnTsA0GkOkQ==
 
-"@vee-validate/rules@^4.12.1":
-  version "4.12.1"
-  resolved "https://registry.yarnpkg.com/@vee-validate/rules/-/rules-4.12.1.tgz#cca494bb6aa4959a0bca52213a94f98a14dd91c9"
-  integrity sha512-cXxKYhedNE9Pu+5yB1TAQt1WfOt0J6jNOMrDaC07vqe2tRV5dkb033DsWL2atKRPU6iaa+fVysQcSPNvwUM6cw==
+"@vee-validate/rules@^4.12.2":
+  version "4.12.2"
+  resolved "https://registry.yarnpkg.com/@vee-validate/rules/-/rules-4.12.2.tgz#b2ef49f81ef76968801889b26b24098c758afde2"
+  integrity sha512-eWgXmwazMFXzwkdUzb5OI/qlzYj7NE9lbLS4WIcPSWmfStyGhePeEXpsuOcx0Yl8OKvCP4hB0eEP4JXYZm+C9w==
   dependencies:
-    vee-validate "4.12.1"
+    vee-validate "4.12.2"
 
 "@vitejs/plugin-vue-jsx@^3.0.2":
   version "3.1.0"
@@ -2165,10 +2170,10 @@ util-deprecate@^1.0.2:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
-vee-validate@4.12.1, vee-validate@^4.12.1:
-  version "4.12.1"
-  resolved "https://registry.yarnpkg.com/vee-validate/-/vee-validate-4.12.1.tgz#4cab69c4895243b9a8bdb23f7886bb2e6a72eee4"
-  integrity sha512-CPqBfJwWGePCPzhtwLZ7mFLGn45V2i+C/S0+nBybD+o+btsH1W6Ri8p1sNtbTtESQ5HJTYfCrzX/Mf6uFWH8Fw==
+vee-validate@4.12.2, vee-validate@^4.12.2:
+  version "4.12.2"
+  resolved "https://registry.yarnpkg.com/vee-validate/-/vee-validate-4.12.2.tgz#7f3e2ef23f7ef254fbdb00e58ca34458023e4d68"
+  integrity sha512-SF5AOHbyW8vy09FgMRVHxCtK/3D5Jsk0VyvMf/HZhwPgpjGCCBW6ZWDW11/HC6pRbMOjTcg3YueBI6hb3oveYg==
   dependencies:
     "@vue/devtools-api" "^6.5.1"
     type-fest "^4.8.2"
@@ -2181,10 +2186,10 @@ vite-plugin-svgs-icons@^1.0.2:
     "@vitejs/plugin-vue-jsx" "^3.0.2"
     vue "^3.3.4"
 
-vite@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-5.0.2.tgz#3c94627dace83b9bf04b64eaf618038e30fb95c0"
-  integrity sha512-6CCq1CAJCNM1ya2ZZA7+jS2KgnhbzvxakmlIjN24cF/PXhRMzpM/z8QgsVJA/Dm5fWUWnVEsmtBoMhmerPxT0g==
+vite@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.0.3.tgz#febf6801604c618234de331bd04382cf9a149ec6"
+  integrity sha512-WgEq8WEKpZ8c0DL4M1+E+kBZEJyjBmGVrul6z8Ljfhv+PPbNF4aGq014DwNYxGz2FGq6NKL0N8usdiESWd2l2w==
   dependencies:
     esbuild "^0.19.3"
     postcss "^8.4.31"
