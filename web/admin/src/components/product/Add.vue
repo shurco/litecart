@@ -70,8 +70,12 @@
           </div>
 
           <hr />
+          <p class="font-semibold">Short description</p>
+          <FormTextarea v-model="product.brief" id="textarea" name="Brief" />
+
+          <hr />
           <p class="font-semibold">Description</p>
-          <Editor v-model:model-value="product.description"  placeholder="type description here"/>
+          <Editor v-model:model-value="product.description" placeholder="type description here" />
 
         </dl>
       </div>

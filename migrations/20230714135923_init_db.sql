@@ -63,7 +63,7 @@ CREATE TABLE product (
 	id         TEXT PRIMARY KEY NOT NULL,
 	name       TEXT NOT NULL,
 	desc       TEXT NOT NULL,
-	slug        TEXT UNIQUE NOT NULL,
+	slug       TEXT UNIQUE NOT NULL,
 	amount     NUMERC NOT NULL,
 	metadata   JSON DEFAULT '{}' NOT NULL,
 	attribute  JSON DEFAULT '[]' NOT NULL,

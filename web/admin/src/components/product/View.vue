@@ -35,7 +35,9 @@
           </div>
         </DetailList>
 
-        <DetailList name="description" v-html="product.description"></DetailList>
+        <DetailList name="Brief (short description)">{{ product.brief }}</DetailList>
+
+        <div v-html="product.description" class="pt-3 tiptap"></div>
       </dl>
     </div>
 

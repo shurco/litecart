@@ -16,6 +16,7 @@ type Products struct {
 type Product struct {
 	Core
 	Name        string     `json:"name"`
+	Brief       string     `json:"brief,omitempty"`
 	Description string     `json:"description,omitempty"`
 	Images      []File     `json:"images,omitempty"`
 	Slug        string     `json:"slug"`

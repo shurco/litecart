@@ -10,16 +10,22 @@
         </div>
         <div class="lg:col-span-2">
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
-          <div class="mt-4 prod_desc" v-html="product.description"></div>
-          <ul class="mt-4 list-disc pl-4">
-            <li v-for="(item, index) in product.attributes">{{item}}</li>
-          </ul>
-          <p class="mt-4 text-2xl font-black">{{ costFormat( product.amount ) }}
-            {{ currency }}</p>
-          <form-button type="submit" name="Add" color="green" ico="plus" class="mt-4" @click="addCart(product.id)" v-if="!product.inCart"></form-button>
-          <form-button type="submit" name="Remove" color="red" ico="trash" class="mt-4" @click="removeCart(product.id)" v-else></form-button>
+          <div class="mt-4">
+            <span v-for="(item, index) in product.attributes" class="mr-2 whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-sm text-purple-700">{{ item }}</span>
+          </div>
+          <div class="mt-4">{{ product.brief }}</div>
+
+          <div class="flex mt-4">
+            <div class="flex-none w-32">
+              <form-button type="submit" name="Add" color="green" ico="plus" @click="addCart(product.id)" v-if="!product.inCart"></form-button>
+              <form-button type="submit" name="Remove" color="red" ico="trash" @click="removeCart(product.id)" v-else></form-button>
+            </div>
+            <div class="grow relative inline-flex items-center"><p class="text-2xl font-black">{{ costFormat( product.amount ) }} {{ currency }}</p></div>
+          </div>
         </div>
       </div>
+
+      <div class="mt-8 prod_desc border-t border-gray-100 pt-8 " v-html="product.description"></div>
     </div>
   </section>
 </div>
