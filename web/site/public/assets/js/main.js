@@ -209,6 +209,8 @@ const App = {
       localStorage.setItem('email', this.email)
       localStorage.setItem('provider', this.provider)
 
+      this.showOverlay()
+
       var cart = {
         email: this.email,
         provider: this.provider,
@@ -321,6 +323,16 @@ const App = {
             .setAttribute('content', this.content.seo.description)
         }
       }
+    },
+
+    showOverlay() {
+      document.getElementById('overlay').classList.remove('hidden');
+      document.getElementById('overlay').classList.add('flex');
+    },
+
+    hideOverlay() {
+      document.getElementById('overlay').classList.remove('flex');
+      document.getElementById('overlay').classList.add('hidden');
     },
 
     // other utils

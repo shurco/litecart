@@ -124,13 +124,10 @@
               </div>
 
               <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-                <div class="w-screen max-w-lg space-y-4 flex justify-end" v-if="showSelectPayments()">
-                  <input v-if="email && provider" type="submit" value="Checkout"
+                <div class="w-screen max-w-lg space-y-4 flex justify-end">
+                  <input v-if="email && provider" type="submit" value="Checkout" :disabled="(email && provider) ? false : true"
                     class="disabled:opacity-25 disabled:bg-gray-400 cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
-                </div>
-
-                <div class="w-screen max-w-lg space-y-4 flex justify-end" v-else>
-                  <input type="submit" value="Checkout" :disabled="email ? false : true"
+                  <input v-else type="submit" value="Checkout" :disabled="email ? false : true"
                     class="disabled:opacity-25 disabled:bg-gray-400 cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
                 </div>
               </div>
