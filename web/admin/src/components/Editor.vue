@@ -59,7 +59,8 @@ const props = defineProps({
     type: String,
     required: true,
     default: "",
-  }, placeholder: String
+  },
+  placeholder: String,
 });
 
 onMounted(() => {
@@ -101,7 +102,7 @@ watch(
 
 
 .ProseMirror:focus {
-  outline:none;
+  outline: none;
 }
 
 button,

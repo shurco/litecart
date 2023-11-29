@@ -33,6 +33,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct
 			SELECT DISTINCT
 			  product.id, 
 				product.name, 
+				product.brief,
 				product.slug,
 				product.amount,
 				product.active,
@@ -82,6 +83,7 @@ func (q *ProductQueries) ListProducts(private bool, idList ...models.CartProduct
 		err := rows.Scan(
 			&product.ID,
 			&product.Name,
+			&product.Brief,
 			&product.Slug,
 			&product.Amount,
 			&product.Active,
@@ -130,6 +132,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 			SELECT DISTINCT
 				product.id,
 				product.name, 
+				product.brief,
 				product.desc, 
 				product.slug, 
 				product.amount,
@@ -160,6 +163,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 		Scan(
 			&product.ID,
 			&product.Name,
+			&product.Brief,
 			&product.Description,
 			&product.Slug,
 			&product.Amount,
@@ -212,8 +216,8 @@ func (q *ProductQueries) AddProduct(product *models.Product) (*models.Product, e
 	metadata, _ := json.Marshal(product.Metadata)
 	attributes, _ := json.Marshal(product.Attributes)
 
-	sql := `INSERT INTO product (id, name, amount, slug, metadata, attribute, desc, digital, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE) RETURNING strftime('%s', created)`
-	err := q.DB.QueryRowContext(context.TODO(), sql, product.ID, product.Name, product.Amount, product.Slug, metadata, attributes, product.Description, product.Digital.Type).Scan(&product.Created)
+	sql := `INSERT INTO product (id, name, amount, slug, metadata, attribute, brief, desc, digital, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE) RETURNING strftime('%s', created)`
+	err := q.DB.QueryRowContext(context.TODO(), sql, product.ID, product.Name, product.Amount, product.Slug, metadata, attributes, product.Brief, product.Description, product.Digital.Type).Scan(&product.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -227,8 +231,9 @@ func (q *ProductQueries) UpdateProduct(product *models.Product) error {
 	attributes, _ := json.Marshal(product.Attributes)
 	seo, _ := json.Marshal(product.Seo)
 
-	_, err := q.DB.ExecContext(context.TODO(), `UPDATE product SET name = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute = ?, seo = ?, updated = datetime('now') WHERE id = ?`,
+	_, err := q.DB.ExecContext(context.TODO(), `UPDATE product SET name = ?, brief = ?, desc = ?, slug = ?, amount = ?, metadata = ?, attribute = ?, seo = ?, updated = datetime('now') WHERE id = ?`,
 		product.Name,
+		product.Brief,
 		product.Description,
 		product.Slug,
 		product.Amount,

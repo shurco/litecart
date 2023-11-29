@@ -36,33 +36,23 @@ h3 {
   }
 }
 
-.tiptap ul {
-  padding-left: 2.5rem;
-  list-style-type: disc;
-}
-
-.tiptap ol {
-  padding-left: 2.5rem;
-  list-style-type: decimal;
-}
-
-.tiptap > * + * {
+.prod_desc > * + * {
   margin-top: 0.75em;
 }
-.tiptap blockquote {
+.prod_desc blockquote {
   padding-left: 1rem;
   border-color: #6b7280;
   border-style: solid;
 }
-.tiptap blockquote ul {
+.prod_desc blockquote ul {
   padding-left: 1rem;
   list-style-type: disc;
 }
-.tiptap blockquote ol {
+.prod_desc blockquote ol {
   padding-left: 1rem;
   list-style-type: disc;
 }
-.tiptap hr {
+.prod_desc hr {
   border: none;
   border-top: 2px solid rgba(13, 13, 13, 0.1);
   margin: 2rem 0;
@@ -92,9 +82,11 @@ h3 {
 .prod_desc ul {
   list-style: circle inside none;
   margin: 1.5em 10px;
+  list-style-type: disc;
 }
 
 .prod_desc ol {
-  list-style: decimal-leading-zero;
+  list-style: circle inside none;
   margin: 1.5em 10px;
+  list-style-type: decimal;
 }

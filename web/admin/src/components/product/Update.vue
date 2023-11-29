@@ -80,10 +80,12 @@
           <FormUpload :productId="`${product.id}`" accept=".jpg,.jpeg,.png" section="image" @added="addProductImage" />
 
           <hr />
-          
-          <p class="font-semibold">Description</p>
-          <Editor v-model:model-value="product.description" placeholder="type description here"/>
+          <p class="font-semibold">Short description</p>
+          <FormTextarea v-model="product.brief" id="textarea" name="Brief" />
 
+          <hr />
+          <p class="font-semibold">Description</p>
+          <Editor v-model:model-value="product.description" placeholder="type description here" />
         </dl>
       </div>
 
@@ -109,7 +111,7 @@ import { onMounted, computed, ref } from "vue";
 import FormInput from "@/components/form/Input.vue";
 import FormButton from "@/components/form/Button.vue";
 import FormTextarea from "@/components/form/Textarea.vue";
-import Editor from "@/components/Editor.vue"
+import Editor from "@/components/Editor.vue";
 import FormUpload from "@/components/form/Upload.vue";
 import { costFormat, costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
@@ -128,8 +130,8 @@ const props = defineProps({
   close: Function,
 });
 
-const amount = ref()
-const product = ref({})
+const amount = ref();
+const product = ref({});
 
 const emits = defineEmits(["update:modelValue"]);
 const products = computed({
@@ -142,14 +144,16 @@ const products = computed({
 });
 
 onMounted(() => {
-  getProduct()
+  getProduct();
 });
 
 const getProduct = async () => {
-  apiGet(`/api/_/products/${products.value.products[props.drawer.product.index].id}`).then(res => {
+  apiGet(
+    `/api/_/products/${products.value.products[props.drawer.product.index].id}`,
+  ).then((res) => {
     if (res.success) {
       product.value = res.result;
-      amount.value = costFormat(product.value.amount)
+      amount.value = costFormat(product.value.amount);
       if (!product.value.images) {
         product.value.images = [];
       }
@@ -161,18 +165,20 @@ const getProduct = async () => {
 
 const updateProduct = async () => {
   product.value.amount = costStripe(amount.value);
-  apiUpdate(`/api/_/products/${product.value.id}`, product.value).then(res => {
-    if (res.success) {
-      products.value.products[props.drawer.product.index] = product.value;
-      showMessage(res.message);
-    } else {
-      showMessage(res.result, "connextError");
-    }
-  });
+  apiUpdate(`/api/_/products/${product.value.id}`, product.value).then(
+    (res) => {
+      if (res.success) {
+        products.value.products[props.drawer.product.index] = product.value;
+        showMessage(res.message);
+      } else {
+        showMessage(res.result, "connextError");
+      }
+    },
+  );
 };
 
 const deleteProduct = async () => {
-  apiDelete(`/api/_/products/${product.value.id}`).then(res => {
+  apiDelete(`/api/_/products/${product.value.id}`).then((res) => {
     if (res.success) {
       products.value.products.splice(props.drawer.product.index, 1);
       products.value.total--;
@@ -222,7 +228,9 @@ const addProductImage = (e) => {
 };
 
 const deleteProductImage = async (index) => {
-  apiDelete(`/api/_/products/${product.value.id}/image/${product.value.images[index].id}`).then(res => {
+  apiDelete(
+    `/api/_/products/${product.value.id}/image/${product.value.images[index].id}`,
+  ).then((res) => {
     if (res.success) {
       product.value.images.splice(index, 1);
     } else {
