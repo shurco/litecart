@@ -2,12 +2,31 @@
   <section>
     <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8" v-if="load">
-        <div class="relative h-[350px] sm:h-[450px]">
-          <img :src="(product.images ? `/uploads/${product.images[0].name}_md.${product.images[0].ext}` : '/assets/img/noimage.png')" alt
-            class="rounded-lg absolute inset-0 h-full w-full object-cover opacity-100 group-hover:opacity-0" />
-          <img :src="(product.images ? `/uploads/${product.images[0].name}_md.${product.images[0].ext}` : '/assets/img/noimage.png')" alt
-            class="rounded-lg absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100" />
-        </div>
+
+        <template v-if="!product.images">
+          <div class="relative h-[350px] sm:h-[450px]">
+            <img src="/assets/img/noimage.png" alt="" class="rounded-lg absolute inset-0 h-full w-full object-cover" />
+          </div>
+        </template>
+
+        <template v-else-if="product.images.length === 1">
+          <div class="relative h-[350px] sm:h-[450px]">
+            <img :src="`/uploads/${product.images[0].name}_md.${product.images[0].ext}`" alt="" class="rounded-lg absolute inset-0 h-full w-full object-cover" />
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="relative overflow-hidden h-[350px] sm:h-[450px] rounded-lg">
+            <div class="flex w-full h-full transition-transform duration-500 ease-in-out" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+              <div class="flex-shrink-0 w-full h-full" v-for="(slide, index) in product.images" :key="index">
+                <img :src="`/uploads/${slide.name}_md.${slide.ext}`" alt="" class="block w-full h-full object-cover" />
+              </div>
+            </div>
+            <button @click="prevSlide(product.images.length)" class="absolute left-0 top-1/2 bg-white p-2 rounded-r-lg">&#8592;</button>
+            <button @click="nextSlide(product.images.length)" class="absolute right-0 top-1/2 bg-white p-2 rounded-l-lg">&#8594;</button>
+          </div>
+        </template>
+
         <div class="lg:col-span-2">
           <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">{{product.name}}</h1>
           <div class="mt-4">
