@@ -20,7 +20,7 @@ table {
       @apply cursor-pointer hover:bg-gray-100 active:bg-gray-100;
   
       td {
-        @apply whitespace-nowrap px-4 py-2;
+        @apply px-4 py-2;
       }
     }
   }

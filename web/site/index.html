@@ -1,4 +1,3 @@
-
 <div>
   <section>
     <div class="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
@@ -8,25 +7,36 @@
             <img :src="(item.images ? `/uploads/${item.images[0].name}_md.${item.images[0].ext}` : '/assets/img/noimage.png')" alt=""
               class="h-[150px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[250px]" />
           </a>
-          <div class="relative bg-white mt-3">
-            <a :href="`/products/${item.slug}`" class="block overflow-hidden group"></a>
-            <h3 class="text-xs text-gray-700 group-hover:underline group-hover:underline-offset-4">
-              {{item.name}}
-            </h3>
-            </a>
-            <div class="flex justify-between mb-5 cursor-pointer">
+          <div class="relative bg-white mt-2">
+            <div class="flex justify-between cursor-pointer">
               <span class="tracking-wider text-gray-900">{{ costFormat( item.amount ) }} {{ currency }}</span>
-              <span @click="addCart(item.id)" v-if="!inCart(item.id) && !item.inCart || item.inCart === false">
-                <svg class="h-4 w-4">
-                  <use xlink:href="/assets/img/sprite.svg#cart" />
-                </svg>
-              </span>
-              <span @click="removeCart(item.id)" v-else>
-                <svg class="h-4 w-4 text-red-600">
-                  <use xlink:href="/assets/img/sprite.svg#trash" />
-                </svg>
-              </span>
+              <button @click="inCart(item.id) ? removeCart(item.id) : addCart(item.id)" :class="{'bg-green-600': !inCart(item.id),'bg-red-600': inCart(item.id)}"
+                class="group relative inline-flex items-center overflow-hidden rounded px-6 py-3 text-white focus:outline-none focus:ring">
+                <span v-if="!inCart(item.id)" class="absolute -start-full transition-all group-hover:start-4">
+                  <svg class="h-4 w-4 text-white">
+                    <use xlink:href="/assets/img/sprite.svg#plus" />
+                  </svg>
+                </span>
+                <span v-else class="absolute -start-full transition-all group-hover:start-4">
+                  <svg class="h-4 w-4 text-white">
+                    <use xlink:href="/assets/img/sprite.svg#minus" />
+                  </svg>
+                </span>
+                <span v-if="!inCart(item.id)" class="absolute end-4 transition-all group-hover:-end-full">
+                  <svg class="h-4 w-4 text-white">
+                    <use xlink:href="/assets/img/sprite.svg#cart" />
+                  </svg>
+                </span>
+                <span v-else class="absolute end-4 transition-all group-hover:-end-full">
+                  <svg class="h-4 w-4 text-white">
+                    <use xlink:href="/assets/img/sprite.svg#trash" />
+                  </svg>
+                </span>
+              </button>
             </div>
+            <a :href="`/products/${item.slug}`" class="block overflow-hidden group mb-5 mt-2">
+              <h3 class="text-sm text-gray-700 group-hover:underline group-hover:underline-offset-4">{{item.name}}</h3>
+            </a>
         </li>
       </ul>
       <div v-else>products not found</div>

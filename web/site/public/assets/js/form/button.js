@@ -37,7 +37,7 @@ export default {
     </svg>
   </span>
 
-  <span class="text-sm font-medium" :class="ico ? 'transition-all group-hover:ms-3' : ''">
+  <span class="text-sm font-medium" :class="ico ? 'transition-all group-hover:ms-3 group-hover:-me-3' : ''">
     {{name}}
   </span>
 </button>`

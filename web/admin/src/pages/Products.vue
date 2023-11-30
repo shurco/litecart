@@ -11,7 +11,7 @@
       <table>
         <thead>
           <tr>
-            <th class="w-28"></th>
+            <th class="w-28 hidden lg:block"></th>
             <th>Name</th>
             <th class="w-32">Slug</th>
             <th class="w-32">Price</th>
@@ -23,7 +23,7 @@
         </thead>
         <tbody>
           <tr :class="{ 'opacity-30': !item.active }" v-for="(item, index) in products.products">
-            <td>
+            <td class="hidden lg:block">
               <a :href="`/uploads/${item.images[0].name}.${item.images[0].ext}`" target="_blank" v-if="item.images">
                 <img style="width: 100%; max-width: 80px" :src="`/uploads/${item.images[0].name}_sm.${item.images[0].ext}`" loading="lazy" />
               </a>
@@ -31,6 +31,7 @@
             </td>
             <td @click="openDrawer(index, 'view')">
               <div>{{ item.name }}</div>
+              <span class="text-gray-400 hidden xl:block">{{ item.brief }}</span>
             </td>
             <td>
               <a :href="`/products/${item.slug}`" target="_blank" v-if="item.active">{{ item.slug }}</a>
@@ -40,7 +41,8 @@
               {{ costFormat(item.amount) }} {{ products.currency }}
             </td>
             <td class="px-4 py-2">
-              <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" :class="{ 'text-red-500': !item.digital.filled }" @click="openDrawer(index, 'digital')" stroke="currentColor" />
+              <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" :class="{ 'text-red-500': !item.digital.filled }" @click="openDrawer(index, 'digital')"
+                stroke="currentColor" />
             </td>
             <td class="px-4 py-2">
               <div class="flex">

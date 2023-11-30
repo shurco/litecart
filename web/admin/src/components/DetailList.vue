@@ -22,14 +22,14 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .detail-list {
-  @apply grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4;
+  @apply grid grid-cols-2 gap-4 py-3;
 
   & dt {
     @apply font-medium text-gray-900;
   }
 
   & dd {
-    @apply text-gray-700 sm:col-span-2;
+    @apply text-gray-700;
   }
 }
 </style>

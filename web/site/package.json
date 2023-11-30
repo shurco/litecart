@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "npx tailwindcss -o ./public/assets/css/style.css --watch  --minify",
+    "dev": "npx tailwindcss -o ./public/assets/css/style.css --watch --minify",
     "build": "npx tailwindcss -o ./public/assets/css/style.css --minify",
     "update": "ncu -i --format group"
   },
