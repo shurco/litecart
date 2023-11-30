@@ -16,22 +16,30 @@
               <router-link :to="{ name: 'products' }" :class="route.name === 'products' ? 'bg-gray-100' : 'bg-white'">Products</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'carts' }" :class="route.name.startsWith('carts') ? 'bg-gray-100' : 'bg-white'">Carts</router-link>
+              <router-link :to="{ name: 'carts' }" :class="route.name.startsWith('carts') ? 'bg-gray-100' : 'bg-white'
+                ">Carts</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'pages' }" :class="route.name.startsWith('pages') ? 'bg-gray-100' : 'bg-white'">Pages</router-link>
+              <router-link :to="{ name: 'pages' }" :class="route.name.startsWith('pages') ? 'bg-gray-100' : 'bg-white'
+                ">Pages</router-link>
             </li>
             <li>
-              <router-link :to="{ name: 'settings' }" :class="route.name.startsWith('settings') ? 'bg-gray-100' : 'bg-white'">Settings</router-link>
+              <router-link :to="{ name: 'settings' }" :class="route.name.startsWith('settings') ? 'bg-gray-100' : 'bg-white'
+                ">Settings</router-link>
             </li>
           </ul>
         </div>
 
         <div class="footer">
           <div class="update" @click="goToRelease" v-if="store.version.new">
-            Version: <span class="current">{{ store.version.current_version }}</span>→<span class="new">{{ store.version.new }}</span>
+            <span>Powered by litecart</span>
+            Version:
+            <span class="current">{{ store.version.current_version }}</span>→<span class="new">{{ store.version.new }}</span>
           </div>
-          <div @click="goToRelease" v-else>Version: {{ store.version.current_version }}</div>
+          <div @click="goToRelease" v-else class="cursor-pointer">
+            Powered by litecart<br />Version:
+            {{ store.version.current_version }}
+          </div>
           <a href="/" target="_blank" class="bg-white hover:bg-green-50 hover:text-green-500">Open site</a>
           <a href="#" class="bg-white hover:bg-red-50 hover:text-red-500" @click="signOut">Logout</a>
         </div>
@@ -49,7 +57,7 @@ import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { setCookie } from "@/utils/";
 
-import { useSystemStore } from '@/store/system';
+import { useSystemStore } from "@/store/system";
 import { apiGet } from "@/utils/api";
 
 const store = useSystemStore();
@@ -58,13 +66,13 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(() => {
-  if (Object.keys(store.version).length===0) {
+  if (Object.keys(store.version).length === 0) {
     versionInfo();
   }
 });
 
 const versionInfo = async () => {
-  apiGet(`/api/_/version`).then(res => {
+  apiGet(`/api/_/version`).then((res) => {
     if (res.success) {
       store.version = res.result;
     }
@@ -72,6 +80,9 @@ const versionInfo = async () => {
 };
 
 const goToRelease = async () => {
+  if (!store.version.release_url) {
+    store.version.release_url = "https://github.com/shurco/litecart"
+  }
   window.open(store.version.release_url, "_blank");
 };
 
@@ -100,10 +111,10 @@ const signOut = async () => {
 
   .footer {
     div {
-      @apply p-4 px-6 first-line:sticky inset-x-0 bottom-0 border-b border-gray-100 text-xs text-gray-300;
+      @apply inset-x-0 bottom-0 border-b border-gray-100 p-4 px-6 text-xs text-gray-300 first-line:sticky;
 
       &.update {
-        @apply bg-yellow-50 cursor-pointer;
+        @apply cursor-pointer bg-yellow-50;
 
         .current {
           @apply pr-1 text-gray-400;
