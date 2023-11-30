@@ -10,8 +10,8 @@
           <div class="relative bg-white mt-2">
             <div class="flex justify-between cursor-pointer">
               <span class="tracking-wider text-gray-900">{{ costFormat( item.amount ) }} {{ currency }}</span>
-              <button @click="inCart(item.id) ? removeCart(item.id) : addCart(item.id)" :class="{'bg-green-600': !inCart(item.id),'bg-red-600': inCart(item.id)}"
-                class="group relative inline-flex items-center overflow-hidden rounded px-6 py-3 text-white focus:outline-none focus:ring">
+
+              <button @click="inCart(item.id) ? removeCart(item.id) : addCart(item.id)" :class="{'bg-green-600': !inCart(item.id),'bg-red-600': inCart(item.id)}" class="group relative inline-flex items-center overflow-hidden rounded px-6 py-3 text-white focus:outline-none focus:ring">
                 <span v-if="!inCart(item.id)" class="absolute -start-full transition-all group-hover:start-4">
                   <svg class="h-4 w-4 text-white">
                     <use xlink:href="/assets/img/sprite.svg#plus" />
@@ -33,6 +33,7 @@
                   </svg>
                 </span>
               </button>
+
             </div>
             <a :href="`/products/${item.slug}`" class="block overflow-hidden group mb-5 mt-2">
               <h3 class="text-sm text-gray-700 group-hover:underline group-hover:underline-offset-4">{{item.name}}</h3>

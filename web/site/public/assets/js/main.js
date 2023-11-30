@@ -9,6 +9,8 @@ const App = {
 
   data() {
     return {
+      currentSlide: ref(0),
+
       // settings
       loaded: false,
       currency: sessionStorage.getItem('currency') || '',
@@ -30,11 +32,11 @@ const App = {
       content: ref([]),
 
       socialUrl: {
-        facebook: "https://facebook.com/",
-        instagram: "https://instagram.com/",
-        twitter: "https://twitter.com/@",
-        dribbble: "https://dribbble.com/",
-        github: "https://github.com/",
+        facebook: 'https://facebook.com/',
+        instagram: 'https://instagram.com/',
+        twitter: 'https://twitter.com/@',
+        dribbble: 'https://dribbble.com/',
+        github: 'https://github.com/'
       }
     }
   },
@@ -81,7 +83,7 @@ const App = {
 
   mounted() {
     this.$nextTick(function () {
-      this.loaded = true;
+      this.loaded = true
     })
 
     // init meta tags
@@ -326,13 +328,22 @@ const App = {
     },
 
     showOverlay() {
-      document.getElementById('overlay').classList.remove('hidden');
-      document.getElementById('overlay').classList.add('flex');
+      document.getElementById('overlay').classList.remove('hidden')
+      document.getElementById('overlay').classList.add('flex')
     },
 
     hideOverlay() {
-      document.getElementById('overlay').classList.remove('flex');
-      document.getElementById('overlay').classList.add('hidden');
+      document.getElementById('overlay').classList.remove('flex')
+      document.getElementById('overlay').classList.add('hidden')
+    },
+
+
+    nextSlide(length) {
+      this.currentSlide = (this.currentSlide + 1) % length
+    },
+
+    prevSlide(length) {
+      this.currentSlide = (this.currentSlide + length - 1) % length
     },
 
     // other utils

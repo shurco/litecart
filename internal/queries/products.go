@@ -141,7 +141,7 @@ func (q *ProductQueries) Product(private bool, id string) (*models.Product, erro
 				product.attribute, 
 				product.digital,
 				product.seo, 
-				json_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
+				json_group_array(json_object('id', product_image.id, 'name', product_image.name, 'ext', product_image.ext)) as images,
 				strftime('%s', product.created), 
 				strftime('%s', product.updated)
 			FROM product 
