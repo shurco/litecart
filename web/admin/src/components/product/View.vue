@@ -18,9 +18,7 @@
         <DetailList name="Price">{{ costFormat(product.amount) }} {{ drawer.currency }}</DetailList>
         <DetailList name="Slug">{{ product.slug }}</DetailList>
         <DetailList name="Metadata">
-          <div v-for="(data, index) in product.metadata">
-            {{ data.key }}: {{ data.value }}
-          </div>
+          <div v-for="data in product.metadata">{{ data.key }}: {{ data.value }}</div>
         </DetailList>
         <DetailList name="Attributes">
           <div v-for="item in product.attributes">{{ item }}</div>
@@ -34,7 +32,6 @@
             </a>
           </div>
         </DetailList>
-
         <DetailList name="Brief (short description)">{{ product.brief }}</DetailList>
 
         <div v-html="product.description" class="pt-3 tiptap"></div>
@@ -49,9 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-
-import FormButton from "@/components/form/Button.vue";
-import DetailList from "@/components/DetailList.vue";
+import { FormButton, DetailList } from "@/components/";
 import { costFormat, formatDate } from "@/utils/";
 import { apiGet } from "@/utils/api";
 

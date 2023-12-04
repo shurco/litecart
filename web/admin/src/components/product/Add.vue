@@ -95,16 +95,10 @@
 
 <script setup>
 import { computed, ref } from "vue";
-
-import FormInput from "@/components/form/Input.vue";
-import FormButton from "@/components/form/Button.vue";
-import FormSelect from "@/components/form/Select.vue";
-import FormTextarea from "@/components/form/Textarea.vue";
-import Editor from "@/components/Editor.vue"
+import { FormInput, FormButton, FormSelect, FormTextarea, Editor } from "@/components/";
 import { costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiPost } from "@/utils/api";
-
 import { Form } from "vee-validate";
 
 const props = defineProps({

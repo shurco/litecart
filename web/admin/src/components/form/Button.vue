@@ -32,7 +32,7 @@ const colors = {
 
 <style lang="scss" scoped>
 button {
-  @apply relative inline-flex items-center overflow-hidden rounded px-8 py-3 text-white;
+  @apply relative inline-flex items-center overflow-hidden rounded px-8 py-2 text-white;
 
   & span {
     @apply text-sm font-medium;

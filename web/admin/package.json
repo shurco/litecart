@@ -9,11 +9,11 @@
     "update": "ncu -i --format group"
   },
   "dependencies": {
-    "@tiptap/extension-link": "^2.1.12",
-    "@tiptap/extension-placeholder": "^2.1.12",
-    "@tiptap/pm": "^2.1.12",
-    "@tiptap/starter-kit": "^2.1.12",
-    "@tiptap/vue-3": "^2.1.12",
+    "@tiptap/extension-link": "^2.1.13",
+    "@tiptap/extension-placeholder": "^2.1.13",
+    "@tiptap/pm": "^2.1.13",
+    "@tiptap/starter-kit": "^2.1.13",
+    "@tiptap/vue-3": "^2.1.13",
     "@vee-validate/rules": "^4.12.2",
     "notiwind": "^2.0.2",
     "nprogress": "^0.2.0",
@@ -24,9 +24,9 @@
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
-    "@vitejs/plugin-vue": "^4.5.0",
+    "@vitejs/plugin-vue": "^4.5.1",
     "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31",
+    "postcss": "^8.4.32",
     "postcss-import": "^15.1.0",
     "postcss-nesting": "^12.0.1",
     "prettier": "^3.1.0",

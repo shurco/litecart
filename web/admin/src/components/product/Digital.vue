@@ -59,9 +59,7 @@
 
 <script setup>
 import { onMounted, ref, computed } from "vue";
-
-import FormInput from "@/components/form/Input.vue";
-import FormUpload from "@/components/form/Upload.vue";
+import { FormInput, FormUpload } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiPost, apiUpdate, apiDelete } from "@/utils/api";
 

@@ -1,9 +1,10 @@
 <template>
-  <div class="detail-list">
-    <dt>{{ name }}</dt>
-    <dd :class="grid ? 'grid grid-cols-3 content-start gap-4' : ''">
+  <div class="flex gap-4 py-3">
+    <div class="flex-none w-1/5 font-medium text-gray-900">{{ name }}</div>
+    <div class="flex-none w-4"></div>
+    <div class="grow text-gray-700" :class="grid ? 'grid grid-cols-3 content-start gap-4' : ''">
       <slot />
-    </dd>
+    </div>
   </div>
 </template>
 
@@ -19,17 +20,3 @@ const props = defineProps({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.detail-list {
-  @apply grid grid-cols-2 gap-4 py-3;
-
-  & dt {
-    @apply font-medium text-gray-900;
-  }
-
-  & dd {
-    @apply text-gray-700;
-  }
-}
-</style>

@@ -1,43 +1,8 @@
 <template>
-  <div v-if="editor">
-    <button @click="editor.chain().focus().undo().run()" :disabled="!editor.can().chain().focus().undo().run()">
-      <SvgIcon name="undo" class="h-5 w-5" stroke="currentColor" />
-    </button>
-    <button @click="editor.chain().focus().redo().run()" :disabled="!editor.can().chain().focus().redo().run()">
-      <SvgIcon name="redo" class="h-5 w-5" stroke="currentColor" />
-    </button>
-
-    <button @click="editor.chain().focus().toggleBold().run()" :disabled="!editor.can().chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
-      <SvgIcon name="bold" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleItalic().run()" :disabled="!editor.can().chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">
-      <SvgIcon name="italic" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleStrike().run()" :disabled="!editor.can().chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
-      <SvgIcon name="strike" class="h-5 w-5" />
-    </button>
-
-    <button @click="editor.chain().focus().setParagraph().run()" :class="{ 'is-active': editor.isActive('paragraph') }">
-      <SvgIcon name="paragraph" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
-      <SvgIcon name="h1" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
-      <SvgIcon name="h2" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
-      <SvgIcon name="h3" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleBulletList().run()" :class="{ 'is-active': editor.isActive('bulletList') }">
-      <SvgIcon name="bulletlist" class="h-5 w-5" />
-    </button>
-    <button @click="editor.chain().focus().toggleOrderedList().run()" :class="{ 'is-active': editor.isActive('orderedList') }">
-      <SvgIcon name="orderedlist" class="h-5 w-5" />
-    </button>
-
-    <button @click="editor.chain().focus().toggleBlockquote().run()" :class="{ 'is-active': editor.isActive('blockquote') }">
-      <SvgIcon name="blockquote" class="h-5 w-5" />
+  <div class="editor" v-if="editor">
+    <button v-for="action in editorActions" :key="action.name" @click="performEditorAction(action.method, action.activeCondition.options)"
+      :disabled="canPerformEditorAction(action.method)" :class="{ 'is-active': !action.stroke && editor.isActive(action.activeCondition.type, action.activeCondition.options) }">
+      <SvgIcon :name="action.icon" :stroke="action.stroke" />
     </button>
   </div>
 
@@ -62,6 +27,33 @@ const props = defineProps({
   },
   placeholder: String,
 });
+
+const editorActions = [
+  { name: 'undo', method: 'undo', icon: 'undo', stroke: 'currentColor', activeCondition: {} },
+  { name: 'redo', method: 'redo', icon: 'redo', stroke: 'currentColor', activeCondition: {} },
+  { name: 'bold', method: 'toggleBold', icon: 'bold', activeCondition: { type: 'bold' } },
+  { name: 'italic', method: 'toggleItalic', icon: 'italic', activeCondition: { type: 'italic' } },
+  { name: 'strike', method: 'toggleStrike', icon: 'strike', activeCondition: { type: 'strike' } },
+  { name: 'paragraph', method: 'toggleParagraph', icon: 'paragraph', activeCondition: { type: 'paragraph' } },
+
+  { name: 'h1', method: 'toggleHeading', icon: 'h1', activeCondition: { type: 'heading', options: { level: 1 } } },
+  { name: 'h2', method: 'toggleHeading', icon: 'h2', activeCondition: { type: 'heading', options: { level: 2 } } },
+  { name: 'h3', method: 'toggleHeading', icon: 'h3', activeCondition: { type: 'heading', options: { level: 3 } } },
+
+  { name: 'bulletlist', method: 'toggleBulletList', icon: 'bulletlist', activeCondition: { type: 'bulletList' } },
+  { name: 'orderedList', method: 'toggleOrderedList', icon: 'orderedlist', activeCondition: { type: 'orderedList' } },
+  { name: 'blockquote', method: 'toggleBlockquote', icon: 'blockquote', activeCondition: { type: 'blockquote' } },
+]
+
+const performEditorAction = (method, options) => {
+  editor.value.chain().focus()[method](options).run();
+}
+const canPerformEditorAction = (method) => {
+  if (method === "undo" || method === "redo") {
+    return !editor.value.can().chain().focus()[method]().run();
+  }
+  return null
+}
 
 onMounted(() => {
   editor.value = new Editor({
@@ -99,7 +91,6 @@ watch(
   height: 0;
   pointer-events: none;
 }
-
 
 .ProseMirror:focus {
   outline: none;

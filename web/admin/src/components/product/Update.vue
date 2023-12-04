@@ -107,16 +107,10 @@
 
 <script setup>
 import { onMounted, computed, ref } from "vue";
-
-import FormInput from "@/components/form/Input.vue";
-import FormButton from "@/components/form/Button.vue";
-import FormTextarea from "@/components/form/Textarea.vue";
-import Editor from "@/components/Editor.vue";
-import FormUpload from "@/components/form/Upload.vue";
+import { FormInput, FormButton, FormTextarea, FormUpload, Editor  } from "@/components/";
 import { costFormat, costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate, apiDelete } from "@/utils/api";
-
 import { Form } from "vee-validate";
 
 const props = defineProps({

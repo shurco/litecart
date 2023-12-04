@@ -34,14 +34,11 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import FormToggle from "@/components/form/Toggle.vue";
-import FormInput from "@/components/form/Input.vue";
-import FormButton from "@/components/form/Button.vue";
-import { Form } from "vee-validate";
-
+import { FormInput, FormButton, FormToggle } from "@/components/";
 import { useSystemStore } from '@/store/system';
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
+import { Form } from "vee-validate";
 
 const props = defineProps({
   close: Function,

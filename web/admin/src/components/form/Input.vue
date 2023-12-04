@@ -1,7 +1,7 @@
 <template>
   <div>
     <label :for="id" :class="error ? 'border-red-500' : ''">
-      <Field :type="type" :name="id" :rules="rules" :id="id" v-model="model" class="field peer" :placeholder="placeholder" autocomplete="on" />
+      <Field :type="type" :name="id" :rules="rules" :id="id" v-model="model" class="form-input field peer" :placeholder="placeholder" autocomplete="on" />
       <span v-if="title" class="peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs title">
         {{ title }}
       </span>
@@ -42,8 +42,8 @@ const props = defineProps({
   error: String
 })
 
+const placeholder = 'Enter ' + props.id
 const emits = defineEmits(['update:modelValue'])
-
 const model = computed({
   get: () => {
     return props.modelValue
@@ -52,6 +52,4 @@ const model = computed({
     emits('update:modelValue', val)
   }
 })
-
-const placeholder = 'Enter ' + props.id
 </script>

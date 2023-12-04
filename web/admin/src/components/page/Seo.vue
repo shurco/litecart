@@ -32,13 +32,9 @@
 
 <script setup>
 import { computed } from "vue";
-
-import FormInput from "@/components/form/Input.vue";
-import FormButton from "@/components/form/Button.vue";
-import FormTextarea from "@/components/form/Textarea.vue";
+import { FormInput, FormButton, FormTextarea } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiUpdate } from "@/utils/api";
-
 import { Form } from "vee-validate";
 
 const props = defineProps({

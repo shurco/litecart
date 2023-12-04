@@ -46,9 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import FormInput from "@/components/form/Input.vue";
-import FormTextarea from "@/components/form/Textarea.vue";
-import FormButton from "@/components/form/Button.vue";
+import { FormInput, FormButton, FormTextarea } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 

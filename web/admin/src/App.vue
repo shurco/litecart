@@ -1,9 +1,13 @@
 <template>
-  <RouterView />
+  <component :is="route.meta.layoutComponent">
+    <RouterView />
+  </component>
   <Alert />
 </template>
 
 <script setup>
-import { RouterView } from "vue-router";
-import Alert from "@/components/Alert.vue";
+import { RouterView, useRoute } from "vue-router";
+import { Alert } from "@/components/";
+
+const route = useRoute();
 </script>

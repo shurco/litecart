@@ -1,7 +1,7 @@
 <template>
   <div class="textarea">
     <label :for="id" :class="error ? '!border-red-500' : ''">
-      <Field as="textarea" v-model="model" :rules="rules" :id="id" :name="id" class="text peer" :rows="rows" placeholder="Enter any additional order notes...">
+      <Field as="textarea" v-model="model" :rules="rules" :id="id" :name="id" class="form-textarea text peer" :rows="rows" placeholder="Enter any additional order notes...">
         {{ $slots.default ? $slots.default()[0].children : "" }}
       </Field>
       <span class="title">{{ name }}</span>

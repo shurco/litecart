@@ -36,13 +36,9 @@
 
 <script setup>
 import { computed } from "vue";
-
-import FormInput from "@/components/form/Input.vue";
-import FormSelect from "@/components/form/Select.vue";
-import FormButton from "@/components/form/Button.vue";
+import { FormInput, FormButton, FormSelect } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiPost } from "@/utils/api";
-
 import { Form } from "vee-validate";
 
 const positionPage = ["header", "footer"];
