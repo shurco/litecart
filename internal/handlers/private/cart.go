@@ -12,7 +12,7 @@ import (
 func Carts(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	products, err := db.Carts()
+	products, err := db.Carts(c.Context())
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}

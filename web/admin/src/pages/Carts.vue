@@ -49,16 +49,12 @@ import { apiGet, apiPost } from "@/utils/api";
 const carts = ref([]);
 
 onMounted(() => {
-  listCarts();
-});
-
-const listCarts = async () => {
   apiGet(`/api/_/carts`).then(res => {
     if (res.success) {
       carts.value = res.result;
     }
   })
-};
+});
 
 const sendEmail = async (id) => {
   apiPost(`/api/_/carts/${id}/mail`).then(res => {

@@ -18,7 +18,7 @@ func SiteRoutes(c *fiber.App) {
 		productSlug := c.Params("product_slug")
 		db := queries.DB()
 
-		if !db.IsProduct(productSlug) {
+		if !db.IsProduct(c.Context(), productSlug) {
 			return c.Status(fiber.StatusNotFound).Render("404", fiber.Map{}, "layouts/clear")
 		}
 

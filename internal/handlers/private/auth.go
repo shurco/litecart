@@ -27,7 +27,7 @@ func SignIn(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	passwordHash, err := db.GetPasswordByEmail(request.Email)
+	passwordHash, err := db.GetPasswordByEmail(c.Context(), request.Email)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -38,20 +38,21 @@ func SignIn(c *fiber.Ctx) error {
 	}
 
 	// Generate a new pair of access and refresh tokens.
-	settingJWT, err := db.SettingJWT()
+	_settingJWT, err := db.GetSetting(c.Context(), &models.JWT{})
 	if err != nil {
 		return err
 	}
+	settingJWT := _settingJWT.(*models.JWT)
 
 	userID := uuid.New()
-	expires := time.Now().Add(time.Hour * time.Duration(settingJWT.SecretExpireHours)).Unix()
+	expires := time.Now().Add(time.Hour * time.Duration(settingJWT.ExpireHours)).Unix()
 	token, err := jwtutil.GenerateNewToken(settingJWT.Secret, userID.String(), expires, nil)
 	if err != nil {
 		return webutil.Response(c, fiber.StatusInternalServerError, "Internal server error", err.Error())
 	}
 
 	// Add session record
-	if err := db.AddSession(userID.String(), "admin", expires); err != nil {
+	if err := db.AddSession(c.Context(), userID.String(), "admin", expires); err != nil {
 		return webutil.Response(c, fiber.StatusInternalServerError, "Failed to save token", err.Error())
 	}
 
@@ -69,17 +70,18 @@ func SignIn(c *fiber.Ctx) error {
 // [post] /api/sign/out
 func SignOut(c *fiber.Ctx) error {
 	db := queries.DB()
-	settingJWT, err := db.SettingJWT()
+	_settingJWT, err := db.GetSetting(c.Context(), &models.JWT{})
 	if err != nil {
 		return err
 	}
+	settingJWT := _settingJWT.(*models.JWT)
 
 	claims, err := jwtutil.ExtractTokenMetadata(c, settingJWT.Secret)
 	if err != nil {
 		return webutil.Response(c, fiber.StatusInternalServerError, "Internal server error", err.Error())
 	}
 
-	if err := db.DeleteSession(claims.ID); err != nil {
+	if err := db.DeleteSession(c.Context(), claims.ID); err != nil {
 		return webutil.Response(c, fiber.StatusInternalServerError, "Failed to delete token", err.Error())
 	}
 

@@ -39,13 +39,6 @@ import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 import { Form } from "vee-validate";
 
-const props = defineProps({
-  drawer: {
-    required: true,
-  },
-  close: Function,
-});
-
 const product = ref({
   "seo": {
     "title": "",
@@ -53,20 +46,22 @@ const product = ref({
     "description": ""
   }
 })
-
-onMounted(() => {
-  getProduct(props.drawer.product.id)
+const props = defineProps({
+  drawer: {
+    required: true,
+  },
+  close: Function,
 });
 
-const getProduct = async (id) => {
-  apiGet(`/api/_/products/${id}`).then(res => {
+onMounted(() => {
+  apiGet(`/api/_/products/${props.drawer.product.id}`).then(res => {
     if (res.success) {
       product.value = res.result;
     } else {
       showMessage(res.result, "connextError");
     }
   });
-};
+});
 
 const updateSeo = async () => {
   apiUpdate(`/api/_/products/${product.value.id}`, product.value).then(res => {

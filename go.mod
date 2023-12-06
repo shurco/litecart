@@ -5,8 +5,8 @@ go 1.21.3
 require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/gofiber/contrib/fiberzerolog v0.2.2
-	github.com/gofiber/contrib/jwt v1.0.7
+	github.com/gofiber/contrib/fiberzerolog v0.2.3
+	github.com/gofiber/contrib/jwt v1.0.8
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/golang-jwt/jwt/v5 v5.2.0
@@ -31,7 +31,7 @@ require (
 	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.17.3 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
@@ -57,7 +57,7 @@ require (
 	lukechampine.com/uint128 v1.3.0 // indirect
 	modernc.org/cc/v3 v3.41.0 // indirect
 	modernc.org/ccgo/v3 v3.16.15 // indirect
-	modernc.org/libc v1.34.11 // indirect
+	modernc.org/libc v1.37.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.7.2 // indirect
 	modernc.org/opt v0.1.3 // indirect

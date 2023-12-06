@@ -23,23 +23,15 @@ import { Form } from "vee-validate";
 const webhook = ref({});
 
 onMounted(() => {
-  settingsList();
-});
-
-const settingsList = async () => {
-  apiGet(`/api/_/settings`).then(res => {
+  apiGet(`/api/_/settings/webhook`).then(res => {
     if (res.success) {
-      webhook.value = res.result.webhook;
+      webhook.value = res.result;
     }
   });
-};
+});
 
 const updateSetting = async () => {
-  var update = {
-    webhook: webhook.value,
-  };
-
-  apiUpdate(`/api/_/settings`, update).then(res => {
+  apiUpdate(`/api/_/settings/webhook`, webhook.value).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

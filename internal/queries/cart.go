@@ -12,20 +12,21 @@ import (
 	"github.com/shurco/litecart/pkg/errors"
 )
 
-// CartQueries is ...
+// CartQueries is a struct that embeds a pointer to an sql.DB.
+// This allows for direct access to all the methods of sql.DB through CartQueries.
 type CartQueries struct {
 	*sql.DB
 }
 
-// PaymentList is ...
-func (q *CartQueries) PaymentList() (map[string]bool, error) {
+// PaymentList retrieves the status of different payment methods from the database.
+func (q *CartQueries) PaymentList(ctx context.Context) (map[string]bool, error) {
 	payments := map[string]bool{}
 	keys := []any{
 		"stripe_active", "paypal_active", "spectrocoin_active",
 	}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
-	rows, err := q.DB.QueryContext(context.TODO(), query, keys...)
+	rows, err := q.DB.QueryContext(ctx, query, keys...)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +54,8 @@ func (q *CartQueries) PaymentList() (map[string]bool, error) {
 	return payments, nil
 }
 
-// Carts is ...
-func (q *CartQueries) Carts() ([]*models.Cart, error) {
+// Carts retrieves a list of carts from the database.
+func (q *CartQueries) Carts(ctx context.Context) ([]*models.Cart, error) {
 	carts := []*models.Cart{}
 
 	query := `
@@ -69,9 +70,9 @@ func (q *CartQueries) Carts() ([]*models.Cart, error) {
 		strftime('%s', created),
 		strftime('%s', updated)
 	FROM cart
-	`
+`
 
-	rows, err := q.DB.QueryContext(context.TODO(), query)
+	rows, err := q.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -97,14 +98,8 @@ func (q *CartQueries) Carts() ([]*models.Cart, error) {
 			return nil, err
 		}
 
-		if email.Valid {
-			cart.Email = email.String
-		}
-
-		if paymentID.Valid {
-			cart.PaymentID = paymentID.String
-		}
-
+		cart.Email = email.String
+		cart.PaymentID = paymentID.String
 		if updated.Valid {
 			cart.Updated = updated.Int64
 		}
@@ -119,8 +114,8 @@ func (q *CartQueries) Carts() ([]*models.Cart, error) {
 	return carts, nil
 }
 
-// Carts is ...
-func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
+// Cart retrieves a cart from the database using the provided cartId.
+func (q *CartQueries) Cart(ctx context.Context, cartId string) (*models.Cart, error) {
 	query := `
 	SELECT 
     id, 
@@ -139,7 +134,7 @@ func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
 	var created, updated sql.NullInt64
 	cart := &models.Cart{}
 
-	err := q.DB.QueryRowContext(context.TODO(), query, cartId).
+	err := q.DB.QueryRowContext(ctx, query, cartId).
 		Scan(
 			&cart.ID,
 			&email,
@@ -157,14 +152,8 @@ func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
 		return nil, err
 	}
 
-	if email.Valid {
-		cart.Email = email.String
-	}
-
-	if paymentID.Valid {
-		cart.PaymentID = paymentID.String
-	}
-
+	cart.Email = email.String
+	cart.PaymentID = paymentID.String
 	if created.Valid {
 		cart.Created = created.Int64
 	}
@@ -176,42 +165,26 @@ func (q *CartQueries) Cart(cartId string) (*models.Cart, error) {
 	return cart, nil
 }
 
-// AddCart is ...
-func (q *CartQueries) AddCart(cart *models.Cart) error {
+// AddCart inserts a new cart into the database.
+func (q *CartQueries) AddCart(ctx context.Context, cart *models.Cart) error {
 	byteCart, err := json.Marshal(cart.Cart)
 	if err != nil {
 		return err
 	}
 
-	_, err = q.DB.ExecContext(context.TODO(), `INSERT INTO cart (id, email, cart, amount_total, currency, payment_status, payment_system) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		cart.ID,
-		cart.Email,
-		string(byteCart),
-		cart.AmountTotal,
-		cart.Currency,
-		cart.PaymentStatus,
-		cart.PaymentSystem,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	query := `INSERT INTO cart (id, email, cart, amount_total, currency, payment_status, payment_system) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_, err = q.DB.ExecContext(ctx, query, cart.ID, cart.Email, string(byteCart), cart.AmountTotal, cart.Currency, cart.PaymentStatus, cart.PaymentSystem)
+	return err
 }
 
-// UpdateCart is ...
-func (q *CartQueries) UpdateCart(cart *models.Cart) error {
+// UpdateCart updates the cart details in the database.
+func (q *CartQueries) UpdateCart(ctx context.Context, cart *models.Cart) error {
 	var (
 		args []interface{}
 		sql  strings.Builder
 	)
 
 	sql.WriteString("UPDATE cart SET ")
-
-	if cart.Email != "" {
-		sql.WriteString("email = ?, ")
-		args = append(args, cart.Email)
-	}
 
 	if cart.PaymentID != "" {
 		sql.WriteString("payment_id = ?, ")
@@ -226,9 +199,6 @@ func (q *CartQueries) UpdateCart(cart *models.Cart) error {
 	sql.WriteString("updated = datetime('now') WHERE id = ?")
 	args = append(args, cart.ID)
 
-	if _, err := q.DB.ExecContext(context.TODO(), sql.String(), args...); err != nil {
-		return err
-	}
-
-	return nil
+	_, err := q.DB.ExecContext(ctx, sql.String(), args...)
+	return err
 }

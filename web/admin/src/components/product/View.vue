@@ -50,6 +50,7 @@ import { FormButton, DetailList } from "@/components/";
 import { costFormat, formatDate } from "@/utils/";
 import { apiGet } from "@/utils/api";
 
+const product = ref({})
 const props = defineProps({
   drawer: {
     required: true,
@@ -58,21 +59,15 @@ const props = defineProps({
   close: Function,
 });
 
-const product = ref({})
-
 onMounted(() => {
-  getProduct(props.drawer.product.id)
-});
-
-const getProduct = async (id) => {
-  apiGet(`/api/_/products/${id}`).then(res => {
+  apiGet(`/api/_/products/${props.drawer.product.id}`).then(res => {
     if (res.success) {
       product.value = res.result;
     } else {
       showMessage(res.result, "connextError");
     }
   });
-};
+});
 
 const active = async () => {
   props.updateActive(props.drawer.product.index);

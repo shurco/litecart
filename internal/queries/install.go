@@ -4,48 +4,38 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/security"
 )
 
-// InstallQueries is ...
+// InstallQueries is a struct that embeds a pointer to an sql.DB.
+// This allows for the struct to have all the methods of sql.DB,
+// enabling it to perform database operations directly.
 type InstallQueries struct {
 	*sql.DB
 }
 
-// Install is ...
-func (q *InstallQueries) Install(i *models.Install) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+// Install performs the installation process for the cart system.
+func (q *InstallQueries) Install(ctx context.Context, i *models.Install) error {
+	var installed bool
 
-	tx, err := q.BeginTx(ctx, nil)
-	if err != nil {
+	query := `SELECT value FROM setting WHERE key = 'installed'`
+	if err := q.DB.QueryRowContext(ctx, query).Scan(&installed); err != nil {
 		return err
 	}
-	defer func() {
-		if p := recover(); p != nil || err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
-		}
-	}()
-
-	var installed bool
-	q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = ?`, "installed").Scan(&installed)
 	if installed {
 		return fmt.Errorf("%s", "Rejected because you have already installed and configured the cart")
 	}
 
-	stmt, err := tx.PrepareContext(ctx, `UPDATE setting SET value = ? WHERE key = ?`)
+	tx, err := q.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer tx.Rollback()
 
-	password := security.GeneratePassword(i.Password)
-	jwt_secret, err := security.NewToken(password)
+	passwordHash := security.GeneratePassword(i.Password)
+	jwt_secret, err := security.NewToken(passwordHash)
 	if err != nil {
 		return err
 	}
@@ -54,9 +44,16 @@ func (q *InstallQueries) Install(i *models.Install) error {
 		"installed":  "true",
 		"domain":     i.Domain,
 		"email":      i.Email,
-		"password":   security.GeneratePassword(i.Password),
+		"password":   passwordHash,
 		"jwt_secret": jwt_secret,
 	}
+
+	query = `UPDATE setting SET value = ? WHERE key = ?`
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
 
 	for key, value := range settings {
 		if _, err := stmt.ExecContext(ctx, value, key); err != nil {
@@ -64,5 +61,5 @@ func (q *InstallQueries) Install(i *models.Install) error {
 		}
 	}
 
-	return nil
+	return tx.Commit()
 }

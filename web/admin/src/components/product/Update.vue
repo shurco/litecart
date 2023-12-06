@@ -107,12 +107,14 @@
 
 <script setup>
 import { onMounted, computed, ref } from "vue";
-import { FormInput, FormButton, FormTextarea, FormUpload, Editor  } from "@/components/";
+import { FormInput, FormButton, FormTextarea, FormUpload, Editor } from "@/components/";
 import { costFormat, costStripe } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate, apiDelete } from "@/utils/api";
 import { Form } from "vee-validate";
 
+const amount = ref();
+const product = ref({});
 const props = defineProps({
   drawer: {
     required: true,
@@ -123,9 +125,6 @@ const props = defineProps({
   updateActive: Function,
   close: Function,
 });
-
-const amount = ref();
-const product = ref({});
 
 const emits = defineEmits(["update:modelValue"]);
 const products = computed({
@@ -138,13 +137,7 @@ const products = computed({
 });
 
 onMounted(() => {
-  getProduct();
-});
-
-const getProduct = async () => {
-  apiGet(
-    `/api/_/products/${products.value.products[props.drawer.product.index].id}`,
-  ).then((res) => {
+  apiGet(`/api/_/products/${products.value.products[props.drawer.product.index].id}`,).then((res) => {
     if (res.success) {
       product.value = res.result;
       amount.value = costFormat(product.value.amount);
@@ -155,7 +148,7 @@ const getProduct = async () => {
       showMessage(res.result, "connextError");
     }
   });
-};
+});
 
 const updateProduct = async () => {
   product.value.amount = costStripe(amount.value);
@@ -222,9 +215,7 @@ const addProductImage = (e) => {
 };
 
 const deleteProductImage = async (index) => {
-  apiDelete(
-    `/api/_/products/${product.value.id}/image/${product.value.images[index].id}`,
-  ).then((res) => {
+  apiDelete(`/api/_/products/${product.value.id}/image/${product.value.images[index].id}`).then((res) => {
     if (res.success) {
       product.value.images.splice(index, 1);
     } else {

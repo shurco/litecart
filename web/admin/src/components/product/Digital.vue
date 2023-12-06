@@ -63,6 +63,7 @@ import { FormInput, FormUpload } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiPost, apiUpdate, apiDelete } from "@/utils/api";
 
+const digital = ref({});
 const props = defineProps({
   drawer: {
     required: true,
@@ -72,8 +73,6 @@ const props = defineProps({
   },
   close: Function,
 });
-
-const digital = ref({});
 
 const emits = defineEmits(["update:modelValue"]);
 const products = computed({
@@ -86,10 +85,6 @@ const products = computed({
 });
 
 onMounted(() => {
-  listDigitals();
-});
-
-const listDigitals = async () => {
   apiGet(`/api/_/products/${props.drawer.product.id}/digital`).then(res => {
     if (res.success && res.result !== null) {
       digital.value.type = res.result.type;
@@ -97,7 +92,7 @@ const listDigitals = async () => {
       digital.value.data = res.result.data ?? [];
     }
   });
-};
+});
 
 const addDigitalFile = (e) => {
   if (e.success) {
@@ -108,7 +103,6 @@ const addDigitalFile = (e) => {
     digital.value.files.push(e.result);
   }
 };
-
 
 const addDigitalData = async () => {
   apiPost(`/api/_/products/${props.drawer.product.id}/digital`).then(res => {
@@ -133,7 +127,6 @@ const saveData = async (index) => {
 
 const deleteDigital = async (type, index) => {
   const digitalId = type === "file" ? digital.value.files[index].id : digital.value.data[index].id;
-
   apiDelete(`/api/_/products/${props.drawer.product.id}/digital/${digitalId}`).then(res => {
     if (res.success) {
       const productToUpdate = products.value.products.find((e) => e.id === props.drawer.product.id);
@@ -158,5 +151,4 @@ const deleteDigital = async (type, index) => {
     }
   });
 };
-
 </script>

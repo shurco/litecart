@@ -40,26 +40,20 @@ import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 import { Form } from "vee-validate";
 
+const settings = ref({});
+const store = useSystemStore();
 const props = defineProps({
   close: Function,
 });
 
 onMounted(() => {
-  loadSettings();
-});
-
-const settings = ref({});
-const store = useSystemStore();
-
-const loadSettings = async () => {
   apiGet(`/api/_/settings/stripe`).then(res => {
     if (res.success) {
       settings.value.active = res.result.active;
       settings.value.secret_key = res.result.secret_key;
     }
   });
-  console.log("load setting")
-};
+});
 
 const updateSetting = async () => {
   const update = {

@@ -28,7 +28,6 @@ type Main struct {
 	Domain   string `json:"domain"`
 	Email    string `json:"email"`
 	Currency string `json:"currency"`
-	JWT      JWT    `json:"jwt"`
 }
 
 // Validate is ...
@@ -38,7 +37,6 @@ func (v Main) Validate() error {
 		validation.Field(&v.Domain, is.Domain),
 		validation.Field(&v.Email, is.Email),
 		validation.Field(&v.Currency, is.CurrencyCode),
-		validation.Field(&v.JWT),
 	)
 }
 
@@ -52,19 +50,6 @@ func (v Password) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Old, validation.Length(6, 30)),
 		validation.Field(&v.New, validation.Length(6, 30)),
-	)
-}
-
-type JWT struct {
-	Secret      string `json:"secret"`
-	ExpireHours string `json:"expire_hours"`
-}
-
-// Validate is ...
-func (v JWT) Validate() error {
-	return validation.ValidateStruct(&v,
-		validation.Field(&v.Secret, validation.Length(30, 100)),
-		validation.Field(&v.ExpireHours, validation.Length(30, 100)),
 	)
 }
 

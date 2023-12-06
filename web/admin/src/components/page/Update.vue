@@ -45,7 +45,6 @@ import { apiUpdate, apiDelete } from "@/utils/api";
 import { Form } from "vee-validate";
 
 const positionPage = ["header", "footer"];
-
 const props = defineProps({
   page: {
     required: true,
@@ -58,7 +57,6 @@ const props = defineProps({
 });
 
 const emits = defineEmits(["update:modelValue"]);
-
 const page = computed({
   get: () => {
     return props.page;

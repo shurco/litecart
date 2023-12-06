@@ -13,7 +13,7 @@ import (
 func NotFoundRoute(a *fiber.App, noSite bool) {
 	a.Use(func(c *fiber.Ctx) error {
 		db := queries.DB()
-		if db.IsPage(c.Path()[1:]) {
+		if db.IsPage(c.Context(), c.Path()[1:]) {
 			return c.Render("pages", nil, "layouts/main")
 		}
 

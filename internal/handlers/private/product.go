@@ -19,7 +19,7 @@ import (
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	products, err := db.ListProducts(true)
+	products, err := db.ListProducts(c.Context(), true)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -37,7 +37,7 @@ func AddProduct(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	product, err := db.AddProduct(request)
+	product, err := db.AddProduct(c.Context(), request)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -51,7 +51,7 @@ func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	product, err := db.Product(true, productID)
+	product, err := db.Product(c.Context(), true, productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -71,7 +71,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	if err := db.UpdateProduct(request); err != nil {
+	if err := db.UpdateProduct(c.Context(), request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -84,7 +84,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	if err := db.DeleteProduct(productID); err != nil {
+	if err := db.DeleteProduct(c.Context(), productID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -97,7 +97,7 @@ func UpdateProductActive(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	if err := db.UpdateActive(productID); err != nil {
+	if err := db.UpdateActive(c.Context(), productID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -110,7 +110,7 @@ func ProductImages(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	images, err := db.ProductImages(productID)
+	images, err := db.ProductImages(c.Context(), productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -169,7 +169,7 @@ func AddProductImage(c *fiber.Ctx) error {
 		}
 	}
 
-	addedImage, err := db.AddImage(productID, fileUUID, fileExt, fileOrigName)
+	addedImage, err := db.AddImage(c.Context(), productID, fileUUID, fileExt, fileOrigName)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -184,7 +184,7 @@ func DeleteProductImage(c *fiber.Ctx) error {
 	imageID := c.Params("image_id")
 	db := queries.DB()
 
-	if err := db.DeleteImage(productID, imageID); err != nil {
+	if err := db.DeleteImage(c.Context(), productID, imageID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -197,7 +197,7 @@ func ProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	digital, err := db.ProductDigital(productID)
+	digital, err := db.ProductDigital(c.Context(), productID)
 	if err != nil {
 		if err == errors.ErrProductNotFound {
 			return webutil.StatusNotFound(c)
@@ -224,7 +224,7 @@ func AddProductDigital(c *fiber.Ctx) error {
 
 		c.SaveFile(fileTmp, filePath)
 
-		file, err := db.AddDigitalFile(productID, fileUUID, fileExt, fileOrigName)
+		file, err := db.AddDigitalFile(c.Context(), productID, fileUUID, fileExt, fileOrigName)
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
@@ -232,7 +232,7 @@ func AddProductDigital(c *fiber.Ctx) error {
 		return webutil.Response(c, fiber.StatusOK, "Digital added", file)
 	}
 
-	data, err := db.AddDigitalData(productID, "")
+	data, err := db.AddDigitalData(c.Context(), productID, "")
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -252,7 +252,7 @@ func UpdateProductDigital(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	if err := db.UpdateDigital(request); err != nil {
+	if err := db.UpdateDigital(c.Context(), request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -266,7 +266,7 @@ func DeleteProductDigital(c *fiber.Ctx) error {
 	digitalID := c.Params("digital_id")
 	db := queries.DB()
 
-	if err := db.DeleteDigital(productID, digitalID); err != nil {
+	if err := db.DeleteDigital(c.Context(), productID, digitalID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 

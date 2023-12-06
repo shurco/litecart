@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/shurco/litecart/pkg/archive"
 )
@@ -26,9 +27,10 @@ type Config struct {
 
 // Init is ...
 func Init(cfg *Config) error {
-	context := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	asset, err := ReleaseInfo(context, cfg)
+	asset, err := ReleaseInfo(ctx, cfg)
 
 	// Downloading
 	fmt.Printf("Downloading %s...\n", asset.Name)
@@ -36,7 +38,7 @@ func Init(cfg *Config) error {
 	defer os.RemoveAll(releaseDir)
 
 	assetArch := filepath.Join(releaseDir, asset.Name)
-	if err := downloadFile(context, asset.DownloadUrl, assetArch); err != nil {
+	if err := downloadFile(ctx, asset.DownloadUrl, assetArch); err != nil {
 		return err
 	}
 

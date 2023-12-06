@@ -50,6 +50,7 @@ import { FormInput, FormButton, FormTextarea } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 
+const letter = ref({});
 const props = defineProps({
   name: String,
   legend: Object,
@@ -58,12 +59,6 @@ const props = defineProps({
 });
 
 onMounted(() => {
-  settingLetter();
-});
-
-const letter = ref({});
-
-const settingLetter = async () => {
   apiGet(`/api/_/settings/${props.name}`).then(res => {
     if (res.success) {
       letter.value.id = res.result.id;
@@ -73,11 +68,9 @@ const settingLetter = async () => {
       letter.value.html = JSON.parse(res.result.value).html;
     }
   });
-};
+});
 
 const updateLetter = async () => {
-  console.log("xx")
-
   const value = new Object();
   value.subject = letter.value.subject;
   value.text = letter.value.text;
@@ -98,5 +91,4 @@ const updateLetter = async () => {
     }
   });
 };
-
 </script>

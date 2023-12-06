@@ -15,6 +15,9 @@
 <script setup>
 import { getCurrentInstance, watch, ref } from "vue";
 
+const { emit } = getCurrentInstance();
+const isVisible = ref(false);
+const isTransitioning = ref(false);
 const props = defineProps({
   title: {
     type: String,
@@ -36,10 +39,6 @@ const props = defineProps({
     default: "#fafafa",
   },
 });
-
-const isVisible = ref(false);
-const isTransitioning = ref(false);
-const { emit } = getCurrentInstance();
 
 watch(
   () => props.isOpen,

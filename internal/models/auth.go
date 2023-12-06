@@ -15,11 +15,20 @@ type SignIn struct {
 func (v SignIn) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Email, validation.Required, is.Email),
-		validation.Field(&v.Password, validation.Required, validation.Length(6, 50)),
+		validation.Field(&v.Password, validation.Required, validation.Length(3, 20)),
 	)
 }
 
-// Renew is ...
-type Renew struct {
-	RefreshToken string `json:"refresh_token"`
+// JWT iss ...
+type JWT struct {
+	Secret      string `json:"secret"`
+	ExpireHours int    `json:"expire_hours"`
+}
+
+// Validate is ...
+func (v JWT) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Secret, validation.Length(30, 100)),
+		validation.Field(&v.ExpireHours, validation.Length(30, 100)),
+	)
 }

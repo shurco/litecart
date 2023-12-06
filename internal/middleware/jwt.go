@@ -1,13 +1,16 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	jwtMiddleware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 
+	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -42,8 +45,12 @@ func customKeyFunc() jwt.Keyfunc {
 			return nil, fmt.Errorf("Unexpected jwt signing method=%v", t.Header["alg"])
 		}
 
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
 		db := queries.DB()
-		settingJWT, _ := db.SettingJWT()
+		_settingJWT, _ := db.GetSetting(ctx, &models.JWT{})
+		settingJWT := _settingJWT.(*models.JWT)
 		return []byte(settingJWT.Secret), nil
 	}
 }

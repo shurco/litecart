@@ -78,10 +78,7 @@ import { costFormat } from "@/utils/";
 import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 
-onMounted(() => {
-  listProducts();
-});
-
+const products = ref([]);
 const isDrawer = ref({
   open: false,
   action: null,
@@ -93,16 +90,14 @@ const isDrawer = ref({
   }
 });
 
-const products = ref([]);
-
-const listProducts = async () => {
+onMounted(() => {
   apiGet(`/api/_/products`).then(res => {
     if (res.success) {
       products.value = res.result;
       isDrawer.value.currency = res.result.currency;
     }
   });
-};
+});
 
 const updateProductActive = async (index) => {
   apiUpdate(`/api/_/products/${products.value.products[index].id}/active`).then(res => {

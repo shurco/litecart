@@ -18,10 +18,8 @@ func ApiPrivateRoutes(c *fiber.App) {
 	sign.Post("/out", middleware.JWTProtected(), handlers.SignOut)
 
 	settings := c.Group("/api/_/settings", middleware.JWTProtected())
-	settings.Get("/", handlers.Settings)
-	settings.Patch("/", handlers.UpdateSettings)
-	settings.Get("/:setting_key", handlers.SettingByKey)
-	settings.Patch("/:setting_key", handlers.UpdateSettingByKey)
+	settings.Get("/:setting_key", handlers.GetSetting)
+	settings.Patch("/:setting_key", handlers.UpdateSetting)
 
 	test := c.Group("/api/_/test", middleware.JWTProtected())
 	test.Get("/letter/:letter_name", handlers.TestLetter)

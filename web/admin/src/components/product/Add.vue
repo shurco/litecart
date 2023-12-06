@@ -101,16 +101,6 @@ import { showMessage } from "@/utils/message";
 import { apiPost } from "@/utils/api";
 import { Form } from "vee-validate";
 
-const props = defineProps({
-  products: {
-    required: true,
-  },
-  drawer: {
-    required: true,
-  },
-  close: Function,
-});
-
 const amount = ref()
 const product = ref({
   metadata: [],
@@ -120,6 +110,15 @@ const product = ref({
     type: "",
   }
 })
+const props = defineProps({
+  products: {
+    required: true,
+  },
+  drawer: {
+    required: true,
+  },
+  close: Function,
+});
 
 const emits = defineEmits(["update:modelValue"]);
 const products = computed({

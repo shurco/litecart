@@ -1,11 +1,14 @@
 package app
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog"
 	"golang.org/x/crypto/acme/autocert"
@@ -21,6 +24,7 @@ import (
 	"github.com/shurco/litecart/migrations"
 	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/logging"
+	"github.com/shurco/litecart/pkg/webutil"
 	"github.com/shurco/litecart/web"
 )
 
@@ -88,7 +92,6 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	app.Static("/uploads", "./lc_uploads")
 
 	app.Use(InstallCheck)
-	app.Use(SubdomainCheck)
 
 	routes.AdminRoutes(app)
 	routes.ApiPrivateRoutes(app)
@@ -156,36 +159,23 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 
 func InstallCheck(c *fiber.Ctx) error {
 	db := queries.DB()
-	if !db.IsInstalled() {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	response, err := db.GetSettingByKey(ctx, "installed")
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+	install, _ := strconv.ParseBool(response.Value.(string))
+
+	if !install {
 		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/_/assets") && !strings.HasPrefix(c.Path(), "/api") {
 			return c.Redirect("/_/install")
 		}
 	} else if strings.HasPrefix(c.Path(), "/_/install") {
 		return c.Redirect("/_")
 	}
-	return c.Next()
-}
-
-func SubdomainCheck(c *fiber.Ctx) error {
-	// db := queries.DB()
-
-	/*
-		if MainDomain == "" {
-			hostname := strings.Split(c.Hostname(), ".")
-			if len(hostname) > 2 {
-				hostname = hostname[1:]
-			}
-			MainDomain = strings.Join(hostname, ".")
-		}
-	*/
-
-	/*
-		if len(c.Subdomains()) > 0 {
-			if !db.CheckSubdomain(c.Subdomains()[0]) && !DevMode {
-				return c.Redirect(fmt.Sprintf("%s://%s", c.Protocol(), MainDomain), fiber.StatusMovedPermanently)
-			}
-		}
-	*/
 	return c.Next()
 }
 

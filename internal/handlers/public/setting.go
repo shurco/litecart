@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 
+	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -18,23 +19,29 @@ func Ping(c *fiber.Ctx) error {
 func Settings(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	settings, err := db.Settings(false)
+	settingMain, err := db.GetSetting(c.Context(), &models.Main{})
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+	_settingMain := settingMain.(*models.Main)
+
+	settingSocial, err := db.GetSetting(c.Context(), &models.Social{})
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	pages, err := db.ListPages(false)
+	pages, err := db.ListPages(c.Context(), false)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Settings", map[string]any{
 		"main": map[string]string{
-			"site_name": settings.Main.SiteName,
-			"domain":    settings.Main.Domain,
-			"currency":  settings.Main.Currency,
+			"site_name": _settingMain.SiteName,
+			"domain":    _settingMain.Domain,
+			"currency":  _settingMain.Currency,
 		},
-		"socials": settings.Social,
+		"socials": settingSocial.(*models.Social),
 		"pages":   pages,
 	})
 }

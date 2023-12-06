@@ -20,10 +20,10 @@
       </div>
       <div class="mt-5 flex">
         <div class="pr-3">
-          <FormInput v-model.trim="main.jwt.secret" :error="errors.jwt_secret" rules="required|min:30" class="w-64" id="jwt_secret" type="text" title="JWT Secret" ico="key" />
+          <FormInput v-model.trim="jwt.secret" :error="errors.jwt_secret" rules="required|min:30" class="w-64" id="jwt_secret" type="text" title="JWT Secret" ico="key" />
         </div>
         <div>
-          <FormInput v-model.trim="main.jwt.expire_hours" :error="errors.jwt_expire_hours" rules="required|numeric" class="w-64" id="jwt_expire_hours" type="text"
+          <FormInput v-model.trim="jwt.expire_hours" :error="errors.jwt_expire_hours" rules="required|numeric" class="w-64" id="jwt_expire_hours" type="text"
             title="JWT expire hours" ico="key" />
         </div>
       </div>
@@ -41,28 +41,24 @@ import { showMessage } from "@/utils/message";
 import { apiGet, apiUpdate } from "@/utils/api";
 import { Form } from "vee-validate";
 
-const main = ref({
-  jwt: {},
-});
+const main = ref({});
+const jwt = ref({});
 
 onMounted(() => {
-  settingsList();
-});
-
-const settingsList = async () => {
-  apiGet(`/api/_/settings`).then(res => {
+  apiGet(`/api/_/settings/main`).then(res => {
     if (res.success) {
-      main.value = res.result.main;
+      main.value = res.result;
     }
   });
-};
+  apiGet(`/api/_/settings/jwt`).then(res => {
+    if (res.success) {
+      jwt.value = res.result;
+    }
+  });
+});
 
 const updateSetting = async () => {
-  var update = {
-    main: main.value,
-  };
-
-  apiUpdate(`/api/_/settings`, update).then(res => {
+  apiUpdate(`/api/_/settings/main`, main.value).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

@@ -21,7 +21,7 @@ import (
 func Version(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	session, err := db.GetSession("update")
+	session, err := db.GetSession(c.Context(), "update")
 	if err != nil && err != sql.ErrNoRows {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -40,13 +40,13 @@ func Version(c *fiber.Ctx) error {
 			version.ReleaseURL = release.GetUrl()
 		}
 
-		if err := db.DeleteSession("update"); err != nil {
+		if err := db.DeleteSession(c.Context(), "update"); err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
 
 		json, _ := json.Marshal(version)
 		expires := time.Now().Add(24 * time.Hour).Unix()
-		if err := db.AddSession("update", string(json), expires); err != nil {
+		if err := db.AddSession(c.Context(), "update", string(json), expires); err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
 	}
@@ -59,100 +59,105 @@ func Version(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Version", version)
 }
 
-// Settings is ...
-// [get] /api/_/settings
-func Settings(c *fiber.Ctx) error {
-	db := queries.DB()
-
-	settings, err := db.Settings(true)
-	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Settings", settings)
-}
-
-// UpdateSettings is ...
-// [patch] /api/_/settings
-func UpdateSettings(c *fiber.Ctx) error {
-	db := queries.DB()
-	request := new(models.Setting)
-
-	sectionTmp := map[string]any{}
-	if err := json.Unmarshal(c.Body(), &sectionTmp); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-	section := ""
-	for key := range sectionTmp {
-		section = key
-		break
-	}
-
-	switch section {
-	case "stripe", "paypal", "spectrocoin":
-		if err := json.Unmarshal(c.Body(), &request.PaymentSystem); err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
-		}
-	}
-
-	if err := c.BodyParser(request); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	if err := db.UpdateSettings(request, section); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	return webutil.Response(c, fiber.StatusOK, "Settings updated", nil)
-}
-
-// SettingByKey is ...
+// GetSetting is ...
 // [get] /api/_/settings/:setting_key
-func SettingByKey(c *fiber.Ctx) error {
+func GetSetting(c *fiber.Ctx) error {
 	db := queries.DB()
 	settingKey := c.Params("setting_key")
+
+	var section any
+	var err error
 
 	switch settingKey {
 	case "password":
 		return webutil.StatusNotFound(c)
-	case "main", "social", "jwt", "webhook", "smtp", "stripe", "paypal", "spectrocoin":
-		section, err := db.SettingBySection(settingKey)
-		if err != nil {
-			if err == errors.ErrSettingNotFound {
-				return webutil.StatusNotFound(c)
-			}
-			return webutil.StatusBadRequest(c, err.Error())
-		}
-		return webutil.Response(c, fiber.StatusOK, "Setting section", section)
+	case "main":
+		section, err = db.GetSetting(c.Context(), &models.Main{})
+	case "social":
+		section, err = db.GetSetting(c.Context(), &models.Social{})
+	case "jwt":
+		section, err = db.GetSetting(c.Context(), &models.JWT{})
+	case "webhook":
+		section, err = db.GetSetting(c.Context(), &models.Webhook{})
+	case "stripe":
+		section, err = db.GetSetting(c.Context(), &models.Stripe{})
+	case "paypal":
+		section, err = db.GetSetting(c.Context(), &models.Paypal{})
+	case "spectrocoin":
+		section, err = db.GetSetting(c.Context(), &models.Spectrocoin{})
+	case "mail":
+		section, err = db.GetSetting(c.Context(), &models.SMTP{})
 	default:
-		setting, err := db.SettingValueByKey(settingKey)
-		if err != nil {
-			if err == errors.ErrSettingNotFound {
-				return webutil.StatusNotFound(c)
-			}
-			return webutil.StatusBadRequest(c, err.Error())
-		}
-		return webutil.Response(c, fiber.StatusOK, "Setting", setting)
+		section, err = db.GetSettingByKey(c.Context(), settingKey)
 	}
+
+	if err != nil {
+		if err == errors.ErrSettingNotFound {
+			return webutil.StatusNotFound(c)
+		}
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+	return webutil.Response(c, fiber.StatusOK, "Setting", section)
 }
 
-// UpdateSettingByKey is ...
+// UpdateSetting is ...
 // [patch] /api/_/settings/:setting_key
-func UpdateSettingByKey(c *fiber.Ctx) error {
+func UpdateSetting(c *fiber.Ctx) error {
 	db := queries.DB()
-	request := &models.SettingName{
-		Key: c.Params("setting_key"),
+	settingKey := c.Params("setting_key")
+	var request any
+
+	switch settingKey {
+	case "password":
+		request = &models.Password{}
+	case "main":
+		request = &models.Main{}
+	case "jwt":
+		request = &models.JWT{}
+	case "social":
+		request = &models.Social{}
+	case "stripe":
+		request = &models.Stripe{}
+	case "paypal":
+		request = &models.Paypal{}
+	case "spectrocoin":
+		request = &models.Spectrocoin{}
+	case "webhook":
+		request = &models.Webhook{}
+	case "mail":
+		request = &models.SMTP{}
+	default:
+		request = &models.SettingName{Key: settingKey}
 	}
 
+	// Parse the request body into the appropriate struct
 	if err := c.BodyParser(request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	if err := db.UpdateSettingValueByKey(request); err != nil {
+	// Handle the password update separately if that's the case
+	if settingKey == "password" {
+		password := request.(*models.Password)
+		if err := db.UpdatePassword(c.Context(), password); err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		return webutil.Response(c, fiber.StatusOK, "Password updated", nil)
+	}
+
+	// For default case where setting key doesn't match any predefined keys
+	if _, ok := request.(*models.SettingName); ok {
+		if err := db.UpdateSettingByKey(c.Context(), request.(*models.SettingName)); err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		return webutil.Response(c, fiber.StatusOK, "Setting updated", nil)
+	}
+
+	// Update setting for all other cases
+	if err := db.UpdateSetting(c.Context(), request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Setting updated", nil)
+	return webutil.Response(c, fiber.StatusOK, "Setting group updated", nil)
 }
 
 // TestLetter is ...

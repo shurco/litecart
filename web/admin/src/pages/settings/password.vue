@@ -9,11 +9,11 @@
         ico="finger-print" />
       <div class="mt-5 flex">
         <div class="pr-3">
-          <FormInput v-model.trim="password.new1" :error="errors.password_new1" rules="required|min:6" class="w-96" id="password_new1" type="password" title="New password"
+          <FormInput v-model.trim="password.new" :error="errors.password_new" rules="required|min:6" class="w-96" id="password_new" type="password" title="New password"
             ico="finger-print" />
         </div>
         <div>
-          <FormInput v-model.trim="password.new2" :error="errors.password_new2" rules="required|confirmed:password_new1" class="w-96" id="password_new2" type="password"
+          <FormInput v-model.trim="password.new2" :error="errors.password_new2" rules="required|confirmed:password_new" class="w-96" id="password_new2" type="password"
             title="Repeat password" ico="finger-print" />
         </div>
       </div>
@@ -32,16 +32,13 @@ import { apiUpdate } from "@/utils/api";
 import { Form } from "vee-validate";
 
 const password = ref({});
-
 const updateSetting = async () => {
   var update = {
-    password: {
-      old: password.value.old,
-      new: password.value.new1,
-    },
+    old: password.value.old,
+    new: password.value.new,
   };
 
-  apiUpdate(`/api/_/settings`, update).then(res => {
+  apiUpdate(`/api/_/settings/password`, update).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

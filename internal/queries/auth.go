@@ -7,28 +7,40 @@ import (
 	"github.com/shurco/litecart/pkg/errors"
 )
 
-// AuthQueries is ...
+// AuthQueries is a struct that embeds *sql.DB to provide database functionality.
+// This structure can be used to create methods that will execute SQL queries related to authentication.
 type AuthQueries struct {
 	*sql.DB
 }
 
-// GetPasswordByEmail is ...
-func (q *AuthQueries) GetPasswordByEmail(email string) (string, error) {
-	var id, value string
+// GetPasswordByEmail retrieves the password for a user by their email.
+func (q *AuthQueries) GetPasswordByEmail(ctx context.Context, email string) (string, error) {
+	query := `SELECT key, value FROM setting WHERE key IN ('email', 'password')`
+	rows, err := q.DB.QueryContext(ctx, query)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
 
-	if err := q.DB.QueryRowContext(context.TODO(), `SELECT id FROM setting WHERE key = 'email' AND value = ?`, email).Scan(&id); err != nil {
-		return "", errors.ErrUserNotFound
-	}
-	if id == "" {
-		return "", errors.ErrUserEmailNotFound
+	for rows.Next() {
+		var key, value string
+		err := rows.Scan(&key, &value)
+		if err != nil {
+			return "", err
+		}
+
+		switch key {
+		case "email":
+			if value != email {
+				return "", errors.ErrUserEmailNotFound
+			}
+		case "password":
+			if value == "" {
+				return "", errors.ErrUserPasswordNotFound
+			}
+			return value, nil
+		}
 	}
 
-	if err := q.DB.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'password'`).Scan(&value); err != nil {
-		return "", errors.ErrUserPasswordNotFound
-	}
-	if value == "" {
-		return "", errors.ErrUserEmailNotFound
-	}
-
-	return value, nil
+	return "", errors.ErrUserNotFound
 }

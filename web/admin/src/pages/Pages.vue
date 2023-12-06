@@ -78,30 +78,24 @@ import { apiGet, apiUpdate } from "@/utils/api";
 const route = useRoute();
 const router = useRouter();
 const pages = ref([]);
-
 const page = ref({});
 const content = ref();
-
 const isDrawer = ref({
   open: false,
   action: null,
 });
 
 onMounted(() => {
-  pagesList();
-
-  if (route.params.page_slug) {
-    pageContent(route.params.page_slug);
-  }
-});
-
-const pagesList = async () => {
   apiGet(`/api/_/pages`).then(res => {
     if (res.success) {
       pages.value = res.result;
     }
   });
-};
+
+  if (route.params.page_slug) {
+    pageContent(route.params.page_slug);
+  }
+});
 
 const openPage = (slug) => {
   router.push({ name: "pagesArticle", params: { page_slug: slug } });

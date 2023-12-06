@@ -19,5 +19,6 @@ func (v Page) Validate() error {
 		validation.Field(&v.ID, validation.Length(15, 15)),
 		validation.Field(&v.Name, validation.Length(3, 50)),
 		validation.Field(&v.Slug, validation.Length(3, 20)),
+		validation.Field(&v.Seo),
 	)
 }

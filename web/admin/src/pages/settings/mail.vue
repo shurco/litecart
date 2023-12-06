@@ -86,23 +86,19 @@ const letterLegend = {
 }
 
 onMounted(() => {
-  settingsList();
-});
-
-const settingsList = async () => {
-  apiGet(`/api/_/settings`).then(res => {
+  apiGet(`/api/_/settings/mail`).then(res => {
     if (res.success) {
-      smtp.value = res.result.smtp;
+      smtp.value = res.result;
     }
   });
-};
+});
 
 const updateSetting = async () => {
   var update = {};
-  update.smtp = smtp.value;
-  update.smtp.port = Number(smtp.value.port);
+  update = smtp.value;
+  update.port = Number(smtp.value.port);
 
-  apiUpdate(`/api/_/settings`, update).then(res => {
+  apiUpdate(`/api/_/settings/mail`, update).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

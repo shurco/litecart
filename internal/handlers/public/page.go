@@ -14,7 +14,7 @@ func Page(c *fiber.Ctx) error {
 	pageSlug := c.Params("page_slug")
 	db := queries.DB()
 
-	page, err := db.Page(pageSlug)
+	page, err := db.Page(c.Context(), pageSlug)
 	if err != nil {
 		if err == errors.ErrPageNotFound {
 			return webutil.StatusNotFound(c)

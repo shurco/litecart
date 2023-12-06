@@ -1,8 +1,0 @@
-@host = http://localhost:8080
-
-
-###
-# @name payment
-GET {{host}}/api/cart/payment
-Content-Type: application/json
-

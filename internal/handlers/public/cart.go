@@ -19,7 +19,7 @@ import (
 // [get] /cart/payment
 func PaymentList(c *fiber.Ctx) error {
 	db := queries.DB()
-	paymentList, err := db.PaymentList()
+	paymentList, err := db.PaymentList(c.Context())
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -38,8 +38,13 @@ func Payment(c *fiber.Ctx) error {
 
 	db := queries.DB()
 
-	domain := db.GetDomain()
-	products, err := db.ListProducts(false, payment.Products...)
+	response, err := db.GetSettingByKey(c.Context(), "domain")
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+	domain := response.Value
+
+	products, err := db.ListProducts(c.Context(), false, payment.Products...)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -75,15 +80,15 @@ func Payment(c *fiber.Ctx) error {
 		}
 	}
 
-	cart := litepay.Cart{
-		ID:       security.RandomString(),
-		Currency: db.GetCurrency(),
-		Items:    items,
-	}
-
-	settingPayment, err := db.SettingBySection(string(payment.Provider))
+	currency, err := db.GetSettingByKey(c.Context(), "currency")
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	cart := litepay.Cart{
+		ID:       security.RandomString(),
+		Currency: currency.Value.(string),
+		Items:    items,
 	}
 
 	callbackURL := fmt.Sprintf("https://%s/cart/payment/callback", domain)
@@ -95,7 +100,12 @@ func Payment(c *fiber.Ctx) error {
 	paymentSystem := payment.Provider
 	switch paymentSystem {
 	case litepay.STRIPE:
-		setting := settingPayment.(models.Stripe)
+		_setting, err := db.GetSetting(c.Context(), &models.Stripe{})
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		setting := _setting.(*models.Stripe)
+
 		if !setting.Active {
 			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
 		}
@@ -107,7 +117,12 @@ func Payment(c *fiber.Ctx) error {
 		paymentURL = response.URL
 
 	case litepay.PAYPAL:
-		setting := settingPayment.(models.Paypal)
+		_setting, err := db.GetSetting(c.Context(), &models.Paypal{})
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		setting := _setting.(*models.Paypal)
+
 		if !setting.Active {
 			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
 		}
@@ -119,7 +134,12 @@ func Payment(c *fiber.Ctx) error {
 		paymentURL = response.URL
 
 	case litepay.SPECTROCOIN:
-		setting := settingPayment.(models.Spectrocoin)
+		_setting, err := db.GetSetting(c.Context(), &models.Spectrocoin{})
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		setting := _setting.(*models.Spectrocoin)
+
 		if !setting.Active {
 			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
 		}
@@ -136,7 +156,7 @@ func Payment(c *fiber.Ctx) error {
 		amountTotal += s.PriceData.UnitAmount * s.Quantity
 	}
 
-	db.AddCart(&models.Cart{
+	db.AddCart(c.Context(), &models.Cart{
 		Core: models.Core{
 			ID: cart.ID,
 		},
@@ -198,7 +218,7 @@ func PaymentCallback(c *fiber.Ctx) error {
 	}
 
 	db := queries.DB()
-	err := db.UpdateCart(&models.Cart{
+	err := db.UpdateCart(c.Context(), &models.Cart{
 		Core: models.Core{
 			ID: payment.CartID,
 		},
@@ -251,12 +271,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 	}
 
 	db := queries.DB()
-	settingPayment, err := db.SettingBySection(string(payment.PaymentSystem))
-	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
-	}
-
-	cartInfo, err := db.Cart(c.Query("cart_id"))
+	cartInfo, err := db.Cart(c.Context(), c.Query("cart_id"))
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -268,7 +283,12 @@ func PaymentSuccess(c *fiber.Ctx) error {
 	switch payment.PaymentSystem {
 	case litepay.STRIPE:
 		sessionStripe := c.Query("session")
-		setting := settingPayment.(models.Stripe)
+		_setting, err := db.GetSetting(c.Context(), &models.Stripe{})
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		setting := _setting.(*models.Stripe)
+
 		if !setting.Active {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
@@ -281,7 +301,12 @@ func PaymentSuccess(c *fiber.Ctx) error {
 
 	case litepay.PAYPAL:
 		tokenPaypal := c.Query("token")
-		setting := settingPayment.(models.Paypal)
+		_setting, err := db.GetSetting(c.Context(), &models.Paypal{})
+		if err != nil {
+			return webutil.StatusBadRequest(c, err.Error())
+		}
+		setting := _setting.(*models.Paypal)
+
 		if !setting.Active {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
@@ -296,7 +321,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		fmt.Print(payment)
 	}
 
-	err = db.UpdateCart(&models.Cart{
+	err = db.UpdateCart(c.Context(), &models.Cart{
 		Core: models.Core{
 			ID: payment.CartID,
 		},
@@ -341,7 +366,7 @@ func PaymentCancel(c *fiber.Ctx) error {
 	}
 
 	db := queries.DB()
-	err := db.UpdateCart(&models.Cart{
+	err := db.UpdateCart(c.Context(), &models.Cart{
 		Core: models.Core{
 			ID: payment.CartID,
 		},

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
@@ -17,12 +18,16 @@ import (
 func SendTestLetter(letterName string) error {
 	db := queries.DB().SettingQueries
 
-	smtpSetting, err := db.SettingMail()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_smtpSetting, err := db.GetSetting(ctx, &models.SMTP{})
 	if err != nil {
 		return err
 	}
+	smtpSetting := _smtpSetting.(*models.SMTP)
 
-	settingEmail, err := db.SettingValueByKey("email")
+	settingEmail, err := db.GetSettingByKey(ctx, "email")
 	if err != nil {
 		return err
 	}
@@ -44,7 +49,7 @@ func SendTestLetter(letterName string) error {
 	}
 
 	if letterName != "smtp" {
-		settingLetter, err := db.SettingValueByKey(letterName)
+		settingLetter, err := db.GetSettingByKey(ctx, letterName)
 		if err != nil {
 			return err
 		}
@@ -73,7 +78,10 @@ func SendPrepaymentLetter(email, amountPayment, paymentURL string) error {
 		},
 	}
 
-	rows, err := db.DB.QueryContext(context.TODO(), `SELECT key, value FROM setting WHERE key IN ('site_name', 'email','mail_letter_payment')`)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := db.DB.QueryContext(ctx, `SELECT key, value FROM setting WHERE key IN ('site_name', 'email','mail_letter_payment')`)
 	if err != nil {
 		return err
 	}
@@ -102,10 +110,11 @@ func SendPrepaymentLetter(email, amountPayment, paymentURL string) error {
 		return err
 	}
 
-	smtpSetting, err := db.SettingMail()
+	_smtpSetting, err := db.GetSetting(ctx, &models.SMTP{})
 	if err != nil {
 		return err
 	}
+	smtpSetting := _smtpSetting.(*models.SMTP)
 
 	if err := SendMail(smtpSetting, mail); err != nil {
 		return err
@@ -123,7 +132,10 @@ func SendCartLetter(cartID string) error {
 	keys := []models.Data{}
 	var cartJSON, letter string
 
-	err := db.QueryRowContext(context.TODO(), `SELECT email, cart FROM cart WHERE payment_status = ? AND id = ?`, litepay.PAID, cartID).Scan(&mail.To, &cartJSON)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := db.QueryRowContext(ctx, `SELECT email, cart FROM cart WHERE payment_status = ? AND id = ?`, litepay.PAID, cartID).Scan(&mail.To, &cartJSON)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errors.ErrPageNotFound
@@ -135,7 +147,7 @@ func SendCartLetter(cartID string) error {
 		return err
 	}
 
-	tx, err := db.DB.BeginTx(context.TODO(), nil)
+	tx, err := db.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -149,7 +161,7 @@ func SendCartLetter(cartID string) error {
 
 	for _, cart := range products {
 		var digitalType string
-		err := tx.QueryRowContext(context.TODO(), `SELECT digital FROM product WHERE id = ?`, cart.ProductID).Scan(&digitalType)
+		err := tx.QueryRowContext(ctx, `SELECT digital FROM product WHERE id = ?`, cart.ProductID).Scan(&digitalType)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return errors.ErrPageNotFound
@@ -158,7 +170,7 @@ func SendCartLetter(cartID string) error {
 		}
 
 		if digitalType == "file" {
-			rows, err := tx.QueryContext(context.TODO(), `SELECT id, name, ext, orig_name FROM digital_file WHERE product_id = ?`, cart.ProductID)
+			rows, err := tx.QueryContext(ctx, `SELECT id, name, ext, orig_name FROM digital_file WHERE product_id = ?`, cart.ProductID)
 			if err != nil {
 				return err
 			}
@@ -181,19 +193,19 @@ func SendCartLetter(cartID string) error {
 
 		if digitalType == "data" {
 			key := models.Data{}
-			err := tx.QueryRowContext(context.TODO(), `SELECT id, content FROM digital_data WHERE cart_id = ?`, cartID).Scan(&key.ID, &key.Content)
+			err := tx.QueryRowContext(ctx, `SELECT id, content FROM digital_data WHERE cart_id = ?`, cartID).Scan(&key.ID, &key.Content)
 			if err != nil && err != sql.ErrNoRows {
 				return err
 			}
 			if err == sql.ErrNoRows {
-				err = tx.QueryRowContext(context.TODO(), `SELECT id, content FROM digital_data WHERE cart_id IS NULL AND product_id = ? LIMIT 1`, cart.ProductID).Scan(&key.ID, &key.Content)
+				err = tx.QueryRowContext(ctx, `SELECT id, content FROM digital_data WHERE cart_id IS NULL AND product_id = ? LIMIT 1`, cart.ProductID).Scan(&key.ID, &key.Content)
 				if err != nil {
 					if err == sql.ErrNoRows {
 						return errors.ErrPageNotFound
 					}
 					return err
 				}
-				if _, err := tx.ExecContext(context.TODO(), `UPDATE digital_data SET cart_id = ? WHERE id = ?`, cartID, key.ID); err != nil {
+				if _, err := tx.ExecContext(ctx, `UPDATE digital_data SET cart_id = ? WHERE id = ?`, cartID, key.ID); err != nil {
 					return err
 				}
 			}
@@ -202,11 +214,11 @@ func SendCartLetter(cartID string) error {
 		}
 	}
 
-	if err := tx.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'email'`).Scan(&mail.From); err != nil {
+	if err := tx.QueryRowContext(ctx, `SELECT value FROM setting WHERE key = 'email'`).Scan(&mail.From); err != nil {
 		return err
 	}
 
-	if err := tx.QueryRowContext(context.TODO(), `SELECT value FROM setting WHERE key = 'mail_letter_purchase'`).Scan(&letter); err != nil {
+	if err := tx.QueryRowContext(ctx, `SELECT value FROM setting WHERE key = 'mail_letter_purchase'`).Scan(&letter); err != nil {
 		return err
 	}
 	if err := json.Unmarshal([]byte(letter), &mail.Letter); err != nil {
@@ -237,10 +249,11 @@ func SendCartLetter(cartID string) error {
 		"Admin_Email": mail.From,
 	}
 
-	smtpSetting, err := db.SettingMail()
+	_smtpSetting, err := db.GetSetting(ctx, &models.SMTP{})
 	if err != nil {
 		return err
 	}
+	smtpSetting := _smtpSetting.(*models.SMTP)
 
 	if err := SendMail(smtpSetting, mail); err != nil {
 		return err

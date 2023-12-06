@@ -68,7 +68,6 @@
 import { notify, Notification, NotificationGroup } from "notiwind";
 
 const NOTIFICATION_DURATION = 4000;
-
 const handleNotification = (eventName, notificationType) => {
   const callback = (e) => {
     notify(

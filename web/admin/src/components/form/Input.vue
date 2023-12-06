@@ -2,7 +2,7 @@
   <div>
     <label :for="id" :class="error ? 'border-red-500' : ''">
       <Field :type="type" :name="id" :rules="rules" :id="id" v-model="model" class="form-input field peer" :placeholder="placeholder" autocomplete="on" />
-      <span v-if="title" class="peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs title">
+      <span v-if="title" class="peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs peer-placeholder-shown:text-gray-400 peer-focus:text-gray-700  title">
         {{ title }}
       </span>
       <span class="ico" v-if="ico">

@@ -1,8 +1,10 @@
 package webhook
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
@@ -38,11 +40,14 @@ type Data struct {
 func SendPaymentHook(resData *Payment) error {
 	db := queries.DB().SettingQueries
 
-	webhookSettingTmp, err := db.SettingBySection("webhook")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_webhookSetting, err := db.GetSetting(ctx, &models.Webhook{})
 	if err != nil {
 		return err
 	}
-	webhookSetting := webhookSettingTmp.(models.Webhook)
+	webhookSetting := _webhookSetting.(models.Webhook)
 
 	if webhookSetting.Url != "" {
 		jsonData, err := json.Marshal(resData)

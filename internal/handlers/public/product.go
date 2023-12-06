@@ -12,7 +12,7 @@ import (
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	products, err := db.ListProducts(false)
+	products, err := db.ListProducts(c.Context(), false)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -26,7 +26,7 @@ func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
 
-	product, err := db.Product(false, productID)
+	product, err := db.Product(c.Context(), false, productID)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}

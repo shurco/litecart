@@ -13,7 +13,7 @@ import (
 func Pages(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	pages, err := db.ListPages(true)
+	pages, err := db.ListPages(c.Context(), true)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -31,7 +31,7 @@ func AddPage(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	page, err := db.AddPage(request)
+	page, err := db.AddPage(c.Context(), request)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -51,7 +51,7 @@ func UpdatePage(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	if err := db.UpdatePage(request); err != nil {
+	if err := db.UpdatePage(c.Context(), request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -64,7 +64,7 @@ func DeletePage(c *fiber.Ctx) error {
 	pageID := c.Params("page_id")
 	db := queries.DB()
 
-	if err := db.DeletePage(pageID); err != nil {
+	if err := db.DeletePage(c.Context(), pageID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -86,7 +86,7 @@ func UpdatePageContent(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	if err := db.UpdatePageContent(request); err != nil {
+	if err := db.UpdatePageContent(c.Context(), request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -99,7 +99,7 @@ func UpdatePageActive(c *fiber.Ctx) error {
 	pageID := c.Params("page_id")
 	db := queries.DB()
 
-	if err := db.UpdatePageActive(pageID); err != nil {
+	if err := db.UpdatePageActive(c.Context(), pageID); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 

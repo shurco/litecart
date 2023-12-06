@@ -27,22 +27,18 @@ import { apiGet } from "@/utils/api";
 
 const store = useSystemStore();
 
-const isDrawer = ref({
-  open: false,
-  action: null,
-});
-
 onMounted(() => {
-  settingsList();
-});
-
-const settingsList = async () => {
   apiGet(`/api/cart/payment`).then(res => {
     if (res.success) {
       store.payments = res.result;
     }
   });
-};
+});
+
+const isDrawer = ref({
+  open: false,
+  action: null,
+});
 
 const openDrawer = (action) => {
   isDrawer.value.open = true;

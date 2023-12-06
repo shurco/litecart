@@ -10,40 +10,49 @@ import (
 	"github.com/shurco/litecart/pkg/security"
 )
 
-// PageQueries is ...
+// PageQueries is a struct that embeds a pointer to an sql.DB.
+// This allows for direct access to database methods on the PageQueries struct,
+// effectively extending it with all the methods of *sql.DB.
 type PageQueries struct {
 	*sql.DB
 }
 
-// IsPage is ...
-func (q *PageQueries) IsPage(slug string) bool {
-	var id string
-	err := q.DB.QueryRowContext(context.TODO(), `SELECT id FROM page WHERE slug = ?`, slug).Scan(&id)
-	return err == nil
+// IsPage checks if a page with the given slug exists in the database.
+// It uses the context provided for any query-related timeouts or cancellations.
+func (q *PageQueries) IsPage(ctx context.Context, slug string) bool {
+	var exists bool
+	err := q.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM page WHERE slug = ?)`, slug).Scan(&exists)
+	return err == nil && exists
 }
 
-// ListPages is ...
-func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, error) {
+// ListPages retrieves a list of pages from the database.
+// It filters out private pages unless `private` is set to true,
+// and can also filter by a list of page IDs if provided.
+func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...string) ([]models.Page, error) {
 	pages := []models.Page{}
 
-	queryPrivate := ` WHERE active = 1`
 	query := `SELECT id, name, slug, position, active, seo, strftime('%s', created), strftime('%s', updated) FROM page`
-
 	if !private {
-		query = query + queryPrivate
+		query = query + ` WHERE active = 1`
 	}
 
-	rows, err := q.DB.QueryContext(context.TODO(), query)
+	stmt, err := q.DB.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
+		var page models.Page
 		var seo sql.NullString
 		var updated sql.NullInt64
 
-		page := models.Page{}
 		err := rows.Scan(&page.ID, &page.Name, &page.Slug, &page.Position, &page.Active, &seo, &page.Created, &updated)
 		if err != nil {
 			return nil, err
@@ -54,7 +63,9 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 		}
 
 		if seo.Valid {
-			json.Unmarshal([]byte(seo.String), &page.Seo)
+			if err = json.Unmarshal([]byte(seo.String), &page.Seo); err != nil {
+				return nil, err
+			}
 		}
 
 		pages = append(pages, page)
@@ -67,14 +78,15 @@ func (q *PageQueries) ListPages(private bool, idList ...string) ([]models.Page, 
 	return pages, nil
 }
 
-// Page is ...
-func (q *PageQueries) Page(slug string) (*models.Page, error) {
+// Page retrieves a single page from the database based on its slug.
+func (q *PageQueries) Page(ctx context.Context, slug string) (*models.Page, error) {
 	page := models.Page{
 		Slug: slug,
 	}
 
 	var content, seo sql.NullString
-	err := q.DB.QueryRowContext(context.TODO(), `SELECT id, name, content, active, seo FROM page WHERE slug = ?`, slug).Scan(&page.ID, &page.Name, &content, &page.Active, &seo)
+	query := `SELECT id, name, content, active, seo FROM page WHERE slug = ?`
+	err := q.DB.QueryRowContext(ctx, query, slug).Scan(&page.ID, &page.Name, &content, &page.Active, &seo)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.ErrPageNotFound
@@ -82,24 +94,29 @@ func (q *PageQueries) Page(slug string) (*models.Page, error) {
 		return nil, err
 	}
 
-	if content.Valid {
-		page.Content = &content.String
-	}
-
+	page.Content = &content.String
 	if seo.Valid {
-		json.Unmarshal([]byte(seo.String), &page.Seo)
+		if err = json.Unmarshal([]byte(seo.String), &page.Seo); err != nil {
+			return nil, err
+		}
 	}
 
 	return &page, nil
 }
 
-// AddPage is ...
-func (q *PageQueries) AddPage(page *models.Page) (*models.Page, error) {
+// AddPage inserts a new page into the database and returns the created page or an error.
+func (q *PageQueries) AddPage(ctx context.Context, page *models.Page) (*models.Page, error) {
 	page.ID = security.RandomString()
 	page.Active = false
 
-	sql := `INSERT INTO page (id, name, slug, position) VALUES (?, ?, ?, ?) RETURNING strftime('%s', created)`
-	err := q.DB.QueryRowContext(context.TODO(), sql, page.ID, page.Name, page.Slug, page.Position).Scan(&page.Created)
+	query := `INSERT INTO page (id, name, slug, position) VALUES (?, ?, ?, ?) RETURNING strftime('%s', created)`
+	stmt, err := q.DB.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRowContext(ctx, query, page.ID, page.Name, page.Slug, page.Position).Scan(&page.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -107,54 +124,36 @@ func (q *PageQueries) AddPage(page *models.Page) (*models.Page, error) {
 	return page, nil
 }
 
-// UpdatePage is ...
-func (q *PageQueries) UpdatePage(page *models.Page) error {
-	seo, _ := json.Marshal(page.Seo)
-
-	_, err := q.DB.ExecContext(context.TODO(), `UPDATE page SET name = ?, slug = ?, position = ?, seo = ?, updated = datetime('now') WHERE id = ?`,
-		page.Name,
-		page.Slug,
-		page.Position,
-		seo,
-		page.ID,
-	)
+// UpdatePage updates the details of a page in the database.
+func (q *PageQueries) UpdatePage(ctx context.Context, page *models.Page) error {
+	seo, err := json.Marshal(page.Seo)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	query := `UPDATE page SET name = ?, slug = ?, position = ?, seo = ?, updated = datetime('now') WHERE id = ?`
+	_, err = q.DB.ExecContext(ctx, query, page.Name, page.Slug, page.Position, seo, page.ID)
+	return err
 }
 
-// DeletePage is ...
-func (q *PageQueries) DeletePage(id string) error {
-	if _, err := q.DB.ExecContext(context.TODO(), `DELETE FROM page WHERE id = ?`, id); err != nil {
-		return err
-	}
-
-	return nil
+// DeletePage method belongs to the PageQueries struct. This method is responsible for deleting a page from the database.
+func (q *PageQueries) DeletePage(ctx context.Context, id string) error {
+	query := `DELETE FROM page WHERE id = ?`
+	_, err := q.DB.ExecContext(ctx, query, id)
+	return err
 }
 
-// UpdatePageContent is ...
-func (q *PageQueries) UpdatePageContent(page *models.Page) error {
-	_, err := q.DB.ExecContext(context.TODO(), `UPDATE page SET content = ?, updated = datetime('now') WHERE id = ? `, page.Content, page.ID)
-	if err != nil {
-		return err
-	}
-	return nil
+// UpdatePageContent updates the content of an existing page in the database.
+func (q *PageQueries) UpdatePageContent(ctx context.Context, page *models.Page) error {
+	query := `UPDATE page SET content = ?, updated = datetime('now') WHERE id = ? `
+	_, err := q.DB.ExecContext(ctx, query, page.Content, page.ID)
+	return err
 }
 
-// UpdatePageActive is ...
-func (q *ProductQueries) UpdatePageActive(id string) error {
-	var active bool
-	query := `SELECT active FROM page WHERE id = ?`
-	err := q.DB.QueryRowContext(context.TODO(), query, id).Scan(&active)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	if _, err := q.DB.ExecContext(context.TODO(), `UPDATE page SET active = ?, updated = datetime('now') WHERE id = ?`, !active, id); err != nil {
-		return err
-	}
-
-	return nil
+// UpdatePageActive toggles the active status of a page with the given ID.
+// It updates the 'active' field to its logical negation (i.e., if it was true, it becomes false and vice versa)
+func (q *ProductQueries) UpdatePageActive(ctx context.Context, id string) error {
+	query := `UPDATE page SET active = NOT active, updated = datetime('now') WHERE id = ?`
+	_, err := q.DB.ExecContext(ctx, query, id)
+	return err
 }

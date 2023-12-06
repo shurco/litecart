@@ -27,7 +27,6 @@ import { apiGet, apiUpdate } from "@/utils/api";
 import { Form } from "vee-validate";
 
 const social = ref({});
-
 const socialUrl = {
   facebook: "https://facebook.com/",
   instagram: "https://instagram.com/",
@@ -37,23 +36,15 @@ const socialUrl = {
 };
 
 onMounted(() => {
-  settingsList();
-});
-
-const settingsList = async () => {
-  apiGet(`/api/_/settings`).then(res => {
+  apiGet(`/api/_/settings/social`).then(res => {
     if (res.success) {
-      social.value = res.result.social;
+      social.value = res.result;
     }
   });
-};
+});
 
-const updateSetting = async (section) => {
-  var update = {
-    social: social.value,
-  };
-
-  apiUpdate(`/api/_/settings`, update).then(res => {
+const updateSetting = async () => {
+  apiUpdate(`/api/_/settings/social`, social.value).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {
