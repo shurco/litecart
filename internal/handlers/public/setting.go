@@ -19,13 +19,17 @@ func Ping(c *fiber.Ctx) error {
 func Settings(c *fiber.Ctx) error {
 	db := queries.DB()
 
-	settingMain, err := db.GetSetting(c.Context(), &models.Main{})
+	settingMain, err := queries.GetSettingByGroup[models.Main](c.Context(), db)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
-	_settingMain := settingMain.(*models.Main)
 
-	settingSocial, err := db.GetSetting(c.Context(), &models.Social{})
+	settingSocial, err := queries.GetSettingByGroup[models.Social](c.Context(), db)
+	if err != nil {
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
+	settingPayment, err := queries.GetSettingByGroup[models.Payment](c.Context(), db)
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
@@ -37,11 +41,11 @@ func Settings(c *fiber.Ctx) error {
 
 	return webutil.Response(c, fiber.StatusOK, "Settings", map[string]any{
 		"main": map[string]string{
-			"site_name": _settingMain.SiteName,
-			"domain":    _settingMain.Domain,
-			"currency":  _settingMain.Currency,
+			"site_name": settingMain.SiteName,
+			"domain":    settingMain.Domain,
+			"currency":  settingPayment.Currency,
 		},
-		"socials": settingSocial.(*models.Social),
+		"socials": settingSocial,
 		"pages":   pages,
 	})
 }

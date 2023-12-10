@@ -20,7 +20,7 @@
       </dl>
     </div>
 
-    <div class="pt-8">
+    <div class="pt-5">
       <div class="flex">
         <div class="flex-none">
           <FormButton type="submit" name="Close" color="gray" @click="close" />
@@ -61,11 +61,12 @@ const props = defineProps({
 onMounted(() => {
   apiGet(`/api/_/settings/${props.name}`).then(res => {
     if (res.success) {
-      letter.value.id = res.result.id;
-      letter.value.key = res.result.key;
-      letter.value.subject = JSON.parse(res.result.value).subject;
-      letter.value.text = JSON.parse(res.result.value).text;
-      letter.value.html = JSON.parse(res.result.value).html;
+      const setting = res.result[0]
+      letter.value.id = setting.id;
+      letter.value.key = setting.key;
+      letter.value.subject = JSON.parse(setting.value).subject;
+      letter.value.text = JSON.parse(setting.value).text;
+      letter.value.html = JSON.parse(setting.value).html;
     }
   });
 });

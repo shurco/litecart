@@ -9,3 +9,12 @@ func ToSlice(s string, sep ...string) []string {
 	}
 	return strings.Split(s, ",")
 }
+
+// ToAny split string to anu.
+func ToAny(key ...string) []any {
+	keys := make([]any, len(key))
+	for i, v := range key {
+		keys[i] = v
+	}
+	return keys
+}

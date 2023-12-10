@@ -27,7 +27,7 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 	}
 
 	products := &models.Products{
-		Currency: currency.Value.(string),
+		Currency: currency[0].Value.(string),
 	}
 
 	query := `

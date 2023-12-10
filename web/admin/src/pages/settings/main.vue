@@ -4,30 +4,10 @@
       <h1><span class="text-gray-300">Settings</span><span class="px-3 text-gray-300">/</span>Main</h1>
     </header>
 
-    <Form @submit="updateSetting()" v-slot="{ errors }">
+    <Form @submit="updateSetting" v-slot="{ errors }">
       <FormInput v-model.trim="main.site_name" :error="errors.site_name" rules="required|min:6" class="max-w-md" id="site_name" type="text" title="Site name" ico="glob-alt" />
-
-      <FormSelect v-model="main.currency" :options="['EUR', 'USD', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'SEK']" :error="errors.currency"
-        rules="required|one_of:EUR,USD,JPY,GBP,AUD,CAD,CHF,CNY,SEK" class="w-64 mt-5" id="currency" title="Currency" ico="money" />
-
-      <div class="mt-5 flex">
-        <div class="pr-3">
-          <FormInput v-model.trim="main.domain" :error="errors.domain" rules="required|min:4" class="w-64" id="domain" type="text" title="Domain" ico="glob-alt" />
-        </div>
-        <div class="pr-3">
-          <FormInput v-model.trim="main.email" :error="errors.email" rules="required|email" class="w-64" id="email" type="text" title="Email" ico="at-symbol" />
-        </div>
-      </div>
-      <div class="mt-5 flex">
-        <div class="pr-3">
-          <FormInput v-model.trim="jwt.secret" :error="errors.jwt_secret" rules="required|min:30" class="w-64" id="jwt_secret" type="text" title="JWT Secret" ico="key" />
-        </div>
-        <div>
-          <FormInput v-model.trim="jwt.expire_hours" :error="errors.jwt_expire_hours" rules="required|numeric" class="w-64" id="jwt_expire_hours" type="text"
-            title="JWT expire hours" ico="key" />
-        </div>
-      </div>
-      <div class="pt-8">
+      <FormInput v-model.trim="main.domain" :error="errors.domain" rules="required|min:4" class="max-w-md mt-5" id="domain" type="text" title="Domain" ico="glob-alt" />
+      <div class="pt-5">
         <FormButton type="submit" name="Save" color="green" />
       </div>
     </Form>
@@ -42,7 +22,6 @@ import { apiGet, apiUpdate } from "@/utils/api";
 import { Form } from "vee-validate";
 
 const main = ref({});
-const jwt = ref({});
 
 onMounted(() => {
   apiGet(`/api/_/settings/main`).then(res => {
@@ -50,15 +29,10 @@ onMounted(() => {
       main.value = res.result;
     }
   });
-  apiGet(`/api/_/settings/jwt`).then(res => {
-    if (res.success) {
-      jwt.value = res.result;
-    }
-  });
 });
 
 const updateSetting = async () => {
-  apiUpdate(`/api/_/settings/main`, main.value).then(res => {
+  await apiUpdate(`/api/_/settings/main`, main.value).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

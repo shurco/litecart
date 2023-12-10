@@ -4,7 +4,7 @@
       <h1><span class="text-gray-300">Settings</span><span class="px-3 text-gray-300">/</span>Socials</h1>
     </header>
 
-    <Form @submit="updateSetting()" v-slot="{ errors }">
+    <Form @submit="updateSetting" v-slot="{ errors }">
       <div v-for="(value, key, index) in socialUrl" :key="index" class="mt-5 flex">
         <div class="pr-3 pt-2.5">{{ socialUrl[key] }}</div>
         <div>
@@ -12,7 +12,7 @@
             :title="key.charAt(0).toUpperCase() + key.slice(1)" :ico="key" />
         </div>
       </div>
-      <div class="pt-8">
+      <div class="pt-5">
         <FormButton type="submit" name="Save" color="green" />
       </div>
     </Form>
@@ -44,7 +44,7 @@ onMounted(() => {
 });
 
 const updateSetting = async () => {
-  apiUpdate(`/api/_/settings/social`, social.value).then(res => {
+  await apiUpdate(`/api/_/settings/social`, social.value).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

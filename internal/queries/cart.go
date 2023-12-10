@@ -10,6 +10,7 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/errors"
+	"github.com/shurco/litecart/pkg/litepay"
 )
 
 // CartQueries is a struct that embeds a pointer to an sql.DB.
@@ -201,4 +202,149 @@ func (q *CartQueries) UpdateCart(ctx context.Context, cart *models.Cart) error {
 
 	_, err := q.DB.ExecContext(ctx, sql.String(), args...)
 	return err
+}
+
+// CartLetterPayment is ...
+func (q *CartQueries) CartLetterPayment(ctx context.Context, email, amountPayment, paymentURL string) (*models.MessageMail, error) {
+	mailLetter, err := db.GetSettingByKey(ctx, "site_name", "mail_letter_payment")
+	if err != nil {
+		return nil, err
+	}
+	letterTemplate := models.Letter{}
+	if err := json.Unmarshal([]byte(mailLetter[1].Value.(string)), &letterTemplate); err != nil {
+		return nil, err
+	}
+
+	mail := &models.MessageMail{
+		To:     email,
+		Letter: letterTemplate,
+		Data: map[string]string{
+			"Payment_URL":    paymentURL,
+			"Site_Name":      mailLetter[0].Value.(string),
+			"Amount_Payment": amountPayment,
+		},
+	}
+
+	return mail, nil
+}
+
+// CartLetterPurchase is ...
+func (q *CartQueries) CartLetterPurchase(ctx context.Context, cartID string) (*models.MessageMail, error) {
+	mail := &models.MessageMail{}
+
+	// Fetch the email, cart information, and 'email' setting in one query.
+	var cartJSON string
+	err := q.QueryRowContext(ctx, `
+        SELECT email, cart
+        FROM cart
+        WHERE payment_status = ? AND id = ?
+    `, litepay.PAID, cartID).Scan(&mail.To, &cartJSON)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.ErrPageNotFound
+		}
+		return nil, err
+	}
+
+	// Unmarshal the products from the cart JSON.
+	products := []models.CartProduct{}
+	if err := json.Unmarshal([]byte(cartJSON), &products); err != nil {
+		return nil, err
+	}
+
+	// Begin a transaction.
+	tx, err := q.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	keys := []models.Data{}
+	files := []models.File{}
+	for _, cart := range products {
+		var digitalType string
+		err := tx.QueryRowContext(ctx, `SELECT digital FROM product WHERE id = ?`, cart.ProductID).Scan(&digitalType)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, errors.ErrPageNotFound
+			}
+			return nil, err
+		}
+
+		switch digitalType {
+		case "file":
+			rows, err := tx.QueryContext(ctx, `SELECT id, name, ext, orig_name FROM digital_file WHERE product_id = ?`, cart.ProductID)
+			if err != nil {
+				return nil, err
+			}
+			for rows.Next() {
+				file := models.File{}
+				if err := rows.Scan(&file.ID, &file.Name, &file.Ext, &file.OrigName); err != nil {
+					rows.Close()
+					return nil, err
+				}
+				files = append(files, file)
+			}
+			rows.Close()
+		case "data":
+			key := models.Data{}
+			err := tx.QueryRowContext(ctx, `SELECT id, content FROM digital_data WHERE cart_id = ?`, cartID).Scan(&key.ID, &key.Content)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					err = tx.QueryRowContext(ctx, `SELECT id, content FROM digital_data WHERE cart_id IS NULL AND product_id = ? LIMIT 1`, cart.ProductID).Scan(&key.ID, &key.Content)
+					if err != nil {
+						if err == sql.ErrNoRows {
+							return nil, errors.ErrPageNotFound
+						}
+						return nil, err
+					}
+					if _, err := tx.ExecContext(ctx, `UPDATE digital_data SET cart_id = ? WHERE id = ?`, cartID, key.ID); err != nil {
+						return nil, err
+					}
+				} else {
+					return nil, err
+				}
+			}
+			keys = append(keys, key)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	// Construct the purchases information.
+	var purchases strings.Builder
+	count := 1
+	if len(keys) > 0 {
+		purchases.WriteString("Keys:\n")
+		for _, key := range keys {
+			purchases.WriteString(fmt.Sprintf("%v: %s\n", count, key.Content))
+			count++
+		}
+	}
+	if len(files) > 0 {
+		purchases.WriteString("Files:\n")
+		for _, file := range files {
+			purchases.WriteString(fmt.Sprintf("%v: %s\n", count, file.OrigName))
+			count++
+		}
+	}
+
+	// Fetch the 'mail_letter_purchase' setting value.
+	mailLetter, err := db.GetSettingByKey(ctx, "email", "mail_letter_purchase")
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal([]byte(mailLetter[1].Value.(string)), &mail.Letter); err != nil {
+		return nil, err
+	}
+
+	mail.Data = map[string]string{
+		"Purchases":   purchases.String(),
+		"Admin_Email": mailLetter[0].Value.(string),
+	}
+	mail.Files = files
+
+	return mail, nil
 }

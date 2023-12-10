@@ -10,6 +10,7 @@ import (
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/security"
+	"github.com/shurco/litecart/pkg/strutil"
 )
 
 // SettingQueries wraps a sql.DB connection allowing for easy querying and interaction
@@ -18,15 +19,17 @@ type SettingQueries struct {
 	*sql.DB
 }
 
-// createFieldMap generates a map of fields based on the type of settings.
-func (q *SettingQueries) createFieldMap(settings any) map[string]any {
+// GroupFieldMap generates a map of fields based on the type of settings.
+func (q *SettingQueries) GroupFieldMap(settings any) map[string]any {
 	switch s := settings.(type) {
 	case *models.Main:
 		return map[string]any{
 			"site_name": &s.SiteName,
 			"domain":    &s.Domain,
-			"email":     &s.Email, // TODO: move to authorization section
-			"currency":  &s.Currency,
+		}
+	case *models.Auth:
+		return map[string]any{
+			"email": &s.Email,
 		}
 	case *models.JWT:
 		return map[string]any{
@@ -40,6 +43,10 @@ func (q *SettingQueries) createFieldMap(settings any) map[string]any {
 			"social_twitter":   &s.Twitter,
 			"social_dribbble":  &s.Dribbble,
 			"social_github":    &s.Github,
+		}
+	case *models.Payment:
+		return map[string]any{
+			"currency": &s.Currency,
 		}
 	case *models.Stripe:
 		return map[string]any{
@@ -63,22 +70,39 @@ func (q *SettingQueries) createFieldMap(settings any) map[string]any {
 		return map[string]any{
 			"webhook_url": &s.Url,
 		}
-	case *models.SMTP:
+	case *models.Mail:
 		return map[string]any{
-			"smtp_host":       &s.Host,
-			"smtp_port":       &s.Port,
-			"smtp_username":   &s.Username,
-			"smtp_password":   &s.Password,
-			"smtp_encryption": &s.Encryption,
+			"mail_sender_name":  &s.SenderName,
+			"mail_sender_email": &s.SenderEmail,
+			"smtp_host":         &s.SMTP.Host,
+			"smtp_port":         &s.SMTP.Port,
+			"smtp_username":     &s.SMTP.Username,
+			"smtp_password":     &s.SMTP.Password,
+			"smtp_encryption":   &s.SMTP.Encryption,
 		}
 	default:
 		return nil
 	}
 }
 
-// GetSetting retrieves settings based on the provided `settings` struct, populating it with values from the database.
-func (q *SettingQueries) GetSetting(ctx context.Context, settings any) (any, error) {
-	fieldMap := q.createFieldMap(settings)
+// GetSettingByGroup is a generic function that retrieves a setting from the database.
+// It takes a context and a pointer to the Base struct which holds the database methods.
+// The function returns a pointer to the requested setting of type T or an error if any occurs.
+func GetSettingByGroup[T any](ctx context.Context, db *Base) (*T, error) {
+	setting, err := db.GetSettingByGroup(ctx, new(T))
+	if err != nil {
+		return nil, err
+	}
+	return setting.(*T), nil
+}
+
+// GetSettingByGroup retrieves settings based on the provided `settings` struct, populating it with values from the database.
+func (q *SettingQueries) GetSettingByGroup(ctx context.Context, settings any) (any, error) {
+	fieldMap := q.GroupFieldMap(settings)
+
+	if fieldMap == nil {
+		return nil, errors.ErrSettingNotFound
+	}
 
 	keys := make([]any, 0, len(fieldMap))
 	for k := range fieldMap {
@@ -122,10 +146,10 @@ func (q *SettingQueries) GetSetting(ctx context.Context, settings any) (any, err
 	return settings, nil
 }
 
-// UpdateSetting updates the settings in the database using a transaction.
+// UpdateSettingByGroup updates the settings in the database using a transaction.
 // It takes a context and a settings object of any type as arguments.
-func (q *SettingQueries) UpdateSetting(ctx context.Context, settings any) error {
-	fieldMap := q.createFieldMap(settings)
+func (q *SettingQueries) UpdateSettingByGroup(ctx context.Context, settings any) error {
+	fieldMap := q.GroupFieldMap(settings)
 
 	tx, err := q.DB.BeginTx(ctx, nil)
 	if err != nil {
@@ -169,20 +193,29 @@ func (q *SettingQueries) UpdatePassword(ctx context.Context, password *models.Pa
 // GetSettingByKey retrieves a setting by its key from the database.
 // It accepts a context for cancellation and a string representing the key of the setting.
 // Returns a pointer to a SettingName model if found, or an error if not found or any other issue occurs.
-func (q *SettingQueries) GetSettingByKey(ctx context.Context, key string) (*models.SettingName, error) {
-	setting := &models.SettingName{
-		Key: key,
+func (q *SettingQueries) GetSettingByKey(ctx context.Context, key ...string) ([]*models.SettingName, error) {
+	if len(key) == 0 {
+		return nil, errors.ErrSettingNotFound
 	}
 
-	query := `SELECT id, value FROM setting WHERE key = ?`
-	err := q.DB.QueryRowContext(ctx, query, key).Scan(&setting.ID, &setting.Value)
+	query := fmt.Sprintf("SELECT id, key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(key)-1)+"?")
+	rows, err := q.DB.QueryContext(ctx, query, strutil.ToAny(key...)...)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.ErrSettingNotFound
-		}
 		return nil, err
 	}
-	return setting, nil
+	defer rows.Close()
+
+	settings := []*models.SettingName{}
+	for rows.Next() {
+		setting := &models.SettingName{}
+		if err := rows.Scan(&setting.ID, &setting.Key, &setting.Value); err != nil {
+			return nil, err
+		}
+
+		settings = append(settings, setting)
+	}
+
+	return settings, nil
 }
 
 // UpdateSettingByKey updates the value of a setting in the database based on the provided key.

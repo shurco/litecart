@@ -163,11 +163,11 @@ func InstallCheck(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	response, err := db.GetSettingByKey(ctx, "installed")
+	response, err := db.GetSettingByKey(ctx, "installed", "password")
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
-	install, _ := strconv.ParseBool(response.Value.(string))
+	install, _ := strconv.ParseBool(response[0].Value.(string))
 
 	if !install {
 		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/_/assets") && !strings.HasPrefix(c.Path(), "/api") {

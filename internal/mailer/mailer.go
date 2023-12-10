@@ -18,13 +18,13 @@ var EncryptionTypes = map[string]mailer.Encryption{
 }
 
 // SendMail is ...
-func SendMail(smtp *models.SMTP, mail *models.Mail) error {
+func SendMail(smtp *models.Mail, mail *models.MessageMail) error {
 	server := mailer.NewSMTPClient()
-	server.Host = smtp.Host
-	server.Port = smtp.Port
-	server.Username = smtp.Username
-	server.Password = smtp.Password
-	server.Encryption = EncryptionTypes[smtp.Encryption]
+	server.Host = smtp.SMTP.Host
+	server.Port = smtp.SMTP.Port
+	server.Username = smtp.SMTP.Username
+	server.Password = smtp.SMTP.Password
+	server.Encryption = EncryptionTypes[smtp.SMTP.Encryption]
 
 	server.KeepAlive = false
 	server.ConnectTimeout = 10 * time.Second
@@ -35,8 +35,9 @@ func SendMail(smtp *models.SMTP, mail *models.Mail) error {
 		return err
 	}
 
+	from := fmt.Sprintf("%s <%s>", smtp.SenderName, smtp.SenderEmail)
 	email := mailer.NewMSG()
-	email.SetFrom(mail.From).
+	email.SetFrom(from).
 		AddTo(mail.To).
 		SetSubject(mail.Letter.Subject)
 

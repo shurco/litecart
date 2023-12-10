@@ -38,12 +38,12 @@ type Data struct {
 
 // SendPaymentHook is ...
 func SendPaymentHook(resData *Payment) error {
-	db := queries.DB().SettingQueries
+	db := queries.DB()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_webhookSetting, err := db.GetSetting(ctx, &models.Webhook{})
+	_webhookSetting, err := db.GetSettingByGroup(ctx, &models.Webhook{})
 	if err != nil {
 		return err
 	}

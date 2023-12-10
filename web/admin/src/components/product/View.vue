@@ -38,7 +38,7 @@
       </dl>
     </div>
 
-    <div class="pt-8">
+    <div class="pt-5">
       <FormButton type="submit" name="Close" color="green" @click="close" />
     </div>
   </div>

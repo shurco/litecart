@@ -57,10 +57,10 @@ const router = createRouter({
           component: () => import('@/pages/settings/main.vue')
         },
         {
-          path: 'password',
-          name: 'settingsPassword',
-          meta: { ico: "finger-print", title: "Password" },
-          component: () => import('@/pages/settings/password.vue')
+          path: 'auth',
+          name: 'settingsAuth',
+          meta: { ico: "finger-print", title: "Authentication" },
+          component: () => import('@/pages/settings/auth.vue')
         },
         {
           path: 'payment',
@@ -83,7 +83,7 @@ const router = createRouter({
         {
           path: 'mail',
           name: 'settingsMail',
-          meta: { ico: "at-symbol", title: "Mail" },
+          meta: { ico: "at-symbol", title: "Mail setting" },
           component: () => import('@/pages/settings/mail.vue')
         },
       ],

@@ -38,11 +38,10 @@ func SignIn(c *fiber.Ctx) error {
 	}
 
 	// Generate a new pair of access and refresh tokens.
-	_settingJWT, err := db.GetSetting(c.Context(), &models.JWT{})
+	settingJWT, err := queries.GetSettingByGroup[models.JWT](c.Context(), db)
 	if err != nil {
 		return err
 	}
-	settingJWT := _settingJWT.(*models.JWT)
 
 	userID := uuid.New()
 	expires := time.Now().Add(time.Hour * time.Duration(settingJWT.ExpireHours)).Unix()
@@ -70,11 +69,10 @@ func SignIn(c *fiber.Ctx) error {
 // [post] /api/sign/out
 func SignOut(c *fiber.Ctx) error {
 	db := queries.DB()
-	_settingJWT, err := db.GetSetting(c.Context(), &models.JWT{})
+	settingJWT, err := queries.GetSettingByGroup[models.JWT](c.Context(), db)
 	if err != nil {
 		return err
 	}
-	settingJWT := _settingJWT.(*models.JWT)
 
 	claims, err := jwtutil.ExtractTokenMetadata(c, settingJWT.Secret)
 	if err != nil {

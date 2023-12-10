@@ -49,8 +49,7 @@ func customKeyFunc() jwt.Keyfunc {
 		defer cancel()
 
 		db := queries.DB()
-		_settingJWT, _ := db.GetSetting(ctx, &models.JWT{})
-		settingJWT := _settingJWT.(*models.JWT)
+		settingJWT, _ := queries.GetSettingByGroup[models.JWT](ctx, db)
 		return []byte(settingJWT.Secret), nil
 	}
 }

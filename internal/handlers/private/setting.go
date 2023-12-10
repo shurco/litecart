@@ -72,21 +72,25 @@ func GetSetting(c *fiber.Ctx) error {
 	case "password":
 		return webutil.StatusNotFound(c)
 	case "main":
-		section, err = db.GetSetting(c.Context(), &models.Main{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Main{})
 	case "social":
-		section, err = db.GetSetting(c.Context(), &models.Social{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Social{})
+	case "auth":
+		section, err = db.GetSettingByGroup(c.Context(), &models.Auth{})
 	case "jwt":
-		section, err = db.GetSetting(c.Context(), &models.JWT{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.JWT{})
 	case "webhook":
-		section, err = db.GetSetting(c.Context(), &models.Webhook{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Webhook{})
+	case "payment":
+		section, err = db.GetSettingByGroup(c.Context(), &models.Payment{})
 	case "stripe":
-		section, err = db.GetSetting(c.Context(), &models.Stripe{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Stripe{})
 	case "paypal":
-		section, err = db.GetSetting(c.Context(), &models.Paypal{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Paypal{})
 	case "spectrocoin":
-		section, err = db.GetSetting(c.Context(), &models.Spectrocoin{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Spectrocoin{})
 	case "mail":
-		section, err = db.GetSetting(c.Context(), &models.SMTP{})
+		section, err = db.GetSettingByGroup(c.Context(), &models.Mail{})
 	default:
 		section, err = db.GetSettingByKey(c.Context(), settingKey)
 	}
@@ -112,10 +116,14 @@ func UpdateSetting(c *fiber.Ctx) error {
 		request = &models.Password{}
 	case "main":
 		request = &models.Main{}
+	case "auth":
+		request = &models.Auth{}
 	case "jwt":
 		request = &models.JWT{}
 	case "social":
 		request = &models.Social{}
+	case "payment":
+		request = &models.Payment{}
 	case "stripe":
 		request = &models.Stripe{}
 	case "paypal":
@@ -125,7 +133,7 @@ func UpdateSetting(c *fiber.Ctx) error {
 	case "webhook":
 		request = &models.Webhook{}
 	case "mail":
-		request = &models.SMTP{}
+		request = &models.Mail{}
 	default:
 		request = &models.SettingName{Key: settingKey}
 	}
@@ -149,11 +157,11 @@ func UpdateSetting(c *fiber.Ctx) error {
 		if err := db.UpdateSettingByKey(c.Context(), request.(*models.SettingName)); err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
-		return webutil.Response(c, fiber.StatusOK, "Setting updated", nil)
+		return webutil.Response(c, fiber.StatusOK, "Setting key updated", nil)
 	}
 
 	// Update setting for all other cases
-	if err := db.UpdateSetting(c.Context(), request); err != nil {
+	if err := db.UpdateSettingByGroup(c.Context(), request); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 

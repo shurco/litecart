@@ -2,6 +2,7 @@ package models
 
 import "github.com/shurco/litecart/pkg/litepay"
 
+// Cart is ...
 type Cart struct {
 	Core
 	Email         string                `json:"email"`
@@ -13,12 +14,14 @@ type Cart struct {
 	PaymentSystem litepay.PaymentSystem `json:"payment_system"`
 }
 
+// CartProduct is ...
 type CartProduct struct {
 	ProductID string `json:"id"`
 	Quantity  int    `json:"quantity"`
 }
 
-type Payment struct {
+// CartPayment is ...
+type CartPayment struct {
 	Email    string                `json:"email"`
 	Provider litepay.PaymentSystem `json:"provider"`
 	Products []CartProduct         `json:"products"`

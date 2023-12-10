@@ -5,29 +5,11 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
-type Setting struct {
-	Main          Main          `json:"main,omitempty"`
-	Password      Password      `json:"password,omitempty"`
-	Social        Social        `json:"social,omitempty"`
-	PaymentSystem PaymentSystem `json:"provider,omitempty"`
-	Webhook       Webhook       `json:"webhook,omitempty"`
-	SMTP          SMTP          `json:"smtp,omitempty"`
-}
-
-// Validate is ...
-func (v Setting) Validate() error {
-	return validation.ValidateStruct(&v,
-		validation.Field(&v.Main),
-		validation.Field(&v.Social),
-		validation.Field(&v.SMTP),
-	)
-}
-
+// Main is ...
 type Main struct {
 	SiteName string `json:"site_name"`
 	Domain   string `json:"domain"`
 	Email    string `json:"email"`
-	Currency string `json:"currency"`
 }
 
 // Validate is ...
@@ -36,10 +18,23 @@ func (v Main) Validate() error {
 		validation.Field(&v.SiteName, validation.Min(6)),
 		validation.Field(&v.Domain, is.Domain),
 		validation.Field(&v.Email, is.Email),
-		validation.Field(&v.Currency, is.CurrencyCode),
 	)
 }
 
+// Auth is ...
+type Auth struct {
+	Email string `json:"email"`
+	// auth providers
+}
+
+// Validate is ...
+func (v Auth) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Email, is.Email),
+	)
+}
+
+// Password is ..
 type Password struct {
 	Old string `json:"old"`
 	New string `json:"new"`
@@ -53,6 +48,19 @@ func (v Password) Validate() error {
 	)
 }
 
+// Payment is ...
+type Payment struct {
+	Currency string `json:"currency"`
+}
+
+// Validate is ...
+func (v Payment) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Currency, is.CurrencyCode),
+	)
+}
+
+// Stripe is ...
 type Stripe struct {
 	SecretKey string `json:"secret_key"`
 	Active    bool   `json:"active"`
@@ -65,6 +73,7 @@ func (v Stripe) Validate() error {
 	)
 }
 
+// Paypal is ...
 type Paypal struct {
 	ClientID  string `json:"client_id"`
 	SecretKey string `json:"secret_key"`
@@ -79,6 +88,7 @@ func (v Paypal) Validate() error {
 	)
 }
 
+// Spectrocoin is ...
 type Spectrocoin struct {
 	MerchantID string `json:"merchant_id"`
 	ProjectID  string `json:"project_id"`
@@ -95,6 +105,7 @@ func (v Spectrocoin) Validate() error {
 	)
 }
 
+// PaymentSystem is ...
 type PaymentSystem struct {
 	Active      []string    `json:"active"`
 	Stripe      Stripe      `json:"stripe"`
@@ -139,6 +150,52 @@ func (v Social) Validate() error {
 	)
 }
 
+// SettingName is ...
+type SettingName struct {
+	ID    string `json:"id,omitempty"`
+	Key   string `json:"key"`
+	Value any    `json:"value,omitempty"`
+}
+
+// Validate is ...
+func (v SettingName) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.ID, validation.Length(15, 15)),
+		validation.Field(&v.Key, validation.Required),
+	)
+}
+
+// Mail is ...
+type Mail struct {
+	SenderName  string `json:"sender_name"`
+	SenderEmail string `json:"sender_email"`
+	SMTP        SMTP   `json:"smtp"`
+}
+
+// Validate is ...
+func (v Mail) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.SenderName, validation.Length(2, 30)),
+		validation.Field(&v.SenderEmail, is.Email),
+		validation.Field(&v.SMTP),
+	)
+}
+
+// Letter ...
+type Letter struct {
+	Subject string `json:"subject"`
+	Text    string `json:"text"`
+	Html    string `json:"html"`
+}
+
+// Validate is ...
+func (v Letter) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Subject, validation.Length(5, 255)),
+	)
+}
+
+// SMTP is ...
 type SMTP struct {
 	Host       string `json:"host,omitempty"`
 	Port       int    `json:"port,omitempty"`
@@ -158,24 +215,8 @@ func (v SMTP) Validate() error {
 	)
 }
 
-// SettingName is ...
-type SettingName struct {
-	ID    string `json:"id,omitempty"`
-	Key   string `json:"key"`
-	Value any    `json:"value,omitempty"`
-}
-
-// Validate is ...
-func (v SettingName) Validate() error {
-	return validation.ValidateStruct(&v,
-		validation.Field(&v.ID, validation.Length(15, 15)),
-		validation.Field(&v.Key, validation.Required),
-	)
-}
-
-// Mail ...
-type Mail struct {
-	From   string            `json:"from"`
+// MessageMail ...
+type MessageMail struct {
 	To     string            `json:"to"`
 	Letter Letter            `json:"letter"`
 	Data   map[string]string `json:"data"`
@@ -183,17 +224,8 @@ type Mail struct {
 }
 
 // Validate is ...
-func (v Mail) Validate() error {
+func (v MessageMail) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.From, is.Email),
 		validation.Field(&v.To, is.Email),
-		// validation.Field(&v.Subject, validation.Length(4, 150)),
 	)
-}
-
-// Letter ...
-type Letter struct {
-	Subject string `json:"subject"`
-	Text    string `json:"text"`
-	Html    string `json:"html"`
 }

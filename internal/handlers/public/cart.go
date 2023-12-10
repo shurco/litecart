@@ -30,7 +30,7 @@ func PaymentList(c *fiber.Ctx) error {
 // Payment is ...
 // [post] /cart/payment
 func Payment(c *fiber.Ctx) error {
-	payment := new(models.Payment)
+	payment := new(models.CartPayment)
 
 	if err := c.BodyParser(payment); err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
@@ -42,7 +42,7 @@ func Payment(c *fiber.Ctx) error {
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
-	domain := response.Value
+	domain := response[0].Value
 
 	products, err := db.ListProducts(c.Context(), false, payment.Products...)
 	if err != nil {
@@ -87,7 +87,7 @@ func Payment(c *fiber.Ctx) error {
 
 	cart := litepay.Cart{
 		ID:       security.RandomString(),
-		Currency: currency.Value.(string),
+		Currency: currency[0].Value.(string),
 		Items:    items,
 	}
 
@@ -100,11 +100,10 @@ func Payment(c *fiber.Ctx) error {
 	paymentSystem := payment.Provider
 	switch paymentSystem {
 	case litepay.STRIPE:
-		_setting, err := db.GetSetting(c.Context(), &models.Stripe{})
+		setting, err := queries.GetSettingByGroup[models.Stripe](c.Context(), db)
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
-		setting := _setting.(*models.Stripe)
 
 		if !setting.Active {
 			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
@@ -117,11 +116,10 @@ func Payment(c *fiber.Ctx) error {
 		paymentURL = response.URL
 
 	case litepay.PAYPAL:
-		_setting, err := db.GetSetting(c.Context(), &models.Paypal{})
+		setting, err := queries.GetSettingByGroup[models.Paypal](c.Context(), db)
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
-		setting := _setting.(*models.Paypal)
 
 		if !setting.Active {
 			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
@@ -134,11 +132,10 @@ func Payment(c *fiber.Ctx) error {
 		paymentURL = response.URL
 
 	case litepay.SPECTROCOIN:
-		_setting, err := db.GetSetting(c.Context(), &models.Spectrocoin{})
+		setting, err := queries.GetSettingByGroup[models.Spectrocoin](c.Context(), db)
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
-		setting := _setting.(*models.Spectrocoin)
 
 		if !setting.Active {
 			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
@@ -283,11 +280,10 @@ func PaymentSuccess(c *fiber.Ctx) error {
 	switch payment.PaymentSystem {
 	case litepay.STRIPE:
 		sessionStripe := c.Query("session")
-		_setting, err := db.GetSetting(c.Context(), &models.Stripe{})
+		setting, err := queries.GetSettingByGroup[models.Stripe](c.Context(), db)
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
-		setting := _setting.(*models.Stripe)
 
 		if !setting.Active {
 			return webutil.StatusBadRequest(c, err.Error())
@@ -301,11 +297,10 @@ func PaymentSuccess(c *fiber.Ctx) error {
 
 	case litepay.PAYPAL:
 		tokenPaypal := c.Query("token")
-		_setting, err := db.GetSetting(c.Context(), &models.Paypal{})
+		setting, err := queries.GetSettingByGroup[models.Paypal](c.Context(), db)
 		if err != nil {
 			return webutil.StatusBadRequest(c, err.Error())
 		}
-		setting := _setting.(*models.Paypal)
 
 		if !setting.Active {
 			return webutil.StatusBadRequest(c, err.Error())
