@@ -5,6 +5,7 @@ import (
 
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/errors"
+	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -12,6 +13,7 @@ import (
 // [get] /api/page/:page_slug
 func Page(c *fiber.Ctx) error {
 	pageSlug := c.Params("page_slug")
+	log := logging.New()
 	db := queries.DB()
 
 	page, err := db.Page(c.Context(), pageSlug)
@@ -19,7 +21,8 @@ func Page(c *fiber.Ctx) error {
 		if err == errors.ErrPageNotFound {
 			return webutil.StatusNotFound(c)
 		}
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Page content", page)

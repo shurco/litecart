@@ -9,6 +9,7 @@ import (
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/jwtutil"
+	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/security"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -17,19 +18,23 @@ import (
 // [post] /api/sign/in
 func SignIn(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 	request := new(models.SignIn)
 
 	if err := c.BodyParser(request); err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := request.Validate(); err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	passwordHash, err := db.GetPasswordByEmail(c.Context(), request.Email)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	compareUserPassword := security.ComparePasswords(passwordHash, request.Password)
@@ -40,19 +45,22 @@ func SignIn(c *fiber.Ctx) error {
 	// Generate a new pair of access and refresh tokens.
 	settingJWT, err := queries.GetSettingByGroup[models.JWT](c.Context(), db)
 	if err != nil {
-		return err
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	userID := uuid.New()
 	expires := time.Now().Add(time.Hour * time.Duration(settingJWT.ExpireHours)).Unix()
 	token, err := jwtutil.GenerateNewToken(settingJWT.Secret, userID.String(), expires, nil)
 	if err != nil {
-		return webutil.Response(c, fiber.StatusInternalServerError, "Internal server error", err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	// Add session record
 	if err := db.AddSession(c.Context(), userID.String(), "admin", expires); err != nil {
-		return webutil.Response(c, fiber.StatusInternalServerError, "Failed to save token", err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	c.Cookie(&fiber.Cookie{
@@ -69,18 +77,23 @@ func SignIn(c *fiber.Ctx) error {
 // [post] /api/sign/out
 func SignOut(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
+
 	settingJWT, err := queries.GetSettingByGroup[models.JWT](c.Context(), db)
 	if err != nil {
-		return err
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	claims, err := jwtutil.ExtractTokenMetadata(c, settingJWT.Secret)
 	if err != nil {
-		return webutil.Response(c, fiber.StatusInternalServerError, "Internal server error", err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	if err := db.DeleteSession(c.Context(), claims.ID); err != nil {
-		return webutil.Response(c, fiber.StatusInternalServerError, "Failed to delete token", err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	c.Cookie(&fiber.Cookie{

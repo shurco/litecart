@@ -1,7 +1,7 @@
 <template>
   <div class="pb-10">
     <header class="mb-4">
-      <h1><span class="text-gray-300">Settings</span><span class="px-3 text-gray-300">/</span>Payment</h1>
+      <h1>Payment</h1>
     </header>
 
     <Form @submit="updateSetting" v-slot="{ errors }">

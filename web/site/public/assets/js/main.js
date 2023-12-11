@@ -10,6 +10,9 @@ const App = {
   data() {
     return {
       currentSlide: ref(0),
+      
+      // global error
+      error: ref(),
 
       // settings
       loaded: false,
@@ -230,7 +233,9 @@ const App = {
       const resp = await response.json()
       if (resp.success) {
         window.location.href = resp.result
-      }
+      } 
+      
+      this.error = resp.message;
     },
 
     showPayments() {
@@ -328,11 +333,13 @@ const App = {
     },
 
     showOverlay() {
+      this.error = ""
       document.getElementById('overlay').classList.remove('hidden')
       document.getElementById('overlay').classList.add('flex')
     },
 
     hideOverlay() {
+      this.error = ""
       document.getElementById('overlay').classList.remove('flex')
       document.getElementById('overlay').classList.add('hidden')
     },

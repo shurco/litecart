@@ -2,6 +2,7 @@ package webutil
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/utils"
 )
 
 // HTTPResponse represents response body of API
@@ -31,10 +32,15 @@ func StatusOK(c *fiber.Ctx, message string, data any) error {
 
 // StatusNotFound is ...
 func StatusNotFound(c *fiber.Ctx) error {
-	return Response(c, fiber.StatusNotFound, "Not Found", nil)
+	return Response(c, fiber.StatusNotFound, utils.StatusMessage(fiber.StatusNotFound), nil)
 }
 
 // StatusBadRequest is ...
 func StatusBadRequest(c *fiber.Ctx, data any) error {
-	return Response(c, fiber.StatusBadRequest, "Bad Request", data)
+	return Response(c, fiber.StatusBadRequest, utils.StatusMessage(fiber.StatusBadRequest), data)
+}
+
+// StatusInternalServerError is ...
+func StatusInternalServerError(c *fiber.Ctx) error {
+	return Response(c, fiber.StatusInternalServerError, utils.StatusMessage(fiber.StatusInternalServerError), nil)
 }

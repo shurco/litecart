@@ -211,7 +211,7 @@ func (q *CartQueries) CartLetterPayment(ctx context.Context, email, amountPaymen
 		return nil, err
 	}
 	letterTemplate := models.Letter{}
-	if err := json.Unmarshal([]byte(mailLetter[1].Value.(string)), &letterTemplate); err != nil {
+	if err := json.Unmarshal([]byte(mailLetter["mail_letter_payment"].Value.(string)), &letterTemplate); err != nil {
 		return nil, err
 	}
 
@@ -220,7 +220,7 @@ func (q *CartQueries) CartLetterPayment(ctx context.Context, email, amountPaymen
 		Letter: letterTemplate,
 		Data: map[string]string{
 			"Payment_URL":    paymentURL,
-			"Site_Name":      mailLetter[0].Value.(string),
+			"Site_Name":      mailLetter["site_name"].Value.(string),
 			"Amount_Payment": amountPayment,
 		},
 	}
@@ -336,13 +336,13 @@ func (q *CartQueries) CartLetterPurchase(ctx context.Context, cartID string) (*m
 	if err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal([]byte(mailLetter[1].Value.(string)), &mail.Letter); err != nil {
+	if err := json.Unmarshal([]byte(mailLetter["mail_letter_purchase"].Value.(string)), &mail.Letter); err != nil {
 		return nil, err
 	}
 
 	mail.Data = map[string]string{
 		"Purchases":   purchases.String(),
-		"Admin_Email": mailLetter[0].Value.(string),
+		"Admin_Email": mailLetter["email"].Value.(string),
 	}
 	mail.Files = files
 

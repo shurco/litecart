@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/shurco/litecart/internal/mailer"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -11,10 +12,12 @@ import (
 // [get] /api/_/carts
 func Carts(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 
 	products, err := db.Carts(c.Context())
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Carts", products)
@@ -24,9 +27,11 @@ func Carts(c *fiber.Ctx) error {
 // [post] /api/_/carts/:cart_id/mail
 func CartSendMail(c *fiber.Ctx) error {
 	cartID := c.Params("cart_id")
+	log := logging.New()
 
 	if err := mailer.SendCartLetter(cartID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Mail sended", nil)

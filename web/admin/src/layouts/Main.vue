@@ -42,8 +42,11 @@
       </div>
     </div>
 
-    <div class="flex h-screen w-52 flex-col justify-between border-e bg-white px-2 pt-20" v-if="mainMenuSections().length">
-      <ul class="space-y-1">
+    <div class="h-screen w-52 flex-col justify-between border-e bg-white px-2" v-if="mainMenuSections().length">
+      <div class="px-2 py-5">
+        <h1><span class="text-gray-300">Settings</span></h1>
+      </div>
+      <ul class="space-y-1 mt-1.5">
         <li v-for="item in mainMenuSections() ">
           <router-link :to="{ name: item.name }" class="flex items-center gap-2 rounded px-4 py-2" :class="route.name === item.name ? 'text-blue-700 bg-blue-100'
             : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'">

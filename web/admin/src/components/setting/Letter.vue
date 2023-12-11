@@ -61,7 +61,7 @@ const props = defineProps({
 onMounted(() => {
   apiGet(`/api/_/settings/${props.name}`).then(res => {
     if (res.success) {
-      const setting = res.result[0]
+      const setting = res.result[props.name];
       letter.value.id = setting.id;
       letter.value.key = setting.key;
       letter.value.subject = JSON.parse(setting.value).subject;

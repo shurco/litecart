@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/pkg/errors"
@@ -27,7 +28,7 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 	}
 
 	products := &models.Products{
-		Currency: currency[0].Value.(string),
+		Currency: currency["currency"].Value.(string),
 	}
 
 	query := `
@@ -46,7 +47,7 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 			FROM product
 		`
 
-	queryAddon := ` 
+	queryPublic := ` 
 			LEFT JOIN digital_data ON digital_data.product_id = product.id
 			LEFT JOIN digital_file ON digital_file.product_id = product.id
 			WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) 
@@ -54,21 +55,19 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 		`
 
 	var params []any
-	queryList := ""
+	var queryAddon string
 	if len(idList) > 0 {
-		placeholder := ""
 		for _, item := range idList {
 			params = append(params, item.ProductID)
-			placeholder += ",?"
 		}
-		queryList = fmt.Sprintf(" WHERE product.id IN (%s)", placeholder[1:])
+		queryAddon = fmt.Sprintf("AND product.id IN (%s)", strings.Repeat("?, ", len(idList)-1)+"?")
 	}
 
 	if !private {
-		query += queryAddon
+		query += queryPublic
 	}
 
-	rows, err := q.DB.QueryContext(ctx, query+queryList, params...)
+	rows, err := q.DB.QueryContext(ctx, query+queryAddon, params...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +112,9 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 	// Count total records
 	query = `SELECT COUNT(DISTINCT product.id) FROM product`
 	if !private {
-		query += queryAddon
+		query += queryPublic
 	}
-	err = q.DB.QueryRowContext(ctx, query+queryList, params...).Scan(&products.Total)
+	err = q.DB.QueryRowContext(ctx, query+queryAddon, params...).Scan(&products.Total)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}

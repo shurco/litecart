@@ -5,6 +5,7 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -18,25 +19,30 @@ func Ping(c *fiber.Ctx) error {
 // [get] /api/settings
 func Settings(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 
 	settingMain, err := queries.GetSettingByGroup[models.Main](c.Context(), db)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	settingSocial, err := queries.GetSettingByGroup[models.Social](c.Context(), db)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	settingPayment, err := queries.GetSettingByGroup[models.Payment](c.Context(), db)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	pages, err := db.ListPages(c.Context(), false)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Settings", map[string]any{

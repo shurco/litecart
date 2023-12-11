@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
 	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/gofiber/contrib/fiberzerolog"
@@ -30,14 +29,13 @@ import (
 
 var (
 	DevMode bool
-	// MainDomain string
-	log zerolog.Logger
+	log     *logging.Log
 )
 
 // NewApp is ...
 func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	DevMode = appDev
-	log = logging.Log()
+	log = logging.New()
 
 	schema := "http"
 	mainAddr := httpAddr
@@ -80,7 +78,7 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 		Level: compress.LevelBestSpeed,
 	}))
 	app.Use(fiberzerolog.New(fiberzerolog.Config{
-		Logger: &log,
+		Logger: log.Logger,
 	}))
 
 	// init structure
@@ -163,11 +161,11 @@ func InstallCheck(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	response, err := db.GetSettingByKey(ctx, "installed", "password")
+	response, err := db.GetSettingByKey(ctx, "installed")
 	if err != nil {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
-	install, _ := strconv.ParseBool(response[0].Value.(string))
+	install, _ := strconv.ParseBool(response["installed"].Value.(string))
 
 	if !install {
 		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/_/assets") && !strings.HasPrefix(c.Path(), "/api") {

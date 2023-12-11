@@ -12,6 +12,7 @@ import (
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/errors"
+	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/update"
 	"github.com/shurco/litecart/pkg/webutil"
 )
@@ -20,10 +21,12 @@ import (
 // [get] /api/_/version
 func Version(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 
 	session, err := db.GetSession(c.Context(), "update")
 	if err != nil && err != sql.ErrNoRows {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	version := (*update.Version)(nil)
@@ -32,7 +35,8 @@ func Version(c *fiber.Ctx) error {
 
 		release, err := update.FetchLatestRelease(context.Background(), "shurco", "litecart")
 		if err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 
 		if version.CurrentVersion != release.Name {
@@ -41,13 +45,15 @@ func Version(c *fiber.Ctx) error {
 		}
 
 		if err := db.DeleteSession(c.Context(), "update"); err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 
 		json, _ := json.Marshal(version)
 		expires := time.Now().Add(24 * time.Hour).Unix()
 		if err := db.AddSession(c.Context(), "update", string(json), expires); err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 	}
 
@@ -63,6 +69,7 @@ func Version(c *fiber.Ctx) error {
 // [get] /api/_/settings/:setting_key
 func GetSetting(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 	settingKey := c.Params("setting_key")
 
 	var section any
@@ -99,7 +106,8 @@ func GetSetting(c *fiber.Ctx) error {
 		if err == errors.ErrSettingNotFound {
 			return webutil.StatusNotFound(c)
 		}
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 	return webutil.Response(c, fiber.StatusOK, "Setting", section)
 }
@@ -108,6 +116,7 @@ func GetSetting(c *fiber.Ctx) error {
 // [patch] /api/_/settings/:setting_key
 func UpdateSetting(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 	settingKey := c.Params("setting_key")
 	var request any
 
@@ -140,6 +149,7 @@ func UpdateSetting(c *fiber.Ctx) error {
 
 	// Parse the request body into the appropriate struct
 	if err := c.BodyParser(request); err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -147,7 +157,8 @@ func UpdateSetting(c *fiber.Ctx) error {
 	if settingKey == "password" {
 		password := request.(*models.Password)
 		if err := db.UpdatePassword(c.Context(), password); err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 		return webutil.Response(c, fiber.StatusOK, "Password updated", nil)
 	}
@@ -155,14 +166,16 @@ func UpdateSetting(c *fiber.Ctx) error {
 	// For default case where setting key doesn't match any predefined keys
 	if _, ok := request.(*models.SettingName); ok {
 		if err := db.UpdateSettingByKey(c.Context(), request.(*models.SettingName)); err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 		return webutil.Response(c, fiber.StatusOK, "Setting key updated", nil)
 	}
 
 	// Update setting for all other cases
 	if err := db.UpdateSettingByGroup(c.Context(), request); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Setting group updated", nil)
@@ -172,9 +185,11 @@ func UpdateSetting(c *fiber.Ctx) error {
 // [get] /api/_/test/letter/:letter_name
 func TestLetter(c *fiber.Ctx) error {
 	letter := c.Params("letter_name")
+	log := logging.New()
 
 	if err := mailer.SendTestLetter(letter); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Test letter", "Message sent to your mailbox")

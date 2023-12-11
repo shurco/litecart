@@ -193,7 +193,7 @@ func (q *SettingQueries) UpdatePassword(ctx context.Context, password *models.Pa
 // GetSettingByKey retrieves a setting by its key from the database.
 // It accepts a context for cancellation and a string representing the key of the setting.
 // Returns a pointer to a SettingName model if found, or an error if not found or any other issue occurs.
-func (q *SettingQueries) GetSettingByKey(ctx context.Context, key ...string) ([]*models.SettingName, error) {
+func (q *SettingQueries) GetSettingByKey(ctx context.Context, key ...string) (map[string]models.SettingName, error) {
 	if len(key) == 0 {
 		return nil, errors.ErrSettingNotFound
 	}
@@ -205,14 +205,14 @@ func (q *SettingQueries) GetSettingByKey(ctx context.Context, key ...string) ([]
 	}
 	defer rows.Close()
 
-	settings := []*models.SettingName{}
+	settings := map[string]models.SettingName{}
 	for rows.Next() {
-		setting := &models.SettingName{}
-		if err := rows.Scan(&setting.ID, &setting.Key, &setting.Value); err != nil {
+		var key string
+		setting := models.SettingName{}
+		if err := rows.Scan(&setting.ID, &key, &setting.Value); err != nil {
 			return nil, err
 		}
-
-		settings = append(settings, setting)
+		settings[key] = setting
 	}
 
 	return settings, nil

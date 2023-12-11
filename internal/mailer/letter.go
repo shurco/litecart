@@ -27,7 +27,7 @@ func SendTestLetter(letterName string) error {
 	}
 
 	letter := &models.MessageMail{
-		To: settingEmail[0].Value.(string),
+		To: settingEmail["email"].Value.(string),
 		Letter: models.Letter{
 			Subject: "litecart test smtp settings",
 			Text:    "test message",
@@ -41,7 +41,7 @@ func SendTestLetter(letterName string) error {
 	}
 
 	if letterName != "smtp" {
-		if err := json.Unmarshal([]byte(settingEmail[1].Value.(string)), &letter.Letter); err != nil {
+		if err := json.Unmarshal([]byte(settingEmail[letterName].Value.(string)), &letter.Letter); err != nil {
 			return err
 		}
 	}

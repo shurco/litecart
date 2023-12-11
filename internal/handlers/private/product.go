@@ -11,6 +11,7 @@ import (
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/fsutil"
+	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
@@ -18,10 +19,12 @@ import (
 // [get] /api/_/products
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 
 	products, err := db.ListProducts(c.Context(), true)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Products", products)
@@ -31,15 +34,18 @@ func Products(c *fiber.Ctx) error {
 // [post] /api/_/products
 func AddProduct(c *fiber.Ctx) error {
 	db := queries.DB()
+	log := logging.New()
 	request := &models.Product{}
 
 	if err := c.BodyParser(request); err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	product, err := db.AddProduct(c.Context(), request)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product added", product)
@@ -50,10 +56,12 @@ func AddProduct(c *fiber.Ctx) error {
 func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	product, err := db.Product(c.Context(), true, productID)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product info", product)
@@ -64,15 +72,18 @@ func Product(c *fiber.Ctx) error {
 func UpdateProduct(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 	request := new(models.Product)
 	request.ID = productID
 
 	if err := c.BodyParser(request); err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdateProduct(c.Context(), request); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product updated", nil)
@@ -83,9 +94,11 @@ func UpdateProduct(c *fiber.Ctx) error {
 func DeleteProduct(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	if err := db.DeleteProduct(c.Context(), productID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product deleted", nil)
@@ -96,9 +109,11 @@ func DeleteProduct(c *fiber.Ctx) error {
 func UpdateProductActive(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	if err := db.UpdateActive(c.Context(), productID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product active updated", nil)
@@ -109,10 +124,12 @@ func UpdateProductActive(c *fiber.Ctx) error {
 func ProductImages(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	images, err := db.ProductImages(c.Context(), productID)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product images", images)
@@ -123,9 +140,11 @@ func ProductImages(c *fiber.Ctx) error {
 func AddProductImage(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	file, err := c.FormFile("document")
 	if err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
@@ -137,6 +156,7 @@ func AddProductImage(c *fiber.Ctx) error {
 		}
 	}
 	if !validMIME {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, "file format not supported")
 	}
 
@@ -150,7 +170,8 @@ func AddProductImage(c *fiber.Ctx) error {
 
 	fileSource, err := imaging.Open(filePath)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	sizes := []struct {
@@ -165,13 +186,15 @@ func AddProductImage(c *fiber.Ctx) error {
 		resizedImage := imaging.Fill(fileSource, s.dim, s.dim, imaging.Center, imaging.Lanczos)
 		err := imaging.Save(resizedImage, fmt.Sprintf("./lc_uploads/%s_%s.%s", fileUUID, s.size, fileExt))
 		if err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 	}
 
 	addedImage, err := db.AddImage(c.Context(), productID, fileUUID, fileExt, fileOrigName)
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Image added", addedImage)
@@ -183,9 +206,11 @@ func DeleteProductImage(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	imageID := c.Params("image_id")
 	db := queries.DB()
+	log := logging.New()
 
 	if err := db.DeleteImage(c.Context(), productID, imageID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Image deleted", nil)
@@ -196,13 +221,15 @@ func DeleteProductImage(c *fiber.Ctx) error {
 func ProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	digital, err := db.ProductDigital(c.Context(), productID)
 	if err != nil {
 		if err == errors.ErrProductNotFound {
 			return webutil.StatusNotFound(c)
 		}
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product digital", digital)
@@ -213,6 +240,7 @@ func ProductDigital(c *fiber.Ctx) error {
 func AddProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	db := queries.DB()
+	log := logging.New()
 
 	fileTmp, _ := c.FormFile("document")
 	if fileTmp != nil {
@@ -226,7 +254,8 @@ func AddProductDigital(c *fiber.Ctx) error {
 
 		file, err := db.AddDigitalFile(c.Context(), productID, fileUUID, fileExt, fileOrigName)
 		if err != nil {
-			return webutil.StatusBadRequest(c, err.Error())
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
 		}
 
 		return webutil.Response(c, fiber.StatusOK, "Digital added", file)
@@ -234,7 +263,8 @@ func AddProductDigital(c *fiber.Ctx) error {
 
 	data, err := db.AddDigitalData(c.Context(), productID, "")
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Digital added", data)
@@ -247,13 +277,16 @@ func UpdateProductDigital(c *fiber.Ctx) error {
 	request.ID = c.Params("digital_id")
 	// request.Content = c.Params("digital_id")
 	db := queries.DB()
+	log := logging.New()
 
 	if err := c.BodyParser(request); err != nil {
+		log.ErrorStack(err)
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	if err := db.UpdateDigital(c.Context(), request); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Digital updated", nil)
@@ -265,9 +298,11 @@ func DeleteProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
 	digitalID := c.Params("digital_id")
 	db := queries.DB()
+	log := logging.New()
 
 	if err := db.DeleteDigital(c.Context(), productID, digitalID); err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Digital deleted", nil)
