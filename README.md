@@ -1,6 +1,6 @@
 <p align="center">
     <a href="#" target="_blank" rel="noopener">
-        <img src="/.github/media/banner.png" alt="litecart - shopping-cart in 1 file" />
+        <img src="https://github.com/shurco/litecart/blob/main/.github/media/banner.png" alt="litecart - shopping-cart in 1 file" />
     </a>
 </p>
 
@@ -11,7 +11,6 @@
 <a href="https://github.com/shurco/litecart/actions/workflows/release.yml"><img src="https://github.com/shurco/litecart/actions/workflows/release.yml/badge.svg"></a>
 <a href="https://github.com/shurco/litecart/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 
-
 ## 🛒&nbsp;&nbsp;What is litecart?
 
 Litecart is an open source shopping-cart in 1 file of embedded database (SQLite), convenient dashboard UI and simple site.
@@ -19,7 +18,16 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 > [!WARNING]
 > Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users. Please keep in mind that litecart is still under active development and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
 
-![Example](/.github/media/demo.gif)
+![Example](https://github.com/shurco/litecart/blob/main/.github/media/demo.gif)
+
+<p align="center">
+  <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/products.png" width="270">
+  <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/product-edit.png" width="270">
+  <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/carts.png" width="270">
+  <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/pages.png" width="270">
+  <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/settings.png" width="270">
+</p>
+
 
 ## 🏆&nbsp;&nbsp;Features
 
