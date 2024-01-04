@@ -53,6 +53,7 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	fiberConfig := fiber.Config{
 		// Prefork:               true,
 		DisableStartupMessage: true,
+		BodyLimit:             50 * 1024 * 1024,
 	}
 	var sitePath string
 
