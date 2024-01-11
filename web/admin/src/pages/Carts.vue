@@ -30,7 +30,7 @@
           <td v-if="item.updated">{{ formatDate(item.updated) }}</td>
           <td v-else></td>
           <td>
-            <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5" v-if="item.payment_status === 'paid'" @click="sendEmail(item.id)" />
+            <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5" v-if="item.payment_status === 'paid'" @click="sendEmail(item.id)" v-tippy="'Resend item'" />
             <SvgIcon name="envelope" stroke="currentColor" class="h-5 w-5 opacity-30" v-else />
           </td>
         </tr>

@@ -1,18 +1,19 @@
 import { createApp } from "vue";
-import { createPinia } from 'pinia';
+import { createPinia } from "pinia";
 import App from "@/App.vue";
 import router from "@/router";
-import Notifications from 'notiwind';
+import Notifications from "notiwind";
+import VueTippy from "vue-tippy";
 
 import SvgIcon from "@/components/SvgIcon.vue";
 
-import { defineRule } from 'vee-validate';
-import * as rules from '@vee-validate/rules';
+import { defineRule } from "vee-validate";
+import * as rules from "@vee-validate/rules";
 
 import "@/assets/app.css";
 
 // validate rules
-Object.keys(rules).forEach(rule => {
+Object.keys(rules).forEach((rule) => {
   defineRule(rule, rules[rule]);
 });
 defineRule("amount", (value) => {
@@ -33,11 +34,11 @@ defineRule("slug", (value) => {
   }
   return true;
 });
-defineRule('confirmed', (value, [target], ctx) => {
+defineRule("confirmed", (value, [target], ctx) => {
   if (value === ctx.form[target]) {
     return true;
   }
-  return 'Passwords must match';
+  return "Passwords must match";
 });
 
 const pinia = createPinia();
@@ -45,5 +46,11 @@ const app = createApp(App);
 app.use(pinia);
 app.use(router);
 app.use(Notifications);
-app.component('SvgIcon', SvgIcon);
+app.use(VueTippy, {
+  defaultProps: {
+    theme: 'lite',
+    delay: [500, null],
+  },
+});
+app.component("SvgIcon", SvgIcon);
 app.mount("#app");

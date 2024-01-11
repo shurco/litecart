@@ -3,5 +3,6 @@
 @import 'tailwindcss/utilities';
 
 @import './nprogress.css';
+@import './tippy.css';
 @import './main.css';
 @import './table.css';

@@ -1,0 +1,4 @@
+.tippy-box[data-theme~='lite'] {
+  @apply opacity-75 inline-flex self-end rounded bg-slate-900 px-2 py-1 text-slate-200;
+}
+

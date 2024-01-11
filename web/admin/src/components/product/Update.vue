@@ -6,7 +6,7 @@
           <h1>Edit {{ product.name }}</h1>
         </div>
         <div>
-          <SvgIcon :name="product.active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="active" stroke="currentColor" />
+          <SvgIcon :name="product.active ? 'eye' : 'eye-slash'" class="h-5 w-5 cursor-pointer" @click="active" stroke="currentColor" v-tippy="'Visibility'" />
         </div>
       </div>
     </div>

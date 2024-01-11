@@ -20,7 +20,8 @@
     "pinia": "^2.1.7",
     "vee-validate": "^4.12.4",
     "vue": "^3.4.9",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vue-tippy": "v6"
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "^2.2.0",

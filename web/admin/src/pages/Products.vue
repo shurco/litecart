@@ -15,7 +15,7 @@
           <th class="w-32">Slug</th>
           <th class="w-32">Price</th>
           <th class="w-12 px-4 py-2">
-            <SvgIcon name="cube" class="h-5 w-5" stroke="currentColor" />
+            <SvgIcon name="cube" class="h-5 w-5" stroke="currentColor" v-tippy="'Product type'" />
           </th>
           <th class="w-24 px-4 py-2"></th>
         </tr>
@@ -41,18 +41,18 @@
           </td>
           <td class="px-4 py-2">
             <SvgIcon :name="digitalTypeIco(item.digital.type)" class="h-5 w-5" :class="{ 'text-red-500': !item.digital.filled }" @click="openDrawer(index, 'digital')"
-              stroke="currentColor" />
+              v-tippy="item.digital.type.charAt(0).toUpperCase() + item.digital.type.slice(1) + ` type`" stroke="currentColor" />
           </td>
           <td class="px-4 py-2">
             <div class="flex">
               <div class="pr-3">
-                <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" stroke="currentColor" />
+                <SvgIcon name="pencil-square" class="h-5 w-5" @click="openDrawer(index, 'update')" stroke="currentColor" v-tippy="'Product settings'" />
               </div>
               <div class="pr-3">
-                <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" stroke="currentColor" />
+                <SvgIcon name="rocket" class="h-5 w-5" @click="openDrawer(index, 'seo')" stroke="currentColor" v-tippy="'SEO settings'" />
               </div>
               <div>
-                <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updateProductActive(index)" stroke="currentColor" />
+                <SvgIcon :name="item.active ? 'eye' : 'eye-slash'" class="h-5 w-5" @click="updateProductActive(index)" stroke="currentColor" v-tippy="'Visibility'" />
               </div>
             </div>
           </td>
