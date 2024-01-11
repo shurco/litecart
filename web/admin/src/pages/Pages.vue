@@ -53,7 +53,7 @@
       <h1><span class="text-gray-300">Pages</span><span class="px-3 text-gray-300">/</span>{{ page.name }}</h1>
     </header>
     <div>
-      <Editor v-model="content" />
+      <Editor v-model:model-value="content" />
 
       <hr class="my-5" />
       <FormButton type="submit" name="Save" color="green" @click="updatePageContent" />
@@ -114,6 +114,7 @@ const pageContent = async (slug) => {
 };
 
 const updatePageContent = async () => {
+  page.value.content = content.value
   apiUpdate(`/api/_/pages/${page.value.id}/content`, page.value).then(res => {
     if (res.success) {
       showMessage(res.message);
