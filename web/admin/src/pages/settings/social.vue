@@ -6,10 +6,11 @@
 
     <Form @submit="updateSetting" v-slot="{ errors }">
       <div v-for="(value, key, index) in socialUrl" :key="index" class="mt-5 flex">
-        <div class="pr-3 pt-2.5">{{ socialUrl[key] }}</div>
+        <div class="pr-3 pt-2.5" v-if="key != 'other'">{{ socialUrl[key] }}</div>
+        <div class="pr-3 pt-2.5" v-else>Link to other your site</div>
         <div>
-          <FormInput v-model.trim="social[key]" :error="errors[`social_${key}`]" rules="alpha_num" class="w-48" :id="`social_${key}`" type="text"
-            :title="key.charAt(0).toUpperCase() + key.slice(1)" :ico="key" />
+          <FormInput v-model.trim="social[key]" :error="errors[`social_${key}`]" :rules="(key == 'other' ? 'url' : 'alpha_num')" class="w-48" :id="`social_${key}`" type="text"
+            :title="(key == 'other' ? `Other site` : key.charAt(0).toUpperCase() + key.slice(1))" :ico="key" />
         </div>
       </div>
       <div class="pt-5">
@@ -33,6 +34,8 @@ const socialUrl = {
   twitter: "https://twitter.com/@",
   dribbble: "https://dribbble.com/",
   github: "https://github.com/",
+  youtube: "https://youtube.com/",
+  other: ""
 };
 
 onMounted(() => {

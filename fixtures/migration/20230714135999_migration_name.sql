@@ -12,6 +12,8 @@ UPDATE setting SET value = '48' WHERE key = 'jwt_secret_expire_hours';
 UPDATE setting SET value = 'sk_test_000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' WHERE key = 'stripe_secret_key';
 UPDATE setting SET value = 'username' WHERE key = 'social_facebook';
 UPDATE setting SET value = 'username' WHERE key = 'social_dribbble';
+UPDATE setting SET value = 'username' WHERE key = 'social_youtube';
+UPDATE setting SET value = 'https://google.com/' WHERE key = 'social_other';
 UPDATE setting SET value = 'localhost' WHERE key = 'smtp_host';
 UPDATE setting SET value = '1025' WHERE key = 'smtp_port';
 UPDATE setting SET value = 'username' WHERE key = 'smtp_username';

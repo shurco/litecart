@@ -2,7 +2,6 @@ import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-//import vitePluginSvgsIcons from "vite-plugin-svgs-icons";
 import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 import VueDevTools from 'vite-plugin-vue-devtools';
 
@@ -28,11 +27,6 @@ export default defineConfig({
       "./src/assets/svg/*.svg",
       "./src/assets/svg/social/*.svg",
     ]),
-    //    vitePluginSvgsIcons({
-    //      iconPrefix: 'ico',
-    //      clearOriginFill: false,
-    //      isViewTools: false,
-    //    }),
   ],
 
   resolve: {

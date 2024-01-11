@@ -40,7 +40,6 @@ defineRule('confirmed', (value, [target], ctx) => {
   return 'Passwords must match';
 });
 
-
 const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);

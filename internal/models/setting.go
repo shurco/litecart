@@ -138,6 +138,8 @@ type Social struct {
 	Twitter   string `json:"twitter,omitempty"`
 	Dribbble  string `json:"dribbble,omitempty"`
 	Github    string `json:"github,omitempty"`
+	Youtube   string `json:"youtube,omitempty"`
+	Other     string `json:"other,omitempty"`
 }
 
 // Validate is ...
@@ -147,6 +149,8 @@ func (v Social) Validate() error {
 		validation.Field(&v.Instagram, validation.Length(3, 20)),
 		validation.Field(&v.Twitter, validation.Length(3, 20)),
 		validation.Field(&v.Github, validation.Length(3, 20)),
+		validation.Field(&v.Youtube, validation.Length(3, 20)),
+		validation.Field(&v.Other, is.URL),
 	)
 }
 

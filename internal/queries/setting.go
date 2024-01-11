@@ -43,6 +43,8 @@ func (q *SettingQueries) GroupFieldMap(settings any) map[string]any {
 			"social_twitter":   &s.Twitter,
 			"social_dribbble":  &s.Dribbble,
 			"social_github":    &s.Github,
+			"social_youtube":   &s.Youtube,
+			"social_other":     &s.Other,
 		}
 	case *models.Payment:
 		return map[string]any{
