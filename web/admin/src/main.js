@@ -4,7 +4,7 @@ import App from "@/App.vue";
 import router from "@/router";
 import Notifications from 'notiwind';
 
-import SvgIcon from 'virtual:svg-icon';
+import SvgIcon from "@/components/SvgIcon.vue";
 
 import { defineRule } from 'vee-validate';
 import * as rules from '@vee-validate/rules';
@@ -42,7 +42,6 @@ defineRule('confirmed', (value, [target], ctx) => {
 
 
 const pinia = createPinia();
-
 const app = createApp(App);
 app.use(pinia);
 app.use(router);
