@@ -62,14 +62,12 @@ onMounted(() => {
 
 const updateSetting = async () => {
   const update = {
-    "paypal": {
-      "client_id": settings.value.client_id,
-      "secret_key": settings.value.secret_key,
-      "active": settings.value.active,
-    }
+    "client_id": settings.value.client_id,
+    "secret_key": settings.value.secret_key,
+    "active": settings.value.active,
   };
 
-  apiUpdate(`/api/_/settings`, update).then(res => {
+  apiUpdate(`/api/_/settings/paypal`, update).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

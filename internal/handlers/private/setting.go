@@ -144,7 +144,7 @@ func UpdateSetting(c *fiber.Ctx) error {
 	case "mail":
 		request = &models.Mail{}
 	default:
-		request = &models.SettingName{Key: settingKey}
+		request = &models.SettingName{}
 	}
 
 	// Parse the request body into the appropriate struct
@@ -165,7 +165,9 @@ func UpdateSetting(c *fiber.Ctx) error {
 
 	// For default case where setting key doesn't match any predefined keys
 	if _, ok := request.(*models.SettingName); ok {
-		if err := db.UpdateSettingByKey(c.Context(), request.(*models.SettingName)); err != nil {
+		_request := request.(*models.SettingName)
+		_request.Key = settingKey
+		if err := db.UpdateSettingByKey(c.Context(), _request); err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)
 		}

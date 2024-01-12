@@ -61,15 +61,13 @@ onMounted(() => {
 
 const updateSetting = async () => {
   const update = {
-    "spectrocoin": {
-      "merchant_id": settings.value.merchant_id,
-      "project_id": settings.value.project_id,
-      "private_key": settings.value.private_key,
-      "active": settings.value.active,
-    }
+    "merchant_id": settings.value.merchant_id,
+    "project_id": settings.value.project_id,
+    "private_key": settings.value.private_key,
+    "active": settings.value.active,
   };
 
-  apiUpdate(`/api/_/settings`, update).then(res => {
+  apiUpdate(`/api/_/settings/spectrocoin`, update).then(res => {
     if (res.success) {
       showMessage(res.message);
     } else {

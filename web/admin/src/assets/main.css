@@ -23,7 +23,11 @@ img {
 }
 
 header {
-  @apply grid grid-cols-[1fr_120px] gap-8 pb-4;
+  @apply grid grid-cols-[1fr_120px] gap-8 pb-4 relative;
+
+  div {
+    @apply absolute right-0;
+  }
 }
 
 .content-center {
