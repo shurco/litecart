@@ -274,6 +274,7 @@ There are a number of scripts (in the ./scripts folder) that simplify developmen
 `./scripts/sqlite` - Optimizes the existing database.  
 `./scripts/tools` - Sets up the necessary environment for development (if needed).  
 `./scripts/webscripts` - For the basic site, updates vue3 to the latest version.  
+`./scripts/clear` - Removing hung golang or vite processes.  
 
 > [!NOTE]
 > I recommend running the `./scripts/migration dev up` command. It will add test data to the database, which makes it easier to work with. For example, it will create products, transfer test images and create a test user for access to the admin panel:  
@@ -302,6 +303,7 @@ If you actively change styles, you can run the command `cd ./web/site && yarn ru
 - [ ] Payment Square
 - [ ] Payment Adyen
 - [ ] Payment Checkout
+- [ ] Payment via Webhook
 - [x] <a href="#spectrocoin">Support for payment using crypto</a>
 - [x] Support WebHook (<a href="https://github.com/msalbrain" target="_blank">@nicksnyder</a> in <a href="https://github.com/shurco/litecart/pull/61" target="_blank">#61</a>)
 
