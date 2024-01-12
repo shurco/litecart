@@ -12,12 +12,10 @@ import (
 
 	"golang.org/x/crypto/acme/autocert"
 
-	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/template/html/v2"
 
+	"github.com/shurco/litecart/internal/middleware"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/internal/routes"
 	"github.com/shurco/litecart/migrations"
@@ -73,31 +71,23 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	}
 
 	app := fiber.New(fiberConfig)
-
-	app.Use(helmet.New())
-	app.Use(compress.New(compress.Config{
-		Level: compress.LevelBestSpeed,
-	}))
-	app.Use(fiberzerolog.New(fiberzerolog.Config{
-		Logger: log.Logger,
-	}))
+	middleware.Fiber(app, log.Logger)
 
 	// init structure
 	if err := Init(); err != nil {
 		log.Err(err).Send()
 		os.Exit(1)
 	}
-
 	app.Static("/uploads", "./lc_uploads")
-
 	app.Use(InstallCheck)
-
 	routes.AdminRoutes(app)
 	routes.ApiPrivateRoutes(app)
 
 	fmt.Print("🛒 litecart - open source shopping-cart in 1 file\n")
 	if !noSite {
-		app.Static("/", sitePath+"/public")
+		app.Static("/", sitePath+"/public", fiber.Static{
+			CacheDuration: 30 * 24 * time.Hour,
+		})
 		routes.SiteRoutes(app)
 		routes.ApiPublicRoutes(app)
 		fmt.Printf("├─ Cart UI: %s://%s/\n", schema, mainAddr)
