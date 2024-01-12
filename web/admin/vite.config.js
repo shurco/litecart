@@ -1,12 +1,21 @@
+import path from "path";
+
 import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import VueDevTools from 'vite-plugin-vue-devtools';
 
 export default defineConfig({
   //base: process.env.NODE_ENV === 'production' ? '/_/' : '/',
+
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+
   base: "/_/",
 
   server: {
@@ -23,15 +32,22 @@ export default defineConfig({
   plugins: [
     VueDevTools(),
     vue(),
-    VitePluginSvgSpritemap([
-      "./src/assets/svg/*.svg",
-      "./src/assets/svg/social/*.svg",
-    ]),
+    createSvgIconsPlugin({
+      iconDirs: [path.resolve(process.cwd(), "./src/assets/svg")],
+      symbolId: "icon-[dir]-[name]",
+    }),
   ],
 
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-  },
+
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        }
+      }
+    }
+  }
 });

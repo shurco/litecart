@@ -1,3 +1,4 @@
+
 <template>
   <svg aria-hidden="true" :class="class">
     <use :xlink:href="symbolId" />
@@ -10,7 +11,7 @@ import { computed } from "vue";
 const props = defineProps({
   prefix: {
     type: String,
-    default: "sprite",
+    default: "icon",
   },
   name: {
     type: String,
@@ -18,8 +19,9 @@ const props = defineProps({
   },
   class: {
     type: String,
+    default: "h-6 w-6",
   },
 });
 
-const symbolId = computed(() => `/__spritemap#${props.prefix}-${props.name}`);
+const symbolId = computed(() => `#${props.prefix}-${props.name}`);
 </script>

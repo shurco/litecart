@@ -24,7 +24,6 @@
     "vue-tippy": "v6"
   },
   "devDependencies": {
-    "@spiriit/vite-plugin-svg-spritemap": "^2.2.0",
     "@tailwindcss/forms": "^0.5.7",
     "@vitejs/plugin-vue": "^5.0.3",
     "autoprefixer": "^10.4.16",
@@ -36,7 +35,7 @@
     "sass": "^1.69.7",
     "tailwindcss": "^3.4.1",
     "vite": "^5.0.11",
-    "vite-plugin-svgs-icons": "^1.0.7",
+    "vite-plugin-svg-icons": "^2.0.1",
     "vite-plugin-vue-devtools": "^7.0.7"
   }
 }

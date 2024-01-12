@@ -6,6 +6,7 @@ import Notifications from "notiwind";
 import VueTippy from "vue-tippy";
 
 import SvgIcon from "@/components/SvgIcon.vue";
+import "virtual:svg-icons-register";
 
 import { defineRule } from "vee-validate";
 import * as rules from "@vee-validate/rules";
