@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+#set -e
+
+ROOT_PATH="$(git rev-parse --show-toplevel)"
+source ${ROOT_PATH}/scripts/_helper
+
+arr_process=(__debug_bin vite)
+for process in "${arr_process[@]}"; do
+  if pkill -f "$process" >/dev/null; then
+    print_header "Killing $process process"
+    print_answer "SUCCESS" green
+  fi
+done
+
+print_header "Remove old bin and dist files"
+rm -rf ${ROOT_PATH}/cmd/${name}/__debug_bin*
+rm -rf ${ROOT_PATH}/web/admin/dist
+print_answer "SUCCESS" green
