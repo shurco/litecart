@@ -160,6 +160,9 @@ release:
 
   footer: |
     **Full Changelog**: https://github.com/shurco/litecart/compare/{{ .PreviousTag }}...{{ .Tag }}
+    
+    > [!WARNING]
+    > If you are updating, it is essential to do the following - back up the **./site** folder if you have made changes to it (you can rename it). A new folder with updated files will be created.
 
 announce:
   mastodon:
