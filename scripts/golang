@@ -17,14 +17,15 @@ Darwin*)
   ;;
 Linux*)
   support_arch
-
   GO_RELEASE=$(get_latest_go_version)
   GO_PATH="$HOME/go"
-  
-  mkdir -p $GO_PATH
-  echo -e "\nexport PATH=\$PATH:${GO_PATH}/bin\nexport PATH=\$PATH:\$HOME/go/bin\n" >>~/.bashrc
-  source ~/.bashrc
-  
+
+  #rm -rf $GO_PATH
+  #mkdir -p $GO_PATH
+  #echo -e "export GOROOT=\"\$HOME/go\"" >>~/.bashrc
+  #echo -e "export GOPATH=\"\$HOME/go/packages\"" >>~/.bashrc
+  #echo -e "export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin" >>~/.bashrc
+  #source ~/.bashrc
   curl --silent https://dl.google.com/go/go${GO_RELEASE}.linux-amd64.tar.gz | tar -vxz --strip-components 1 -C ${GO_PATH} >/dev/null 2>&1
   ;;
 *)
