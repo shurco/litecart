@@ -15,7 +15,7 @@ require (
 	github.com/pressly/goose/v3 v3.18.0
 	github.com/rs/zerolog v1.32.0
 	github.com/spf13/cobra v1.8.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/xhit/go-simple-mail/v2 v2.16.0
 	golang.org/x/crypto v0.19.0
 	modernc.org/sqlite v1.29.1
