@@ -22,10 +22,21 @@ Linux*)
 
   #rm -rf $GO_PATH
   #mkdir -p $GO_PATH
-  #echo -e "export GOROOT=\"\$HOME/go\"" >>~/.bashrc
-  #echo -e "export GOPATH=\"\$HOME/go/packages\"" >>~/.bashrc
-  #echo -e "export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin" >>~/.bashrc
-  #source ~/.bashrc
+
+  if ! grep -q "export GOROOT=\"\$HOME/go\"" ~/.bashrc; then
+    echo -e "export GOROOT=\"\$HOME/go\"" >>~/.bashrc
+  fi
+
+  if ! grep -q "export GOPATH=\"\$HOME/go/packages\"" ~/.bashrc; then
+    echo -e "export GOPATH=\"\$HOME/go/packages\"" >>~/.bashrc
+  fi
+
+  if ! grep -q "export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin" ~/.bashrc; then
+    echo -e "export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin" >>~/.bashrc
+  fi
+
+  source ~/.bashrc
+
   curl --silent https://dl.google.com/go/go${GO_RELEASE}.linux-amd64.tar.gz | tar -vxz --strip-components 1 -C ${GO_PATH} >/dev/null 2>&1
   ;;
 *)
