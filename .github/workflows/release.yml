@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: stable
-      - uses: crazy-max/ghaction-upx@v2
+      - uses: crazy-max/ghaction-upx@v3
         with:
           install-only: true
           version: latest
