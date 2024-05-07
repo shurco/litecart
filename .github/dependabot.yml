@@ -8,3 +8,20 @@ updates:
   commit-message:
     prefix: "🔧 build"
     include: "scope"
+
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: daily
+  commit-message:
+    prefix: "🔧 build"
+    include: "scope"
+
+- package-ecosystem: "npm"
+  directory: "/web"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: "🔧 build"
+    include: "scope"
