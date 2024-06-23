@@ -17,7 +17,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
 	github.com/xhit/go-simple-mail/v2 v2.16.0
-	golang.org/x/crypto v0.23.0
+	golang.org/x/crypto v0.24.0
 	modernc.org/sqlite v1.29.9
 )
 
@@ -51,8 +51,8 @@ require (
 	golang.org/x/image v0.16.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/gc/v3 v3.0.0-20240304020402-f0dba7c97c2b // indirect
 	modernc.org/libc v1.50.6 // indirect
