@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "npx tailwindcss -o ./public/assets/css/style.css --watch --minify",
-    "build": "npx tailwindcss -o ./public/assets/css/style.css --minify",
-    "update": "ncu -i --format group"
+    "dev": "tailwindcss -o ./public/assets/css/style.css --watch --minify",
+    "build": "tailwindcss -o ./public/assets/css/style.css --minify",
+    "update": "bun update --latest"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
-    "tailwindcss": "^3.4.4"
+    "tailwindcss": "^3.4.6"
   }
 }

@@ -1,3 +1,5 @@
 {
+  "npm.packageManager": "bun",
+  
   "css.customData": [".vscode/tailwind.json"]
 }
