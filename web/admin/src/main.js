@@ -14,9 +14,9 @@ import * as rules from "@vee-validate/rules";
 import "@/assets/app.css";
 
 // validate rules
-Object.keys(rules).forEach((rule) => {
-  defineRule(rule, rules[rule]);
-});
+Object.keys(rules)
+  .filter(rule => typeof rules[rule] === "function")
+  .forEach(rule => defineRule(rule, rules[rule]));
 defineRule("amount", (value) => {
   if (!value || !value.length) {
     return true;

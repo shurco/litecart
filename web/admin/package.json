@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "VITE_CJS_IGNORE_WARNING=true vite --host",
-    "build": "VITE_CJS_IGNORE_WARNING=true build --mode production",
+    "build": "VITE_CJS_IGNORE_WARNING=true vite build --mode production",
     "preview": "vite preview --host",
     "update": "bun update --latest"
   },
