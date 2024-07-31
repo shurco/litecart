@@ -154,6 +154,10 @@ const addProduct = async () => {
   product.value.amount = costStripe(amount.value);
   apiPost(`/api/_/products`, product.value).then(res => {
     if (res.success) {
+      if (!Array.isArray(products.value.products)) {
+        products.value.products = [];
+      }
+
       products.value.products.push({
         id: res.result.id,
         name: res.result.name,

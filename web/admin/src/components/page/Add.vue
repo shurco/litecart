@@ -75,6 +75,10 @@ const pages = computed({
 const addPage = async () => {
   const add = { ...page.value };
   apiPost(`/api/_/pages`, add).then(res => {
+    if (!Array.isArray(pages.value)) {
+      pages.value = [];
+    }
+
     if (res.success) {
       pages.value.push({
         id: res.result.id,
