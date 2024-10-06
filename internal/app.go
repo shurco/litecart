@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -32,6 +33,9 @@ var (
 
 // NewApp is ...
 func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	DevMode = appDev
 	log = logging.New()
 
@@ -123,7 +127,9 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	}
 
 	if DevMode {
-		StartServer(mainAddr, app)
+		if err := StartServer(ctx, mainAddr, app); err != nil {
+			log.Err(err).Send()
+		}
 	} else {
 		idleConnsClosed := make(chan struct{})
 
@@ -132,6 +138,8 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 			signal.Notify(sigint, os.Interrupt)
 			<-sigint
 
+			cancel()
+
 			if err := app.Shutdown(); err != nil {
 				log.Err(err).Send()
 			}
@@ -139,7 +147,12 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 			close(idleConnsClosed)
 		}()
 
-		StartServer(mainAddr, app)
+		go func() {
+			if err := StartServer(ctx, mainAddr, app); err != nil {
+				log.Err(err).Send()
+			}
+		}()
+
 		<-idleConnsClosed
 	}
 
@@ -169,9 +182,22 @@ func InstallCheck(c *fiber.Ctx) error {
 }
 
 // StartServer is ...
-func StartServer(addr string, a *fiber.App) {
-	if err := a.Listen(addr); err != nil {
+func StartServer(ctx context.Context, addr string, a *fiber.App) error {
+	errCh := make(chan error)
+
+	go func() {
+		if err := a.Listen(addr); err != nil {
+			log.Err(err).Send()
+			errCh <- err
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		err := errors.New("shutdown signal received, closing server")
 		log.Err(err).Send()
-		os.Exit(1)
+		return a.Shutdown()
+	case err := <-errCh:
+		return err
 	}
 }
