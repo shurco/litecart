@@ -123,6 +123,10 @@ docker run \
   ghcr.io/shurco/litecart:latest
 ```
 
+#### <img width="20" src="/.github/media/platforms/k8s.svg">&nbsp;Run using Kubernetes
+An example manifest for running on Kubernetes can be found in the `/k8s/` folder (thanks <a href="https://github.com/vuisme" target="_blank">@vuisme</a>)
+
+
 ## ⬇️&nbsp;&nbsp;Updating
 > [!WARNING]
 > Before any update, be sure to make a backup of the *./lc_base* folder and the *./site* folder.
