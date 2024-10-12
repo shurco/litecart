@@ -170,6 +170,9 @@ docker run \
 --rm shurco/litecart migrate
 ```
 
+#### <img width="20" src="/.github/media/platforms/k8s.svg">&nbsp;Run using Kubernetes
+An example manifest for running on Kubernetes can be found in the `/k8s/` folder (thanks <a href="https://github.com/vuisme" target="_blank">@vuisme</a>)
+
 ## 🚀&nbsp;&nbsp;Getting started
 Getting started with `litecart` is as easy as starting up the `litecart` server
 
