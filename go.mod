@@ -6,7 +6,7 @@ toolchain go1.24.1
 require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/gofiber/contrib/fiberzerolog v1.0.2
+	github.com/gofiber/contrib/fiberzerolog v1.0.3
 	github.com/gofiber/contrib/jwt v1.0.10
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/gofiber/template/html/v2 v2.1.3
@@ -14,7 +14,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/pressly/goose/v3 v3.24.1
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	github.com/xhit/go-simple-mail/v2 v2.16.0
