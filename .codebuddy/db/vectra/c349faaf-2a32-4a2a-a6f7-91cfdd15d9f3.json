@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":5,"fileHash":"QDHgqQhVtAPGhzTVw+08JzH3WrDZL9OI0HYAhv7iIMA=","filePath":"internal/routes/api_private_routes.go","content":"package routes\nimport (\n\t\"github.com/gofiber/fiber/v2\"\n\n\thandlers \"github.com/shurco/litecart/internal/handlers/private\"\n\t\"github.com/shurco/litecart/internal/middleware\"\n)\n// ApiPrivateRoutes is ..."}

@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"rP7mXP5EScRGw0gUqe0EUNub1STE/9hSXurzUJz4Sqo=","filePath":"migrations/embed.go","content":"package migrations\n\nimport \"embed\"\n\n//go:embed *.sql\nvar migrations embed.FS\n\n// Embed is ...\nfunc Embed() embed.FS {\n\treturn migrations\n}\n"}

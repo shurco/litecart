@@ -1,0 +1,1 @@
+{"chunk":3,"numChunks":7,"fileHash":"VUwPvrg/tT6W8EH8MK8V/7u/m0is4G11xJr8gp6zi5k=","filePath":"web/site/index.html","content":"<div>\n  <section>\n    <div class=\"max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8\">\n      <ul class=\"grid gap-4 sm:grid-cols-2 lg:grid-cols-4\" v-if=\"products && load\">"}

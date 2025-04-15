@@ -1,0 +1,1 @@
+{"chunk":1,"numChunks":5,"fileHash":"WfR+2R/M3guhqnPA4GGm1f8tSMuQ0bWMN1w4XNQ6i+Q=","filePath":"internal/app.go","content":"package app\nfunc NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {"}

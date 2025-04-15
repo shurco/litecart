@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"i1YZEFpiE5x0aO4wzLhuWGZc+EK5gCJ0QtnEXU6jmws=","filePath":"web/admin/src/layouts/Blank.vue","content":"<template>\n  <slot />\n</template>"}

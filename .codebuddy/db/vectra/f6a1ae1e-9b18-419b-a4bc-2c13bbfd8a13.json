@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"YO7W61jNiQApFmYWZAwWoEEwVHWRW9cPLe4SsknU514=","filePath":"web/admin/src/pages/404.vue","content":"<template>\n  <div class=\"grid h-screen place-content-center bg-white px-4\">\n    <h1 class=\"tracking-widest text-gray-500\">404 | Not Found</h1>\n  </div>\n</template>\n\n<script setup>\n</script>\n"}

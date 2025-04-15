@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"1Mg7zhNTZeJ6nuOUycs9SrkWakYl09VyKzADJzfc1fk=","filePath":"web/site/tailwind.config.js","content":"/** @type {import('tailwindcss').Config} */\nmodule.exports = {\n  content: [\"./**/*.{html,js}\", \"!./**/node_modules/**\"],\n  theme: {\n    extend: {},\n  },\n  plugins: [\n    require('@tailwindcss/forms'),\n  ],\n}\n"}

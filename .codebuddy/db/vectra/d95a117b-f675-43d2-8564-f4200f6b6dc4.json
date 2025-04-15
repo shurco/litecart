@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"snPRT1hRaZFWcws3OPfBJ7sH37JCMZWE3MvcMB5i3jU=","filePath":"web/admin/prettier.config.js","content":"module.exports = {\n  plugins: [\"prettier-plugin-tailwindcss\"],\n};\n"}

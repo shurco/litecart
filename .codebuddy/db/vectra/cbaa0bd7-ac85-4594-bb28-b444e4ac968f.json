@@ -1,0 +1,1 @@
+{"chunk":4,"numChunks":15,"fileHash":"dLUtq845VDWGGrS77+61hd7n4EwdJnc0aPkug0yaZTE=","filePath":"internal/queries/products.go","content":"package queries\n// Product retrieves a product by its ID, with the option to fetch private or public data."}

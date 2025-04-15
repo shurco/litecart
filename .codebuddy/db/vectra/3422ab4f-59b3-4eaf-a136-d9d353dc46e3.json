@@ -1,0 +1,1 @@
+{"chunk":3,"numChunks":7,"fileHash":"29E9xFGFjc3raKkkjn6QgVwydbVzR/jGl9rax+tvZec=","filePath":"internal/handlers/private/product.go","content":"package handlers\nfunc AddProductImage(c *fiber.Ctx) error {"}

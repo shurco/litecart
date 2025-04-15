@@ -1,0 +1,1 @@
+{"chunk":4,"numChunks":15,"fileHash":"8k4FlTUnMf07dAju0be0NC0/K8xARV1JpkKBM3DCrfY=","filePath":"internal/handlers/public/cart.go","content":"package handlers\nfunc Payment(c *fiber.Ctx) error {\n\tpay := litepay.New(callbackURL, successURL, cancelURL)\n\n\tpaymentURL := fmt.Sprintf(\"https://%s/cart\", domain)\n\tpaymentSystem := payment.Provider\n\tswitch paymentSystem {"}

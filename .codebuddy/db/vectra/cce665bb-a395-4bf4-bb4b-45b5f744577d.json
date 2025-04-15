@@ -1,0 +1,1 @@
+{"chunk":1,"numChunks":5,"fileHash":"QDHgqQhVtAPGhzTVw+08JzH3WrDZL9OI0HYAhv7iIMA=","filePath":"internal/routes/api_private_routes.go","content":"package routes\nfunc ApiPrivateRoutes(c *fiber.App) {"}

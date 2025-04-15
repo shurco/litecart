@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"ygs7FyC8g6kiVM8NmtqVhIGaHPRvjV2SB90NrVG5rgk=","filePath":"pkg/litepay/provider.go","content":"package litepay\n\ntype PaymentSystem string\n\nconst (\n\tSTRIPE      PaymentSystem = \"stripe\"\n\tPAYPAL      PaymentSystem = \"paypal\"\n\tSPECTROCOIN PaymentSystem = \"spectrocoin\"\n)\n"}

@@ -1,0 +1,1 @@
+{"chunk":1,"numChunks":2,"fileHash":"l+W/Sk1QZ4Ci9pXalYDW5URV3UKU5S+N2hz0H9NZtEQ=","filePath":"web/admin/src/pages/Install.vue","content":"      window.location.href = \"/_/signin/\";\n    }\n  })\n};\n</script>\n"}

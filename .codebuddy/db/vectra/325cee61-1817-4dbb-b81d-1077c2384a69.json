@@ -1,0 +1,1 @@
+{"chunk":1,"numChunks":4,"fileHash":"yRWF4f9/RCA5elPF4InM9cCx4a8cEm6izNdr5E3Vqfg=","filePath":"pkg/litepay/provider_stripe.go","content":"package litepay\nfunc (c *stripe) Pay(cart Cart) (*Payment, error) {"}
