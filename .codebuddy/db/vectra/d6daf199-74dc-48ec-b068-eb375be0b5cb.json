@@ -1,1 +1,0 @@
-{"chunk":5,"numChunks":8,"fileHash":"vN9l5rv+m75fUwwfYQ2/MGtKoyDTSgrGzsQoGxTfSyk=","filePath":"web/admin/src/router.js","content":"import { createRouter, createWebHistory } from \"vue-router\";\nconst router = createRouter({\n  history: createWebHistory(import.meta.env.BASE_URL),"}

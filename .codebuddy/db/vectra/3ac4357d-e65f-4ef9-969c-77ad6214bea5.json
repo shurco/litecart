@@ -1,1 +1,0 @@
-{"chunk":1,"numChunks":2,"fileHash":"0pK8YaMIw+q7Qo52YygnlSrrPIH4JW9XOt0I51msMAc=","filePath":"k8s/litecart.yaml","content":"kind: Service\nmetadata:\n  name: litecart-service\n  namespace: shop\nspec:\n  selector:\n    app: litecart\n  ports:\n    - protocol: TCP\n      port: 8080\n      targetPort: 8080\n  type: NodePort\n"}

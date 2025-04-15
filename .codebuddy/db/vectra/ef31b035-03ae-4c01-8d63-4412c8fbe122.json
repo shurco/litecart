@@ -1,1 +1,0 @@
-{"chunk":0,"numChunks":1,"fileHash":"Ika2oYrqtxKcYE2kpcqbtSOBDile3RUGNFxL0D5YyRw=","filePath":"web/admin/src/assets/tippy.css","content":".tippy-box[data-theme~='lite'] {\n  @apply opacity-75 inline-flex self-end rounded bg-slate-900 px-2 py-1 text-slate-200;\n}\n\n"}

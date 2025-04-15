@@ -1,1 +1,0 @@
-{"chunk":0,"numChunks":1,"fileHash":"miZQdCvDgy96MVKBs7wIBbzu2iqGO0HQXwkpp8tR41A=","filePath":"web/admin/src/store/system.js","content":"import { ref } from \"vue\";\nimport { defineStore } from 'pinia';\n\nexport const useSystemStore = defineStore('system', () => {\n  const version = ref({})\n  const payments = ref({})\n\n  return { version, payments }\n})"}

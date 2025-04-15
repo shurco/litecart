@@ -1,1 +1,0 @@
-{"chunk":6,"numChunks":9,"fileHash":"QZ9HSztfAPTAK+jz/PH8NqcGg/fNPvUV/NhCsYhVn58=","filePath":"internal/queries/cart.go","content":"package queries\nfunc (q *CartQueries) CartLetterPurchase(ctx context.Context, cartID string) (*models.MessageMail, error) {\n\tfor _, cart := range products {"}

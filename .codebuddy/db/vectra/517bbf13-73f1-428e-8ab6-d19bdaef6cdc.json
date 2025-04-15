@@ -1,1 +1,0 @@
-{"chunk":1,"numChunks":2,"fileHash":"er5v4SXhLeR9n7O/BsfT6pZNtYWfLEbqTlbm3A4W09Q=","filePath":"web/admin/src/components/form/Select.vue","content":"    emits(\"update:modelValue\", val);\n  },\n});\n</script>\n"}

@@ -1,1 +1,0 @@
-{"chunk":0,"numChunks":1,"fileHash":"1Vfy3QWVes8NaioziJIO2kJBa+pKHGo741EaEImt0II=","filePath":"web/admin/postcss.config.js","content":"module.exports = {\n  plugins: {\n    \"postcss-import\": {},\n    \"tailwindcss/nesting\": \"postcss-nesting\",\n    tailwindcss: {},\n    autoprefixer: {},\n  },\n};\n"}

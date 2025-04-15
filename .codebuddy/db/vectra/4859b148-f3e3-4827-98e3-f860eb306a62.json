@@ -1,1 +1,0 @@
-{"chunk":5,"numChunks":6,"fileHash":"czUvAHNcQlI0FXMljKWUA9kENxZxEmfOz2Rm1naI2w0=","filePath":"web/admin/src/components/product/Update.vue","content":"      product.value.images.splice(index, 1);\n    } else {\n      showMessage(res.result, \"connextError\");\n    }\n  });\n};\n</script>\n"}

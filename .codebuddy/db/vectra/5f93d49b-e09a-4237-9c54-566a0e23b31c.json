@@ -1,1 +1,0 @@
-{"chunk":1,"numChunks":4,"fileHash":"mO/7/YCG3hyx9yROFEqZ7AtN2kLIuGumqyClO2uWP7c=","filePath":"pkg/litepay/provider_spectrocoin.go","content":"package litepay\nfunc (c *spectrocoin) Pay(cart Cart) (*Payment, error) {"}

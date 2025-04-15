@@ -1,1 +1,0 @@
-{"chunk":8,"numChunks":31,"fileHash":"b3+J2IJRpq7JwotDg5IWkwYs2XcBk+E5YySxemSyo1w=","filePath":"fixtures/migration/20230714135999_migration_name.sql","content":"\nINSERT INTO product (id, name, brief, desc, slug, metadata, attribute, amount, digital) VALUES \n"}

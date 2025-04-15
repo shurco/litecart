@@ -1,1 +1,0 @@
-{"chunk":3,"numChunks":6,"fileHash":"imwY4wUQn09mhFNJRd4eTEiv/yHDHMb5RBW4LzNA+S0=","filePath":"internal/handlers/private/setting.go","content":"package handlers\nfunc UpdateSetting(c *fiber.Ctx) error {"}

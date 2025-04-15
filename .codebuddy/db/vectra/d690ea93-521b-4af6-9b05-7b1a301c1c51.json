@@ -1,1 +1,0 @@
-{"chunk":10,"numChunks":13,"fileHash":"7xCcwzm7m5VzUXkFGChN1mmAKOgYQKMqM6fSmNor2uI=","filePath":"web/site/layouts/main.html","content":"<!doctype html>\n<html lang=\"en\">\n<body id=\"app\" v-cloak>\n  <div id=\"overlay\" class=\"fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm hidden items-center justify-center z-40\">"}

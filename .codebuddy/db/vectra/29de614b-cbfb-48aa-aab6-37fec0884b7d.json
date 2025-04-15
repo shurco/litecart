@@ -1,1 +1,0 @@
-{"chunk":1,"numChunks":15,"fileHash":"sNFErEHWkfr6++8yIcF3xn47MiE1g3sZi3O+hgMIx1g=","filePath":"internal/queries/products.go","content":"package queries\nfunc (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList ...models.CartProduct) (*models.Products, error) {"}

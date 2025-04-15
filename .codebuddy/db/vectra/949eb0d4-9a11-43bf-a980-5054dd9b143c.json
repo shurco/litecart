@@ -1,1 +1,0 @@
-{"chunk":5,"numChunks":11,"fileHash":"5vzQ6EAKKyEj+L6x875XSrWFXsnxCgmamc4hi027MnU=","filePath":"web/site/public/assets/js/main.js","content":"const { createApp, ref } = Vue\nconst App = {\n  methods: {"}

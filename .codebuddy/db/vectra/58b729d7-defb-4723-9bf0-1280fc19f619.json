@@ -1,1 +1,0 @@
-{"chunk":0,"numChunks":1,"fileHash":"WxXfuMCMsvLOCmHZVAwmb19CAqGI4mdZIuJgSmK+M1g=","filePath":"web/admin/src/assets/app.css","content":"@import 'tailwindcss/base';\n@import 'tailwindcss/components';\n@import 'tailwindcss/utilities';\n\n@import './nprogress.css';\n@import './tippy.css';\n@import './main.css';\n@import './table.css';\n"}
