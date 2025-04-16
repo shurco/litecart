@@ -591,5 +591,3 @@ func (q *ProductQueries) DeleteDigital(ctx context.Context, productID, digitalID
 
 	return nil
 }
-
-// test comment
