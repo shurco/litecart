@@ -331,11 +331,27 @@ func (q *ProductQueries) UpdateActive(ctx context.Context, id string) error {
 	return err
 }
 
-// ProductImages retrieves a list of images associated with a given product ID.
-func (q *ProductQueries) ProductImages(ctx context.Context, id string) (*[]models.File, error) {
-	images := []models.File{}
+// productImage represents the database schema for product images.
+// It serves as a data transfer object between the database and domain layer,
+// keeping database concerns separate from the domain model.
+type productImage struct {
+	ID   string
+	Name string
+	Ext  string
+}
 
-	query := `SELECT id, name, ext FROM product_image	WHERE product_id = ?`
+// ProductImages orchestrates overall image retrieval process
+func (q *ProductQueries) ProductImages(ctx context.Context, id string) (*[]models.File, error) {
+	images, err := q.fetchProductImages(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("fetching product images: %w", err)
+	}
+	return q.mapToModelFiles(images), nil
+}
+
+// fetchProductImages performs database query to get image(s) for a product
+func (q *ProductQueries) fetchProductImages(ctx context.Context, id string) ([]productImage, error) {
+	query := `SELECT id, name, ext FROM product_image WHERE product_id = ?`
 	rows, err := q.DB.QueryContext(ctx, query, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -345,19 +361,28 @@ func (q *ProductQueries) ProductImages(ctx context.Context, id string) (*[]model
 	}
 	defer rows.Close()
 
+	var images []productImage
 	for rows.Next() {
-		var img models.File
+		var img productImage
 		if err := rows.Scan(&img.ID, &img.Name, &img.Ext); err != nil {
 			return nil, err
 		}
 		images = append(images, img)
 	}
+	return images, rows.Err()
+}
 
-	if err = rows.Err(); err != nil {
-		return nil, err
+// mapToModelFiles creates a representation of the database results as a domain object
+func (q *ProductQueries) mapToModelFiles(images []productImage) *[]models.File {
+	result := make([]models.File, len(images))
+	for i, img := range images {
+		result[i] = models.File{
+			ID:   img.ID,
+			Name: img.Name,
+			Ext:  img.Ext,
+		}
 	}
-
-	return &images, nil
+	return &result
 }
 
 // AddImage attaches an image to a product by inserting a new record in the product_image table.
