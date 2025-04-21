@@ -331,13 +331,16 @@ func (q *ProductQueries) UpdateActive(ctx context.Context, id string) error {
 	return err
 }
 
+// productImage represents the database schema for product images.
+// It serves as a data transfer object between the database and domain layer,
+// keeping database concerns separate from the domain model.
 type productImage struct {
 	ID   string
 	Name string
 	Ext  string
 }
 
-// Main orchestrator
+// ProductImages orchestrates overall image retrieval process
 func (q *ProductQueries) ProductImages(ctx context.Context, id string) (*[]models.File, error) {
 	images, err := q.fetchProductImages(ctx, id)
 	if err != nil {
@@ -346,7 +349,7 @@ func (q *ProductQueries) ProductImages(ctx context.Context, id string) (*[]model
 	return q.mapToModelFiles(images), nil
 }
 
-// Database operations
+// fetchProductImages performs database query to get image(s) for a product
 func (q *ProductQueries) fetchProductImages(ctx context.Context, id string) ([]productImage, error) {
 	query := `SELECT id, name, ext FROM product_image WHERE product_id = ?`
 	rows, err := q.DB.QueryContext(ctx, query, id)
@@ -369,7 +372,7 @@ func (q *ProductQueries) fetchProductImages(ctx context.Context, id string) ([]p
 	return images, rows.Err()
 }
 
-// Data transformation
+// mapToModelFiles creates a representation of the database results as a domain object
 func (q *ProductQueries) mapToModelFiles(images []productImage) *[]models.File {
 	result := make([]models.File, len(images))
 	for i, img := range images {
