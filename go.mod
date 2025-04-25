@@ -8,7 +8,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/gofiber/contrib/fiberzerolog v1.0.2
-	github.com/gofiber/contrib/jwt v1.0.10
+	github.com/gofiber/contrib/jwt v1.1.1
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/gofiber/template/html/v2 v2.1.3
 	github.com/gofiber/utils v1.1.0
