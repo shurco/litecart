@@ -41,15 +41,18 @@ func jwtError(c *fiber.Ctx, err error) error {
 
 func customKeyFunc() jwt.Keyfunc {
 	return func(t *jwt.Token) (interface{}, error) {
-		if t.Method.Alg() != jwtMiddleware.HS256 {
-			return nil, fmt.Errorf("Unexpected jwt signing method=%v", t.Header["alg"])
-		}
-
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+		defer cancel() // Clean up resources
 
 		db := queries.DB()
-		settingJWT, _ := queries.GetSettingByGroup[models.JWT](ctx, db)
+		settingJWT, err := queries.GetSettingByGroup[models.JWT](ctx, db)
+		if err != nil {
+			if ctx.Err() == context.DeadlineExceeded {
+				return nil, fmt.Errorf("database took too long to respond")
+			}
+			return nil, fmt.Errorf("database error: %w", err)
+		}
+
 		return []byte(settingJWT.Secret), nil
 	}
 }
