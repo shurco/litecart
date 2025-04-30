@@ -50,8 +50,10 @@ func customKeyFunc() jwt.Keyfunc {
 		// Handles database errors when retrieving the JWT secret
 		if err != nil {
 			if ctx.Err() == context.DeadlineExceeded {
+				// Database time out
 				return nil, fmt.Errorf("database took too long to respond")
 			}
+			// Database error
 			return nil, fmt.Errorf("database error: %w", err)
 		}
 		//Add secret validation
