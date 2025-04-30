@@ -41,15 +41,26 @@ func jwtError(c *fiber.Ctx, err error) error {
 
 func customKeyFunc() jwt.Keyfunc {
 	return func(t *jwt.Token) (interface{}, error) {
-		if t.Method.Alg() != jwtMiddleware.HS256 {
-			return nil, fmt.Errorf("Unexpected jwt signing method=%v", t.Header["alg"])
-		}
-
+		// Set a timeout of 5 secs to prevent indefinite blocking
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		db := queries.DB()
-		settingJWT, _ := queries.GetSettingByGroup[models.JWT](ctx, db)
+		settingJWT, err := queries.GetSettingByGroup[models.JWT](ctx, db)
+		// Handles database errors when retrieving the JWT secret
+		if err != nil {
+			if ctx.Err() == context.DeadlineExceeded {
+				// Database time out
+				return nil, fmt.Errorf("database took too long to respond")
+			}
+			// Database error
+			return nil, fmt.Errorf("database error: %w", err)
+		}
+		//Add secret validation
+		if settingJWT.Secret == "" {
+			return nil, fmt.Errorf("JWT secret is empty or not configured")
+		}
+
 		return []byte(settingJWT.Secret), nil
 	}
 }
