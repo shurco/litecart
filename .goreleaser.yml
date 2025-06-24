@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -28,11 +30,10 @@ builds:
     binary: litecart
 
 archives:
-  - format: tar.gz
+  - name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
     format_overrides:
       - goos: windows
         format: zip
-    name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
     files:
       - README.md
 
@@ -41,15 +42,6 @@ checksum:
 
 snapshot:
   name_template: '{{ .Tag }}-next'
-
-brews:
-  - repository:
-      owner: shurco
-      name: homebrew-tap
-      token: '{{ .Env.TAP_GITHUB_TOKEN }}'
-    homepage: https://github.com/shurco/litecart
-    description: '🛒 litecart - shopping-cart in 1 file'
-    license: 'MIT'
 
 upx:
   - enabled: false
