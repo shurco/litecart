@@ -43,8 +43,8 @@ type Password struct {
 // Validate is ...
 func (v Password) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.Old, validation.Length(6, 30)),
-		validation.Field(&v.New, validation.Length(6, 30)),
+		validation.Field(&v.Old, validation.Length(6, 72)),
+		validation.Field(&v.New, validation.Length(6, 72)),
 	)
 }
 
