@@ -15,7 +15,7 @@ type SignIn struct {
 func (v SignIn) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Email, validation.Required, is.Email),
-		validation.Field(&v.Password, validation.Required, validation.Length(3, 20)),
+		validation.Field(&v.Password, validation.Required, validation.Length(6, 72)),
 	)
 }
 

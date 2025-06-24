@@ -16,6 +16,6 @@ type Install struct {
 func (v Install) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Email, validation.Required, is.Email),
-		validation.Field(&v.Password, validation.Required, validation.Length(6, 50)),
+		validation.Field(&v.Password, validation.Required, validation.Length(6, 72)),
 	)
 }
