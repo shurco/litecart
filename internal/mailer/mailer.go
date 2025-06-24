@@ -19,6 +19,11 @@ var EncryptionTypes = map[string]mailer.Encryption{
 
 // SendMail is ...
 func SendMail(smtp *models.Mail, mail *models.MessageMail) error {
+	// Validate SMTP settings before attempting connection
+	if smtp.SMTP.Host == "" || smtp.SMTP.Port <= 0 || smtp.SMTP.Username == "" || smtp.SMTP.Password == "" {
+		return fmt.Errorf("invalid SMTP settings: host, port, username, and password are required")
+	}
+
 	server := mailer.NewSMTPClient()
 	server.Host = smtp.SMTP.Host
 	server.Port = smtp.SMTP.Port

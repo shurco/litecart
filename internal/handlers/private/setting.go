@@ -191,7 +191,7 @@ func TestLetter(c *fiber.Ctx) error {
 
 	if err := mailer.SendTestLetter(letter); err != nil {
 		log.ErrorStack(err)
-		return webutil.StatusInternalServerError(c)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Test letter", "Message sent to your mailbox")

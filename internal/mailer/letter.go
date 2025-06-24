@@ -3,6 +3,7 @@ package mailer
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/shurco/litecart/internal/models"
@@ -19,6 +20,11 @@ func SendTestLetter(letterName string) error {
 	mailSetting, err := queries.GetSettingByGroup[models.Mail](ctx, db)
 	if err != nil {
 		return err
+	}
+
+	// Check if SMTP settings are properly configured
+	if mailSetting.SMTP.Host == "" || mailSetting.SMTP.Port <= 0 || mailSetting.SMTP.Username == "" || mailSetting.SMTP.Password == "" {
+		return fmt.Errorf("SMTP settings are not properly configured. Please fill in all required fields: Host, Port, Username, and Password")
 	}
 
 	settingEmail, err := db.GetSettingByKey(ctx, "email", letterName)
