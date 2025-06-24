@@ -31,17 +31,16 @@ builds:
 
 archives:
   - name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
-    format_overrides:
-      - goos: windows
-        format: zip
+    files:
+      - README.md
+  - name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
+    format: zip
+    goos: windows
     files:
       - README.md
 
 checksum:
   name_template: 'checksums.txt'
-
-snapshot:
-  name_template: '{{ .Tag }}-next'
 
 upx:
   - enabled: false
