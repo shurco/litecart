@@ -212,7 +212,7 @@ type SMTP struct {
 func (v SMTP) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Host, is.Host),
-		validation.Field(&v.Port, is.Port),
+		validation.Field(&v.Port, validation.Required, validation.Min(1), validation.Max(65535)),
 		// validation.Field(&v.Encryption),
 		validation.Field(&v.Username, validation.Length(3, 20)),
 		validation.Field(&v.Password, validation.Length(3, 20)),

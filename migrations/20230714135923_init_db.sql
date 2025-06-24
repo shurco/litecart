@@ -21,7 +21,7 @@ INSERT INTO setting VALUES ('NVv27ea47Yo7gPm', 'social_twitter', '');
 INSERT INTO setting VALUES ('VjdMVG7LcUL274G', 'social_dribbble', '');
 INSERT INTO setting VALUES ('8sz9yVDNvNBa97b', 'social_github', '');
 INSERT INTO setting VALUES ('AC3of7o9pS9HdB1', 'smtp_host', '');
-INSERT INTO setting VALUES ('p47ale7NBl2nqaB', 'smtp_port', '0');
+INSERT INTO setting VALUES ('p47ale7NBl2nqaB', 'smtp_port', '');
 INSERT INTO setting VALUES ('GIsA71Lk59h7vFa', 'smtp_username', '');
 INSERT INTO setting VALUES ('zdb4Q07blJJ8msv', 'smtp_password', '');
 INSERT INTO setting VALUES ('I0dk15zAn0d14hN', 'smtp_encryption', '');

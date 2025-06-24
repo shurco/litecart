@@ -136,11 +136,15 @@ func (q *SettingQueries) GetSettingByGroup(ctx context.Context, settings any) (a
 				}
 				*ptr = bValue
 			case *int:
-				iValue, err := strconv.Atoi(value)
-				if err != nil {
-					return nil, err
+				if value == "" {
+					*ptr = 0
+				} else {
+					iValue, err := strconv.Atoi(value)
+					if err != nil {
+						return nil, err
+					}
+					*ptr = iValue
 				}
-				*ptr = iValue
 			}
 		}
 	}

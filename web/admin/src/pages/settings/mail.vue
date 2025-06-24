@@ -13,8 +13,8 @@
     <div class="mt-5">
       <Form @submit="updateMail" v-slot="{ errors }">
         <h2 class="mb-5">SMTP settings</h2>
-        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!mail.smtp.host || !mail.smtp.port || !mail.smtp.username || !mail.smtp.password">
-          <p class="text-sm font-medium">This section is required!</p>
+        <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white" v-if="!mail.smtp.host || !mail.smtp.port || mail.smtp.port <= 0 || !mail.smtp.username || !mail.smtp.password">
+          <p class="text-sm font-medium">This section is required! Please fill in all SMTP fields including a valid port number.</p>
         </div>
 
         <div class="mt-5 flex">
@@ -33,7 +33,7 @@
             <FormInput v-model.trim="mail.smtp.host" :error="errors.smtp_host" rules="required|min:4" class="w-64" id="smtp_host" type="text" title="SMTP host" ico="server" />
           </div>
           <div class="pr-3">
-            <FormInput v-model.trim="mail.smtp.port" :error="errors.smtp_port" rules="required|numeric" class="w-64" id="smtp_port" type="text" title="SMTP port"
+            <FormInput v-model.trim="mail.smtp.port" :error="errors.smtp_port" rules="required|numeric|min_value:1" class="w-64" id="smtp_port" type="text" title="SMTP port"
               ico="arrow-left-on-rectangle" />
           </div>
           <div>
