@@ -1,10 +1,4 @@
 {
   "npm.packageManager": "bun",
   "css.customData": [".vscode/tailwind.json"],
-
-  "github.copilot.chat.commitMessageGeneration.instructions": [
-    {
-      "file": ".vscode/copilot/commit-message-instructions.md"
-    }
-  ]
 }
