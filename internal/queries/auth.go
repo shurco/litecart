@@ -20,7 +20,7 @@ func (q *AuthQueries) GetPasswordByEmail(ctx context.Context, email string) (str
 	if err != nil {
 		return "", err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var key, value string
@@ -40,6 +40,10 @@ func (q *AuthQueries) GetPasswordByEmail(ctx context.Context, email string) (str
 			}
 			return value, nil
 		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", err
 	}
 
 	return "", errors.ErrUserNotFound

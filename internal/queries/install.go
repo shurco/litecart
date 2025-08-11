@@ -32,7 +32,7 @@ func (q *InstallQueries) Install(ctx context.Context, i *models.Install) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	passwordHash := security.GeneratePassword(i.Password)
 	jwt_secret, err := security.NewToken(passwordHash)
@@ -53,7 +53,7 @@ func (q *InstallQueries) Install(ctx context.Context, i *models.Install) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	for key, value := range settings {
 		if _, err := stmt.ExecContext(ctx, value, key); err != nil {

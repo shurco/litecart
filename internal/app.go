@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"strconv"
@@ -65,7 +66,10 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 			sitePath = "../web/site"
 		} else {
 			if !fsutil.IsDir(sitePath) || fsutil.IsEmptyDir(sitePath) {
-				fsutil.EmbedExtract(web.EmbedSite(), "")
+				if err := fsutil.EmbedExtract(web.EmbedSite(), ""); err != nil {
+					log.Err(err).Send()
+					return err
+				}
 			}
 		}
 		views := html.New(sitePath, ".html")
@@ -101,9 +105,16 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 	routes.NotFoundRoute(app, noSite)
 
 	if schema == "https" {
+		// split host and ensure autocert gets a plain host without port
+		hostOnly := mainAddr
+		if strings.Contains(mainAddr, ":") {
+			if h, _, err := net.SplitHostPort(mainAddr); err == nil {
+				hostOnly = h
+			}
+		}
 		m := &autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist(mainAddr),
+			HostPolicy: autocert.HostWhitelist(hostOnly),
 			Cache:      autocert.DirCache("./lc_certs"),
 		}
 
@@ -114,7 +125,11 @@ func NewApp(httpAddr, httpsAddr string, noSite, appDev bool) error {
 			},
 		}
 
-		ln, err := tls.Listen("tcp", ":443", cfgTLS)
+		listenAddr := ":443"
+		if httpsAddr != "" {
+			listenAddr = httpsAddr
+		}
+		ln, err := tls.Listen("tcp", listenAddr, cfgTLS)
 		if err != nil {
 			log.Err(err).Send()
 			os.Exit(1)
@@ -167,9 +182,9 @@ func InstallCheck(c *fiber.Ctx) error {
 
 	response, err := db.GetSettingByKey(ctx, "installed")
 	if err != nil {
-		return webutil.StatusBadRequest(c, err.Error())
+		return webutil.StatusInternalServerError(c)
 	}
-	install, _ := strconv.ParseBool(response["installed"].Value.(string))
+	install, _ := strconv.ParseBool(fmt.Sprint(response["installed"].Value))
 
 	if !install {
 		if !strings.HasPrefix(c.Path(), "/_/install") && !strings.HasPrefix(c.Path(), "/_/assets") && !strings.HasPrefix(c.Path(), "/api") {

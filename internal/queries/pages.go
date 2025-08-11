@@ -40,13 +40,13 @@ func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...str
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var page models.Page
@@ -114,9 +114,9 @@ func (q *PageQueries) AddPage(ctx context.Context, page *models.Page) (*models.P
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
-	err = stmt.QueryRowContext(ctx, query, page.ID, page.Name, page.Slug, page.Position).Scan(&page.Created)
+	err = stmt.QueryRowContext(ctx, page.ID, page.Name, page.Slug, page.Position).Scan(&page.Created)
 	if err != nil {
 		return nil, err
 	}

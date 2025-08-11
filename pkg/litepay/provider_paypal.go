@@ -85,7 +85,7 @@ func (c *paypal) Pay(cart Cart) (*Payment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var data struct {
 		ID    string `json:"id"`
@@ -138,14 +138,14 @@ func (c *paypal) Checkout(payment *Payment, token string) (*Payment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == 422 {
-		return nil, errors.New("Unprocessable entity")
+		return nil, errors.New("unprocessable entity")
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return nil, errors.New("The server returned an error.")
+		return nil, errors.New("the server returned an error")
 	}
 
 	var data struct {
@@ -192,7 +192,7 @@ func (c *paypal) paypalAccessToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var tokenResp struct {
 		AccessToken string `json:"access_token"`

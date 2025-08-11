@@ -31,7 +31,7 @@ func (q *CartQueries) PaymentList(ctx context.Context) (map[string]bool, error) 
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var key, value string
@@ -77,7 +77,7 @@ func (q *CartQueries) Carts(ctx context.Context) ([]*models.Cart, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var email, paymentID sql.NullString
@@ -257,7 +257,7 @@ func (q *CartQueries) CartLetterPurchase(ctx context.Context, cartID string) (*m
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	keys := []models.Data{}
 	files := []models.File{}
@@ -277,15 +277,17 @@ func (q *CartQueries) CartLetterPurchase(ctx context.Context, cartID string) (*m
 			if err != nil {
 				return nil, err
 			}
+			defer func() { _ = rows.Close() }()
 			for rows.Next() {
 				file := models.File{}
 				if err := rows.Scan(&file.ID, &file.Name, &file.Ext, &file.OrigName); err != nil {
-					rows.Close()
 					return nil, err
 				}
 				files = append(files, file)
 			}
-			rows.Close()
+			if err := rows.Err(); err != nil {
+				return nil, err
+			}
 		case "data":
 			key := models.Data{}
 			err := tx.QueryRowContext(ctx, `SELECT id, content FROM digital_data WHERE cart_id = ?`, cartID).Scan(&key.ID, &key.Content)

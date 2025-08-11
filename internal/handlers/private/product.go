@@ -2,6 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/disintegration/imaging"
 	"github.com/gofiber/fiber/v2"
@@ -166,7 +169,35 @@ func AddProductImage(c *fiber.Ctx) error {
 	filePath := fmt.Sprintf("./lc_uploads/%s", fileName)
 	fileOrigName := file.Filename
 
-	c.SaveFile(file, filePath)
+	// atomic save via temp file then rename
+	if err := func() error {
+		src, err := file.Open()
+		if err != nil {
+			return err
+		}
+		defer func() { _ = src.Close() }()
+		tmpPath := filePath + ".tmp"
+		if err := os.MkdirAll(filepath.Dir(filePath), 0o775); err != nil {
+			return err
+		}
+		dst, err := os.Create(tmpPath)
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(dst, src); err != nil {
+			_ = dst.Close()
+			_ = os.Remove(tmpPath)
+			return err
+		}
+		if err := dst.Close(); err != nil {
+			_ = os.Remove(tmpPath)
+			return err
+		}
+		return os.Rename(tmpPath, filePath)
+	}(); err != nil {
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
+	}
 
 	fileSource, err := imaging.Open(filePath)
 	if err != nil {
@@ -250,7 +281,34 @@ func AddProductDigital(c *fiber.Ctx) error {
 		filePath := fmt.Sprintf("./lc_digitals/%s", fileName)
 		fileOrigName := fileTmp.Filename
 
-		c.SaveFile(fileTmp, filePath)
+		if err := func() error {
+			src, err := fileTmp.Open()
+			if err != nil {
+				return err
+			}
+			defer func() { _ = src.Close() }()
+			if err := os.MkdirAll(filepath.Dir(filePath), 0o775); err != nil {
+				return err
+			}
+			tmpPath := filePath + ".tmp"
+			dst, err := os.Create(tmpPath)
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(dst, src); err != nil {
+				_ = dst.Close()
+				_ = os.Remove(tmpPath)
+				return err
+			}
+			if err := dst.Close(); err != nil {
+				_ = os.Remove(tmpPath)
+				return err
+			}
+			return os.Rename(tmpPath, filePath)
+		}(); err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
 
 		file, err := db.AddDigitalFile(c.Context(), productID, fileUUID, fileExt, fileOrigName)
 		if err != nil {

@@ -87,7 +87,7 @@ func (c *spectrocoin) Pay(cart Cart) (*Payment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	data, err := parseBody(resp.Body)
 	if err != nil {

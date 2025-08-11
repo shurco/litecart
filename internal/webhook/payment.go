@@ -53,24 +53,13 @@ func SendPaymentHook(resData *Payment) error {
 		if err != nil {
 			return err
 		}
-
-		errCh := make(chan error)
-		go func() {
-			defer close(errCh)
-
-			res, err := Send(webhookSetting.Url, jsonData)
-			if err != nil {
-				errCh <- err
-				return
-			}
-			if res.StatusCode != 200 {
-				errCh <- fmt.Errorf("An issue has been identified with the payment webhook URL. Please verify that it responds with a status code of 200.")
-				return
-			}
-		}()
-
-		if err := <-errCh; err != nil {
+		// synchronous call with context deadline above
+		res, err := Send(webhookSetting.Url, jsonData)
+		if err != nil {
 			return err
+		}
+		if res.StatusCode != 200 {
+			return fmt.Errorf("payment webhook does not return 200 status")
 		}
 	}
 

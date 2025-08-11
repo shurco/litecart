@@ -66,8 +66,10 @@ func SignIn(c *fiber.Ctx) error {
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
-		Expires:  time.Now().Add(24 * time.Hour),
-		SameSite: "lax",
+		Expires:  time.Unix(expires, 0),
+		HTTPOnly: true,
+		Secure:   c.Protocol() == "https",
+		SameSite: fiber.CookieSameSiteStrictMode,
 	})
 
 	return webutil.StatusOK(c, "Token", token)
@@ -97,10 +99,11 @@ func SignOut(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:    "token",
-		Expires: time.Now().Add(-(time.Hour * 2)),
-		// HTTPOnly: true,
-		SameSite: "lax",
+		Name:     "token",
+		Expires:  time.Now().Add(-(time.Hour * 2)),
+		HTTPOnly: true,
+		Secure:   c.Protocol() == "https",
+		SameSite: fiber.CookieSameSiteStrictMode,
 	})
 
 	return c.SendStatus(fiber.StatusNoContent)

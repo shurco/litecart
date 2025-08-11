@@ -81,7 +81,9 @@ func cmdServe() *cobra.Command {
 	cmd.PersistentFlags().BoolVar(&noSite, "no-site", false, "disable create site")
 
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
-	cmd.PersistentFlags().MarkHidden("dev")
+	if err := cmd.PersistentFlags().MarkHidden("dev"); err != nil {
+		fmt.Println("warning: failed to hide dev flag:", err)
+	}
 
 	return cmd
 }
@@ -91,7 +93,10 @@ func cmdInit() *cobra.Command {
 		Use:   "init",
 		Short: "Creating the basic structure",
 		Run: func(serveCmd *cobra.Command, args []string) {
-			app.Init()
+			if err := app.Init(); err != nil {
+				fmt.Print(err)
+				os.Exit(1)
+			}
 		},
 	}
 

@@ -53,7 +53,7 @@ func ExtractZip(src, dest string) error {
 	if err != nil {
 		return err
 	}
-	defer ar.Close()
+	defer func() { _ = ar.Close() }()
 
 	info, err := ar.Stat()
 	if err != nil {
@@ -74,7 +74,9 @@ func ExtractZip(src, dest string) error {
 			return err
 		}
 		err = extractFile(zf.Name, zf.Mode(), data, dest)
-		data.Close()
+		if cerr := data.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
 		if err != nil {
 			return fmt.Errorf("extract %s: %v", zf.Name, err)
 		}

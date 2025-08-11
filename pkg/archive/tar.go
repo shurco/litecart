@@ -65,13 +65,13 @@ func ExtractTar(src, dest string) error {
 	if err != nil {
 		return err
 	}
-	defer ar.Close()
+	defer func() { _ = ar.Close() }()
 
 	gzr, err := gzip.NewReader(ar)
 	if err != nil {
 		return err
 	}
-	defer gzr.Close()
+	defer func() { _ = gzr.Close() }()
 
 	tr := tar.NewReader(gzr)
 	for {

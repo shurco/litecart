@@ -1,12 +1,12 @@
 -- +goose Up
 -- +goose StatementBegin
-INSERT INTO setting VALUES ('yLR1176FQj1BQks', 'social_facebook', '');
-INSERT INTO setting VALUES ('rKVq63So91kMuN7', 'social_instagram', '');
-INSERT INTO setting VALUES ('NVv27ea47Yo7gPm', 'social_twitter', '');
-INSERT INTO setting VALUES ('VjdMVG7LcUL274G', 'social_dribbble', '');
-INSERT INTO setting VALUES ('8sz9yVDNvNBa97b', 'social_github', '');
-INSERT INTO setting VALUES ('CoDDXfxF4GZxq6b', 'social_youtube', '');
-INSERT INTO setting VALUES ('AC3of7o9pS9HdB1', 'social_other', '');
+INSERT OR IGNORE INTO setting VALUES ('yLR1176FQj1BQks', 'social_facebook', '');
+INSERT OR IGNORE INTO setting VALUES ('rKVq63So91kMuN7', 'social_instagram', '');
+INSERT OR IGNORE INTO setting VALUES ('NVv27ea47Yo7gPm', 'social_twitter', '');
+INSERT OR IGNORE INTO setting VALUES ('VjdMVG7LcUL274G', 'social_dribbble', '');
+INSERT OR IGNORE INTO setting VALUES ('8sz9yVDNvNBa97b', 'social_github', '');
+INSERT OR IGNORE INTO setting VALUES ('CoDDXfxF4GZxq6b', 'social_youtube', '');
+INSERT OR IGNORE INTO setting VALUES ('AC3of7o9pS9HdB1', 'social_other', '');
 
 -- Fix existing smtp_port values that might be '0'
 UPDATE setting SET value = '' WHERE key = 'smtp_port' AND value = '0';

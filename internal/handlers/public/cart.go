@@ -161,7 +161,7 @@ func Payment(c *fiber.Ctx) error {
 		amountTotal += s.PriceData.UnitAmount * s.Quantity
 	}
 
-	db.AddCart(c.Context(), &models.Cart{
+	if err := db.AddCart(c.Context(), &models.Cart{
 		Core: models.Core{
 			ID: cart.ID,
 		},
@@ -171,7 +171,10 @@ func Payment(c *fiber.Ctx) error {
 		Currency:      cart.Currency,
 		PaymentStatus: litepay.NEW,
 		PaymentSystem: paymentSystem,
-	})
+	}); err != nil {
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
+	}
 
 	// send email
 	if err := mailer.SendPrepaymentLetter(payment.Email, fmt.Sprintf("%.2f %s", float64(amountTotal)/100, cart.Currency), paymentURL); err != nil {

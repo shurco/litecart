@@ -30,8 +30,8 @@ func extractFile(path string, mode os.FileMode, data io.Reader, dest string) err
 		return err
 	}
 	if _, err := io.Copy(file, data); err != nil {
-		file.Close()
-		os.Remove(target)
+		_ = file.Close()
+		_ = os.Remove(target)
 		return err
 	}
 	return file.Close()

@@ -49,7 +49,11 @@ func Version(c *fiber.Ctx) error {
 			return webutil.StatusInternalServerError(c)
 		}
 
-		json, _ := json.Marshal(version)
+		json, err := json.Marshal(version)
+		if err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
 		expires := time.Now().Add(24 * time.Hour).Unix()
 		if err := db.AddSession(c.Context(), "update", string(json), expires); err != nil {
 			log.ErrorStack(err)
@@ -59,7 +63,10 @@ func Version(c *fiber.Ctx) error {
 
 	if session != "" {
 		version = new(update.Version)
-		json.Unmarshal([]byte(session), version)
+		if err := json.Unmarshal([]byte(session), version); err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Version", version)

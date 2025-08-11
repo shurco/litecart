@@ -26,7 +26,12 @@ func New(dbPath string, migrations embed.FS) (db *sql.DB, err error) {
 	// connect to database
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
 	db, err = sql.Open("sqlite", dsn)
-	db.Query("PRAGMA auto_vacuum")
+	if err != nil {
+		return
+	}
+	if _, err := db.Exec("PRAGMA auto_vacuum"); err != nil {
+		return nil, err
+	}
 
 	return
 }
@@ -39,7 +44,7 @@ func Migrate(dbPath string, migrations embed.FS) (err error) {
 	if err != nil {
 		return
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	goose.SetTableName("migrate_db_version")
 

@@ -31,11 +31,19 @@ func Init(cfg *Config) error {
 	defer cancel()
 
 	asset, err := ReleaseInfo(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	if asset == nil {
+		// no update required
+		fmt.Printf("You already have the latest litecart %s\n", cfg.CurrentVersion)
+		return nil
+	}
 
 	// Downloading
 	fmt.Printf("Downloading %s...\n", asset.Name)
 	releaseDir := filepath.Join("./", ".lc_temp_to_delete")
-	defer os.RemoveAll(releaseDir)
+	defer func() { _ = os.RemoveAll(releaseDir) }()
 
 	assetArch := filepath.Join(releaseDir, asset.Name)
 	if err := downloadFile(ctx, asset.DownloadUrl, assetArch); err != nil {
@@ -45,7 +53,7 @@ func Init(cfg *Config) error {
 	// Extracting
 	fmt.Printf("Extracting %s...\n", asset.Name)
 	extractDir := filepath.Join(releaseDir, "extracted_"+asset.Name)
-	defer os.RemoveAll(extractDir)
+	defer func() { _ = os.RemoveAll(extractDir) }()
 
 	if runtime.GOOS == "windows" {
 		if err := archive.ExtractZip(assetArch, extractDir); err != nil {
@@ -64,13 +72,13 @@ func Init(cfg *Config) error {
 		return err
 	}
 	renamedOldExec := oldExec + ".old"
-	defer os.Remove(renamedOldExec)
+	defer func() { _ = os.Remove(renamedOldExec) }()
 
 	newExec := filepath.Join(extractDir, cfg.ArchiveExecutable)
 	if _, err := os.Stat(newExec); err != nil {
 		newExec = newExec + ".exe"
 		if _, fallbackErr := os.Stat(newExec); fallbackErr != nil {
-			return fmt.Errorf("The executable in the extracted path is missing or it is inaccessible: %v, %v", err, fallbackErr)
+			return fmt.Errorf("the executable in the extracted path is missing or it is inaccessible: %v, %v", err, fallbackErr)
 		}
 	}
 
@@ -80,9 +88,8 @@ func Init(cfg *Config) error {
 
 	// replace with the extracted binary
 	if err := os.Rename(newExec, oldExec); err != nil {
-		if err := os.Rename(renamedOldExec, oldExec); err != nil {
-			return err
-		}
+		// best-effort rollback
+		_ = os.Rename(renamedOldExec, oldExec)
 		return err
 	}
 
@@ -98,7 +105,7 @@ func ReleaseInfo(ctx context.Context, cfg *Config) (*ReleaseAsset, error) {
 	}
 
 	if compareVersions(strings.TrimPrefix(cfg.CurrentVersion, "v"), strings.TrimPrefix(latest.Tag, "v")) <= 0 {
-		fmt.Printf("You already have the latest PocketBase %s\n", cfg.CurrentVersion)
+		fmt.Printf("You already have the latest litecart %s\n", cfg.CurrentVersion)
 		return nil, nil
 	}
 
@@ -127,7 +134,7 @@ func FetchLatestRelease(ctx context.Context, owner string, repo string) (*releas
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	rawBody, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -164,7 +171,7 @@ func downloadFile(ctx context.Context, url string, destPath string) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode >= 400 {
 		return fmt.Errorf("(%d) failed to send download file request", res.StatusCode)
@@ -178,7 +185,7 @@ func downloadFile(ctx context.Context, url string, destPath string) error {
 	if err != nil {
 		return err
 	}
-	defer dest.Close()
+	defer func() { _ = dest.Close() }()
 
 	if _, err := io.Copy(dest, res.Body); err != nil {
 		return err

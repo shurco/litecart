@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -21,7 +22,8 @@ func JWTProtected() func(*fiber.Ctx) error {
 		KeyFunc:      customKeyFunc(),
 		ContextKey:   "jwt",
 		ErrorHandler: jwtError,
-		TokenLookup:  "cookie:token",
+		TokenLookup:  "header:Authorization,cookie:token",
+		AuthScheme:   "Bearer",
 	}
 
 	return jwtMiddleware.New(config)
@@ -30,10 +32,13 @@ func JWTProtected() func(*fiber.Ctx) error {
 func jwtError(c *fiber.Ctx, err error) error {
 	path := strings.Split(c.Path(), "/")[1]
 	if path == "api" {
-		if err.Error() == "Missing or malformed token" {
-			return webutil.Response(c, fiber.StatusBadRequest, "Bad request", err.Error())
+		if err != nil {
+			// Map common JWT errors to appropriate status codes
+			if strings.Contains(err.Error(), "Missing") || strings.Contains(err.Error(), "malformed") {
+				return webutil.Response(c, http.StatusBadRequest, "bad request", "missing or malformed token")
+			}
+			return webutil.Response(c, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 		}
-		return webutil.Response(c, fiber.StatusUnauthorized, "Unauthorized", err.Error())
 	}
 
 	return c.Redirect("/_/signin")

@@ -116,7 +116,7 @@ func (q *SettingQueries) GetSettingByGroup(ctx context.Context, settings any) (a
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var key, value string
@@ -161,14 +161,14 @@ func (q *SettingQueries) UpdateSettingByGroup(ctx context.Context, settings any)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	query := `UPDATE setting SET value = ? WHERE key = ?`
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	for key, value := range fieldMap {
 		if _, err = stmt.ExecContext(ctx, value, key); err != nil {
@@ -209,7 +209,7 @@ func (q *SettingQueries) GetSettingByKey(ctx context.Context, key ...string) (ma
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	settings := map[string]models.SettingName{}
 	for rows.Next() {

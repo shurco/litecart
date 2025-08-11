@@ -65,7 +65,7 @@ func (c *stripe) Pay(cart Cart) (*Payment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	data, err := parseBody(resp.Body)
 	if err != nil {
@@ -98,10 +98,10 @@ func (c *stripe) Checkout(payment *Payment, session string) (*Payment, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
-		return nil, errors.New("The server returned an error.")
+		return nil, errors.New("the server returned an error")
 	}
 
 	data, err := parseBody(resp.Body)

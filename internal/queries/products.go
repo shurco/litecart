@@ -71,7 +71,7 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		var image, digitalType sql.NullString
@@ -94,7 +94,9 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 		}
 
 		if image.Valid && image.String != `[{"id":null,"name":null,"ext":null}]` {
-			json.Unmarshal([]byte(image.String), &product.Images)
+			if err := json.Unmarshal([]byte(image.String), &product.Images); err != nil {
+				return nil, err
+			}
 		}
 
 		product.Digital.Type = digitalType.String
@@ -186,21 +188,29 @@ func (q *ProductQueries) Product(ctx context.Context, private bool, id string) (
 	}
 
 	if images.Valid && images.String != `[{"id":null,"name":null,"ext":null}]` {
-		json.Unmarshal([]byte(images.String), &product.Images)
+		if err := json.Unmarshal([]byte(images.String), &product.Images); err != nil {
+			return nil, err
+		}
 	}
 
 	if attributes.Valid {
-		json.Unmarshal([]byte(attributes.String), &product.Attributes)
+		if err := json.Unmarshal([]byte(attributes.String), &product.Attributes); err != nil {
+			return nil, err
+		}
 	}
 
 	if metadata.Valid {
-		json.Unmarshal([]byte(metadata.String), &product.Metadata)
+		if err := json.Unmarshal([]byte(metadata.String), &product.Metadata); err != nil {
+			return nil, err
+		}
 	}
 
 	product.Digital.Type = digitalType.String
 
 	if seo.Valid {
-		json.Unmarshal([]byte(seo.String), &product.Seo)
+		if err := json.Unmarshal([]byte(seo.String), &product.Seo); err != nil {
+			return nil, err
+		}
 	}
 
 	return product, nil
@@ -230,7 +240,7 @@ func (q *ProductQueries) AddProduct(ctx context.Context, product *models.Product
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	err = stmt.QueryRowContext(ctx,
 		product.ID, product.Name, product.Amount, product.Slug,
@@ -276,7 +286,7 @@ func (q *ProductQueries) UpdateProduct(ctx context.Context, product *models.Prod
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	_, err = stmt.ExecContext(ctx,
 		product.Name,
@@ -359,7 +369,7 @@ func (q *ProductQueries) fetchProductImages(ctx context.Context, id string) ([]p
 		}
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var images []productImage
 	for rows.Next() {
@@ -428,7 +438,7 @@ func (q *ProductQueries) deleteImageRecord(ctx context.Context, productID, image
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	// Get image info before deletion
 	info := &imageInfo{}
@@ -494,7 +504,7 @@ func (q *ProductQueries) ProductDigital(ctx context.Context, productID string) (
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var digitalType sql.NullString
 	for rows.Next() {
