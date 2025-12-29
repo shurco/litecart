@@ -13,23 +13,28 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { FormInput, FormButton } from "@/components/";
 import { showMessage } from "@/utils/message";
 import { apiPost } from "@/utils/api";
 import { Form } from "vee-validate";
 
+const router = useRouter();
 const state = ref({
   email: "",
   password: "",
 });
 
 const onSubmit = async () => {
-  apiPost(`/api/sign/in`, state.value).then(res => {
-    if (res.success) {
-      window.location.href = "/_/";
+  try {
+    const res = await apiPost(`/api/sign/in`, state.value);
+    if (res?.success) {
+      router.push({ name: "products" });
     } else {
-      showMessage(res.result, "connextError");
+      showMessage(res?.result || res?.message || "Login failed", "connextError");
     }
-  });
+  } catch (error) {
+    showMessage("Network error. Please try again.", "connextError");
+  }
 };
 </script>

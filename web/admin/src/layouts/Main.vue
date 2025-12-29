@@ -79,9 +79,8 @@
 <script setup>
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { setCookie } from "@/utils/";
 import { useSystemStore } from "@/store/system";
-import { apiGet } from "@/utils/api";
+import { apiGet, apiPost } from "@/utils/api";
 
 const store = useSystemStore();
 const route = useRoute();
@@ -109,15 +108,10 @@ const goToRelease = async () => {
 };
 
 const signOut = async () => {
-  await fetch("/api/sign/out", {
-    credentials: "include",
-    method: "POST",
-  }).then((response) => {
-    if (response.status === 204) {
-      setCookie("token", "", -1);
-      router.push({ path: "signin" });
-    }
-  });
+  const res = await apiPost("/api/sign/out");
+  if (res?.success) {
+    router.push({ path: "signin" });
+  }
 };
 
 const mainMenu = () => {

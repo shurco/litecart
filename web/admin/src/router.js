@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { getCookie } from "@/utils/";
+import { apiGet } from "@/utils/api";
 import * as NProgress from "nprogress";
 
 const router = createRouter({
@@ -98,21 +98,34 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, from, next) => {
-  NProgress.start();
+async function checkAuthentication() {
+  const res = await apiGet("/api/_/version");
+  return res?.success === true;
+}
 
+router.beforeEach(async (to, from, next) => {
+  NProgress.start();
   loadLayoutMiddleware(to);
 
-  let isAuthenticated = false;
-  let token = getCookie("token");
-  if (token) {
-    isAuthenticated = true;
+  if (to.path === "/install") {
+    next();
+    return;
   }
 
-  if (to.path === "/install") next();
-  else if (!isAuthenticated && to.name !== "signin") next({ name: "signin" });
-  else if (isAuthenticated && to.name == "signin") next({ name: "products" });
-  else next();
+  if (to.name === "signin") {
+    if (await checkAuthentication()) {
+      next({ name: "products" });
+    } else {
+      next();
+    }
+    return;
+  }
+
+  if (await checkAuthentication()) {
+    next();
+  } else {
+    next({ name: "signin" });
+  }
 });
 
 router.afterEach(() => {

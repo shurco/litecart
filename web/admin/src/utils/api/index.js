@@ -28,9 +28,36 @@ async function handleRequest(url, options) {
   try {
     start();
     const response = await fetch(url, options);
-    return response.json();
+    
+    if (response.status === 204) {
+      return { success: true };
+    }
+    
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Request failed",
+        result: data.result || data,
+      };
+    }
+    
+    return data;
   } catch (error) {
-    console.error(error);
+    if (error instanceof SyntaxError) {
+      return {
+        success: false,
+        message: "Invalid response format",
+        result: error.message,
+      };
+    }
+    return {
+      success: false,
+      message: "Network error",
+      result: error.message,
+    };
   } finally {
     done();
   }
