@@ -50,18 +50,18 @@ const model = computed({
 });
 </script>
 
-<style lang="scss" scoped>
-.textarea {
-  & label {
-    @apply relative block rounded border border-gray-200 text-sm shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600 p-0;
-    
-    & .text {
-      @apply w-full resize-none border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0;
-    }
+<style scoped>
+@reference "../../assets/app.css";
 
-    .title {
-      @apply pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-zinc-50 p-0.5 text-xs text-gray-700 peer-focus:top-0 peer-focus:text-xs;
-    }
-  }
+.textarea label {
+  @apply p-0;
+}
+
+.textarea label .text {
+  @apply resize-none;
+}
+
+.textarea label .title {
+  @apply bg-zinc-50 p-0.5 peer-focus:top-0 peer-focus:text-xs;
 }
 </style>

@@ -58,16 +58,18 @@ const drop = (event) => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+@reference "../../assets/app.css";
+
 .upload {
   @apply grid h-16 cursor-pointer place-content-center rounded-lg;
+}
 
-  input {
-    @apply absolute h-px w-px overflow-hidden opacity-0;
-  }
+.upload input {
+  @apply absolute h-px w-px overflow-hidden opacity-0;
+}
 
-  label {
-    @apply block cursor-pointer p-0 border-0 shadow-none;
-  }
+.upload label {
+  @apply block cursor-pointer p-0 border-0 shadow-none;
 }
 </style>

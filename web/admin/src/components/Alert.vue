@@ -91,25 +91,27 @@ handleNotification("connextWarning", "warning");
 handleNotification("connextInfo", "info");
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+@reference "../assets/app.css";
+
 .alert {
   @apply fixed inset-x-0 bottom-0 flex items-start justify-end p-6 px-4 py-6 pointer-events-none;
   z-index: 999;
+}
 
-  & .notification {
-    @apply mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md;
+.alert .notification {
+  @apply mx-auto mt-4 flex w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md;
+}
 
-    & .ico {
-      @apply flex w-12 items-center justify-center;
-    }
+.alert .notification .ico {
+  @apply flex w-12 items-center justify-center;
+}
 
-    & .message {
-      @apply -mx-3 px-4 py-2;
+.alert .notification .message {
+  @apply -mx-3 px-4 py-2;
+}
 
-      p {
-        @apply text-sm text-gray-600;
-      }
-    }
-  }
+.alert .notification .message p {
+  @apply text-sm text-gray-600;
 }
 </style>

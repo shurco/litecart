@@ -83,9 +83,11 @@ watch(
 );
 </script>
 
-<style lang="scss">
+<style>
+@reference "../assets/app.css";
+
 .tiptap p.is-editor-empty:first-child::before {
-  color: #adb5bd;
+  @apply text-gray-400;
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -96,52 +98,47 @@ watch(
   outline: none;
 }
 
-button,
-input,
-select {
+.editor button,
+.editor input,
+.editor select {
   @apply m-[0.2rem] rounded-[0.3rem] bg-slate-200 px-[0.6rem] py-[0.2rem] text-black;
 }
 
-button[disabled],
-input[disabled],
-select[disabled] {
+.editor button[disabled],
+.editor input[disabled],
+.editor select[disabled] {
   opacity: 0.3;
 }
 
 .is-active {
-  background: black;
-  color: #fff;
+  @apply bg-black text-white;
 }
 
-.tiptap {
-  >*+* {
-    margin-top: 0.75em;
-  }
+.tiptap > * + * {
+  margin-top: 0.75em;
+}
 
-  ul {
-    @apply list-disc pl-10;
-  }
+.tiptap ul {
+  @apply list-disc pl-10;
+}
 
-  ol {
-    @apply list-decimal pl-10;
-  }
+.tiptap ol {
+  @apply list-decimal pl-10;
+}
 
-  blockquote {
-    @apply border-x-2 border-solid border-gray-500 pl-4;
+.tiptap blockquote {
+  @apply border-x-2 border-solid border-gray-500 pl-4;
+}
 
-    ul {
-      @apply list-disc pl-4;
-    }
+.tiptap blockquote ul {
+  @apply list-disc pl-4;
+}
 
-    ol {
-      @apply list-decimal pl-4;
-    }
-  }
+.tiptap blockquote ol {
+  @apply list-decimal pl-4;
+}
 
-  hr {
-    border: none;
-    border-top: 2px solid rgba(#0d0d0d, 0.1);
-    margin: 2rem 0;
-  }
+.tiptap hr {
+  @apply border-0 border-t-2 border-gray-200 my-8;
 }
 </style>

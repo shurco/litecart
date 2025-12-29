@@ -30,12 +30,14 @@ const colors = {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+@reference "../../assets/app.css";
+
 button {
   @apply relative inline-flex items-center overflow-hidden rounded px-8 py-2 text-white;
+}
 
-  & span {
-    @apply text-sm font-medium;
-  }
+button span {
+  @apply text-sm font-medium;
 }
 </style>

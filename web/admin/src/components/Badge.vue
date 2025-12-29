@@ -18,12 +18,14 @@ const props = defineProps({
 });
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+@reference "../assets/app.css";
+
 .badge {
   @apply inline-flex items-center justify-center rounded-full px-2.5 py-0.5;
+}
 
-  & p {
-    @apply whitespace-nowrap text-xs;
-  }
+.badge p {
+  @apply whitespace-nowrap text-xs;
 }
 </style>

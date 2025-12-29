@@ -84,10 +84,10 @@ const vClickOutside = {
 };
 </script>
 
-<style lang="scss" scoped>
-.drawer {
-  & .content {
-    @apply fixed inset-y-0 right-0 z-[999] flex h-full w-full flex-col overflow-auto bg-red-200 p-6 shadow-2xl transition-transform;
-  }
+<style scoped>
+@reference "../assets/app.css";
+
+.drawer .content {
+  @apply fixed inset-y-0 right-0 z-[999] flex h-full w-full flex-col overflow-auto bg-red-200 p-6 shadow-2xl transition-transform;
 }
 </style>

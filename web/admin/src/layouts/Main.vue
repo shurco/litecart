@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex h-screen overflow-hidden">
-    <div class="flex h-screen w-16 flex-col justify-between border-e bg-white">
+    <div class="flex h-screen w-16 flex-col justify-between border-e border-e-gray-200 bg-white">
       <div>
         <div class="inline-flex h-16 w-16 items-center justify-center">
           <router-link :to="{ name: 'products' }">
@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <div class="h-screen w-52 flex-col justify-between border-e bg-white px-2" v-if="mainMenuSections().length">
+    <div class="h-screen w-52 flex-col justify-between border-e border-e-gray-200 bg-white px-2" v-if="mainMenuSections().length">
       <div class="px-2 py-5">
         <h1><span class="text-gray-300">Settings</span></h1>
       </div>
@@ -62,7 +62,7 @@
         <slot />
       </div>
 
-      <div class="sticky inset-x-0 bottom-0 h-12 border-t bg-zinc-50 flex">
+      <div class="sticky inset-x-0 bottom-0 h-12 border-t border-t-gray-200 bg-zinc-50 flex">
         <div class="flex-none"></div>
         <div class="grow"></div>
         <div @click="goToRelease" class="cursor-pointer flex-none p-4 text-xs"
@@ -126,4 +126,3 @@ const mainMenuSections = () => {
 }
 </script>
 
-<style lang="scss" scoped></style>

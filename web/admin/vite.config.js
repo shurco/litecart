@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import VueDevTools from 'vite-plugin-vue-devtools';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   //base: process.env.NODE_ENV === 'production' ? '/_/' : '/',
@@ -30,6 +31,7 @@ export default defineConfig({
   },
 
   plugins: [
+    tailwindcss(),
     VueDevTools(),
     vue(),
     createSvgIconsPlugin({
