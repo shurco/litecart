@@ -50,4 +50,5 @@ web/site/public/assets/js/vue-demi.js
 web/site/public/assets/js/pinia.js
 web/site/public/assets/css/nprogress.css
 
-/main.go
+.cursor/
+.playwright-mcp/
