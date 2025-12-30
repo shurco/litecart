@@ -15,16 +15,20 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html/v2"
 
 	"github.com/shurco/litecart/internal/middleware"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/internal/routes"
 	"github.com/shurco/litecart/migrations"
-	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
-	"github.com/shurco/litecart/web"
+)
+
+const (
+	// DefaultBodyLimit is the maximum request body size (50MB)
+	DefaultBodyLimit = 50 * 1024 * 1024
+	// DefaultHTTPSPort is the default HTTPS port
+	DefaultHTTPSPort = ":443"
 )
 
 var (
@@ -76,20 +80,10 @@ func determineSchemaAndAddr(httpAddr, httpsAddr string) (schema, mainAddr string
 func setupFiberApp(noSite bool) (*fiber.App, error) {
 	config := fiber.Config{
 		DisableStartupMessage: true,
-		BodyLimit:             50 * 1024 * 1024,
+		BodyLimit:             DefaultBodyLimit,
 	}
 
-	if !noSite {
-		sitePath, err := prepareSitePath()
-		if err != nil {
-			return nil, err
-		}
-
-		views := html.New(sitePath, ".html")
-		views.Reload(true)
-		views.Delims("{#", "#}")
-		config.Views = views
-	}
+	// Site is now a SPA, no need for HTML templates
 
 	app := fiber.New(config)
 	middleware.Fiber(app, log.Logger)
@@ -97,37 +91,24 @@ func setupFiberApp(noSite bool) (*fiber.App, error) {
 	return app, nil
 }
 
-// prepareSitePath prepares the site path and extracts files if necessary.
-func prepareSitePath() (string, error) {
-	sitePath := "./site"
-	if DevMode {
-		return "../web/site", nil
-	}
-
-	if !fsutil.IsDir(sitePath) || fsutil.IsEmptyDir(sitePath) {
-		if err := fsutil.EmbedExtract(web.EmbedSite(), ""); err != nil {
-			return "", err
-		}
-	}
-
-	return sitePath, nil
-}
-
 // setupRoutes configures application routes.
 func setupRoutes(app *fiber.App, noSite bool) {
 	app.Static("/uploads", "./lc_uploads")
-	app.Use(InstallCheck)
-	routes.AdminRoutes(app)
-	routes.ApiPrivateRoutes(app)
 
+	// Register API routes before SPA routes to ensure they are processed first
+	routes.ApiPrivateRoutes(app)
 	if !noSite {
-		sitePath, _ := prepareSitePath()
-		app.Static("/", sitePath+"/public", fiber.Static{
-			CacheDuration: 30 * 24 * time.Hour,
-		})
-		routes.SiteRoutes(app)
 		routes.ApiPublicRoutes(app)
 	}
+
+	// Setup SPA routes before InstallCheck to allow static assets to be served
+	if !noSite {
+		routes.SiteRoutes(app)
+	}
+	routes.AdminRoutes(app)
+
+	// InstallCheck runs after SPA routes to allow static assets (_app, etc.)
+	app.Use(InstallCheck)
 
 	routes.NotFoundRoute(app, noSite)
 }
@@ -155,7 +136,7 @@ func startHTTPS(app *fiber.App, mainAddr, httpsAddr string) error {
 		NextProtos:     []string{"http/1.1", "acme-tls/1"},
 	}
 
-	listenAddr := ":443"
+	listenAddr := DefaultHTTPSPort
 	if httpsAddr != "" {
 		listenAddr = httpsAddr
 	}
@@ -248,12 +229,14 @@ func InstallCheck(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-// isInstallPath checks if the path is related to installation.
+// isInstallPath checks if the path is related to installation or static assets.
 func isInstallPath(path string) bool {
 	return strings.HasPrefix(path, "/_/install") ||
 		strings.HasPrefix(path, "/_/assets") ||
 		strings.HasPrefix(path, "/_/_app") ||
-		strings.HasPrefix(path, "/api")
+		strings.HasPrefix(path, "/_app") ||
+		strings.HasPrefix(path, "/api") ||
+		strings.HasPrefix(path, "/uploads")
 }
 
 // StartServer starts the server and handles graceful shutdown.

@@ -298,6 +298,9 @@ Run `./scripts/webscripts` to download and install the necessary JavaScript libr
 To update the styles, it is necessary to execute the command `cd ./web/site && bun run build`.  
 If you actively change styles, you can run the command `cd ./web/site && bun run dev`. It will monitor changes in files and automatically update the style file.
 
+#### Customization and Deployment
+For detailed information on how to customize the site design and deploy it on a separate server with Nginx, see [Customization and Deployment Guide](./docs/customization.md).
+
 ## 🗺️&nbsp;&nbsp;ToDo
 `litecart` has a [roadmap](https://github.com/users/shurco/projects/2) and I try to work on issues in specific order and such PRs often come in out of nowhere and skew all initial planning with tedious back-and-forth communication.
 

@@ -24,6 +24,11 @@ func SendMail(smtp *models.Mail, mail *models.MessageMail) error {
 		return fmt.Errorf("invalid SMTP settings: host, port, username, and password are required")
 	}
 
+	// Validate sender email and name
+	if smtp.SenderEmail == "" {
+		return fmt.Errorf("sender email is required")
+	}
+
 	server := mailer.NewSMTPClient()
 	server.Host = smtp.SMTP.Host
 	server.Port = smtp.SMTP.Port
@@ -40,7 +45,14 @@ func SendMail(smtp *models.Mail, mail *models.MessageMail) error {
 		return err
 	}
 
-	from := fmt.Sprintf("%s <%s>", smtp.SenderName, smtp.SenderEmail)
+	// Format From address: use email only if name is empty, otherwise use "Name <email>"
+	var from string
+	if smtp.SenderName != "" {
+		from = fmt.Sprintf("%s <%s>", smtp.SenderName, smtp.SenderEmail)
+	} else {
+		from = smtp.SenderEmail
+	}
+
 	email := mailer.NewMSG()
 	email.SetFrom(from).
 		AddTo(mail.To).

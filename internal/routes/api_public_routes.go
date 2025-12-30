@@ -17,5 +17,10 @@ func ApiPublicRoutes(c *fiber.App) {
 	product.Get("/", handlers.Products)
 	product.Get("/:product_id", handlers.Product)
 
+	cart := c.Group("/cart")
+	cart.Post("/payment", handlers.Payment)
+	cart.Post("/payment/callback", handlers.PaymentCallback)
+
 	c.Get("/api/cart/payment", handlers.PaymentList)
+	c.Get("/api/cart/:cart_id", handlers.GetCart)
 }

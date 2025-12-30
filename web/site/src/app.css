@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@plugin "@tailwindcss/forms";
+
+/* Additional styles for product description and tiptap editor */
+.prod_desc > * + * {
+  margin-top: 0.75em;
+}
+
+.prod_desc blockquote {
+  padding-left: 1rem;
+  border-color: #6b7280;
+  border-style: solid;
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+  quotes: '\201C' '\201D' '\2018' '\2019';
+}
+
+.prod_desc blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+
+.prod_desc blockquote p {
+  display: inline;
+}
+
+.prod_desc blockquote ul,
+.prod_desc blockquote ol {
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+
+.prod_desc hr {
+  border: none;
+  border-top: 2px solid rgba(13, 13, 13, 0.1);
+  margin: 2rem 0;
+}
+
+.prod_desc ul {
+  list-style: circle inside none;
+  margin: 1.5em 10px;
+  list-style-type: disc;
+}
+
+.prod_desc ol {
+  list-style: circle inside none;
+  margin: 1.5em 10px;
+  list-style-type: decimal;
+}
+
+.tiptap {
+  /* Tiptap editor styles */
+}
+
+.tiptap h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tiptap h2 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tiptap h3 {
+  font-weight: 700;
+  color: #111827;
+}

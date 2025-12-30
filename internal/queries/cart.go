@@ -121,17 +121,19 @@ func (q *CartQueries) Cart(ctx context.Context, cartId string) (*models.Cart, er
 	SELECT 
     id, 
     email, 
+    cart,
     amount_total,
     currency,
     payment_id,
     payment_status,
+    payment_system,
     strftime('%s', created),
     strftime('%s', updated)
 	FROM cart
 	WHERE id = ?
 	`
 
-	var email, paymentID sql.NullString
+	var email, paymentID, cartJSON sql.NullString
 	var created, updated sql.NullInt64
 	cart := &models.Cart{}
 
@@ -139,10 +141,12 @@ func (q *CartQueries) Cart(ctx context.Context, cartId string) (*models.Cart, er
 		Scan(
 			&cart.ID,
 			&email,
+			&cartJSON,
 			&cart.AmountTotal,
 			&cart.Currency,
 			&paymentID,
 			&cart.PaymentStatus,
+			&cart.PaymentSystem,
 			&created,
 			&updated,
 		)
@@ -161,6 +165,13 @@ func (q *CartQueries) Cart(ctx context.Context, cartId string) (*models.Cart, er
 
 	if updated.Valid {
 		cart.Updated = updated.Int64
+	}
+
+	// Unmarshal cart products from JSON
+	if cartJSON.Valid && cartJSON.String != "" {
+		if err := json.Unmarshal([]byte(cartJSON.String), &cart.Cart); err != nil {
+			return nil, err
+		}
 	}
 
 	return cart, nil

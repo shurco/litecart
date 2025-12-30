@@ -10,7 +10,9 @@ services:
     image: jcalonso/mailhog
     restart: always
     ports:
+      - "1025:1025"
       - "8025:8025"
+
   litecart:
     container_name: litecart
     restart: unless-stopped

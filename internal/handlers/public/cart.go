@@ -10,14 +10,38 @@ import (
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/internal/webhook"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/litepay"
 	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/security"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
+// sendPaymentWebhook sends a payment webhook notification.
+// If blockOnError is true, returns error on webhook failure (for API endpoints).
+// If blockOnError is false, logs error but doesn't block (for user-facing pages).
+func sendPaymentWebhook(event webhook.Event, paymentSystem litepay.PaymentSystem, paymentStatus litepay.Status, cartID string, log *logging.Log, blockOnError bool) error {
+	hook := &webhook.Payment{
+		Event:     event,
+		TimeStamp: time.Now().Unix(),
+		Data: webhook.Data{
+			PaymentSystem: paymentSystem,
+			PaymentStatus: paymentStatus,
+			CartID:        cartID,
+		},
+	}
+
+	if err := webhook.SendPaymentHook(hook); err != nil {
+		log.ErrorStack(err)
+		if blockOnError {
+			return err
+		}
+	}
+	return nil
+}
+
 // PaymentList returns a list of available payment systems.
-// [get] /cart/payment
+// [get] /api/cart/payment
 func PaymentList(c *fiber.Ctx) error {
 	db := queries.DB()
 	log := logging.New()
@@ -28,6 +52,79 @@ func PaymentList(c *fiber.Ctx) error {
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Payment list", paymentList)
+}
+
+// GetCart returns cart information by cart_id.
+// [get] /api/cart/:cart_id
+func GetCart(c *fiber.Ctx) error {
+	db := queries.DB()
+	log := logging.New()
+	cartID := c.Params("cart_id")
+
+	if cartID == "" {
+		return webutil.StatusBadRequest(c, "cart_id is required")
+	}
+
+	cart, err := db.Cart(c.Context(), cartID)
+	if err != nil {
+		log.ErrorStack(err)
+		if err == errors.ErrProductNotFound {
+			return webutil.StatusNotFound(c)
+		}
+		return webutil.StatusInternalServerError(c)
+	}
+
+	// Load full product information for cart items
+	if len(cart.Cart) > 0 {
+		productIDs := make([]string, len(cart.Cart))
+		for i, item := range cart.Cart {
+			productIDs[i] = item.ProductID
+		}
+
+		products, err := db.ListProducts(c.Context(), false, cart.Cart...)
+		if err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
+
+		// Create a map for quick lookup
+		productMap := make(map[string]*models.Product)
+		for i := range products.Products {
+			productMap[products.Products[i].ID] = &products.Products[i]
+		}
+
+		// Build cart items with full product information
+		cartItems := make([]map[string]interface{}, 0, len(cart.Cart))
+		for _, cartItem := range cart.Cart {
+			if product, ok := productMap[cartItem.ProductID]; ok {
+				var image interface{}
+				if len(product.Images) > 0 {
+					image = product.Images[0]
+				}
+				cartItems = append(cartItems, map[string]interface{}{
+					"id":       product.ID,
+					"name":     product.Name,
+					"slug":     product.Slug,
+					"amount":   product.Amount,
+					"quantity": cartItem.Quantity,
+					"image":    image,
+				})
+			}
+		}
+
+		// Return cart with full product information
+		return webutil.Response(c, fiber.StatusOK, "Cart", map[string]interface{}{
+			"id":             cart.ID,
+			"email":          cart.Email,
+			"amount_total":   cart.AmountTotal,
+			"currency":       cart.Currency,
+			"payment_status": cart.PaymentStatus,
+			"payment_system": cart.PaymentSystem,
+			"items":          cartItems,
+		})
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Cart", cart)
 }
 
 // Payment initiates a payment process for a cart.
@@ -200,7 +297,7 @@ func Payment(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
+	return webutil.Response(c, fiber.StatusOK, "Payment url", map[string]string{"url": paymentURL})
 }
 
 // PaymentCallback handles payment callback from payment providers.
@@ -252,17 +349,7 @@ func PaymentCallback(c *fiber.Ctx) error {
 	}
 
 	// send hook
-	hook := &webhook.Payment{
-		Event:     webhook.PAYMENT_CALLBACK,
-		TimeStamp: time.Now().Unix(),
-		Data: webhook.Data{
-			PaymentSystem: payment.PaymentSystem,
-			PaymentStatus: payment.Status,
-			CartID:        payment.CartID,
-		},
-	}
-	if err := webhook.SendPaymentHook(hook); err != nil {
-		log.ErrorStack(err)
+	if err := sendPaymentWebhook(webhook.PAYMENT_CALLBACK, payment.PaymentSystem, payment.Status, payment.CartID, log, true); err != nil {
 		return webutil.StatusInternalServerError(c)
 	}
 
@@ -272,6 +359,11 @@ func PaymentCallback(c *fiber.Ctx) error {
 // PaymentSuccess handles successful payment redirects.
 // [get] /cart/payment/success
 func PaymentSuccess(c *fiber.Ctx) error {
+	// Only process GET requests
+	if c.Method() != fiber.MethodGet {
+		return c.Next()
+	}
+
 	log := logging.New()
 	if c.Query("cart_id") == "" {
 		return webutil.StatusBadRequest(c, nil)
@@ -293,8 +385,9 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
+	// If already paid, pass control to SPA handler
 	if cartInfo.PaymentStatus == "paid" {
-		return c.Render("success", nil, "layouts/main")
+		return c.Next()
 	}
 
 	switch payment.PaymentSystem {
@@ -337,7 +430,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		payment.Status = response.Status
 
 	case litepay.SPECTROCOIN:
-		fmt.Print(payment)
+		// Spectrocoin payment processing handled in callback
 	}
 
 	err = db.UpdateCart(c.Context(), &models.Cart{
@@ -361,27 +454,22 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		}
 	}
 
-	// send hook
-	hook := &webhook.Payment{
-		Event:     webhook.PAYMENT_SUCCESS,
-		TimeStamp: time.Now().Unix(),
-		Data: webhook.Data{
-			PaymentSystem: payment.PaymentSystem,
-			PaymentStatus: payment.Status,
-			CartID:        payment.CartID,
-		},
-	}
-	if err := webhook.SendPaymentHook(hook); err != nil {
-		log.ErrorStack(err)
-		return webutil.StatusInternalServerError(c)
-	}
+	// send hook (не блокируем процесс при ошибке webhook)
+	sendPaymentWebhook(webhook.PAYMENT_SUCCESS, payment.PaymentSystem, payment.Status, payment.CartID, log, false)
 
-	return c.Render("success", nil, "layouts/main")
+	// After processing payment, pass control to SPA handler
+	// The SPA will display the success page with cart information
+	return c.Next()
 }
 
 // PaymentCancel handles canceled payment redirects.
 // [get] /cart/payment/cancel
 func PaymentCancel(c *fiber.Ctx) error {
+	// Only process GET requests
+	if c.Method() != fiber.MethodGet {
+		return c.Next()
+	}
+
 	log := logging.New()
 	payment := &litepay.Payment{
 		CartID:        c.Query("cart_id"),
@@ -401,20 +489,16 @@ func PaymentCancel(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
-	// send hook
-	hook := &webhook.Payment{
-		Event:     webhook.PAYMENT_CANCEL,
-		TimeStamp: time.Now().Unix(),
-		Data: webhook.Data{
-			PaymentSystem: payment.PaymentSystem,
-			PaymentStatus: litepay.CANCELED,
-			CartID:        payment.CartID,
-		},
-	}
-	if err := webhook.SendPaymentHook(hook); err != nil {
-		log.ErrorStack(err)
-		return webutil.StatusInternalServerError(c)
-	}
+	// send hook (не блокируем процесс при ошибке webhook)
+	sendPaymentWebhook(webhook.PAYMENT_CANCEL, payment.PaymentSystem, litepay.CANCELED, payment.CartID, log, false)
 
-	return c.Render("cancel", nil, "layouts/main")
+	// Redirect to SPA cancel page with query parameters
+	redirectURL := "/cart/payment/cancel"
+	if payment.CartID != "" {
+		redirectURL += "?cart_id=" + payment.CartID
+		if string(payment.PaymentSystem) != "" {
+			redirectURL += "&payment_system=" + string(payment.PaymentSystem)
+		}
+	}
+	return c.Redirect(redirectURL)
 }

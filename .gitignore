@@ -47,4 +47,4 @@ fixtures/migration/*_private.sql
 .cursor/
 .playwright-mcp/
 .svelte-kit/
-web/admin/build/
+web/*/build/

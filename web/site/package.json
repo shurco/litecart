@@ -2,14 +2,32 @@
   "name": "litecart-site",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "bunx @tailwindcss/cli -i ./src/input.css -o ./public/assets/css/style.css --watch --minify",
-    "build": "bunx @tailwindcss/cli -i ./src/input.css -o ./public/assets/css/style.css --minify",
+    "dev": "bun --bunx vite dev",
+    "build": "bun --bunx vite build",
+    "preview": "bun --bunx vite preview",
+    "check": "bun --bunx svelte-kit sync",
+    "check:watch": "bun --bunx svelte-kit sync",
+    "format": "prettier --write .",
     "update": "bun update"
   },
+  "dependencies": {
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.49.2",
+    "svelte": "^5.46.1"
+  },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.18",
-    "@tailwindcss/forms": "^0.5.11",
-    "tailwindcss": "^4.1.18"
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@tailwindcss/forms": "0.5.11",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^25.0.3",
+    "autoprefixer": "^10.4.23",
+    "prettier": "^3.7.4",
+    "prettier-plugin-svelte": "^3.4.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tailwindcss": "4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0"
   }
 }
