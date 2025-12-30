@@ -7,8 +7,7 @@ before:
     - sh -c "cd web/admin && bun install --force"
     - sh -c "cd web/admin && bun run build"
     - sh -c "cd web/site && bun install --force"
-    - sh -c "cd web/site && bunx @tailwindcss/cli -i ./src/input.css -o ./public/assets/css/style.css --minify"
-    - ./scripts/webscripts
+    - sh -c "cd web/site && bun run build"
 
 builds:
   - env:
