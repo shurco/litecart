@@ -16,7 +16,7 @@ import (
 	"github.com/shurco/litecart/pkg/jwtutil"
 )
 
-func TestJWTProtected_BearerFlow(t *testing.T) {
+func Test_jwt_protected_bearer_flow(t *testing.T) {
 	// init temp DB
 	app := fiber.New()
 	if err := queries.New(migrations.Embed()); err != nil {

@@ -1,0 +1,9 @@
+# SvelteKit generated files
+.svelte-kit/
+build/
+node_modules/
+
+# Lock files
+bun.lockb
+package-lock.json
+yarn.lock

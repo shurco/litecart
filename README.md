@@ -273,7 +273,7 @@ To obtain a "Merchant ID", "Project (API) ID" and "Private key" in <a href="http
 
 
 ## 🧩&nbsp;&nbsp;For developers
-The backend is developed in Go language. The frontend (admin site and base site) operates on the Vue3 and TailwindCSS.  
+The backend is developed in Go language. The frontend admin panel operates on SvelteKit and TailwindCSS, while the base site uses Vue3 and TailwindCSS.  
 
 There are a number of scripts (in the ./scripts folder) that simplify development:  
 `./scripts/golang` - Installs or updates a previously installed version of go (if needed).  
@@ -289,12 +289,11 @@ There are a number of scripts (in the ./scripts folder) that simplify developmen
 > password - Pass123
 
 #### Admin panel (frontend)
-To develop the web interface of the admin panel, you need to start the litepay server (for example, execute the command from the project root `go run ./cmd/main.go serve`).
-The entire code is located in the folder ./web/admin.  
-All the code is located in the folder ./web/admin. The command `cd ./web/admin && yarn run dev` will start the development server for the admin panel web interface. By default, it will be available at http://localhost:5173/_/.
+To develop the web interface of the admin panel, you need to start the litecart server (for example, execute the command from the project root `go run ./cmd/main.go serve`).
+All the code is located in the folder ./web/admin. The command `cd ./web/admin && bun run dev` will start the development server for the admin panel web interface. By default, it will be available at http://localhost:5173/_/.
 
 #### Base site (frontend)
-To develop the web interface of the admin panel, you need to start the litepay server (for example, execute the command from the project root `go run ./cmd/main.go serve`).  
+To develop the web interface of the base site, you need to start the litecart server (for example, execute the command from the project root `go run ./cmd/main.go serve`).  
 Run `./scripts/webscripts` to download and install the necessary JavaScript libraries into the folder ./web/site/public/assets/js/.
 To update the styles, it is necessary to execute the command `cd ./web/site && yarn run build`.  
 If you actively change styles, you can run the command `cd ./web/site && yarn run dev`. It will monitor changes in files and automatically update the style file.

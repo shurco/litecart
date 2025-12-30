@@ -1,24 +1,27 @@
-import path from "path";
-
-import { fileURLToPath, URL } from "node:url";
-
+import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
-import VueDevTools from 'vite-plugin-vue-devtools';
-import tailwindcss from '@tailwindcss/vite';
+import tailwindcss from "@tailwindcss/vite";
+import svg from "vite-plugin-svelte-svg";
 
 export default defineConfig({
-  //base: process.env.NODE_ENV === 'production' ? '/_/' : '/',
-
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-  },
-
-  base: "/_/",
-
+  plugins: [
+    tailwindcss(),
+    sveltekit(),
+    svg({
+      svgoConfig: {
+        plugins: [
+          {
+            name: "preset-default",
+            params: {
+              overrides: {
+                removeViewBox: false,
+              },
+            },
+          },
+        ],
+      },
+    }),
+  ],
   server: {
     proxy: {
       "/api": {
@@ -29,27 +32,25 @@ export default defineConfig({
       },
     },
   },
-
-  plugins: [
-    tailwindcss(),
-    VueDevTools(),
-    vue(),
-    createSvgIconsPlugin({
-      iconDirs: [path.resolve(process.cwd(), "./src/assets/svg")],
-      symbolId: "icon-[dir]-[name]",
-    }),
-  ],
-
-
   build: {
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          if (id.includes("node_modules")) {
+            const packageName = id
+              .toString()
+              .split("node_modules/")[1]
+              .split("/")[0]
+              .toString();
+            // Exclude devalue from manual chunks as it may create empty chunks in static mode
+            if (packageName === "devalue") {
+              return null;
+            }
+            return packageName;
           }
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
 });

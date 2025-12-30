@@ -8,7 +8,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Carts is ...
+// Carts returns a list of all carts.
 // [get] /api/_/carts
 func Carts(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -23,7 +23,7 @@ func Carts(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Carts", products)
 }
 
-// CartSendMail
+// CartSendMail sends an email notification for a cart.
 // [post] /api/_/carts/:cart_id/mail
 func CartSendMail(c *fiber.Ctx) error {
 	cartID := c.Params("cart_id")

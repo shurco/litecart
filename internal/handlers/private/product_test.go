@@ -32,7 +32,7 @@ func setupProductEnv(t *testing.T) (*fiber.App, func()) {
 	return app, func() { cleanup() }
 }
 
-func TestAddProductImage_UploadAndResize(t *testing.T) {
+func Test_add_product_image_upload_and_resize(t *testing.T) {
 	app, cleanup := setupProductEnv(t)
 	defer cleanup()
 

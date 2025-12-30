@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_findInSlice(t *testing.T) {
+func Test_find_in_slice(t *testing.T) {
 	slice := []string{"apple", "banana", "cherry"}
 	cases := []struct {
 		slice  []string
@@ -30,7 +30,7 @@ func Test_findInSlice(t *testing.T) {
 	}
 }
 
-func Test_signMessage(t *testing.T) {
+func Test_sign_message(t *testing.T) {
 	privKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	privKey1Bytes := x509.MarshalPKCS1PrivateKey(privKey)
 	privKey1Pem := pem.EncodeToMemory(&pem.Block{
@@ -59,7 +59,7 @@ func Test_signMessage(t *testing.T) {
 	}
 }
 
-func Test_parseBody(t *testing.T) {
+func Test_parse_body(t *testing.T) {
 	cases := []struct {
 		body     string
 		expected map[string]any
@@ -90,7 +90,7 @@ func Test_parseBody(t *testing.T) {
 	}
 }
 
-func Test_statusPayment(t *testing.T) {
+func Test_status_payment(t *testing.T) {
 	cases := []struct {
 		payment  PaymentSystem
 		status   string

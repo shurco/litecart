@@ -10,7 +10,7 @@ import (
 	"github.com/shurco/litecart/internal/queries"
 )
 
-// SendTestLetter is ...
+// SendTestLetter sends a test email letter to verify SMTP configuration.
 func SendTestLetter(letterName string) error {
 	db := queries.DB()
 
@@ -59,7 +59,7 @@ func SendTestLetter(letterName string) error {
 	return nil
 }
 
-// SendPrepaymentLetter is ...
+// SendPrepaymentLetter sends an email notification before payment is completed.
 func SendPrepaymentLetter(email, amountPayment, paymentURL string) error {
 	db := queries.DB()
 
@@ -83,7 +83,7 @@ func SendPrepaymentLetter(email, amountPayment, paymentURL string) error {
 	return nil
 }
 
-// SendCartLetter is ...
+// SendCartLetter sends an email notification after a cart purchase is completed.
 func SendCartLetter(cartID string) error {
 	db := queries.DB()
 

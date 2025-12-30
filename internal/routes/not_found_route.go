@@ -9,7 +9,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// NotFoundRoute func for describe 404 Error route.
+// NotFoundRoute handles 404 errors and routes to appropriate pages.
 func NotFoundRoute(a *fiber.App, noSite bool) {
 	a.Use(func(c *fiber.Ctx) error {
 		db := queries.DB()

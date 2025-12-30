@@ -7,7 +7,7 @@ import (
 	"github.com/shurco/litecart/internal/queries"
 )
 
-// SiteRoutes is ...
+// SiteRoutes sets up routes for the public-facing website.
 func SiteRoutes(c *fiber.App) {
 	c.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("index", nil, "layouts/main")

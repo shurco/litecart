@@ -16,7 +16,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Payment is ...
+// PaymentList returns a list of available payment systems.
 // [get] /cart/payment
 func PaymentList(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -30,7 +30,7 @@ func PaymentList(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Payment list", paymentList)
 }
 
-// Payment is ...
+// Payment initiates a payment process for a cart.
 // [post] /cart/payment
 func Payment(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -203,8 +203,8 @@ func Payment(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
 }
 
-// PaymentCallback is ...
-// [get] /cart/payment/callback
+// PaymentCallback handles payment callback from payment providers.
+// [post] /cart/payment/callback
 func PaymentCallback(c *fiber.Ctx) error {
 	log := logging.New()
 	payment := &litepay.Payment{
@@ -269,7 +269,7 @@ func PaymentCallback(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString("*ok*")
 }
 
-// PaymentSuccess is ...
+// PaymentSuccess handles successful payment redirects.
 // [get] /cart/payment/success
 func PaymentSuccess(c *fiber.Ctx) error {
 	log := logging.New()
@@ -379,7 +379,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 	return c.Render("success", nil, "layouts/main")
 }
 
-// PaymentCancel is ...
+// PaymentCancel handles canceled payment redirects.
 // [get] /cart/payment/cancel
 func PaymentCancel(c *fiber.Ctx) error {
 	log := logging.New()

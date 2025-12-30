@@ -8,7 +8,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Products is ...
+// Products returns a list of all active products for public access.
 // [get] /api/products
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -23,7 +23,7 @@ func Products(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Products", products)
 }
 
-// GetProduct is ...
+// Product returns a single active product by ID for public access.
 // [get] /api/products/:product_id
 func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")

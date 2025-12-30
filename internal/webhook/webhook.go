@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// Send sends an HTTP POST request to the specified URL with the given payload.
 func Send(url string, payload []byte) (*http.Response, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	if err != nil {

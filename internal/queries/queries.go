@@ -41,11 +41,8 @@ func New(embed embed.FS) (err error) {
 	return
 }
 
-// DB is a function that ensures a singleton instance of 'Base' is always returned.
-// If 'db' is not already initialized, it initializes it before returning.
+// DB returns the Base instance. If the database is not initialized, returns nil.
+// Use New() to initialize the database before calling DB().
 func DB() *Base {
-	if db == nil {
-		db = &Base{}
-	}
 	return db
 }

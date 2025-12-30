@@ -104,6 +104,38 @@ func (q *PageQueries) Page(ctx context.Context, slug string) (*models.Page, erro
 	return &page, nil
 }
 
+// PageByID retrieves a single page from the database based on its ID.
+func (q *PageQueries) PageByID(ctx context.Context, id string) (*models.Page, error) {
+	page := models.Page{}
+
+	var content, seo sql.NullString
+	var updated sql.NullInt64
+	query := `SELECT id, name, slug, position, content, active, seo, strftime('%s', created), strftime('%s', updated) FROM page WHERE id = ?`
+	err := q.DB.QueryRowContext(ctx, query, id).Scan(&page.ID, &page.Name, &page.Slug, &page.Position, &content, &page.Active, &seo, &page.Created, &updated)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.ErrPageNotFound
+		}
+		return nil, err
+	}
+
+	if content.Valid {
+		page.Content = &content.String
+	}
+
+	if updated.Valid {
+		page.Updated = updated.Int64
+	}
+
+	if seo.Valid {
+		if err = json.Unmarshal([]byte(seo.String), &page.Seo); err != nil {
+			return nil, err
+		}
+	}
+
+	return &page, nil
+}
+
 // AddPage inserts a new page into the database and returns the created page or an error.
 func (q *PageQueries) AddPage(ctx context.Context, page *models.Page) (*models.Page, error) {
 	page.ID = security.RandomString()
@@ -125,14 +157,54 @@ func (q *PageQueries) AddPage(ctx context.Context, page *models.Page) (*models.P
 }
 
 // UpdatePage updates the details of a page in the database.
+// If some fields are not provided (empty strings or nil), they are loaded from the database first.
 func (q *PageQueries) UpdatePage(ctx context.Context, page *models.Page) error {
-	seo, err := json.Marshal(page.Seo)
+	// Load current page data for partial updates
+	currentPage, err := q.PageByID(ctx, page.ID)
 	if err != nil {
 		return err
 	}
 
-	query := `UPDATE page SET name = ?, slug = ?, position = ?, seo = ?, updated = datetime('now') WHERE id = ?`
-	_, err = q.DB.ExecContext(ctx, query, page.Name, page.Slug, page.Position, seo, page.ID)
+	// Use provided values or current ones from database
+	name := page.Name
+	if name == "" {
+		name = currentPage.Name
+	}
+
+	slug := page.Slug
+	if slug == "" {
+		slug = currentPage.Slug
+	}
+
+	position := page.Position
+	if position == "" {
+		position = currentPage.Position
+	}
+
+	var contentValue interface{}
+	if page.Content != nil {
+		contentValue = *page.Content
+	} else if currentPage.Content != nil {
+		contentValue = *currentPage.Content
+	} else {
+		contentValue = nil
+	}
+
+	// Use provided SEO data or current ones from database
+	var seoData *models.Seo
+	if page.Seo != nil {
+		seoData = page.Seo
+	} else {
+		seoData = currentPage.Seo
+	}
+
+	seo, err := json.Marshal(seoData)
+	if err != nil {
+		return err
+	}
+
+	query := `UPDATE page SET name = ?, slug = ?, position = ?, content = ?, seo = ?, updated = datetime('now') WHERE id = ?`
+	_, err = q.DB.ExecContext(ctx, query, name, slug, position, contentValue, seo, page.ID)
 	return err
 }
 

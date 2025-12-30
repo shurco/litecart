@@ -47,40 +47,32 @@ func main() {
 	}
 }
 
+// handleCommandError handles command execution errors uniformly.
+func handleCommandError(err error) {
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+}
+
+// cmdServe creates and returns the serve command.
 func cmdServe() *cobra.Command {
 	var noSite, devMode bool
 	var httpAddr, httpsAddr string
+
 	cmd := &cobra.Command{
 		Use:   "serve [flags]",
 		Short: "Starts the web server (default to 0.0.0.0:8080)",
-		Run: func(serveCmd *cobra.Command, args []string) {
-			if err := app.NewApp(httpAddr, httpsAddr, noSite, devMode); err != nil {
-				fmt.Print(err)
-				os.Exit(1)
-			}
+		Run: func(_ *cobra.Command, _ []string) {
+			handleCommandError(app.NewApp(httpAddr, httpsAddr, noSite, devMode))
 		},
 	}
 
-	cmd.PersistentFlags().StringVar(
-		&httpAddr,
-		"http",
-		"0.0.0.0:8080",
-		"server address",
-	)
-
-	// Ports <= 1024 are privileged ports. You can't use them unless you're root or have the explicit
-	// permission to use them. See this answer for an explanation or wikipedia or something you trust more.
-	// sudo setcap 'cap_net_bind_service=+ep' /opt/yourGoBinary
-	cmd.PersistentFlags().StringVar(
-		&httpsAddr,
-		"https",
-		"",
-		"https server address (auto TLS)",
-	)
-
+	cmd.PersistentFlags().StringVar(&httpAddr, "http", "0.0.0.0:8080", "server address")
+	cmd.PersistentFlags().StringVar(&httpsAddr, "https", "", "https server address (auto TLS)")
 	cmd.PersistentFlags().BoolVar(&noSite, "no-site", false, "disable create site")
-
 	cmd.PersistentFlags().BoolVar(&devMode, "dev", false, "develop mode")
+
 	if err := cmd.PersistentFlags().MarkHidden("dev"); err != nil {
 		fmt.Println("warning: failed to hide dev flag:", err)
 	}
@@ -88,58 +80,47 @@ func cmdServe() *cobra.Command {
 	return cmd
 }
 
+// cmdInit creates and returns the init command.
 func cmdInit() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "init",
 		Short: "Creating the basic structure",
-		Run: func(serveCmd *cobra.Command, args []string) {
-			if err := app.Init(); err != nil {
-				fmt.Print(err)
-				os.Exit(1)
-			}
+		Run: func(_ *cobra.Command, _ []string) {
+			handleCommandError(app.Init())
 		},
 	}
-
-	return cmd
 }
 
+// cmdUpdate creates and returns the update command.
 func cmdUpdate() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "update",
 		Short: "Updating the application to the latest version",
-		Run: func(serveCmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, _ []string) {
 			cfg := &update.Config{
 				Owner:             "shurco",
 				Repo:              "litecart",
 				CurrentVersion:    version,
 				ArchiveExecutable: "litecart",
 			}
-			err := update.Init(cfg)
-			if err != nil {
-				fmt.Print(err)
-				os.Exit(1)
+
+			if err := update.Init(cfg); err != nil {
+				handleCommandError(err)
+				return
 			}
-			if err := app.Migrate(); err != nil {
-				fmt.Print(err)
-				os.Exit(1)
-			}
+
+			handleCommandError(app.Migrate())
 		},
 	}
-
-	return cmd
 }
 
+// cmdMigrate creates and returns the migrate command.
 func cmdMigrate() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "migrate",
 		Short: "Migrate on the latest version of database schema",
-		Run: func(serveCmd *cobra.Command, args []string) {
-			if err := app.Migrate(); err != nil {
-				fmt.Print(err)
-				os.Exit(1)
-			}
+		Run: func(_ *cobra.Command, _ []string) {
+			handleCommandError(app.Migrate())
 		},
 	}
-
-	return cmd
 }

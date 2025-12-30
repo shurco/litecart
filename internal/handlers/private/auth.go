@@ -14,7 +14,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// SignIn is ...
+// SignIn authenticates a user and returns a JWT token.
 // [post] /api/sign/in
 func SignIn(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -75,7 +75,7 @@ func SignIn(c *fiber.Ctx) error {
 	return webutil.StatusOK(c, "Token", token)
 }
 
-// SignOut is ...
+// SignOut invalidates the user session and clears the authentication token.
 // [post] /api/sign/out
 func SignOut(c *fiber.Ctx) error {
 	db := queries.DB()

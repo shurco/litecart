@@ -7,7 +7,7 @@ import (
 	"github.com/shurco/litecart/internal/middleware"
 )
 
-// ApiPrivateRoutes is ...
+// ApiPrivateRoutes sets up private API routes that require authentication.
 func ApiPrivateRoutes(c *fiber.App) {
 	c.Post("/api/install", handlers.Install)
 
@@ -26,6 +26,7 @@ func ApiPrivateRoutes(c *fiber.App) {
 
 	pages := c.Group("/api/_/pages", middleware.JWTProtected())
 	pages.Get("/", handlers.Pages)
+	pages.Get("/:page_id<len(15)>", handlers.GetPage)
 	pages.Post("/", handlers.AddPage)
 	pages.Patch("/:page_id<len(15)>", handlers.UpdatePage)
 	pages.Delete("/:page_id<len(15)>", handlers.DeletePage)

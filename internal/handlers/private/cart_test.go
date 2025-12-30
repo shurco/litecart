@@ -24,7 +24,7 @@ func setupCartApp(t *testing.T) (*fiber.App, func()) {
 	return app, func() { cleanup() }
 }
 
-func TestCarts_List(t *testing.T) {
+func Test_carts_list(t *testing.T) {
 	app, cleanup := setupCartApp(t)
 	defer cleanup()
 	app.Get("/api/_/carts", Carts)
@@ -36,7 +36,7 @@ func TestCarts_List(t *testing.T) {
 	}
 }
 
-func TestCartSendMail_Status(t *testing.T) {
+func Test_cart_send_mail_status(t *testing.T) {
 	app, cleanup := setupCartApp(t)
 	defer cleanup()
 

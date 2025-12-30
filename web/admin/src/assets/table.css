@@ -10,7 +10,7 @@ table {
   }
 
   th {
-    @apply whitespace-nowrap px-4 py-2 font-medium text-gray-900;
+    @apply px-4 py-2 font-medium whitespace-nowrap text-gray-900;
   }
 
   tbody {
@@ -18,11 +18,10 @@ table {
 
     tr {
       @apply cursor-pointer hover:bg-gray-100 active:bg-gray-100;
-  
+
       td {
         @apply px-4 py-2;
       }
     }
   }
-
 }

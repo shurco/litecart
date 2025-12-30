@@ -2,36 +2,39 @@
   "name": "litecart-admin",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "bun --bunx vite --host",
-    "build": "bun --bunx vite build --mode production",
-    "preview": "bun --bunx vite preview --host",
+    "dev": "bun --bunx vite dev",
+    "build": "bun --bunx vite build",
+    "preview": "bun --bunx vite preview",
+    "check": "bun --bunx svelte-kit sync",
+    "check:watch": "bun --bunx svelte-kit sync",
+    "format": "prettier --write .",
     "update": "bun update"
   },
   "dependencies": {
-    "@tiptap/extension-link": "^3.14.0",
-    "@tiptap/extension-placeholder": "^3.14.0",
-    "@tiptap/pm": "^3.14.0",
-    "@tiptap/starter-kit": "^3.14.0",
-    "@tiptap/vue-3": "^3.14.0",
-    "@vee-validate/rules": "^4.15.1",
-    "notiwind": "^2.1.0",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.49.2",
+    "@tiptap/core": "^2.27.1",
+    "@tiptap/pm": "^2.27.1",
+    "@tiptap/starter-kit": "^2.27.1",
+    "@tiptap/extension-placeholder": "^2.27.1",
     "nprogress": "^0.2.0",
-    "pinia": "^3.0.4",
-    "vee-validate": "^4.15.1",
-    "vue": "^3.5.26",
-    "vue-router": "^4.6.4",
-    "vue-tippy": "^6.7.1"
+    "svelte": "^5.46.1",
+    "svelte-french-toast": "^1.2.0"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tailwindcss/forms": "0.5.11",
     "@tailwindcss/vite": "^4.1.18",
-    "@vitejs/plugin-vue": "^6.0.3",
+    "@types/nprogress": "^0.2.3",
+    "autoprefixer": "^10.4.23",
     "prettier": "^3.7.4",
+    "prettier-plugin-svelte": "^3.4.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "4.1.18",
+    "typescript": "^5.9.3",
     "vite": "^7.3.0",
-    "vite-plugin-svg-icons": "^2.0.1",
-    "vite-plugin-vue-devtools": "^8.0.5"
+    "vite-plugin-svelte-svg": "^2.3.0"
   }
 }

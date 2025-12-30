@@ -9,45 +9,45 @@ import (
 	"github.com/shurco/litecart/pkg/fsutil"
 )
 
-// New is ...
-func New(dbPath string, migrations embed.FS) (db *sql.DB, err error) {
+// buildDSN builds a SQLite connection string with optimized parameters
+func buildDSN(dbPath string) string {
+	return fmt.Sprintf("%s?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
+}
+
+// New creates a new database connection and performs migrations if necessary
+func New(dbPath string, migrations embed.FS) (*sql.DB, error) {
 	if !fsutil.IsFile(dbPath) {
-		// create db
-		if _, err = fsutil.OpenFile(dbPath, fsutil.FsCWFlags, 0o666); err != nil {
-			return
+		if _, err := fsutil.OpenFile(dbPath, fsutil.FsCWFlags, 0o666); err != nil {
+			return nil, err
 		}
 
-		// first migrate db
-		if err = Migrate(dbPath, migrations); err != nil {
-			return
+		if err := Migrate(dbPath, migrations); err != nil {
+			return nil, err
 		}
 	}
 
-	// connect to database
-	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
-	db, err = sql.Open("sqlite", dsn)
+	db, err := sql.Open("sqlite", buildDSN(dbPath))
 	if err != nil {
-		return
+		return nil, err
 	}
+
 	if _, err := db.Exec("PRAGMA auto_vacuum"); err != nil {
 		return nil, err
 	}
 
-	return
+	return db, nil
 }
 
-// Migrate is ...
-func Migrate(dbPath string, migrations embed.FS) (err error) {
+// Migrate performs database migrations
+func Migrate(dbPath string, migrations embed.FS) error {
 	goose.SetBaseFS(migrations)
-	var db *sql.DB
-	db, err = goose.OpenDBWithDriver("sqlite", dbPath)
+	db, err := goose.OpenDBWithDriver("sqlite", dbPath)
 	if err != nil {
-		return
+		return err
 	}
 	defer func() { _ = db.Close() }()
 
 	goose.SetTableName("migrate_db_version")
 
-	err = goose.Up(db, ".")
-	return
+	return goose.Up(db, ".")
 }

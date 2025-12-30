@@ -36,7 +36,7 @@ type Data struct {
 	CartItems     []litepay.Item        `json:"cart_items,omitempty"`
 }
 
-// SendPaymentHook is ...
+// SendPaymentHook sends a payment webhook notification to the configured URL.
 func SendPaymentHook(resData *Payment) error {
 	db := queries.DB()
 

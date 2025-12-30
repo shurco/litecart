@@ -10,7 +10,7 @@ import (
 	"github.com/shurco/litecart/pkg/litepay"
 )
 
-func TestSendPaymentHook(t *testing.T) {
+func Test_send_payment_hook(t *testing.T) {
 	var got atomic.Value
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()

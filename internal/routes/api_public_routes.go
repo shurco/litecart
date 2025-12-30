@@ -6,7 +6,7 @@ import (
 	handlers "github.com/shurco/litecart/internal/handlers/public"
 )
 
-// ApiPublicRoutes is ...
+// ApiPublicRoutes sets up public API routes accessible without authentication.
 func ApiPublicRoutes(c *fiber.App) {
 	c.Get("/ping", handlers.Ping)
 

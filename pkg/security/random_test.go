@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestRandomString_LengthAndAlphabet(t *testing.T) {
+func Test_random_string_length_and_alphabet(t *testing.T) {
 	const iterations = 100
 	for i := 0; i < iterations; i++ {
 		s := RandomString()

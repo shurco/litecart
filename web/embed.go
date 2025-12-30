@@ -4,10 +4,10 @@ import (
 	"embed"
 )
 
-//go:embed all:admin/dist
+//go:embed all:admin/build
 var embedAdmin embed.FS
 
-//go:embed admin/dist/index.html
+//go:embed admin/build/index.html
 var embedAdminIndex embed.FS
 
 //go:embed site/*.html site/layouts/*.html site/public/*

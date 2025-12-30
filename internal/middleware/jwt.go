@@ -16,7 +16,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// JWTProtected is ...
+// JWTProtected returns a middleware function that validates JWT tokens.
 func JWTProtected() func(*fiber.Ctx) error {
 	config := jwtMiddleware.Config{
 		KeyFunc:      customKeyFunc(),

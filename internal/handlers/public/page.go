@@ -9,7 +9,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Page is ...
+// Page returns a page by slug for public access.
 // [get] /api/page/:page_slug
 func Page(c *fiber.Ctx) error {
 	pageSlug := c.Params("page_slug")

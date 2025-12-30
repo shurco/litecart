@@ -5,11 +5,12 @@ import (
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
+	"github.com/shurco/litecart/pkg/errors"
 	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Pages is ...
+// Pages returns a list of all pages.
 // [get] /api/_/pages
 func Pages(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -24,8 +25,27 @@ func Pages(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Pages", pages)
 }
 
-// AddPage is ...
-// [post] /api/_/page/
+// GetPage returns a single page by ID.
+// [get] /api/_/pages/:page_id
+func GetPage(c *fiber.Ctx) error {
+	pageID := c.Params("page_id")
+	db := queries.DB()
+	log := logging.New()
+
+	page, err := db.PageByID(c.Context(), pageID)
+	if err != nil {
+		if err == errors.ErrPageNotFound {
+			return webutil.StatusNotFound(c)
+		}
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Page", page)
+}
+
+// AddPage creates a new page.
+// [post] /api/_/pages
 func AddPage(c *fiber.Ctx) error {
 	db := queries.DB()
 	log := logging.New()
@@ -45,7 +65,7 @@ func AddPage(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Page added", page)
 }
 
-// UpdatePage is ...
+// UpdatePage updates an existing page.
 // [patch] /api/_/pages/:page_id
 func UpdatePage(c *fiber.Ctx) error {
 	pageID := c.Params("page_id")
@@ -67,7 +87,7 @@ func UpdatePage(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Page updated", nil)
 }
 
-// DeletePage is ...
+// DeletePage deletes a page by ID.
 // [delete] /api/_/pages/:page_id
 func DeletePage(c *fiber.Ctx) error {
 	pageID := c.Params("page_id")
@@ -82,8 +102,8 @@ func DeletePage(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Page deleted", nil)
 }
 
-// UpdatePageContent is ...
-// [get] /api/_/page/:page_id/content
+// UpdatePageContent updates the content of a page.
+// [patch] /api/_/pages/:page_id/content
 func UpdatePageContent(c *fiber.Ctx) error {
 	db := queries.DB()
 	log := logging.New()
@@ -108,8 +128,8 @@ func UpdatePageContent(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Page content updated", nil)
 }
 
-// UpdatePageActive is ...
-// [patch] /api/_/page/:page_id/active
+// UpdatePageActive updates the active status of a page.
+// [patch] /api/_/pages/:page_id/active
 func UpdatePageActive(c *fiber.Ctx) error {
 	pageID := c.Params("page_id")
 	db := queries.DB()
@@ -120,5 +140,12 @@ func UpdatePageActive(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Page active updated", nil)
+	// Get updated page to return with updated timestamp
+	page, err := db.PageByID(c.Context(), pageID)
+	if err != nil {
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Page active updated", page)
 }

@@ -6,36 +6,36 @@ import (
 	"github.com/shurco/litecart/pkg/fsutil"
 )
 
-// Init is ...
-func Init() error {
-	dirsToCheck := []struct {
-		path string
-		name string
-	}{
-		{"./lc_uploads", "lc_uploads"},
-		{"./lc_digitals", "lc_digitals"},
-	}
+const (
+	dbPath = "./lc_base/data.db"
+)
 
-	for _, dir := range dirsToCheck {
-		if err := fsutil.MkDirs(0o775, dir.path); err != nil {
-			log.Err(err).Send()
+var (
+	requiredDirs = []string{"./lc_uploads", "./lc_digitals"}
+)
+
+// Init initializes the directory structure and database
+func Init() error {
+	for _, dir := range requiredDirs {
+		if err := fsutil.MkDirs(0o775, dir); err != nil {
+			if log != nil {
+				log.Err(err).Send()
+			}
 			return err
 		}
 	}
 
-	if _, err := base.New("./lc_base/data.db", migrations.Embed()); err != nil {
-		log.Err(err).Send()
+	if _, err := base.New(dbPath, migrations.Embed()); err != nil {
+		if log != nil {
+			log.Err(err).Send()
+		}
 		return err
 	}
 
 	return nil
 }
 
-// Migrate is ...
+// Migrate performs database migrations
 func Migrate() error {
-	if err := base.Migrate("./lc_base/data.db", migrations.Embed()); err != nil {
-		return err
-	}
-
-	return nil
+	return base.Migrate(dbPath, migrations.Embed())
 }

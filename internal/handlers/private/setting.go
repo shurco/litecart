@@ -17,7 +17,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Version is ...
+// Version returns the current application version and update information.
 // [get] /api/_/version
 func Version(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -72,7 +72,7 @@ func Version(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Version", version)
 }
 
-// GetSetting is ...
+// GetSetting returns a setting value by key.
 // [get] /api/_/settings/:setting_key
 func GetSetting(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -119,7 +119,7 @@ func GetSetting(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Setting", section)
 }
 
-// UpdateSetting is ...
+// UpdateSetting updates a setting value by key.
 // [patch] /api/_/settings/:setting_key
 func UpdateSetting(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -190,7 +190,7 @@ func UpdateSetting(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Setting group updated", nil)
 }
 
-// TestLetter is ...
+// TestLetter sends a test email letter.
 // [get] /api/_/test/letter/:letter_name
 func TestLetter(c *fiber.Ctx) error {
 	letter := c.Params("letter_name")

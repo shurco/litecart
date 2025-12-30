@@ -17,7 +17,7 @@ var EncryptionTypes = map[string]mailer.Encryption{
 	"STARTTLS": mailer.EncryptionTLS,
 }
 
-// SendMail is ...
+// SendMail sends an email using the provided SMTP settings and message data.
 func SendMail(smtp *models.Mail, mail *models.MessageMail) error {
 	// Validate SMTP settings before attempting connection
 	if smtp.SMTP.Host == "" || smtp.SMTP.Port <= 0 || smtp.SMTP.Username == "" || smtp.SMTP.Password == "" {

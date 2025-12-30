@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// FiberMiddleware is ...
+// Fiber configures global middleware for the Fiber application.
 func Fiber(a *fiber.App, log *zerolog.Logger) {
 	a.Use(cors.New())
 	a.Use(helmet.New())

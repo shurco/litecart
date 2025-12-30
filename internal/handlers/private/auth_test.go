@@ -28,7 +28,7 @@ func setupApp(t *testing.T) (*fiber.App, func()) {
 	return app, func() { cleanup(); _ = os.Unsetenv("_") }
 }
 
-func TestAuth_SignInOut(t *testing.T) {
+func Test_auth_sign_in_out(t *testing.T) {
 	app, cleanup := setupApp(t)
 	defer cleanup()
 

@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestExtractTar(t *testing.T) {
+func Test_extract_tar(t *testing.T) {
 	dir := t.TempDir()
 	// create a small tar.gz archive in-memory
 	var buf bytes.Buffer

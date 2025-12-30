@@ -2,7 +2,7 @@ package update
 
 import "testing"
 
-func TestCompareVersions(t *testing.T) {
+func Test_compare_versions(t *testing.T) {
 	tests := []struct {
 		a, b string
 		want int
@@ -22,7 +22,7 @@ func TestCompareVersions(t *testing.T) {
 	}
 }
 
-func TestArchiveSuffix(t *testing.T) {
+func Test_archive_suffix(t *testing.T) {
 	if got := archiveSuffix("linux", "amd64"); got == "" {
 		t.Fatal("expected suffix for linux/amd64")
 	}

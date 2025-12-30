@@ -9,13 +9,13 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Ping is ...
+// Ping returns a pong response for health checks.
 // [get] /ping
 func Ping(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Pong", nil)
 }
 
-// Settings is ...
+// Settings returns public settings including main, social, payment, and pages.
 // [get] /api/settings
 func Settings(c *fiber.Ctx) error {
 	db := queries.DB()

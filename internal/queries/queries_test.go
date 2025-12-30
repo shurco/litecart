@@ -23,7 +23,7 @@ func withTempBase(t *testing.T) func() {
 	return func() { _ = os.Chdir(oldwd) }
 }
 
-func TestQueries_InitAndSettings(t *testing.T) {
+func Test_queries_init_and_settings(t *testing.T) {
 	cleanup := withTempBase(t)
 	defer cleanup()
 
@@ -44,7 +44,7 @@ func TestQueries_InitAndSettings(t *testing.T) {
 	}
 }
 
-func TestQueries_PageCRUD(t *testing.T) {
+func Test_queries_page_crud(t *testing.T) {
 	cleanup := withTempBase(t)
 	defer cleanup()
 	if err := New(migrations.Embed()); err != nil {

@@ -69,7 +69,7 @@ type Digital struct {
 // Validate is ...
 func (v Digital) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.Type, validation.In("file", "data", "api")),
+		validation.Field(&v.Type, validation.Required, validation.In("file", "data", "api")),
 		validation.Field(&v.Files),
 		validation.Field(&v.Data, validation.Each(validation.Length(1, 254))),
 	)

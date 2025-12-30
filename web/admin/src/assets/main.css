@@ -23,7 +23,7 @@ img {
 }
 
 header {
-  @apply grid grid-cols-[1fr_120px] gap-8 pb-4 relative;
+  @apply relative grid grid-cols-[1fr_120px] gap-8 pb-4;
 }
 
 header div {
@@ -55,7 +55,7 @@ label.none {
 }
 
 label .field {
-  @apply w-full border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0;
+  @apply w-full border-none bg-transparent placeholder-transparent focus:border-transparent focus:ring-0 focus:outline-none;
 }
 
 label .title {
@@ -63,11 +63,11 @@ label .title {
 }
 
 label .ico {
-  @apply absolute inset-y-0 end-0 grid place-content-center pl-4 pr-2;
+  @apply absolute inset-y-0 end-0 grid place-content-center pr-2 pl-4;
 }
 
 .editor {
-  @apply rounded bg-gray-200 px-2 pb-0.5 pt-2;
+  @apply rounded bg-gray-200 px-2 pt-2 pb-0.5;
 }
 
 .editor button {
@@ -79,12 +79,14 @@ label .ico {
 }
 
 hr {
-  @apply border-0 border-t border-gray-200 my-6;
+  @apply my-6 border-0 border-t border-gray-200;
 }
 
-/* Базовые стили для input элементов (кроме тех, что в label .field) */
-input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not(.field),
+/* Base styles for input elements (except those in label .field) */
+input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not(
+    [type="reset"]
+  ):not([type="checkbox"]):not([type="radio"]):not(.field),
 textarea:not(.field),
 select:not(.field) {
-  @apply appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+  @apply appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none;
 }

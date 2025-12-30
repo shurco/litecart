@@ -9,7 +9,7 @@ import (
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Install is ...
+// Install performs the initial installation of the application.
 // [post] /api/install
 func Install(c *fiber.Ctx) error {
 	db := queries.DB()

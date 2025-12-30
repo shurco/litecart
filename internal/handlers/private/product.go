@@ -2,23 +2,18 @@ package handlers
 
 import (
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
 
 	"github.com/disintegration/imaging"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 
 	"github.com/shurco/litecart/internal/models"
 	"github.com/shurco/litecart/internal/queries"
 	"github.com/shurco/litecart/pkg/errors"
-	"github.com/shurco/litecart/pkg/fsutil"
 	"github.com/shurco/litecart/pkg/logging"
 	"github.com/shurco/litecart/pkg/webutil"
 )
 
-// Products is ...
+// Products returns a list of all products.
 // [get] /api/_/products
 func Products(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -33,7 +28,7 @@ func Products(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Products", products)
 }
 
-// AddProduct is ...
+// AddProduct creates a new product.
 // [post] /api/_/products
 func AddProduct(c *fiber.Ctx) error {
 	db := queries.DB()
@@ -45,16 +40,27 @@ func AddProduct(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
+	// Validation: digital.type field is required when creating a product
+	if request.Digital.Type == "" {
+		return webutil.StatusBadRequest(c, "digital type is required")
+	}
+
+	// Validate model
+	if err := request.Validate(); err != nil {
+		log.ErrorStack(err)
+		return webutil.StatusBadRequest(c, err.Error())
+	}
+
 	product, err := db.AddProduct(c.Context(), request)
 	if err != nil {
 		log.ErrorStack(err)
-		return webutil.StatusInternalServerError(c)
+		return webutil.StatusBadRequest(c, err.Error())
 	}
 
 	return webutil.Response(c, fiber.StatusOK, "Product added", product)
 }
 
-// GetProduct is ...
+// Product returns a single product by ID.
 // [get] /api/_/products/:product_id
 func Product(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -70,7 +76,7 @@ func Product(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product info", product)
 }
 
-// UpdateProduct is ...
+// UpdateProduct updates an existing product.
 // [patch] /api/_/products/:product_id
 func UpdateProduct(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -92,7 +98,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product updated", nil)
 }
 
-// DeleteProduct is ...
+// DeleteProduct deletes a product by ID.
 // [delete] /api/_/products/:product_id
 func DeleteProduct(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -107,7 +113,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product deleted", nil)
 }
 
-// UpdateProductActive is ...
+// UpdateProductActive updates the active status of a product.
 // [patch] /api/_/products/:product_id/active
 func UpdateProductActive(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -122,7 +128,7 @@ func UpdateProductActive(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product active updated", nil)
 }
 
-// ProductImages
+// ProductImages returns a list of images for a product.
 // [get] /api/_/products/:product_id/image
 func ProductImages(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -138,7 +144,7 @@ func ProductImages(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product images", images)
 }
 
-// AddProductImage is ...
+// AddProductImage uploads and adds an image to a product.
 // [post] /api/_/products/:product_id/image
 func AddProductImage(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -151,50 +157,16 @@ func AddProductImage(c *fiber.Ctx) error {
 		return webutil.StatusBadRequest(c, err.Error())
 	}
 
-	validMIME := false
-	validMIMETypes := []string{"image/png", "image/jpeg"}
-	for _, mime := range validMIMETypes {
-		if mime == file.Header["Content-Type"][0] {
-			validMIME = true
-		}
-	}
-	if !validMIME {
-		log.ErrorStack(err)
+	mimeType := file.Header["Content-Type"][0]
+	if !validateImageMIME(mimeType) {
 		return webutil.StatusBadRequest(c, "file format not supported")
 	}
 
-	fileUUID := uuid.New().String()
-	fileExt := fsutil.ExtName(file.Filename)
-	fileName := fmt.Sprintf("%s.%s", fileUUID, fileExt)
-	filePath := fmt.Sprintf("./lc_uploads/%s", fileName)
+	fileUUID, fileExt, fileName := generateFileName(file.Filename)
+	filePath := fmt.Sprintf("%s/%s", dirUploads, fileName)
 	fileOrigName := file.Filename
 
-	// atomic save via temp file then rename
-	if err := func() error {
-		src, err := file.Open()
-		if err != nil {
-			return err
-		}
-		defer func() { _ = src.Close() }()
-		tmpPath := filePath + ".tmp"
-		if err := os.MkdirAll(filepath.Dir(filePath), 0o775); err != nil {
-			return err
-		}
-		dst, err := os.Create(tmpPath)
-		if err != nil {
-			return err
-		}
-		if _, err := io.Copy(dst, src); err != nil {
-			_ = dst.Close()
-			_ = os.Remove(tmpPath)
-			return err
-		}
-		if err := dst.Close(); err != nil {
-			_ = os.Remove(tmpPath)
-			return err
-		}
-		return os.Rename(tmpPath, filePath)
-	}(); err != nil {
+	if err := saveFile(file, filePath); err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)
 	}
@@ -215,8 +187,8 @@ func AddProductImage(c *fiber.Ctx) error {
 
 	for _, s := range sizes {
 		resizedImage := imaging.Fill(fileSource, s.dim, s.dim, imaging.Center, imaging.Lanczos)
-		err := imaging.Save(resizedImage, fmt.Sprintf("./lc_uploads/%s_%s.%s", fileUUID, s.size, fileExt))
-		if err != nil {
+		resizedPath := fmt.Sprintf("%s/%s_%s.%s", dirUploads, fileUUID, s.size, fileExt)
+		if err := imaging.Save(resizedImage, resizedPath); err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)
 		}
@@ -231,7 +203,7 @@ func AddProductImage(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Image added", addedImage)
 }
 
-// DeleteProductImage is ...
+// DeleteProductImage deletes an image from a product.
 // [delete] /api/_/products/:product_id/image/:image_id
 func DeleteProductImage(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -247,7 +219,7 @@ func DeleteProductImage(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Image deleted", nil)
 }
 
-// ProductDigital
+// ProductDigital returns digital content for a product.
 // [get] /api/_/products/:product_id/digital
 func ProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -266,7 +238,7 @@ func ProductDigital(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Product digital", digital)
 }
 
-// AddProductDigital is ...
+// AddProductDigital adds digital content (file or data) to a product.
 // [post] /api/_/products/:product_id/digital
 func AddProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")
@@ -275,37 +247,11 @@ func AddProductDigital(c *fiber.Ctx) error {
 
 	fileTmp, _ := c.FormFile("document")
 	if fileTmp != nil {
-		fileUUID := uuid.New().String()
-		fileExt := fsutil.ExtName(fileTmp.Filename)
-		fileName := fmt.Sprintf("%s.%s", fileUUID, fileExt)
-		filePath := fmt.Sprintf("./lc_digitals/%s", fileName)
+		fileUUID, fileExt, fileName := generateFileName(fileTmp.Filename)
+		filePath := fmt.Sprintf("%s/%s", dirDigitals, fileName)
 		fileOrigName := fileTmp.Filename
 
-		if err := func() error {
-			src, err := fileTmp.Open()
-			if err != nil {
-				return err
-			}
-			defer func() { _ = src.Close() }()
-			if err := os.MkdirAll(filepath.Dir(filePath), 0o775); err != nil {
-				return err
-			}
-			tmpPath := filePath + ".tmp"
-			dst, err := os.Create(tmpPath)
-			if err != nil {
-				return err
-			}
-			if _, err := io.Copy(dst, src); err != nil {
-				_ = dst.Close()
-				_ = os.Remove(tmpPath)
-				return err
-			}
-			if err := dst.Close(); err != nil {
-				_ = os.Remove(tmpPath)
-				return err
-			}
-			return os.Rename(tmpPath, filePath)
-		}(); err != nil {
+		if err := saveFile(fileTmp, filePath); err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)
 		}
@@ -328,7 +274,7 @@ func AddProductDigital(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Digital added", data)
 }
 
-// UpdateProductDigital is ...
+// UpdateProductDigital updates digital content for a product.
 // [patch] /api/_/products/:product_id/digital/:digital_id
 func UpdateProductDigital(c *fiber.Ctx) error {
 	request := new(models.Data)
@@ -350,7 +296,7 @@ func UpdateProductDigital(c *fiber.Ctx) error {
 	return webutil.Response(c, fiber.StatusOK, "Digital updated", nil)
 }
 
-// DeleteProductDigital is ...
+// DeleteProductDigital deletes digital content from a product.
 // [delete] /api/_/products/:product_id/digital/:digital_id
 func DeleteProductDigital(c *fiber.Ctx) error {
 	productID := c.Params("product_id")

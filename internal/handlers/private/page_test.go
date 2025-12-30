@@ -48,7 +48,7 @@ func setupAuthApp(t *testing.T) (*fiber.App, string, func()) {
 	return app, cookie, func() { cleanup(); _ = os.Unsetenv("_") }
 }
 
-func TestPages_CRUD(t *testing.T) {
+func Test_pages_crud(t *testing.T) {
 	app, cookie, cleanup := setupAuthApp(t)
 	defer cleanup()
 
