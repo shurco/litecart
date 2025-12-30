@@ -68,6 +68,10 @@ func (q *SettingQueries) GroupFieldMap(settings any) map[string]any {
 			"spectrocoin_private_key": &s.PrivateKey,
 			"spectrocoin_active":      &s.Active,
 		}
+	case *models.Dummy:
+		return map[string]any{
+			"dummy_active": &s.Active,
+		}
 	case *models.Webhook:
 		return map[string]any{
 			"webhook_url": &s.Url,

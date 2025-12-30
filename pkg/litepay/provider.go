@@ -6,4 +6,5 @@ const (
 	STRIPE      PaymentSystem = "stripe"
 	PAYPAL      PaymentSystem = "paypal"
 	SPECTROCOIN PaymentSystem = "spectrocoin"
+	DUMMY       PaymentSystem = "dummy"
 )

@@ -105,6 +105,11 @@ func StatusPayment(system PaymentSystem, status string) Status {
 			"5": FAILED,    // expired, Payment was not received in time
 			"6": TEST,      // test, Test order
 		}
+
+	case DUMMY:
+		statusBase = map[string]Status{
+			"paid": PAID,
+		}
 	}
 
 	statusTmp := statusBase[status]

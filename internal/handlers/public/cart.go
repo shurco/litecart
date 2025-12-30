@@ -251,6 +251,24 @@ func Payment(c *fiber.Ctx) error {
 			return webutil.StatusInternalServerError(c)
 		}
 		paymentURL = response.URL
+
+	case litepay.DUMMY:
+		setting, err := queries.GetSettingByGroup[models.Dummy](c.Context(), db)
+		if err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
+
+		if !setting.Active {
+			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
+		}
+		session := pay.Dummy()
+		response, err := session.Pay(cart)
+		if err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
+		paymentURL = response.URL
 	}
 
 	var amountTotal int
@@ -431,6 +449,24 @@ func PaymentSuccess(c *fiber.Ctx) error {
 
 	case litepay.SPECTROCOIN:
 		// Spectrocoin payment processing handled in callback
+
+	case litepay.DUMMY:
+		setting, err := queries.GetSettingByGroup[models.Dummy](c.Context(), db)
+		if err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
+
+		if !setting.Active {
+			return webutil.StatusNotFound(c)
+		}
+		response, err := litepay.New("", "", "").Dummy().Checkout(payment, "")
+		if err != nil {
+			log.ErrorStack(err)
+			return webutil.StatusInternalServerError(c)
+		}
+		payment.MerchantID = response.MerchantID
+		payment.Status = response.Status
 	}
 
 	err = db.UpdateCart(c.Context(), &models.Cart{

@@ -23,7 +23,7 @@ type CartQueries struct {
 func (q *CartQueries) PaymentList(ctx context.Context) (map[string]bool, error) {
 	payments := map[string]bool{}
 	keys := []any{
-		"stripe_active", "paypal_active", "spectrocoin_active",
+		"stripe_active", "paypal_active", "spectrocoin_active", "dummy_active",
 	}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
