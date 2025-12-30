@@ -4,10 +4,10 @@ before:
   hooks:
     - go mod tidy
     - go mod download
-    - yarn --cwd web/admin --force install
-    - yarn --cwd web/admin run build
-    - yarn --cwd web/site --force install
-    - yarn --cwd web/site run build
+    - sh -c "cd web/admin && bun install --force"
+    - sh -c "cd web/admin && bun run build"
+    - sh -c "cd web/site && bun install --force"
+    - sh -c "cd web/site && bunx @tailwindcss/cli -i ./src/input.css -o ./public/assets/css/style.css --minify"
     - ./scripts/webscripts
 
 builds:
@@ -31,11 +31,10 @@ builds:
 
 archives:
   - name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
-    files:
-      - README.md
-  - name_template: '{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}'
-    format: zip
-    goos: windows
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
     files:
       - README.md
 

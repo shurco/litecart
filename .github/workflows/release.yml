@@ -33,6 +33,9 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: stable
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - uses: crazy-max/ghaction-upx@v3
         with:
           install-only: true

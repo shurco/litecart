@@ -273,7 +273,7 @@ To obtain a "Merchant ID", "Project (API) ID" and "Private key" in <a href="http
 
 
 ## 🧩&nbsp;&nbsp;For developers
-The backend is developed in Go language. The frontend admin panel operates on SvelteKit and TailwindCSS, while the base site uses Vue3 and TailwindCSS.  
+The backend is developed in Go language. The frontend admin panel operates on SvelteKit and TailwindCSS.  
 
 There are a number of scripts (in the ./scripts folder) that simplify development:  
 `./scripts/golang` - Installs or updates a previously installed version of go (if needed).  
@@ -295,8 +295,8 @@ All the code is located in the folder ./web/admin. The command `cd ./web/admin &
 #### Base site (frontend)
 To develop the web interface of the base site, you need to start the litecart server (for example, execute the command from the project root `go run ./cmd/main.go serve`).  
 Run `./scripts/webscripts` to download and install the necessary JavaScript libraries into the folder ./web/site/public/assets/js/.
-To update the styles, it is necessary to execute the command `cd ./web/site && yarn run build`.  
-If you actively change styles, you can run the command `cd ./web/site && yarn run dev`. It will monitor changes in files and automatically update the style file.
+To update the styles, it is necessary to execute the command `cd ./web/site && bun run build`.  
+If you actively change styles, you can run the command `cd ./web/site && bun run dev`. It will monitor changes in files and automatically update the style file.
 
 ## 🗺️&nbsp;&nbsp;ToDo
 `litecart` has a [roadmap](https://github.com/users/shurco/projects/2) and I try to work on issues in specific order and such PRs often come in out of nowhere and skew all initial planning with tedious back-and-forth communication.
