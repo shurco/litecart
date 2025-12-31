@@ -12,6 +12,7 @@ export interface Product {
   attributes?: string[];
   digital?: {
     type: "file" | "data" | "api" | "";
+    filled?: boolean;
   };
   images?: Array<{
     id: string;

@@ -94,6 +94,7 @@ func setupFiberApp(noSite bool) (*fiber.App, error) {
 // setupRoutes configures application routes.
 func setupRoutes(app *fiber.App, noSite bool) {
 	app.Static("/uploads", "./lc_uploads")
+	app.Static("/secrets", "./lc_digitals")
 
 	// Register API routes before SPA routes to ensure they are processed first
 	routes.ApiPrivateRoutes(app)

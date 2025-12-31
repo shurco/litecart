@@ -95,7 +95,14 @@ func UpdateProduct(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Product updated", nil)
+	// Return updated product
+	product, err := db.Product(c.Context(), true, productID)
+	if err != nil {
+		log.ErrorStack(err)
+		return webutil.StatusInternalServerError(c)
+	}
+
+	return webutil.Response(c, fiber.StatusOK, "Product updated", product)
 }
 
 // DeleteProduct deletes a product by ID.

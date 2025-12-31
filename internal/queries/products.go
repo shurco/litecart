@@ -101,7 +101,11 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 
 		product.Digital.Type = digitalType.String
 		if private && digitalType.Valid {
-			product.Digital.Filled = digitalFilled.Bool
+			if digitalFilled.Valid {
+				product.Digital.Filled = digitalFilled.Bool
+			} else {
+				product.Digital.Filled = false
+			}
 		}
 
 		products.Products = append(products.Products, product)

@@ -18,15 +18,31 @@
   export let updateActive: ((index: number) => void) | undefined;
 
   let product: Product | null = null;
+  let loading = true;
+  let lastProductId: string | null = null;
 
   const dispatch = createEventDispatcher();
 
-  onMount(async () => {
+  async function loadProduct() {
+    if (!drawer?.product?.id) return;
+    
+    loading = true;
     const result = await loadData<Product>(`/api/_/products/${drawer.product.id}`, 'Failed to load product');
     if (result) {
       product = result;
+      lastProductId = drawer.product.id;
     }
+    loading = false;
+  }
+
+  onMount(async () => {
+    await loadProduct();
   });
+
+  // Reload product when drawer.product.id changes
+  $: if (drawer?.product?.id && drawer.product.id !== lastProductId) {
+    loadProduct();
+  }
 
   function close() {
     dispatch('close');
@@ -34,7 +50,7 @@
 
   async function active() {
     if (updateActive && product) {
-      await updateActive(drawer.product.index);
+      await updateActive(drawer.index);
       // Update local product state reactively
       if (product) {
         product = { ...product, active: !product.active };
@@ -57,7 +73,9 @@
     </div>
   </div>
 
-  {#if product}
+  {#if loading}
+    <div class="text-center py-8">Loading...</div>
+  {:else if product}
   <div class="flow-root">
     <dl class="-my-3 mt-2 divide-y divide-gray-100 text-sm">
       <DetailList name="ID">{product.id}</DetailList>
@@ -91,11 +109,11 @@
       {/if}
       <DetailList name="Brief (short description)">{product.brief}</DetailList>
 
-        <div class="pt-3 tiptap" innerHTML={product.description || ''}></div>
+        <div class="pt-3 tiptap">{@html product.description || ''}</div>
     </dl>
   </div>
   {:else}
-    <div class="text-center py-8">Loading...</div>
+    <div class="text-center py-8 text-gray-500">Failed to load product</div>
   {/if}
 
   <div class="pt-5">
