@@ -4,6 +4,7 @@
   import Drawer from '$lib/components/Drawer.svelte';
   import ProductView from '$lib/components/product/View.svelte';
   import ProductSeo from '$lib/components/product/Seo.svelte';
+  import ProductDigital from '$lib/components/product/Digital.svelte';
   import FormButton from '$lib/components/form/Button.svelte';
   import FormInput from '$lib/components/form/Input.svelte';
   import FormSelect from '$lib/components/form/Select.svelte';
@@ -13,7 +14,7 @@
   import SvgIcon from '$lib/components/SvgIcon.svelte';
   import { loadData, saveData, deleteData, toggleActive as toggleActiveApi } from '$lib/utils/apiHelpers';
   import { costFormat, formatDate, sortByDate, confirmDelete, showMessage } from '$lib/utils';
-  import { apiDelete } from '$lib/utils/api';
+  import { apiDelete, apiUpdate } from '$lib/utils/api';
   import { validators, validateFields } from '$lib/utils/validation';
   import type { Product } from '$lib/types/models';
 
@@ -32,7 +33,7 @@
   let currency = '';
   let loading = true;
   let drawerOpen = false;
-  let drawerMode: 'view' | 'add' | 'edit' | 'seo' = 'view';
+  let drawerMode: 'view' | 'add' | 'edit' | 'seo' | 'digital' = 'view';
   let drawerProduct: DrawerProduct | null = null;
   let drawerIndex = -1;
 
@@ -114,24 +115,24 @@
     drawerProduct = { product, index };
     formErrors = {};
     drawerMode = 'edit';
-    drawerOpen = true;
     
     const result = await loadData<Product>(`/api/_/products/${product.id}`, 'Failed to load product');
     if (result) {
       fullProductData = result;
       formData = {
-        name: fullProductData.name || '',
-        slug: fullProductData.slug || '',
-        brief: fullProductData.brief || '',
-        description: fullProductData.description || '',
-        amount: fullProductData.amount || 0,
-        active: fullProductData.active !== undefined ? fullProductData.active : true,
-        metadata: fullProductData.metadata || [],
-        attributes: fullProductData.attributes || [],
-        digital: fullProductData.digital || { type: '' }
+        name: result.name || '',
+        slug: result.slug || '',
+        brief: result.brief || '',
+        description: result.description || '',
+        amount: result.amount || 0,
+        active: result.active !== undefined ? result.active : true,
+        metadata: result.metadata || [],
+        attributes: result.attributes || [],
+        digital: result.digital || { type: '' }
       };
-      amountDisplay = costFormat(fullProductData.amount);
-      productImages = fullProductData.images || [];
+      amountDisplay = costFormat(result.amount);
+      productImages = result.images || [];
+      drawerOpen = true;
     }
   }
 
@@ -141,6 +142,16 @@
     drawerOpen = true;
   }
 
+  function openDigital(product: Product, index: number) {
+    drawerProduct = { product, index, currency };
+    drawerMode = 'digital';
+    drawerOpen = true;
+  }
+
+  async function handleDigitalContentUpdate() {
+    await loadProducts();
+  }
+
   function closeDrawer() {
     if (drawerOpen) {
       drawerOpen = false;
@@ -148,6 +159,22 @@
         drawerProduct = null;
         drawerMode = 'view';
       }, 200);
+    }
+  }
+
+  function updateProductInList(product: Product) {
+    const productIndex = products.findIndex(p => p.id === product.id);
+    if (productIndex !== -1) {
+      products = products.map((p, i) => 
+        i === productIndex ? product : p
+      );
+    }
+    if (drawerProduct && drawerProduct.product.id === product.id) {
+      drawerProduct.product = product;
+    }
+    if (fullProductData && fullProductData.id === product.id) {
+      fullProductData = product;
+      formData.active = product.active;
     }
   }
 
@@ -162,43 +189,34 @@
       formErrors.amount = 'Amount must be a positive number';
     }
 
-    // Валидация digital.type обязательна при создании продукта
-    if (drawerMode === 'add') {
-      if (!formData.digital?.type || formData.digital.type.trim() === '') {
-        formErrors.digital_type = 'Digital type is required';
-      }
+    if (drawerMode === 'add' && (!formData.digital?.type || formData.digital.type.trim() === '')) {
+      formErrors.digital_type = 'Digital type is required';
     }
 
     if (Object.keys(formErrors).length > 0) {
       return;
     }
 
+    const isUpdate = drawerMode === 'edit' && drawerProduct !== null;
+    const url = isUpdate ? `/api/_/products/${drawerProduct!.product.id}` : '/api/_/products';
     const submitData: Partial<Product> = {
       ...formData,
       amount: parseFloat(amountDisplay) || 0
     };
     
-    const isUpdate = drawerMode === 'edit' && drawerProduct !== null;
-    const url = isUpdate && drawerProduct ? `/api/_/products/${drawerProduct.product.id}` : '/api/_/products';
-    
     const result = await saveData<Product>(url, submitData, isUpdate, 'Product saved', 'Failed to save product');
     if (result) {
-      if (isUpdate && drawerProduct) {
-        // Update the specific product in the list reactively
-        const productId = drawerProduct.product.id;
-        const productIndex = products.findIndex(p => p.id === productId);
-        if (productIndex !== -1) {
-          products = products.map((p, i) => 
-            i === productIndex ? { ...result } : p
-          );
-        }
-        // Also update drawerProduct
-        drawerProduct.product = { ...result };
+      if (isUpdate) {
+        updateProductInList(result);
       } else {
-        // For new products, reload the list
         await loadProducts();
       }
       closeDrawer();
+    } else if (isUpdate && drawerProduct) {
+      const updatedProduct = await loadData<Product>(`/api/_/products/${drawerProduct.product.id}`, 'Failed to load product');
+      if (updatedProduct) {
+        updateProductInList(updatedProduct);
+      }
     }
   }
 
@@ -221,67 +239,40 @@
   async function toggleActiveInEdit() {
     if (!fullProductData) return;
     
-    // Optimistically update UI first
     const newActive = !fullProductData.active;
-    fullProductData = { ...fullProductData, active: newActive };
-    formData.active = newActive;
+    const updatedProduct = { ...fullProductData, active: newActive };
+    updateProductInList(updatedProduct);
     
-    // Also update in the products list if drawerProduct exists
-    if (drawerProduct) {
-      const productIndex = drawerProduct.index;
-      products = products.map((p, i) => 
-        i === productIndex ? { ...p, active: newActive } : p
-      );
-      drawerProduct.product = { ...drawerProduct.product, active: newActive };
-    }
-    
-    // Then make API call
-    const success = await toggleActiveApi(
+    const result = await toggleActiveApi(
       `/api/_/products/${fullProductData.id}/active`,
       'Product status updated',
       'Failed to update product'
     );
     
-    // If API call failed, revert the change
-    if (!success) {
-      const revertedActive = !newActive;
-      fullProductData = { ...fullProductData, active: revertedActive };
-      formData.active = revertedActive;
-      
-      if (drawerProduct) {
-        const productIndex = drawerProduct.index;
-        products = products.map((p, i) => 
-          i === productIndex ? { ...p, active: revertedActive } : p
-        );
-        drawerProduct.product = { ...drawerProduct.product, active: revertedActive };
+    if (result === null) {
+      updateProductInList(fullProductData);
+    } else {
+      const serverProduct = await loadData<Product>(`/api/_/products/${fullProductData.id}`, 'Failed to load product');
+      if (serverProduct) {
+        updateProductInList(serverProduct);
       }
     }
   }
 
   function addMetadataRecord() {
-    if (!formData.metadata) {
-      formData.metadata = [];
-    }
-    formData.metadata = [...formData.metadata, { key: '', value: '' }];
+    formData.metadata = [...(formData.metadata || []), { key: '', value: '' }];
   }
 
   function deleteMetadataRecord(index: number) {
-    if (formData.metadata) {
-      formData.metadata = formData.metadata.filter((_, i) => i !== index);
-    }
+    formData.metadata = (formData.metadata || []).filter((_, i) => i !== index);
   }
 
   function addAttributeRecord() {
-    if (!formData.attributes) {
-      formData.attributes = [];
-    }
-    formData.attributes = [...formData.attributes, ''];
+    formData.attributes = [...(formData.attributes || []), ''];
   }
 
   function deleteAttributeRecord(index: number) {
-    if (formData.attributes) {
-      formData.attributes = formData.attributes.filter((_, i) => i !== index);
-    }
+    formData.attributes = (formData.attributes || []).filter((_, i) => i !== index);
   }
 
   async function deleteProductImage(index: number) {
@@ -317,24 +308,27 @@
   }
 
   async function toggleActive(product: Product, index: number) {
-    // Optimistically update UI first
+    const originalActive = product.active;
     const newActive = !product.active;
     products = products.map((p, i) => 
       i === index ? { ...p, active: newActive } : p
     );
     
-    // Then make API call
-    const success = await toggleActiveApi(
-      `/api/_/products/${product.id}/active`,
-      'Product status updated',
-      'Failed to update product'
-    );
-    
-    // If API call failed, revert the change
-    if (!success) {
+    try {
+      const res = await apiUpdate(`/api/_/products/${product.id}/active`, {});
+      if (!res.success) {
+        products = products.map((p, i) => 
+          i === index ? { ...p, active: originalActive } : p
+        );
+        showMessage(res.message || 'Failed to update product', 'connextError');
+      } else {
+        showMessage(res.message || 'Product status updated', 'connextSuccess');
+      }
+    } catch (error) {
       products = products.map((p, i) => 
-        i === index ? { ...p, active: product.active } : p
+        i === index ? { ...p, active: originalActive } : p
       );
+      showMessage('Network error', 'connextError');
     }
   }
 
@@ -425,8 +419,8 @@
               {#if product.digital && product.digital.type}
                 <SvgIcon 
                   name={digitalTypeIco(product.digital.type)} 
-                  className="h-5 w-5" 
-                  on:click={() => openView(product, index)} 
+                  className="h-5 w-5 cursor-pointer {product.digital.filled === true ? 'text-black' : 'text-red-600'}" 
+                  on:click={() => openDigital(product, index)} 
                   stroke="currentColor"
                 />
               {/if}
@@ -472,6 +466,8 @@
       <ProductView drawer={drawerProduct} {updateActive} on:close={closeDrawer} />
     {:else if drawerMode === 'seo' && drawerProduct}
       <ProductSeo drawer={drawerProduct} on:close={closeDrawer} />
+    {:else if drawerMode === 'digital' && drawerProduct}
+      <ProductDigital drawer={drawerProduct} onContentUpdate={handleDigitalContentUpdate} on:close={closeDrawer} />
     {:else}
       <div>
         <div class="pb-8">
