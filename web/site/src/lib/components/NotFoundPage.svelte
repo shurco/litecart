@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { page } from "$app/stores";
   import { handleNavigation } from "$lib/utils/navigation";
   import { isBrowser } from "$lib/utils/browser";
   import { onDestroy } from "svelte";
 
-  const status = $derived($page.status || 404);
-  const isNotFound = $derived(status === 404);
-
-  // Add error-page class to body
+  // Add error-page class to body synchronously before render
   $effect.pre(() => {
     if (isBrowser()) {
       document.body.classList.add("error-page");
@@ -35,18 +31,16 @@
   <div class="max-w-3xl w-full text-center">
     <div class="brutal-card p-12 bg-red-300 mb-8">
       <h1 class="text-8xl sm:text-9xl font-black uppercase tracking-tighter text-black mb-4">
-        {status}
+        404
       </h1>
       <p class="text-3xl font-black uppercase tracking-wider text-black">
-        {isNotFound ? "NOT FOUND" : "ERROR"}
+        NOT FOUND
       </p>
     </div>
 
     <div class="brutal-card p-8 mb-8">
       <p class="text-xl font-bold uppercase tracking-wide text-black mb-8">
-        {isNotFound
-          ? "The page you're looking for doesn't exist or has been moved."
-          : "Something went wrong. Please try again later."}
+        The page you're looking for doesn't exist or has been moved.
       </p>
 
       <div class="flex justify-center">
@@ -60,12 +54,10 @@
       </div>
     </div>
 
-    {#if isNotFound}
-      <div class="brutal-card p-6 bg-white">
-        <p class="text-sm font-bold text-black uppercase tracking-wide">
-          Try checking the URL for typos, or return to the homepage to browse our products.
-        </p>
-      </div>
-    {/if}
+    <div class="brutal-card p-6 bg-white">
+      <p class="text-sm font-bold text-black uppercase tracking-wide">
+        Try checking the URL for typos, or return to the homepage to browse our products.
+      </p>
+    </div>
   </div>
 </div>

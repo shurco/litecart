@@ -37,7 +37,8 @@ Main components are located in `web/site/src/lib/components/`:
 - **Header.svelte** - site header with logo, social networks, and cart
 - **Footer.svelte** - site footer with page links
 - **ProductCard.svelte** - product card
-- **FormButton.svelte** - form button
+- **NotFoundPage.svelte** - 404 error page component
+- **Overlay.svelte** - overlay component for loading and errors
 
 Example of modifying Header:
 
@@ -138,11 +139,7 @@ Then use these colors in components:
 
 ## Deployment on a Separate Server with Nginx
 
-### Option 1: Frontend and API on the Same Domain
-
-This is the standard configuration where the frontend and API work on the same domain through Nginx.
-
-#### Step 1: Build Frontend
+### Step 1: Build Frontend
 
 ```bash
 cd web/site
@@ -150,7 +147,7 @@ bun install
 bun run build
 ```
 
-#### Step 2: Configure Nginx
+### Step 2: Configure Nginx
 
 Create Nginx configuration `/etc/nginx/sites-available/litecart`:
 
@@ -172,114 +169,7 @@ server {
     root /path/to/litecart/web/site/build;
     index index.html;
 
-    # API and uploads are proxied to litecart server
-    location /api {
-        proxy_pass http://localhost:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    location /uploads {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-
-    # Admin panel
-    location /_/ {
-        proxy_pass http://localhost:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_cache_bypass $http_upgrade;
-    }
-
     # SPA routing - all other requests to index.html
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-#### Step 3: Activate Configuration
-
-```bash
-sudo ln -s /etc/nginx/sites-available/litecart /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-#### Step 4: Start litecart Server
-
-```bash
-./litecart serve --http 127.0.0.1:8080 --no-site
-```
-
-The `--no-site` flag disables the embedded frontend since we're using a separate one.
-
-### Option 2: Frontend and API on Different Domains/Servers
-
-If the frontend should work on a separate domain or server, you need to configure CORS and specify the API address.
-
-#### Step 1: Configure API Server on a Different Address
-
-Create a configuration file for API URL. In `web/site/src/lib/utils/api.ts` you can add support for environment variables:
-
-```typescript
-// web/site/src/lib/utils/api.ts
-
-// Base API URL (can be set via environment variable)
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-
-async function handleRequest<T = any>(url: string, options: RequestOptions): Promise<ApiResponse<T>> {
-  try {
-    // Add base URL if specified
-    const fullUrl = API_BASE_URL ? `${API_BASE_URL}${url}` : url;
-    const response = await fetch(fullUrl, options)
-    // ... rest of the code
-  }
-}
-```
-
-#### Step 2: Configure Environment Variable
-
-Create a `.env` file in `web/site/`:
-
-```env
-VITE_API_URL=https://api.yourdomain.com
-```
-
-Or during build:
-
-```bash
-VITE_API_URL=https://api.yourdomain.com bun run build
-```
-
-#### Step 3: Configure CORS on API Server
-
-Make sure the litecart server allows requests from your frontend domain. This is usually configured in the server code (check `internal/app.go`).
-
-#### Step 4: Nginx Configuration for Frontend
-
-```nginx
-server {
-    listen 80;
-    server_name frontend.yourdomain.com;
-    
-    root /path/to/litecart/web/site/build;
-    index index.html;
-
-    # SPA routing
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -292,34 +182,12 @@ server {
 }
 ```
 
-#### Step 5: Nginx Configuration for API
+### Step 3: Activate Configuration
 
-```nginx
-server {
-    listen 80;
-    server_name api.yourdomain.com;
-    
-    client_max_body_size 20M;
-
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # CORS headers (if not configured in the application)
-        add_header 'Access-Control-Allow-Origin' 'https://frontend.yourdomain.com' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PATCH, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
-        add_header 'Access-Control-Allow-Credentials' 'true' always;
-        
-        if ($request_method = 'OPTIONS') {
-            return 204;
-        }
-    }
-}
+```bash
+sudo ln -s /etc/nginx/sites-available/litecart /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
 ### HTTPS Configuration
@@ -333,96 +201,12 @@ sudo certbot --nginx -d yourdomain.com
 
 Certbot will automatically update the Nginx configuration to use HTTPS.
 
-### Auto-start litecart
-
-Create a systemd service `/etc/systemd/system/litecart.service`:
-
-```ini
-[Unit]
-Description=Litecart Server
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/path/to/litecart
-ExecStart=/path/to/litecart/litecart serve --http 127.0.0.1:8080 --no-site
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Activate the service:
-
-```bash
-sudo systemctl enable litecart
-sudo systemctl start litecart
-```
-
-## Configuring API Server on a Different Address
-
-### For Development
-
-In the `web/site/vite.config.ts` file, configure the proxy:
-
-```typescript
-export default defineConfig({
-  plugins: [sveltekit(), tailwindcss()],
-  server: {
-    port: 5273,
-    proxy: {
-      '/api': {
-        target: 'http://your-api-server.com:8080',
-        changeOrigin: true
-      },
-      '/uploads': {
-        target: 'http://your-api-server.com:8080',
-        changeOrigin: true
-      }
-    }
-  }
-})
-```
-
-### For Production
-
-Use the `VITE_API_URL` environment variable as described above in the "Option 2" section.
-
-### Alternative Method via Configuration File
-
-You can create a configuration file `web/site/src/lib/config.ts`:
-
-```typescript
-// web/site/src/lib/config.ts
-
-export const config = {
-  apiUrl: import.meta.env.VITE_API_URL || (typeof window !== 'undefined' 
-    ? window.location.origin 
-    : ''),
-}
-
-// In api.ts use:
-import { config } from '$lib/config'
-
-const fullUrl = config.apiUrl ? `${config.apiUrl}${url}` : url;
-```
-
-This allows you to easily change the API address without rebuilding if you load the configuration dynamically.
-
 ## Complete Setup Example on a Separate Server
 
 ### Directory Structure
 
 ```
 /var/www/
-├── litecart/              # Binary and data
-│   ├── litecart          # Executable file
-│   ├── litecart.service  # Systemd service
-│   ├── lc_base/         # Database
-│   ├── lc_uploads/       # Uploaded files
-│   └── lc_digitals/     # Digital products
 └── litecart-frontend/    # Built frontend
     └── build/           # Static files
 ```
@@ -430,34 +214,23 @@ This allows you to easily change the API address without rebuilding if you load 
 ### Deployment Commands
 
 ```bash
-# 1. Create directories
-sudo mkdir -p /var/www/litecart
+# 1. Create directory
 sudo mkdir -p /var/www/litecart-frontend
 
-# 2. Copy binary
-sudo cp litecart /var/www/litecart/
-
-# 3. Build frontend
+# 2. Build frontend
 cd web/site
 bun install
 bun run build
 sudo cp -r build/* /var/www/litecart-frontend/
 
-# 4. Set permissions
-sudo chown -R www-data:www-data /var/www/litecart
+# 3. Set permissions
 sudo chown -R www-data:www-data /var/www/litecart-frontend
 
-# 5. Create systemd service
-sudo nano /etc/systemd/system/litecart.service
-# (paste configuration from section above)
-
-# 6. Configure Nginx
+# 4. Configure Nginx
 sudo nano /etc/nginx/sites-available/litecart
 # (paste configuration from section above)
 
-# 7. Activate everything
-sudo systemctl enable litecart
-sudo systemctl start litecart
+# 5. Activate Nginx configuration
 sudo ln -s /etc/nginx/sites-available/litecart /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx

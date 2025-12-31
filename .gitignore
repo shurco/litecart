@@ -44,7 +44,12 @@ cmd/site
 fixtures/migration/*_private.sql
 .DS_Store
 
+# Database files
+*.db
+litecart.db
+
 .cursor/
 .playwright-mcp/
 .svelte-kit/
 web/*/build/
+.shared/

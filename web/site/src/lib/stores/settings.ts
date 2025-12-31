@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store'
 import type { Settings } from '$lib/types/models'
+import { isBrowser } from '$lib/utils/browser'
 
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
@@ -11,7 +12,7 @@ function createSettingsStore() {
     set,
     update,
     loadFromCache: (): Settings | null => {
-      if (typeof window === 'undefined') return null
+      if (!isBrowser()) return null
 
       const cached = sessionStorage.getItem('settings')
       const timestamp = sessionStorage.getItem('settings_timestamp')
@@ -32,14 +33,14 @@ function createSettingsStore() {
       return null
     },
     saveToCache: (settings: Settings) => {
-      if (typeof window === 'undefined') return
+      if (!isBrowser()) return
 
       const expiry = Date.now() + CACHE_DURATION
       sessionStorage.setItem('settings', JSON.stringify(settings))
       sessionStorage.setItem('settings_timestamp', expiry.toString())
     },
     clearCache: () => {
-      if (typeof window === 'undefined') return
+      if (!isBrowser()) return
 
       sessionStorage.removeItem('settings')
       sessionStorage.removeItem('settings_timestamp')

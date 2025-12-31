@@ -1,14 +1,15 @@
 import { writable } from 'svelte/store'
 import type { CartItem } from '$lib/types/models'
+import { isBrowser, getLocalStorage, setLocalStorage } from '$lib/utils/browser'
 
 const CART_STORAGE_KEY = 'cart'
 
 function createCartStore() {
   const loadFromStorage = (): CartItem[] => {
-    if (typeof window === 'undefined') return []
+    if (!isBrowser()) return []
 
     try {
-      const stored = localStorage.getItem(CART_STORAGE_KEY)
+      const stored = getLocalStorage(CART_STORAGE_KEY)
       return stored ? JSON.parse(stored) : []
     } catch {
       return []
@@ -16,9 +17,9 @@ function createCartStore() {
   }
 
   const saveToStorage = (items: CartItem[]) => {
-    if (typeof window === 'undefined') return
+    if (!isBrowser()) return
 
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+    setLocalStorage(CART_STORAGE_KEY, JSON.stringify(items))
   }
 
   const { subscribe, set, update } = writable<CartItem[]>(loadFromStorage())

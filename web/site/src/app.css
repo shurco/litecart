@@ -1,6 +1,135 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/forms";
 
+/* Global link and button cursor */
+a {
+  cursor: pointer;
+}
+
+/* Hide header and footer on error pages */
+body.error-page header,
+body.error-page footer,
+body.error-page [role="banner"],
+body.error-page [role="contentinfo"] {
+  display: none !important;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Brutalist Design System */
+:root {
+  --brutal-black: #000000;
+  --brutal-white: #ffffff;
+  --brutal-yellow: #ffeb3b;
+  --brutal-red: #f44336;
+  --brutal-blue: #2196f3;
+  --brutal-green: #4caf50;
+  --brutal-border: 4px;
+  --brutal-shadow: 8px 8px 0px 0px;
+}
+
+/* Brutalist Animations */
+@keyframes brutal-slide {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes brutal-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes brutal-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes brutal-glow {
+  0%,
+  100% {
+    box-shadow: 8px 8px 0px 0px var(--brutal-black);
+  }
+  50% {
+    box-shadow: 12px 12px 0px 0px var(--brutal-black);
+  }
+}
+
+.brutal-animate-slide {
+  animation: brutal-slide 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.brutal-animate-bounce {
+  animation: brutal-bounce 0.5s ease-in-out;
+}
+
+.brutal-animate-shake {
+  animation: brutal-shake 0.3s ease-in-out;
+}
+
+.brutal-animate-glow {
+  animation: brutal-glow 2s ease-in-out infinite;
+}
+
+/* Brutalist Button Styles */
+.brutal-btn {
+  border: var(--brutal-border) solid var(--brutal-black);
+  box-shadow: var(--brutal-shadow) var(--brutal-black);
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.brutal-btn:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0px 0px var(--brutal-black);
+}
+
+.brutal-btn:active {
+  transform: translate(0, 0);
+  box-shadow: 4px 4px 0px 0px var(--brutal-black);
+}
+
+/* Brutalist Card Styles */
+.brutal-card {
+  border: var(--brutal-border) solid var(--brutal-black);
+  background: var(--brutal-white);
+}
+
+/* Brutalist Typography */
+.brutal-heading {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+
+.brutal-text {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 /* Additional styles for product description and tiptap editor */
 .prod_desc > * + * {
   margin-top: 0.75em;
@@ -8,17 +137,18 @@
 
 .prod_desc blockquote {
   padding-left: 1rem;
-  border-color: #6b7280;
+  border-color: var(--brutal-black);
   border-style: solid;
-  background: #f9f9f9;
-  border-left: 10px solid #ccc;
+  background: var(--brutal-white);
+  border-left: 10px solid var(--brutal-black);
   margin: 1.5em 10px;
   padding: 0.5em 10px;
   quotes: '\201C' '\201D' '\2018' '\2019';
+  border-width: 4px;
 }
 
 .prod_desc blockquote:before {
-  color: #ccc;
+  color: var(--brutal-black);
   content: open-quote;
   font-size: 4em;
   line-height: 0.1em;
@@ -38,7 +168,7 @@
 
 .prod_desc hr {
   border: none;
-  border-top: 2px solid rgba(13, 13, 13, 0.1);
+  border-top: 4px solid var(--brutal-black);
   margin: 2rem 0;
 }
 
@@ -61,18 +191,24 @@
 .tiptap h1 {
   font-size: 1.5rem;
   line-height: 2rem;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 900;
+  color: var(--brutal-black);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .tiptap h2 {
   font-size: 1.25rem;
   line-height: 1.75rem;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 900;
+  color: var(--brutal-black);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .tiptap h3 {
-  font-weight: 700;
-  color: #111827;
+  font-weight: 900;
+  color: var(--brutal-black);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }

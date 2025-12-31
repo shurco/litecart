@@ -65,72 +65,95 @@
   }
 </script>
 
-<div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-  <div class="mx-auto max-w-3xl">
-    {#if loading}
-      <div class="grid h-screen px-4 bg-white place-content-center">
-        <p class="text-gray-600">Loading...</p>
-      </div>
-    {:else if error}
-      <div class="grid h-screen px-4 bg-white place-content-center">
-        <h1 class="text-2xl font-bold text-red-600">Error</h1>
-        <p class="mt-4 text-gray-600">{error}</p>
-      </div>
-    {:else if cart}
-      <header class="text-center">
-        <h1 class="text-2xl font-bold text-green-600 sm:text-3xl">
-          Payment Successful!
-        </h1>
-        <p class="mt-4 text-gray-600">
-          Thank you for your purchase. Your order has been processed successfully.
-        </p>
-      </header>
-
-      <div class="mt-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Order Details</h2>
-        <ul class="space-y-4">
-          {#each cart.items as item}
-            <li class="flex items-center gap-4">
-              <img
-                src={getProductImageUrl(item.image, "sm")}
-                alt={item.name}
-                class="h-16 w-16 rounded object-cover"
-              />
-              <div class="flex-1">
-                <a href="/products/{item.slug}" class="text-gray-900 hover:text-blue-600">
-                  {item.name}
-                </a>
-                {#if item.quantity > 1}
-                  <p class="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                {/if}
-              </div>
-              <div class="text-right">
-                <p class="font-semibold">{costFormat(item.amount * item.quantity)} {cart.currency}</p>
-                {#if item.quantity > 1}
-                  <p class="text-sm text-gray-500">{costFormat(item.amount)} each</p>
-                {/if}
-              </div>
-            </li>
-          {/each}
-        </ul>
-
-        <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-          <div class="w-screen max-w-lg">
-            <dl class="space-y-0.5 text-sm text-gray-700">
-              <div class="flex justify-between !text-base font-bold">
-                <dt>Total</dt>
-                <dd>{totalAmount()} {cart.currency}</dd>
-              </div>
-            </dl>
+<div class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-screen-xl mx-auto">
+    <div class="mx-auto max-w-3xl">
+      {#if loading}
+        <div class="brutal-card p-12 text-center">
+          <div class="border-4 border-black bg-yellow-300 px-8 py-6 inline-block">
+            <p class="text-2xl font-black uppercase tracking-wider text-black">
+              LOADING...
+            </p>
           </div>
         </div>
-
-        <div class="mt-8 text-center">
-          <p class="text-gray-600">
-            Redirecting to home page in a few seconds...
-          </p>
+      {:else if error}
+        <div class="brutal-card p-12 bg-red-300">
+          <h1 class="text-4xl font-black uppercase tracking-tighter text-black mb-4">
+            ERROR
+          </h1>
+          <p class="text-xl font-bold text-black">{error}</p>
         </div>
-      </div>
-    {/if}
+      {:else if cart}
+        <div class="brutal-card p-8 sm:p-12 mb-8 bg-green-300">
+          <header class="text-center">
+            <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-black mb-4">
+              PAYMENT SUCCESSFUL!
+            </h1>
+            <p class="text-xl font-bold uppercase tracking-wider text-black">
+              Thank you for your purchase. Your order has been processed successfully.
+            </p>
+          </header>
+        </div>
+
+        <div class="brutal-card p-8 sm:p-12">
+          <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6 border-b-4 border-black pb-4">
+            ORDER DETAILS
+          </h2>
+          <ul class="space-y-4 mb-8">
+            {#each cart.items as item}
+              <li class="border-4 border-black bg-white p-4">
+                <div class="flex items-center gap-4">
+                  <div class="border-4 border-black overflow-hidden">
+                    <img
+                      src={getProductImageUrl(item.image, "sm")}
+                      alt={item.name}
+                      class="h-20 w-20 object-cover"
+                    />
+                  </div>
+                  <div class="flex-1">
+                    <a 
+                      href="/products/{item.slug}" 
+                      class="text-xl font-black uppercase tracking-tight text-black hover:underline decoration-4 decoration-yellow-300 underline-offset-4 cursor-pointer"
+                    >
+                      {item.name}
+                    </a>
+                    {#if item.quantity > 1}
+                      <p class="text-sm font-bold text-gray-700 mt-1">Quantity: {item.quantity}</p>
+                    {/if}
+                  </div>
+                  <div class="text-right">
+                    <p class="text-2xl font-black text-black">
+                      {costFormat(item.amount * item.quantity)} {cart.currency}
+                    </p>
+                    {#if item.quantity > 1}
+                      <p class="text-sm font-bold text-gray-600">{costFormat(item.amount)} each</p>
+                    {/if}
+                  </div>
+                </div>
+              </li>
+            {/each}
+          </ul>
+
+          <div class="border-t-4 border-black pt-6">
+            <div class="flex justify-between items-center">
+              <span class="text-3xl font-black uppercase tracking-tighter text-black">
+                TOTAL
+              </span>
+              <span class="text-4xl font-black text-black">
+                {totalAmount()} {cart.currency}
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <div class="border-4 border-black bg-yellow-300 px-6 py-4 inline-block">
+              <p class="text-lg font-black uppercase tracking-wider text-black">
+                Redirecting to home page in a few seconds...
+              </p>
+            </div>
+          </div>
+        </div>
+      {/if}
+    </div>
   </div>
 </div>

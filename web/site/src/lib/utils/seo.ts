@@ -8,12 +8,14 @@ export interface SEOData {
   description?: string
 }
 
+import { isBrowser } from './browser'
+
 /**
  * Updates SEO meta tags on the page
  * @param seo - SEO data
  */
 export function updateSEOTags(seo: SEOData): void {
-  if (typeof document === 'undefined') return
+  if (!isBrowser()) return
 
   if (seo.title) {
     document.title = seo.title

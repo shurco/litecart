@@ -10,9 +10,11 @@
     autoSelectProvider,
     getAvailableProviders,
   } from "$lib/utils/payment";
+  import { getLocalStorage, setLocalStorage, removeLocalStorage } from "$lib/utils/browser";
   import type { PaymentMethods } from "$lib/types/models";
   import { goto } from "$app/navigation";
   import Overlay from "$lib/components/Overlay.svelte";
+  import { handleNavigation } from "$lib/utils/navigation";
 
   let email = $state("");
   let provider = $state("");
@@ -24,10 +26,8 @@
   let currency = $derived($settingsStore?.main.currency || "");
 
   onMount(async () => {
-    if (typeof window !== "undefined") {
-      email = localStorage.getItem("email") || "";
-      provider = localStorage.getItem("provider") || "";
-    }
+    email = getLocalStorage("email");
+    provider = getLocalStorage("provider");
 
     const res = await apiGet<PaymentMethods>("/api/cart/payment");
     if (res.success && res.result) {
@@ -37,9 +37,9 @@
       const autoProvider = autoSelectProvider(payments);
       if (autoProvider) {
         provider = autoProvider;
-        localStorage.setItem("provider", provider);
+        setLocalStorage("provider", provider);
       } else if (!hasPaymentProviders(payments)) {
-        localStorage.removeItem("provider");
+        removeLocalStorage("provider");
         provider = "";
       }
     }
@@ -61,10 +61,8 @@
   async function checkOut(e: Event) {
     e.preventDefault();
 
-    if (typeof window !== "undefined") {
-      localStorage.setItem("email", email);
-      localStorage.setItem("provider", provider);
-    }
+    setLocalStorage("email", email);
+    setLocalStorage("provider", provider);
 
     error = undefined;
 
@@ -89,210 +87,208 @@
   }
 </script>
 
-<section>
-  <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-    <div class="mx-auto max-w-3xl">
-      <header class="text-center">
-        <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">
-          {cart.length > 0 ? "Your Cart" : "Your Cart is empty"}
+<section class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-screen-xl mx-auto">
+    <div class="mx-auto max-w-4xl">
+      <!-- Header -->
+      <header class="text-center mb-12">
+        <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-black mb-4">
+          {cart.length > 0 ? "YOUR CART" : "CART IS EMPTY"}
         </h1>
+        <div class="w-32 h-1 bg-black mx-auto"></div>
       </header>
+
+      {#if cart.length === 0}
+        <div class="brutal-card p-8 mb-8 text-center">
+          <p class="text-xl font-bold uppercase tracking-wide text-black mb-8">
+            Your cart is empty. Add some products to continue shopping.
+          </p>
+
+          <div class="flex justify-center">
+            <a
+              href="/"
+              onclick={(e) => handleNavigation(e, "/")}
+              class="inline-block border-4 border-black bg-yellow-300 text-black px-8 py-4 font-black text-lg uppercase tracking-wider hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 cursor-pointer"
+            >
+              GO TO HOME
+            </a>
+          </div>
+        </div>
+      {/if}
 
       <form onsubmit={checkOut}>
         {#if cart.length > 0}
-          <div class="mt-8">
+          <!-- Cart Items -->
+          <div class="mb-8">
+            <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6">
+              ITEMS ({cart.length})
+            </h2>
             <ul class="space-y-4">
               {#each cart as item}
-                <li class="flex items-center gap-4">
-                  <img
-                    src={getProductImageUrl(item.image, "sm")}
-                    alt={item.name}
-                    class="h-16 w-16 rounded object-cover"
-                  />
-                  <div>
-                    <a href="/products/{item.slug}" target="_blank">{item.name}</a>
-                  </div>
-                  <div class="flex flex-1 items-center justify-end gap-2">
-                    {costFormat(item.amount)} {currency}
-                    <button
-                      class="text-gray-600 transition hover:text-red-600 cursor-pointer"
-                      onclick={() => cartStore.remove(item.id)}
-                    >
-                      <span class="sr-only">Remove item</span>
-                      <svg class="h-4 w-4">
-                        <use href="/assets/img/sprite.svg#trash" />
-                      </svg>
-                    </button>
+                <li class="border-4 border-black bg-white p-4">
+                  <div class="flex items-center gap-4">
+                    <div class="border-4 border-black overflow-hidden">
+                      <img
+                        src={getProductImageUrl(item.image, "sm")}
+                        alt={item.name}
+                        class="h-20 w-20 object-cover"
+                      />
+                    </div>
+                    <div class="flex-1">
+                      <a 
+                        href="/products/{item.slug}" 
+                        target="_blank"
+                        class="text-xl font-black uppercase tracking-tight text-black hover:underline decoration-4 decoration-yellow-300 underline-offset-4 cursor-pointer"
+                      >
+                        {item.name}
+                      </a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <span class="text-2xl font-black text-black">
+                        {costFormat(item.amount)} {currency}
+                      </span>
+                      <button
+                        class="border-4 border-black bg-red-500 text-white p-2 font-black text-sm uppercase hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 cursor-pointer"
+                        onclick={() => cartStore.remove(item.id)}
+                        aria-label="Remove item"
+                      >
+                        <svg class="h-5 w-5">
+                          <use href="/assets/img/sprite.svg#trash" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </li>
               {/each}
             </ul>
-            <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-              <div class="w-screen max-w-lg">
-                <dl class="space-y-0.5 text-sm text-gray-700">
-                  <div class="flex justify-between !text-base">
-                    <dt>Total</dt>
-                    <dd>{totalCartAmount()} {currency}</dd>
-                  </div>
-                </dl>
-              </div>
+          </div>
+
+          <!-- Total -->
+          <div class="brutal-card p-8 mb-8 bg-yellow-300">
+            <div class="flex justify-between items-center">
+              <span class="text-3xl font-black uppercase tracking-tighter text-black">
+                TOTAL
+              </span>
+              <span class="text-4xl font-black text-black">
+                {totalCartAmount()} {currency}
+              </span>
+            </div>
+          </div>
+
+          {#if showPayments()}
+            <!-- Email Input -->
+            <div class="mb-8 mt-16">
+              <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6">
+                ENTER EMAIL
+              </h2>
+              <p class="text-sm font-bold uppercase tracking-wide text-black mb-4">
+                Enter the email address to which the item will be sent after payment.
+                {#if showSelectPayments()}
+                  Also, choose the payment system.
+                {/if}
+              </p>
+              <label for="email" class="block">
+                <input
+                  type="email"
+                  bind:value={email}
+                  id="email"
+                  required
+                  class="w-full border-4 border-black bg-white px-6 py-4 font-black text-lg uppercase tracking-wider text-black focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                  placeholder="EMAIL@EXAMPLE.COM"
+                />
+              </label>
             </div>
 
-            {#if showPayments()}
-              <div class="mt-8 border-t border-gray-100 pt-8">
-                <div class="mx-auto max-w-xl text-center">
-                  <p class="mt-4 text-gray-400">
-                    To continue, you need to enter the email address to which the item
-                    will be sent after payment.
-                    {#if showSelectPayments()}
-                      Also, choose the payment system through which the payment will be
-                      made.
-                    {/if}
-                  </p>
-                </div>
-              </div>
+            <!-- Payment Provider Selection -->
+            {#if showSelectPayments()}
+              <div class="mb-8 mt-16">
+                <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6">
+                  SELECT PAYMENT SYSTEM
+                </h2>
+                <fieldset class="space-y-4">
+                  {#if payments.stripe}
+                    <div>
+                      <input
+                        type="radio"
+                        bind:group={provider}
+                        value="stripe"
+                        id="stripe"
+                        class="peer hidden"
+                      />
+                      <label
+                        for="stripe"
+                        class="block border-4 border-black bg-white p-6 cursor-pointer peer-checked:bg-yellow-300 peer-checked:border-yellow-300"
+                      >
+                        <p class="text-xl font-black uppercase tracking-tight text-black mb-2">Stripe</p>
+                        <p class="text-sm font-bold text-black">
+                          Popular payment system for cards and other methods
+                        </p>
+                      </label>
+                    </div>
+                  {/if}
 
-              <div class="mt-8 border-t border-gray-100 pt-8">
-                <div class="text-center">
-                  <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl"
-                    >Enter email</p
-                  >
-                </div>
-                <div class="flex place-content-center">
-                  <label
-                    for="email"
-                    class="min-w-[50%] relative block rounded-md border-2 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"
-                    class:border-blue-500={!!email}
-                    class:ring-blue-500={!!email}
-                    class:ring-1={!!email}
-                    class:bg-blue-100={!!email}
-                    class:border-gray-200={!email}
-                  >
-                    <input
-                      type="email"
-                      bind:value={email}
-                      id="email"
-                      class="min-w-full peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-hidden focus:ring-0"
-                      placeholder="Email"
-                      required
-                    />
-                    <span
-                      class="rounded pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-blue-500 py-0.5 px-1 text-xs text-white transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:bg-white peer-placeholder-shown:text-gray-700 peer-focus:top-0 peer-focus:text-xs"
-                    >
-                      Email
-                    </span>
-                  </label>
-                </div>
-              </div>
+                  {#if payments.paypal}
+                    <div>
+                      <input
+                        type="radio"
+                        bind:group={provider}
+                        value="paypal"
+                        id="paypal"
+                        class="peer hidden"
+                      />
+                      <label
+                        for="paypal"
+                        class="block border-4 border-black bg-white p-6 cursor-pointer peer-checked:bg-yellow-300 peer-checked:border-yellow-300"
+                      >
+                        <p class="text-xl font-black uppercase tracking-tight text-black mb-2">PayPal</p>
+                        <p class="text-sm font-bold text-black">
+                          Payment system for cards and PayPal account funds
+                        </p>
+                      </label>
+                    </div>
+                  {/if}
 
-              {#if showSelectPayments()}
-                <div class="mt-8 border-t border-gray-100 pt-8">
-                  <div class="text-center">
-                    <p class="mb-5 text-lg font-bold text-gray-500 sm:text-3xl"
-                      >Select payment system</p
-                    >
-                  </div>
-                  <div class="flex place-content-center">
-                    <fieldset class="space-y-4 min-w-[50%]">
-                      {#if payments.stripe}
-                        <div>
-                          <input
-                            type="radio"
-                            bind:group={provider}
-                            value="stripe"
-                            id="stripe"
-                            class="peer hidden"
-                          />
-                          <label
-                            for="stripe"
-                            class="flex cursor-pointer items-center rounded-lg border-2 border-gray-100 bg-white p-4 hover:border-gray-200 peer-checked:border-blue-500 peer-checked:ring-1 peer-checked:bg-blue-100 peer-checked:ring-blue-500"
-                          >
-                            <dl class="flex flex-col">
-                              <p class="text-gray-700 text-sm font-medium">Stripe</p>
-                              <p class="text-gray-400 text-xs"
-                                >A popular payment system that allows payments with cards
-                                and<br />other widely available methods</p
-                              >
-                            </dl>
-                          </label>
-                        </div>
-                      {/if}
-
-                      {#if payments.paypal}
-                        <div>
-                          <input
-                            type="radio"
-                            bind:group={provider}
-                            value="paypal"
-                            id="paypal"
-                            class="peer hidden"
-                          />
-                          <label
-                            for="paypal"
-                            class="flex cursor-pointer items-center rounded-lg border-2 border-gray-100 bg-white p-4 hover:border-gray-200 peer-checked:border-blue-500 peer-checked:ring-1 peer-checked:bg-blue-100 peer-checked:ring-blue-500"
-                          >
-                            <dl class="flex flex-col">
-                              <p class="text-gray-700 text-sm font-medium">Paypal</p>
-                              <p class="text-gray-400 text-xs"
-                                >A popular payment system that allows payments with cards
-                                and<br />funds from a PayPal account.</p
-                              >
-                            </dl>
-                          </label>
-                        </div>
-                      {/if}
-
-                      {#if payments.spectrocoin}
-                        <div>
-                          <input
-                            type="radio"
-                            bind:group={provider}
-                            value="spectrocoin"
-                            id="spectrocoin"
-                            class="peer hidden"
-                          />
-                          <label
-                            for="spectrocoin"
-                            class="flex cursor-pointer items-center rounded-lg border-2 border-gray-100 bg-white p-4 hover:border-gray-200 peer-checked:border-blue-500 peer-checked:ring-1 peer-checked:bg-blue-100 peer-checked:ring-blue-500"
-                          >
-                            <dl class="flex flex-col">
-                              <p class="text-gray-700 text-sm font-medium"
-                                >Spectrocoin</p
-                              >
-                              <p class="text-gray-400 text-xs"
-                                >Payment system allowing to pay bills with
-                                cryptocurrency</p
-                              >
-                            </dl>
-                          </label>
-                        </div>
-                      {/if}
-                    </fieldset>
-                  </div>
-                </div>
-              {/if}
-
-              <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
-                <div class="w-screen max-w-lg space-y-4 flex justify-end">
-                  <input
-                    type="submit"
-                    value="Checkout"
-                    disabled={!email || (showSelectPayments() && !provider)}
-                    class="disabled:opacity-25 disabled:bg-gray-400 cursor-pointer block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
-                  />
-                </div>
-              </div>
-            {:else}
-              <div class="mt-8 border-t border-gray-100 pt-8">
-                <div class="mx-auto max-w-xl text-center">
-                  <p class="mt-4 text-red-400">
-                    To continue with the payment, the administrator must activate at least
-                    one payment system.
-                  </p>
-                </div>
+                  {#if payments.spectrocoin}
+                    <div>
+                      <input
+                        type="radio"
+                        bind:group={provider}
+                        value="spectrocoin"
+                        id="spectrocoin"
+                        class="peer hidden"
+                      />
+                      <label
+                        for="spectrocoin"
+                        class="block border-4 border-black bg-white p-6 cursor-pointer peer-checked:bg-yellow-300 peer-checked:border-yellow-300"
+                      >
+                        <p class="text-xl font-black uppercase tracking-tight text-black mb-2">Spectrocoin</p>
+                        <p class="text-sm font-bold text-black">
+                          Payment system allowing payments with cryptocurrency
+                        </p>
+                      </label>
+                    </div>
+                  {/if}
+                </fieldset>
               </div>
             {/if}
-          </div>
+
+            <!-- Checkout Button -->
+            <div class="flex justify-end">
+              <button
+                type="submit"
+                disabled={!email || (showSelectPayments() && !provider)}
+                class="border-4 border-black bg-green-500 text-white px-12 py-4 font-black text-xl uppercase tracking-wider transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer enabled:hover:shadow-[14px_14px_0px_0px_rgba(0,0,0,1)] enabled:hover:-translate-x-1 enabled:hover:-translate-y-1"
+              >
+                CHECKOUT
+              </button>
+            </div>
+          {:else}
+            <div class="brutal-card p-8 bg-red-300">
+              <p class="text-xl font-black uppercase tracking-wider text-black text-center">
+                NO PAYMENT SYSTEMS AVAILABLE. CONTACT ADMINISTRATOR.
+              </p>
+            </div>
+          {/if}
         {/if}
       </form>
     </div>
