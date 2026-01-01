@@ -3,6 +3,8 @@
   import { socialUrl } from '$lib/utils/socialUrl'
   import { handleNavigation } from '$lib/utils/navigation'
 
+  const SOCIALS_SVG_PATH = '/assets/img/socials.svg#'
+
   let settings = $derived($settingsStore)
   let pages = $derived(settings?.pages || [])
   let socials = $derived(settings?.socials || {})
@@ -41,7 +43,7 @@
                     aria-label={key}
                   >
                     <svg class="h-7 w-7">
-                      <use href="/assets/img/socials.svg#{key}" />
+                      <use href="{SOCIALS_SVG_PATH}{key}" />
                     </svg>
                   </a>
                 </li>

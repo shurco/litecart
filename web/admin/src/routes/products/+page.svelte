@@ -72,21 +72,21 @@
   function handleAmountInput(event: Event) {
     const target = event.target as HTMLInputElement
     let value = target.value
-    
+
     // Удаляем минус и другие недопустимые символы (кроме цифр, точки и пустой строки)
     value = value.replace(/[^0-9.]/g, '')
-    
+
     // Если значение начинается с точки, добавляем 0 перед точкой
     if (value.startsWith('.')) {
       value = '0' + value
     }
-    
+
     // Ограничиваем одну точку
     const parts = value.split('.')
     if (parts.length > 2) {
       value = parts[0] + '.' + parts.slice(1).join('')
     }
-    
+
     // Обновляем значение
     amountDisplay = value
     target.value = value
@@ -434,7 +434,7 @@
             </td>
             <td on:click={() => openView(product, index)}>
               {#if !product.amount || parseFloat(String(product.amount)) === 0}
-                <span class="text-green-600 font-bold">free</span>
+                <span class="font-bold text-green-600">free</span>
               {:else}
                 {costFormat(product.amount)}
                 {currency}
@@ -532,9 +532,9 @@
                 <div class="mt-3">
                   {currency}
                   {#if parseFloat(amountDisplay) === 0}
-                    <span class="text-green-600 font-bold ml-2">free</span>
+                    <span class="ml-2 font-bold text-green-600">free</span>
                   {/if}
-                  <span class="text-xs text-gray-500 ml-2">(if 0, the price will be free)</span>
+                  <span class="ml-2 text-xs text-gray-500">(if 0, the price will be free)</span>
                 </div>
               </div>
 

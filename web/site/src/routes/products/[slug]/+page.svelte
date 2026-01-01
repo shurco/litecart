@@ -75,6 +75,9 @@
 {:else if load && product}
   <section class="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-screen-xl">
+      <h1 class="mb-8 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">
+        {product.name}
+      </h1>
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         <!-- Product Images -->
         <div>
@@ -107,14 +110,14 @@
                 {/each}
               </div>
               <button
-                onclick={() => prevSlide(product.images!.length)}
+                onclick={() => prevSlide(product.images.length)}
                 class="absolute top-1/2 left-4 cursor-pointer border-4 border-black bg-yellow-300 p-3 text-xl font-black text-black transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
                 aria-label="Previous image"
               >
                 ←
               </button>
               <button
-                onclick={() => nextSlide(product.images!.length)}
+                onclick={() => nextSlide(product.images.length)}
                 class="absolute top-1/2 right-4 cursor-pointer border-4 border-black bg-yellow-300 p-3 text-xl font-black text-black transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
                 aria-label="Next image"
               >
@@ -127,19 +130,21 @@
         <!-- Product Info -->
         <div class="space-y-6">
           <div class="brutal-card p-8">
-            <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">
-              {product.name}
-            </h1>
-
             {#if product.attributes && product.attributes.length > 0}
               <div class="mb-6 flex flex-wrap gap-2">
                 {#each product.attributes as attr}
-                  <span
-                    class="border-4 border-black bg-blue-300 px-4 py-2 text-sm font-black tracking-wider text-black uppercase"
-                  >
+                  <span class="bg-blue-300 px-4 py-2 text-sm font-black tracking-wider text-black uppercase">
                     {attr}
                   </span>
                 {/each}
+              </div>
+            {/if}
+
+            {#if product.brief}
+              <div class="mb-6">
+                <p class="text-lg leading-relaxed text-black">
+                  {product.brief}
+                </p>
               </div>
             {/if}
 
@@ -151,14 +156,6 @@
                 <span class="text-2xl font-bold text-gray-700 uppercase">{currency}</span>
               {/if}
             </div>
-
-            {#if product.brief}
-              <div class="mb-6">
-                <p class="text-lg leading-relaxed font-bold text-black">
-                  {product.brief}
-                </p>
-              </div>
-            {/if}
 
             <button
               onclick={handleToggleCart}
@@ -189,7 +186,7 @@
       {#if product.description}
         <div class="mt-12">
           <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">DESCRIPTION</h2>
-          <div class="prod_desc text-lg leading-relaxed font-bold text-black">
+          <div class="prod_desc text-lg leading-relaxed text-black">
             {@html product.description}
           </div>
         </div>

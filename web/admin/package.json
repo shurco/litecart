@@ -8,7 +8,6 @@
     "build": "bun --bunx vite build",
     "preview": "bun --bunx vite preview",
     "check": "bun --bunx svelte-kit sync",
-    "check:watch": "bun --bunx svelte-kit sync",
     "format": "prettier --write .",
     "update": "bun update"
   },

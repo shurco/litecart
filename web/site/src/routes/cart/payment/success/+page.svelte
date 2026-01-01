@@ -77,7 +77,7 @@
       {:else if error}
         <div class="brutal-card bg-red-300 p-12">
           <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase">ERROR</h1>
-          <p class="text-xl font-bold text-black">{error}</p>
+          <p class="text-lg text-black">{error}</p>
         </div>
       {:else if cart}
         <div class="brutal-card mb-8 bg-green-300 p-8 sm:p-12">
@@ -85,7 +85,7 @@
             <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">
               PAYMENT SUCCESSFUL!
             </h1>
-            <p class="text-xl font-bold tracking-wider text-black uppercase">
+            <p class="text-lg tracking-wide text-black">
               Thank you for your purchase. Your order has been processed successfully.
             </p>
           </header>
@@ -110,7 +110,7 @@
                       {item.name}
                     </a>
                     {#if item.quantity > 1}
-                      <p class="mt-1 text-sm font-bold text-gray-700">Quantity: {item.quantity}</p>
+                      <p class="mt-1 text-lg text-gray-700">Quantity: {item.quantity}</p>
                     {/if}
                   </div>
                   <div class="text-right">
@@ -121,7 +121,7 @@
                       {/if}
                     </p>
                     {#if item.quantity > 1}
-                      <p class="text-sm font-bold text-gray-600">
+                      <p class="text-lg text-gray-600">
                         {costFormat(item.amount)}
                         {#if item.amount !== 0 && item.amount}
                           {' each'}

@@ -12,7 +12,7 @@
   <div class="w-full max-w-2xl">
     <div class="brutal-card bg-red-300 p-12 text-center">
       <h1 class="mb-8 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">PAYMENT CANCELLED</h1>
-      <p class="mb-8 text-xl font-bold tracking-wider text-black uppercase">
+      <p class="mb-8 text-lg tracking-wide text-black">
         Your payment has been cancelled. You can return to your cart to try again.
       </p>
       <a

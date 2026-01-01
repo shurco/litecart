@@ -173,15 +173,25 @@ button:not(:disabled) {
 }
 
 .prod_desc ul {
-  list-style: circle inside none;
-  margin: 1.5em 10px;
   list-style-type: disc;
+  margin: 1.5em 0;
+  padding-left: 2rem;
+}
+
+.prod_desc ul li {
+  margin: 0.5em 0;
+  padding-left: 0.5rem;
 }
 
 .prod_desc ol {
-  list-style: circle inside none;
-  margin: 1.5em 10px;
   list-style-type: decimal;
+  margin: 1.5em 0;
+  padding-left: 2rem;
+}
+
+.prod_desc ol li {
+  margin: 0.5em 0;
+  padding-left: 0.5rem;
 }
 
 .tiptap {
@@ -211,4 +221,49 @@ button:not(:disabled) {
   color: var(--brutal-black);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  margin: 1.5em 0;
+  padding-left: 2rem;
+}
+
+.tiptap ul li {
+  margin: 0.5em 0;
+  padding-left: 0.5rem;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  margin: 1.5em 0;
+  padding-left: 2rem;
+}
+
+.tiptap ol li {
+  margin: 0.5em 0;
+  padding-left: 0.5rem;
+}
+
+/* Global list styles for content areas - only for text content, not UI lists */
+section ul:not(nav ul):not(header ul):not(footer ul):not(.list-none) {
+  list-style-type: disc;
+  margin: 1.5em 0;
+  padding-left: 2rem;
+}
+
+section ul:not(nav ul):not(header ul):not(footer ul):not(.list-none) li {
+  margin: 0.5em 0;
+  padding-left: 0.5rem;
+}
+
+section ol:not(nav ol):not(header ol):not(footer ol):not(.list-none) {
+  list-style-type: decimal;
+  margin: 1.5em 0;
+  padding-left: 2rem;
+}
+
+section ol:not(nav ol):not(header ol):not(footer ol):not(.list-none) li {
+  margin: 0.5em 0;
+  padding-left: 0.5rem;
 }

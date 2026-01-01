@@ -31,7 +31,7 @@
             {error}
           </strong>
         </div>
-        <p class="mb-6 text-sm font-bold tracking-wide text-black uppercase">
+        <p class="mb-6 text-lg tracking-wide text-black">
           Try again in a little while, if the error doesn't go away - contact the administrator.
         </p>
         {#if onClose}

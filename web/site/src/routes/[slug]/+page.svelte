@@ -55,7 +55,7 @@
         >
           {content.name}
         </h1>
-        <div class="tiptap space-y-6 text-lg leading-relaxed font-bold text-black">
+        <div class="tiptap space-y-6 text-lg leading-relaxed text-black">
           {@html content.content}
         </div>
       </div>

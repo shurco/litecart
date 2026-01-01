@@ -26,9 +26,7 @@
     </div>
 
     <div class="brutal-card mb-8 p-8">
-      <p class="mb-8 text-xl font-bold tracking-wide text-black uppercase">
-        The page you're looking for doesn't exist or has been moved.
-      </p>
+      <p class="mb-8 text-lg tracking-wide text-black">The page you're looking for doesn't exist or has been moved.</p>
 
       <div class="flex justify-center">
         <a
@@ -42,7 +40,7 @@
     </div>
 
     <div class="brutal-card bg-white p-6">
-      <p class="text-sm font-bold tracking-wide text-black uppercase">
+      <p class="text-lg tracking-wide text-black">
         Try checking the URL for typos, or return to the homepage to browse our products.
       </p>
     </div>

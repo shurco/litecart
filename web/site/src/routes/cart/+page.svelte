@@ -174,7 +174,7 @@
 
       {#if cart.length === 0}
         <div class="brutal-card mb-8 p-8 text-center">
-          <p class="mb-8 text-xl font-bold tracking-wide text-black uppercase">
+          <p class="mb-8 text-lg tracking-wide text-black">
             Your cart is empty. Add some products to continue shopping.
           </p>
 
@@ -197,7 +197,7 @@
             <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">
               ITEMS ({cart.length})
             </h2>
-            <ul class="space-y-4">
+            <ul class="list-none space-y-4">
               {#each cart as item}
                 <li class="border-4 border-black bg-white p-4">
                   <div class="flex items-center gap-4">
@@ -214,7 +214,11 @@
                       </a>
                     </div>
                     <div class="flex items-center gap-4">
-                      <span class="text-2xl font-black {costFormat(item.amount) === 'free' ? 'text-green-500' : 'text-black'}">
+                      <span
+                        class="text-2xl font-black {costFormat(item.amount) === 'free'
+                          ? 'text-green-500'
+                          : 'text-black'}"
+                      >
                         {costFormat(item.amount)}
                         {#if item.amount !== 0 && item.amount}
                           {currency}
@@ -254,7 +258,7 @@
             <!-- Email Input -->
             <div class="mt-16 mb-8">
               <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">ENTER EMAIL</h2>
-              <p class="mb-4 text-sm font-bold tracking-wide text-black uppercase">
+              <p class="mb-4 text-lg tracking-wide text-black">
                 {#if isFree}
                   Enter the email address to which the item will be sent.
                 {:else}
@@ -286,7 +290,7 @@
                         class="block cursor-pointer border-4 border-black bg-white p-6 peer-checked:border-yellow-300 peer-checked:bg-yellow-300"
                       >
                         <p class="mb-2 text-xl font-black tracking-tight text-black uppercase">Stripe</p>
-                        <p class="text-sm font-bold text-black">Popular payment system for cards and other methods</p>
+                        <p class="text-lg text-black">Popular payment system for cards and other methods</p>
                       </label>
                     </div>
                   {/if}
@@ -299,7 +303,7 @@
                         class="block cursor-pointer border-4 border-black bg-white p-6 peer-checked:border-yellow-300 peer-checked:bg-yellow-300"
                       >
                         <p class="mb-2 text-xl font-black tracking-tight text-black uppercase">PayPal</p>
-                        <p class="text-sm font-bold text-black">Payment system for cards and PayPal account funds</p>
+                        <p class="text-lg text-black">Payment system for cards and PayPal account funds</p>
                       </label>
                     </div>
                   {/if}
@@ -318,7 +322,7 @@
                         class="block cursor-pointer border-4 border-black bg-white p-6 peer-checked:border-yellow-300 peer-checked:bg-yellow-300"
                       >
                         <p class="mb-2 text-xl font-black tracking-tight text-black uppercase">Spectrocoin</p>
-                        <p class="text-sm font-bold text-black">Payment system allowing payments with cryptocurrency</p>
+                        <p class="text-lg text-black">Payment system allowing payments with cryptocurrency</p>
                       </label>
                     </div>
                   {/if}

@@ -87,7 +87,7 @@
         <DetailList name="Name">{product.name}</DetailList>
         <DetailList name="Price">
           {#if !product.amount || parseFloat(String(product.amount)) === 0}
-            <span class="text-green-600 font-bold">free</span>
+            <span class="font-bold text-green-600">free</span>
           {:else}
             {costFormat(product.amount)} {drawer.currency || ''}
           {/if}
