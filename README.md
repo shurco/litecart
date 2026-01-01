@@ -18,8 +18,10 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 > [!WARNING]
 > Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users. Please keep in mind that litecart is still under active development and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
 
+### Video Example
 ![Example](https://github.com/shurco/litecart/blob/main/.github/media/demo.gif)
 
+### Admin Panel Screenshots
 <p align="center">
   <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/products.png" width="270">
   <img src="https://github.com/shurco/litecart/blob/main/.github/media/screenshots/product-edit.png" width="270">
@@ -322,6 +324,31 @@ To obtain a "Merchant ID", "Project (API) ID" and "Private key" in <a href="http
 > Please note that the "Private key" is confidential information that should be kept secure.
 
 
+#### Dummy Payment
+Dummy Payment is a built-in payment provider that comes pre-configured with litecart. It is designed for processing free products (products with a price of $0) and does not require any external payment system integration or API keys.
+
+**How it works:**
+- Automatically activated when a customer's cart contains only free products (total amount = $0)
+- No payment processing occurs - orders are immediately marked as paid
+- Customers only need to provide their email address to complete the checkout
+- Perfect for free downloads, samples, promotional content, and lead generation
+
+**Key features:**
+- **No configuration required**: Works out of the box, no setup needed
+- **No API keys needed**: Unlike other payment providers, Dummy Payment doesn't require any external accounts or credentials
+- **Instant processing**: Orders are processed immediately without waiting for payment confirmation
+- **Full feature support**: All standard features work with Dummy Payment, including email delivery, digital file downloads, license keys, and webhooks
+
+**When to use:**
+- Selling free products or samples
+- Offering promotional content
+- Collecting email addresses for lead generation
+- Testing the checkout process during development
+
+> [!NOTE]
+> Dummy Payment is only used for carts containing exclusively free products. If a cart contains both free and paid products, customers must use a regular payment system (Stripe, PayPal, or SpectroCoin) to complete the purchase.
+
+
 ## 🆓&nbsp;&nbsp;Free Products
 
 Litecart supports free products, allowing you to offer digital content, samples, or promotional materials at no cost to your customers.
@@ -336,10 +363,10 @@ To create a free product:
 
 ### How Free Products Work
 
-- **Automatic Processing**: When a customer adds only free products to their cart (total amount = 0), the checkout process automatically uses the built-in dummy payment provider
-- **No Payment Required**: Free products bypass all payment system integrations - customers can complete their purchase with just an email address
+- **Automatic Processing**: When a customer adds only free products to their cart (total amount = 0), the checkout process automatically uses the built-in **Dummy Payment** provider (see [Dummy Payment](#dummy-payment-built-in) section for details)
+- **No Payment Required**: Free products bypass all external payment system integrations - customers can complete their purchase with just an email address
 - **Instant Access**: After checkout, customers immediately receive access to free products via email, just like paid products
-- **Mixed Carts**: If a cart contains both free and paid products, customers must use a regular payment system to complete the purchase
+- **Mixed Carts**: If a cart contains both free and paid products, customers must use a regular payment system (Stripe, PayPal, or SpectroCoin) to complete the purchase
 
 ### Use Cases
 
@@ -353,9 +380,10 @@ Free products are perfect for:
 ### Technical Details
 
 - Free products are identified by `amount = 0` in the database
-- The dummy payment provider is automatically selected for carts with `amountTotal = 0`
+- The **Dummy Payment** provider is automatically selected for carts with `amountTotal = 0`
 - All standard features work with free products: email delivery, digital file downloads, license keys, and webhooks
 - Free products are included in order history and cart management just like paid products
+- No external payment processing occurs - orders are immediately marked as paid when using Dummy Payment
 
 
 ## 🧩&nbsp;&nbsp;For developers
@@ -401,6 +429,7 @@ For detailed information on how to customize the site design and deploy it on a 
 - [ ] Payment via Webhook
 - [x] <a href="#spectrocoin">Support for payment using crypto</a>
 - [x] Support WebHook (<a href="https://github.com/msalbrain" target="_blank">@nicksnyder</a> in <a href="https://github.com/shurco/litecart/pull/61" target="_blank">#61</a>)
+- [x] <a href="#dummy-payment">Dummy Payment</a> (<a href="https://github.com/majiayu000" target="_blank">@majiayu000</a> in <a href="https://github.com/shurco/litecart/pull/261" target="_blank">#261</a>)
 
 
 ## 👍&nbsp;&nbsp;Contribute
