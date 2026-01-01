@@ -55,6 +55,24 @@ export interface Cart {
   updated?: string
 }
 
+export interface CartItem {
+  id: string
+  name: string
+  slug: string
+  amount: number
+  quantity: number
+  image?: {
+    id: string
+    name: string
+    ext: string
+    orig_name?: string
+  }
+}
+
+export interface CartDetail extends Cart {
+  items?: CartItem[]
+}
+
 export interface PaymentSettings {
   currency: string
 }

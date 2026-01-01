@@ -180,6 +180,42 @@ func (q *CartQueries) Cart(ctx context.Context, cartId string) (*models.Cart, er
 	return cart, nil
 }
 
+// BuildCartItems builds cart items with full product information
+func BuildCartItems(cart *models.Cart, products *models.Products) []map[string]interface{} {
+	if len(cart.Cart) == 0 || len(products.Products) == 0 {
+		return nil
+	}
+
+	productMap := make(map[string]*models.Product, len(products.Products))
+	for i := range products.Products {
+		productMap[products.Products[i].ID] = &products.Products[i]
+	}
+
+	cartItems := make([]map[string]interface{}, 0, len(cart.Cart))
+	for _, cartItem := range cart.Cart {
+		product, ok := productMap[cartItem.ProductID]
+		if !ok {
+			continue
+		}
+
+		item := map[string]interface{}{
+			"id":       product.ID,
+			"name":     product.Name,
+			"slug":     product.Slug,
+			"amount":   product.Amount,
+			"quantity": cartItem.Quantity,
+		}
+
+		if len(product.Images) > 0 {
+			item["image"] = product.Images[0]
+		}
+
+		cartItems = append(cartItems, item)
+	}
+
+	return cartItems
+}
+
 // AddCart inserts a new cart into the database.
 func (q *CartQueries) AddCart(ctx context.Context, cart *models.Cart) error {
 	byteCart, err := json.Marshal(cart.Cart)

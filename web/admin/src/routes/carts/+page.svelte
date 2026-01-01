@@ -1,14 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import Main from '$lib/layouts/Main.svelte'
+  import Drawer from '$lib/components/Drawer.svelte'
+  import CartView from '$lib/components/cart/View.svelte'
   import SvgIcon from '$lib/components/SvgIcon.svelte'
   import { loadData, handleApiCall } from '$lib/utils/apiHelpers'
   import { apiPost } from '$lib/utils'
   import { costFormat, formatDate } from '$lib/utils'
+  import { STRIPE_DASHBOARD_URL } from '$lib/utils/constants'
   import type { Cart } from '$lib/types/models'
+
+  interface DrawerCart {
+    cart: Cart
+  }
 
   let carts: Cart[] = []
   let loading = true
+  let drawerOpen = false
+  let drawerCart: DrawerCart | null = null
 
   onMount(async () => {
     await loadCarts()
@@ -23,7 +32,22 @@
     loading = false
   }
 
-  async function sendMail(cartId: string) {
+  function openView(cart: Cart) {
+    drawerCart = { cart }
+    drawerOpen = true
+  }
+
+  function closeDrawer() {
+    if (drawerOpen) {
+      drawerOpen = false
+      setTimeout(() => {
+        drawerCart = null
+      }, 200)
+    }
+  }
+
+  async function sendMail(cartId: string, event: Event) {
+    event.stopPropagation()
     await handleApiCall(
       () => apiPost(`/api/_/carts/${cartId}/mail`, {}),
       'Mail sent successfully',
@@ -55,18 +79,15 @@
         </tr>
       </thead>
       <tbody>
-        {#each carts as cart}
-          <tr class:bg-green-50={cart.payment_status === 'paid'}>
+        {#each carts as cart, index}
+          <tr
+            class:bg-green-50={cart.payment_status === 'paid'}
+            class="cursor-pointer hover:bg-gray-50"
+            onclick={() => openView(cart)}
+          >
             <td>{cart.email || '-'}</td>
             <td>
-              {#if cart.payment_id}
-                <a href="https://dashboard.stripe.com/payments/{cart.payment_id}" target="_blank">
-                  {costFormat(cart.amount_total)}
-                  {cart.currency || ''}
-                </a>
-              {:else}
-                {costFormat(cart.amount_total)} {cart.currency || ''}
-              {/if}
+              {costFormat(cart.amount_total)} {cart.currency || ''}
             </td>
             <td
               class={cart.payment_status === 'paid'
@@ -86,12 +107,12 @@
                 {formatDate(cart.updated)}
               {/if}
             </td>
-            <td>
+            <td onclick={(e) => e.stopPropagation()}>
               {#if cart.payment_status === 'paid'}
                 <SvgIcon
                   name="envelope"
                   className="h-5 w-5 cursor-pointer"
-                  on:click={() => sendMail(cart.id)}
+                  onclick={(e: Event) => sendMail(cart.id, e)}
                   stroke="currentColor"
                 />
               {:else}
@@ -104,3 +125,11 @@
     </table>
   {/if}
 </svelte:component>
+
+{#if drawerOpen}
+  <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="710px">
+    {#if drawerCart}
+      <CartView drawer={drawerCart} on:close={closeDrawer} />
+    {/if}
+  </Drawer>
+{/if}

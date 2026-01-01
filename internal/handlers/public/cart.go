@@ -75,56 +75,25 @@ func GetCart(c *fiber.Ctx) error {
 	}
 
 	// Load full product information for cart items
+	var cartItems []map[string]interface{}
 	if len(cart.Cart) > 0 {
-		productIDs := make([]string, len(cart.Cart))
-		for i, item := range cart.Cart {
-			productIDs[i] = item.ProductID
-		}
-
 		products, err := db.ListProducts(c.Context(), false, cart.Cart...)
 		if err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)
 		}
-
-		// Create a map for quick lookup
-		productMap := make(map[string]*models.Product)
-		for i := range products.Products {
-			productMap[products.Products[i].ID] = &products.Products[i]
-		}
-
-		// Build cart items with full product information
-		cartItems := make([]map[string]interface{}, 0, len(cart.Cart))
-		for _, cartItem := range cart.Cart {
-			if product, ok := productMap[cartItem.ProductID]; ok {
-				var image interface{}
-				if len(product.Images) > 0 {
-					image = product.Images[0]
-				}
-				cartItems = append(cartItems, map[string]interface{}{
-					"id":       product.ID,
-					"name":     product.Name,
-					"slug":     product.Slug,
-					"amount":   product.Amount,
-					"quantity": cartItem.Quantity,
-					"image":    image,
-				})
-			}
-		}
-
-		// Return cart with full product information
-		return webutil.Response(c, fiber.StatusOK, "Cart", map[string]interface{}{
-			"id":             cart.ID,
-			"email":          cart.Email,
-			"amount_total":   cart.AmountTotal,
-			"currency":       cart.Currency,
-			"payment_status": cart.PaymentStatus,
-			"payment_system": cart.PaymentSystem,
-			"items":          cartItems,
-		})
+		cartItems = queries.BuildCartItems(cart, products)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Cart", cart)
+	return webutil.Response(c, fiber.StatusOK, "Cart", map[string]interface{}{
+		"id":             cart.ID,
+		"email":          cart.Email,
+		"amount_total":   cart.AmountTotal,
+		"currency":       cart.Currency,
+		"payment_status": cart.PaymentStatus,
+		"payment_system": cart.PaymentSystem,
+		"items":          cartItems,
+	})
 }
 
 // Payment initiates a payment process for a cart.
