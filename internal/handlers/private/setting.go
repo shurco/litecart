@@ -103,6 +103,8 @@ func GetSetting(c *fiber.Ctx) error {
 		section, err = db.GetSettingByGroup(c.Context(), &models.Paypal{})
 	case "spectrocoin":
 		section, err = db.GetSettingByGroup(c.Context(), &models.Spectrocoin{})
+	case "dummy":
+		section, err = db.GetSettingByGroup(c.Context(), &models.Dummy{})
 	case "mail":
 		section, err = db.GetSettingByGroup(c.Context(), &models.Mail{})
 	default:
@@ -146,6 +148,8 @@ func UpdateSetting(c *fiber.Ctx) error {
 		request = &models.Paypal{}
 	case "spectrocoin":
 		request = &models.Spectrocoin{}
+	case "dummy":
+		request = &models.Dummy{}
 	case "webhook":
 		request = &models.Webhook{}
 	case "mail":

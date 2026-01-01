@@ -105,12 +105,18 @@ func (v Spectrocoin) Validate() error {
 	)
 }
 
+// Dummy is ...
+type Dummy struct {
+	Active bool `json:"active"`
+}
+
 // PaymentSystem is ...
 type PaymentSystem struct {
 	Active      []string    `json:"active"`
 	Stripe      Stripe      `json:"stripe"`
 	Paypal      Paypal      `json:"paypal"`
 	Spectrocoin Spectrocoin `json:"spectrocoin"`
+	Dummy       Dummy       `json:"dummy"`
 }
 
 // Validate is ...

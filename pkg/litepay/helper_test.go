@@ -115,6 +115,8 @@ func Test_status_payment(t *testing.T) {
 		{SPECTROCOIN, "5", FAILED},
 		{SPECTROCOIN, "6", TEST},
 		{SPECTROCOIN, "", FAILED},
+		{DUMMY, "paid", PAID},
+		{DUMMY, "", FAILED},
 	}
 
 	for _, tt := range cases {
