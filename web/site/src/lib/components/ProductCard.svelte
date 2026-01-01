@@ -63,7 +63,9 @@
         <span class="text-3xl font-black tracking-tight text-black">
           {costFormat(product.amount)}
         </span>
-        <span class="text-lg font-bold text-gray-600 uppercase">{currency}</span>
+        {#if product.amount !== 0 && product.amount}
+          <span class="text-lg font-bold text-gray-600 uppercase">{currency}</span>
+        {/if}
       </div>
 
       <button

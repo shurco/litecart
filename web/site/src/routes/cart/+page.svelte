@@ -17,54 +17,132 @@
   let payments = $state<PaymentMethods>({})
   let showOverlay = $state(false)
   let error = $state<string | undefined>(undefined)
+  let isLoadingPaymentMethods = $state(false)
 
   let cart = $derived($cartStore)
   let currency = $derived($settingsStore?.main.currency || '')
 
-  onMount(async () => {
-    email = getLocalStorage('email')
-    provider = getLocalStorage('provider')
+  // Calculate total cart amount in cents
+  let cartTotal = $derived(cart.reduce((sum, item) => sum + item.amount, 0))
+  let isFree = $derived(cartTotal === 0)
 
-    const res = await apiGet<PaymentMethods>('/api/cart/payment')
-    if (res.success && res.result) {
-      payments = res.result
-
-      // Auto-select provider if only one is available
-      const autoProvider = autoSelectProvider(payments)
-      if (autoProvider) {
-        provider = autoProvider
-        setLocalStorage('provider', provider)
-      } else if (!hasPaymentProviders(payments)) {
-        removeLocalStorage('provider')
+  // Handle payment provider based on cart state
+  $effect(() => {
+    if (isFree) {
+      // For free carts, don't auto-set provider to prevent accidental checkout
+      // Provider will be set only when user explicitly clicks checkout button
+      // Clear any existing provider selection when cart becomes free
+      if (provider && provider !== 'dummy') {
         provider = ''
+        removeLocalStorage('provider')
+      }
+    } else if (!isFree) {
+      // If cart is no longer free, reset provider and load payment methods
+      if (provider === 'dummy') {
+        provider = ''
+        removeLocalStorage('provider')
+      }
+      // Load payment methods if not already loaded and not currently loading
+      if (!hasPaymentProviders(payments) && !isLoadingPaymentMethods) {
+        loadPaymentMethods().catch((err) => {
+          console.error('Failed to load payment methods:', err)
+          error = 'Failed to load payment methods. Please refresh the page.'
+          showOverlay = true
+        })
       }
     }
   })
 
+  async function loadPaymentMethods() {
+    // Prevent multiple simultaneous calls
+    if (isLoadingPaymentMethods) {
+      return
+    }
+
+    isLoadingPaymentMethods = true
+    try {
+      const res = await apiGet<PaymentMethods>('/api/cart/payment')
+      if (res.success && res.result) {
+        payments = res.result
+
+        // Don't auto-select provider - user must explicitly choose
+        if (!hasPaymentProviders(payments)) {
+          removeLocalStorage('provider')
+          provider = ''
+        } else {
+          // Reset provider - user must choose explicitly
+          provider = ''
+          removeLocalStorage('provider')
+        }
+      } else {
+        throw new Error(res.message || 'Failed to load payment methods')
+      }
+    } finally {
+      isLoadingPaymentMethods = false
+    }
+  }
+
+  onMount(async () => {
+    email = getLocalStorage('email')
+
+    // If cart is not free, load payment methods
+    // $effect will also handle this, but we load here on initial mount to avoid delay
+    if (!isFree && !hasPaymentProviders(payments)) {
+      await loadPaymentMethods().catch((err) => {
+        console.error('Failed to load payment methods on mount:', err)
+        error = 'Failed to load payment methods. Please refresh the page.'
+        showOverlay = true
+      })
+    }
+    // Don't auto-set provider for free carts on mount to prevent accidental checkout
+  })
+
   function showPayments(): boolean {
+    // Hide payment systems if cart is free (will use dummy automatically)
+    if (isFree) {
+      return false
+    }
     return hasPaymentProviders(payments)
   }
 
   function showSelectPayments(): boolean {
-    return getAvailableProviders(payments).length > 1
+    // Never show payment selection for free carts
+    if (isFree) {
+      return false
+    }
+    // Always show payment selection for paid carts (even if only one option)
+    return hasPaymentProviders(payments)
   }
 
   function totalCartAmount(): string {
-    const total = cart.reduce((sum, item) => sum + item.amount, 0)
-    return costFormat(total)
+    return costFormat(cartTotal)
   }
 
   async function checkOut(e: Event) {
     e.preventDefault()
 
     setLocalStorage('email', email)
-    setLocalStorage('provider', provider)
 
     error = undefined
 
+    // Ensure provider is set correctly based on cart total
+    let finalProvider = provider
+    if (isFree) {
+      // Force dummy provider for free carts
+      finalProvider = 'dummy'
+      setLocalStorage('provider', finalProvider)
+    } else if (!finalProvider) {
+      // If cart is paid but no provider selected, show error
+      error = 'Please select a payment system'
+      showOverlay = true
+      return
+    } else {
+      setLocalStorage('provider', finalProvider)
+    }
+
     const cartData = {
       email,
-      provider,
+      provider: finalProvider,
       products: cart.map((item) => ({ id: item.id, quantity: 1 }))
     }
 
@@ -136,11 +214,14 @@
                       </a>
                     </div>
                     <div class="flex items-center gap-4">
-                      <span class="text-2xl font-black text-black">
+                      <span class="text-2xl font-black {costFormat(item.amount) === 'free' ? 'text-green-500' : 'text-black'}">
                         {costFormat(item.amount)}
-                        {currency}
+                        {#if item.amount !== 0 && item.amount}
+                          {currency}
+                        {/if}
                       </span>
                       <button
+                        type="button"
                         class="cursor-pointer border-4 border-black bg-red-500 p-2 text-sm font-black text-white uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
                         onclick={() => cartStore.remove(item.id)}
                         aria-label="Remove item"
@@ -160,21 +241,24 @@
           <div class="brutal-card mb-8 bg-yellow-300 p-8">
             <div class="flex items-center justify-between">
               <span class="text-3xl font-black tracking-tighter text-black uppercase"> TOTAL </span>
-              <span class="text-4xl font-black text-black">
+              <span class="text-4xl font-black {totalCartAmount() === 'free' ? 'text-green-500' : 'text-black'}">
                 {totalCartAmount()}
-                {currency}
+                {#if cart.length > 0 && cartTotal !== 0}
+                  {currency}
+                {/if}
               </span>
             </div>
           </div>
 
-          {#if showPayments()}
+          {#if isFree || showPayments()}
             <!-- Email Input -->
             <div class="mt-16 mb-8">
               <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">ENTER EMAIL</h2>
               <p class="mb-4 text-sm font-bold tracking-wide text-black uppercase">
-                Enter the email address to which the item will be sent after payment.
-                {#if showSelectPayments()}
-                  Also, choose the payment system.
+                {#if isFree}
+                  Enter the email address to which the item will be sent.
+                {:else}
+                  Enter the email address to which the item will be sent after payment. Also, choose the payment system.
                 {/if}
               </p>
               <label for="email" class="block">
@@ -246,10 +330,14 @@
             <div class="flex justify-end">
               <button
                 type="submit"
-                disabled={!email || (showSelectPayments() && !provider)}
+                disabled={!email || (!isFree && !provider)}
                 class="cursor-pointer border-4 border-black bg-green-500 px-12 py-4 text-xl font-black tracking-wider text-white uppercase transition-all duration-200 enabled:hover:-translate-x-1 enabled:hover:-translate-y-1 enabled:hover:shadow-[14px_14px_0px_0px_rgba(0,0,0,1)] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                CHECKOUT
+                {#if isFree}
+                  GET FOR FREE
+                {:else}
+                  CHECKOUT
+                {/if}
               </button>
             </div>
           {:else}

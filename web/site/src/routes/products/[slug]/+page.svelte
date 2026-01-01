@@ -147,7 +147,9 @@
               <span class="text-5xl font-black tracking-tight text-black">
                 {costFormat(product.amount)}
               </span>
-              <span class="text-2xl font-bold text-gray-700 uppercase">{currency}</span>
+              {#if product.amount !== 0 && product.amount}
+                <span class="text-2xl font-bold text-gray-700 uppercase">{currency}</span>
+              {/if}
             </div>
 
             {#if product.brief}

@@ -14,6 +14,11 @@ export default defineConfig({
       '/uploads': {
         target: 'http://localhost:8080/',
         changeOrigin: true
+      },
+      '^/cart/payment': {
+        target: 'http://localhost:8080/',
+        changeOrigin: true,
+        ws: true
       }
     }
   }

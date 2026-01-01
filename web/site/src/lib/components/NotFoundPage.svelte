@@ -48,12 +48,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  :global(body.error-page header),
-  :global(body.error-page footer),
-  :global(body.error-page [role='banner']),
-  :global(body.error-page [role='contentinfo']) {
-    display: none !important;
-  }
-</style>

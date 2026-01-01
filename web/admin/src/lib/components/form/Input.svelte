@@ -22,6 +22,7 @@
       placeholder={computedPlaceholder}
       autocomplete="on"
       on:focusout
+      on:input
     />
     {#if title}
       <span

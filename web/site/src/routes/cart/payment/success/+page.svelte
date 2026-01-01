@@ -116,10 +116,17 @@
                   <div class="text-right">
                     <p class="text-2xl font-black text-black">
                       {costFormat(item.amount * item.quantity)}
-                      {cart.currency}
+                      {#if item.amount !== 0 && item.amount}
+                        {cart.currency}
+                      {/if}
                     </p>
                     {#if item.quantity > 1}
-                      <p class="text-sm font-bold text-gray-600">{costFormat(item.amount)} each</p>
+                      <p class="text-sm font-bold text-gray-600">
+                        {costFormat(item.amount)}
+                        {#if item.amount !== 0 && item.amount}
+                          {' each'}
+                        {/if}
+                      </p>
                     {/if}
                   </div>
                 </div>
@@ -132,7 +139,9 @@
               <span class="text-3xl font-black tracking-tighter text-black uppercase"> TOTAL </span>
               <span class="text-4xl font-black text-black">
                 {totalAmount()}
-                {cart.currency}
+                {#if cart && cart.amount_total !== 0}
+                  {cart.currency}
+                {/if}
               </span>
             </div>
           </div>

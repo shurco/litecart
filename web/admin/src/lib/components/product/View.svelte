@@ -85,7 +85,13 @@
       <dl class="-my-3 mt-2 divide-y divide-gray-100 text-sm">
         <DetailList name="ID">{product.id}</DetailList>
         <DetailList name="Name">{product.name}</DetailList>
-        <DetailList name="Price">{costFormat(product.amount)} {drawer.currency || ''}</DetailList>
+        <DetailList name="Price">
+          {#if !product.amount || parseFloat(String(product.amount)) === 0}
+            <span class="text-green-600 font-bold">free</span>
+          {:else}
+            {costFormat(product.amount)} {drawer.currency || ''}
+          {/if}
+        </DetailList>
         <DetailList name="Slug">{product.slug}</DetailList>
         <DetailList name="Metadata">
           {#each product.metadata || [] as data}

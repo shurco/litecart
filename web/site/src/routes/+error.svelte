@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { page } from '$app/stores'
+  import { page as pageStore } from '$app/stores'
   import { handleNavigation } from '$lib/utils/navigation'
   import { isBrowser } from '$lib/utils/browser'
   import { onDestroy } from 'svelte'
 
-  const status = $derived($page.status || 404)
+  const status = $derived($pageStore.status || 404)
   const isNotFound = $derived(status === 404)
 
   // Add error-page class to body
@@ -60,12 +60,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  :global(body.error-page header),
-  :global(body.error-page footer),
-  :global(body.error-page [role='banner']),
-  :global(body.error-page [role='contentinfo']) {
-    display: none !important;
-  }
-</style>

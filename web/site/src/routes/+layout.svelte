@@ -3,6 +3,12 @@
   import { page } from '$app/stores'
   import '../app.css'
 
+  interface Props {
+    children: import('svelte').Snippet
+  }
+
+  let { children }: Props = $props()
+
   // Check if this is an error page (has error or status >= 400)
   const isErrorPage = $derived($page.error !== null || ($page.status && $page.status >= 400))
 </script>
@@ -14,11 +20,9 @@
       display: none !important;
     }
   </style>
-  <slot />
+  {@render children()}
 {:else}
   <MainLayout>
-    {#snippet children()}
-      <slot />
-    {/snippet}
+    {@render children()}
   </MainLayout>
 {/if}

@@ -23,7 +23,7 @@ type CartQueries struct {
 func (q *CartQueries) PaymentList(ctx context.Context) (map[string]bool, error) {
 	payments := map[string]bool{}
 	keys := []any{
-		"stripe_active", "paypal_active", "spectrocoin_active", "dummy_active",
+		"stripe_active", "paypal_active", "spectrocoin_active",
 	}
 
 	query := fmt.Sprintf("SELECT key, value FROM setting WHERE key IN (%s)", strings.Repeat("?, ", len(keys)-1)+"?")
@@ -51,6 +51,9 @@ func (q *CartQueries) PaymentList(ctx context.Context) (map[string]bool, error) 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
+	// Dummy provider is always active (no database check needed)
+	payments["dummy"] = true
 
 	return payments, nil
 }

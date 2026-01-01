@@ -1,3 +1,4 @@
 export function costFormat(cost: number): string {
-  return cost ? (cost / 100).toFixed(2) : '0.00'
+  if (!cost || cost === 0) return 'free'
+  return (cost / 100).toFixed(2)
 }

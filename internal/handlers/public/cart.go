@@ -190,13 +190,25 @@ func Payment(c *fiber.Ctx) error {
 		Items:    items,
 	}
 
+	// Calculate total amount before processing payment
+	var amountTotal int
+	for _, item := range cart.Items {
+		amountTotal += item.PriceData.UnitAmount * item.Quantity
+	}
+
+	// Validate dummy provider usage: only allowed for free carts (amountTotal = 0)
+	paymentSystem := payment.Provider
+	if paymentSystem == litepay.DUMMY && amountTotal > 0 {
+		log.Error().Msg("Attempt to use dummy provider for paid cart")
+		return webutil.StatusBadRequest(c, "Dummy payment provider can only be used for free items")
+	}
+
 	callbackURL := fmt.Sprintf("https://%s/cart/payment/callback", domain)
 	successURL := fmt.Sprintf("https://%s/cart/payment/success", domain)
 	cancelURL := fmt.Sprintf("https://%s/cart/payment/cancel", domain)
 	pay := litepay.New(callbackURL, successURL, cancelURL)
 
 	paymentURL := fmt.Sprintf("https://%s/cart", domain)
-	paymentSystem := payment.Provider
 	switch paymentSystem {
 	case litepay.STRIPE:
 		setting, err := queries.GetSettingByGroup[models.Stripe](c.Context(), db)
@@ -253,15 +265,7 @@ func Payment(c *fiber.Ctx) error {
 		paymentURL = response.URL
 
 	case litepay.DUMMY:
-		setting, err := queries.GetSettingByGroup[models.Dummy](c.Context(), db)
-		if err != nil {
-			log.ErrorStack(err)
-			return webutil.StatusInternalServerError(c)
-		}
-
-		if !setting.Active {
-			return webutil.Response(c, fiber.StatusOK, "Payment url", paymentURL)
-		}
+		// Dummy provider is always active and only for free carts (already validated above)
 		session := pay.Dummy()
 		response, err := session.Pay(cart)
 		if err != nil {
@@ -269,11 +273,6 @@ func Payment(c *fiber.Ctx) error {
 			return webutil.StatusInternalServerError(c)
 		}
 		paymentURL = response.URL
-	}
-
-	var amountTotal int
-	for _, s := range cart.Items {
-		amountTotal += s.PriceData.UnitAmount * s.Quantity
 	}
 
 	if err := db.AddCart(c.Context(), &models.Cart{
@@ -403,6 +402,12 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
+	// Validate dummy provider usage: only allowed for free carts (amountTotal = 0)
+	if payment.PaymentSystem == litepay.DUMMY && cartInfo.AmountTotal > 0 {
+		log.Error().Msgf("Attempt to use dummy provider for paid cart (cart_id: %s, amount: %d)", payment.CartID, cartInfo.AmountTotal)
+		return webutil.StatusBadRequest(c, "Dummy payment provider can only be used for free items")
+	}
+
 	// If already paid, pass control to SPA handler
 	if cartInfo.PaymentStatus == "paid" {
 		return c.Next()
@@ -451,15 +456,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		// Spectrocoin payment processing handled in callback
 
 	case litepay.DUMMY:
-		setting, err := queries.GetSettingByGroup[models.Dummy](c.Context(), db)
-		if err != nil {
-			log.ErrorStack(err)
-			return webutil.StatusInternalServerError(c)
-		}
-
-		if !setting.Active {
-			return webutil.StatusNotFound(c)
-		}
+		// Dummy provider is always active and only for free carts (already validated above)
 		response, err := litepay.New("", "", "").Dummy().Checkout(payment, "")
 		if err != nil {
 			log.ErrorStack(err)
