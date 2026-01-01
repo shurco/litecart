@@ -47,6 +47,8 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 
 🔒 **Built-in HTTPS Support**: Prioritizing security, litecart comes with built-in support for HTTPS, ensuring the safety of your customers' data.
 
+🆓 **Free Products Support**: Offer free products to your customers by setting the product price to 0. Free products are automatically processed without requiring payment system integration, making it perfect for free downloads, samples, or promotional content.
+
 
 ## ⬇️&nbsp;&nbsp;Installation
 
@@ -121,6 +123,54 @@ docker run \
   -v ./lc_uploads:/lc_uploads \
   -v ./site:/site \
   ghcr.io/shurco/litecart:latest
+```
+
+#### <img width="20" src="/.github/media/platforms/docker.svg">&nbsp;Run using Docker Compose
+Docker Compose provides a convenient way to manage multiple containers and services. The project includes several Docker Compose configurations for different use cases.
+
+**Production Setup** (`docker/docker-compose.yml`):
+This configuration includes the litecart application and an Nginx reverse proxy:
+
+```bash
+cd docker
+docker-compose up -d
+```
+
+This setup includes:
+- **litecart**: The main application container with all required volumes
+- **nginx**: Reverse proxy server that listens on port 80 and forwards requests to litecart
+
+The Nginx configuration is located in `docker/nginx/nginx.conf` and can be customized as needed.
+
+**Development Setup** (`docker/docker-compose_dev.yml`):
+For local development, you can use the development configuration which includes MailHog for email testing:
+
+```bash
+cd docker
+docker-compose -f docker-compose.yml -f docker-compose_dev.yml up -d
+```
+
+This adds:
+- **mailhog**: Email testing tool accessible at `http://localhost:8025` for viewing sent emails
+
+**Combined Usage**:
+To run both production and development services together:
+
+```bash
+cd docker
+docker-compose -f docker-compose.yml -f docker-compose_dev.yml up -d
+```
+
+**Initialization**:
+Before starting the services, initialize the application:
+
+```bash
+docker-compose run --rm litecart init
+```
+
+**Stopping Services**:
+```bash
+docker-compose down
 ```
 
 #### <img width="20" src="/.github/media/platforms/k8s.svg">&nbsp;Run using Kubernetes
@@ -270,6 +320,42 @@ To obtain a "Merchant ID", "Project (API) ID" and "Private key" in <a href="http
 > [!WARNING]
 > Please note that creating a project may require you to complete the verification process for your <a href="https://spectrocoin.com/en/invite?referralId=b2n87748" target="_blank">SpectroCoin</a> account.  
 > Please note that the "Private key" is confidential information that should be kept secure.
+
+
+## 🆓&nbsp;&nbsp;Free Products
+
+Litecart supports free products, allowing you to offer digital content, samples, or promotional materials at no cost to your customers.
+
+### Creating Free Products
+
+To create a free product:
+
+1. In the admin panel, navigate to **Products** and create a new product
+2. Set the **Amount** field to `0` (zero)
+3. The product will automatically display as "free" in both the admin panel and on the website
+
+### How Free Products Work
+
+- **Automatic Processing**: When a customer adds only free products to their cart (total amount = 0), the checkout process automatically uses the built-in dummy payment provider
+- **No Payment Required**: Free products bypass all payment system integrations - customers can complete their purchase with just an email address
+- **Instant Access**: After checkout, customers immediately receive access to free products via email, just like paid products
+- **Mixed Carts**: If a cart contains both free and paid products, customers must use a regular payment system to complete the purchase
+
+### Use Cases
+
+Free products are perfect for:
+- Free downloads and samples
+- Promotional content and giveaways
+- Trial versions of digital products
+- Free resources and documentation
+- Lead generation (collecting email addresses)
+
+### Technical Details
+
+- Free products are identified by `amount = 0` in the database
+- The dummy payment provider is automatically selected for carts with `amountTotal = 0`
+- All standard features work with free products: email delivery, digital file downloads, license keys, and webhooks
+- Free products are included in order history and cart management just like paid products
 
 
 ## 🧩&nbsp;&nbsp;For developers
