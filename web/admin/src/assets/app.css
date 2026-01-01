@@ -1,7 +1,7 @@
-@config "../../tailwind.config.js";
-@import "tailwindcss";
+@config '../../tailwind.config.js';
+@import 'tailwindcss';
 
-@import "./nprogress.css";
-@import "./tippy.css";
-@import "./main.css";
-@import "./table.css";
+@import './nprogress.css';
+@import './tippy.css';
+@import './main.css';
+@import './table.css';

@@ -1,62 +1,62 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { createEventDispatcher } from 'svelte';
-  import FormButton from '../form/Button.svelte';
-  import FormInput from '../form/Input.svelte';
-  import FormToggle from '../form/Toggle.svelte';
-  import { loadPaymentSettings, savePaymentSettings, togglePaymentActive } from '$lib/composables/usePaymentSettings';
-  import { systemStore } from '$lib/stores/system';
-  import type { StripeSettings } from '$lib/types/models';
+  import { onMount, onDestroy } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
+  import FormButton from '../form/Button.svelte'
+  import FormInput from '../form/Input.svelte'
+  import FormToggle from '../form/Toggle.svelte'
+  import { loadPaymentSettings, savePaymentSettings, togglePaymentActive } from '$lib/composables/usePaymentSettings'
+  import { systemStore } from '$lib/stores/system'
+  import type { StripeSettings } from '$lib/types/models'
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher()
 
   let settings: StripeSettings = {
     active: false,
     secret_key: ''
-  };
-  let formErrors: Record<string, string> = {};
-  let unsubscribe: (() => void) | null = null;
+  }
+  let formErrors: Record<string, string> = {}
+  let unsubscribe: (() => void) | null = null
 
   onMount(async () => {
-    settings = await loadPaymentSettings<StripeSettings>('stripe', settings);
-    
+    settings = await loadPaymentSettings<StripeSettings>('stripe', settings)
+
     // Subscribe to store updates to keep settings.active in sync
-    unsubscribe = systemStore.subscribe(store => {
+    unsubscribe = systemStore.subscribe((store) => {
       if (store.payments?.stripe !== undefined) {
-        settings.active = store.payments.stripe;
+        settings.active = store.payments.stripe
       }
-    });
-  });
+    })
+  })
 
   onDestroy(() => {
     if (unsubscribe) {
-      unsubscribe();
+      unsubscribe()
     }
-  });
+  })
 
   async function handleSubmit() {
-    formErrors = {};
+    formErrors = {}
 
     if (!settings.secret_key || settings.secret_key.length < 100) {
-      formErrors.secret_key = 'Secret key must be at least 100 characters';
-      return;
+      formErrors.secret_key = 'Secret key must be at least 100 characters'
+      return
     }
 
-    await savePaymentSettings('stripe', settings, 'stripe');
+    await savePaymentSettings('stripe', settings, 'stripe')
   }
 
   async function toggleActive() {
-    const previousValue = settings.active;
-    const success = await togglePaymentActive('stripe', settings.active);
-    
+    const previousValue = settings.active
+    const success = await togglePaymentActive('stripe', settings.active)
+
     // If request failed, revert the change
     if (!success) {
-      settings.active = previousValue;
+      settings.active = previousValue
     }
   }
 
   function close() {
-    dispatch('close');
+    dispatch('close')
   }
 </script>
 
@@ -67,14 +67,19 @@
         <h1>Stripe</h1>
       </div>
       <div class="pt-1">
-        <FormToggle id="stripe-active" bind:value={settings.active} disabled={Object.keys(formErrors).length > 0} on:change={toggleActive} />
+        <FormToggle
+          id="stripe-active"
+          bind:value={settings.active}
+          disabled={Object.keys(formErrors).length > 0}
+          on:change={toggleActive}
+        />
       </div>
     </div>
   </div>
 
   <form on:submit|preventDefault={handleSubmit}>
     <div class="flow-root">
-      <dl class="-my-3 mx-auto mb-0 mt-2 space-y-4 text-sm">
+      <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
         <FormInput
           id="secret_key"
           type="text"

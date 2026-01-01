@@ -1,1 +1,1 @@
-export { default as ProductView } from "./View.svelte";
+export { default as ProductView } from './View.svelte'

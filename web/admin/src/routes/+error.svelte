@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Blank from '$lib/layouts/Blank.svelte';
+  import Blank from '$lib/layouts/Blank.svelte'
 </script>
 
 <svelte:component this={Blank}>

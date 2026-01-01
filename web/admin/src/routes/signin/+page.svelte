@@ -1,71 +1,71 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { base } from '$app/paths';
-  import { onMount } from 'svelte';
-  import Blank from '$lib/layouts/Blank.svelte';
-  import FormInput from '$lib/components/form/Input.svelte';
-  import FormButton from '$lib/components/form/Button.svelte';
-  import { apiPost, apiGet } from '$lib/utils/api';
-  import { showMessage } from '$lib/utils/message';
+  import { goto } from '$app/navigation'
+  import { base } from '$app/paths'
+  import { onMount } from 'svelte'
+  import Blank from '$lib/layouts/Blank.svelte'
+  import FormInput from '$lib/components/form/Input.svelte'
+  import FormButton from '$lib/components/form/Button.svelte'
+  import { apiPost, apiGet } from '$lib/utils/api'
+  import { showMessage } from '$lib/utils/message'
 
-  let email = '';
-  let password = '';
-  let emailError = '';
-  let passwordError = '';
+  let email = ''
+  let password = ''
+  let emailError = ''
+  let passwordError = ''
 
   function validateEmail(value) {
     if (!value) {
-      return 'Email is required';
+      return 'Email is required'
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Email is not valid';
+      return 'Email is not valid'
     }
-    return '';
+    return ''
   }
 
   function validatePassword(value) {
     if (!value) {
-      return 'Password is required';
+      return 'Password is required'
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+      return 'Password must be at least 6 characters'
     }
-    return '';
+    return ''
   }
 
   async function handleSubmit(event) {
-    event.preventDefault();
-    
-    emailError = validateEmail(email);
-    passwordError = validatePassword(password);
+    event.preventDefault()
+
+    emailError = validateEmail(email)
+    passwordError = validatePassword(password)
 
     if (emailError || passwordError) {
-      return;
+      return
     }
 
     try {
-      const res = await apiPost(`/api/sign/in`, { email, password });
+      const res = await apiPost(`/api/sign/in`, { email, password })
       if (res?.success) {
-        goto(`${base}/products`);
+        goto(`${base}/products`)
       } else {
-        showMessage(res?.result || res?.message || "Login failed", "connextError");
+        showMessage(res?.result || res?.message || 'Login failed', 'connextError')
       }
     } catch (error) {
-      showMessage("Network error. Please try again.", "connextError");
+      showMessage('Network error. Please try again.', 'connextError')
     }
   }
 
   onMount(async () => {
     // Check if already authenticated
     try {
-      const checkRes = await apiGet('/api/_/version');
+      const checkRes = await apiGet('/api/_/version')
       if (checkRes?.success) {
-        goto(`${base}/products`);
+        goto(`${base}/products`)
       }
     } catch (error) {
       // Not authenticated, stay on signin page
     }
-  });
+  })
 </script>
 
 <svelte:component this={Blank}>
@@ -73,15 +73,8 @@
     <div class="mx-auto max-w-lg text-center">
       <h1 class="text-2xl font-bold sm:text-3xl">👨‍🎨 Admin sign in</h1>
     </div>
-    <form on:submit|preventDefault={handleSubmit} class="mx-auto mb-0 mt-8 max-w-md space-y-4">
-      <FormInput
-        id="email"
-        type="email"
-        title="Email"
-        ico="at-symbol"
-        error={emailError}
-        bind:value={email}
-      />
+    <form on:submit|preventDefault={handleSubmit} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
+      <FormInput id="email" type="email" title="Email" ico="at-symbol" error={emailError} bind:value={email} />
       <FormInput
         id="password"
         type="password"

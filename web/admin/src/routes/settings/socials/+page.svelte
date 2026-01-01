@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import Main from '$lib/layouts/Main.svelte';
-  import FormButton from '$lib/components/form/Button.svelte';
-  import FormInput from '$lib/components/form/Input.svelte';
-  import { loadSettings, saveSettings } from '$lib/utils/settingsHelpers';
+  import { onMount } from 'svelte'
+  import Main from '$lib/layouts/Main.svelte'
+  import FormButton from '$lib/components/form/Button.svelte'
+  import FormInput from '$lib/components/form/Input.svelte'
+  import { loadSettings, saveSettings } from '$lib/utils/settingsHelpers'
 
   interface SocialSettings {
-    facebook: string;
-    instagram: string;
-    twitter: string;
-    dribbble: string;
-    github: string;
-    youtube: string;
-    other: string;
+    facebook: string
+    instagram: string
+    twitter: string
+    dribbble: string
+    github: string
+    youtube: string
+    other: string
   }
 
   let formData: SocialSettings = {
@@ -23,24 +23,24 @@
     github: '',
     youtube: '',
     other: ''
-  };
-  let formErrors: Record<string, string> = {};
-  let loading = true;
+  }
+  let formErrors: Record<string, string> = {}
+  let loading = true
 
   onMount(async () => {
-    formData = await loadSettings<SocialSettings>('social', formData);
-    loading = false;
-  });
+    formData = await loadSettings<SocialSettings>('social', formData)
+    loading = false
+  })
 
   async function handleSubmit() {
-    formErrors = {};
+    formErrors = {}
 
     if (formData.other && !/^https?:\/\/.+/.test(formData.other)) {
-      formErrors.other = 'Valid URL is required';
-      return;
+      formErrors.other = 'Valid URL is required'
+      return
     }
 
-    await saveSettings('social', formData);
+    await saveSettings('social', formData)
   }
 </script>
 
@@ -48,9 +48,9 @@
   <h1 class="mb-5">Social Settings</h1>
 
   {#if loading}
-    <div class="text-center py-8">Loading...</div>
+    <div class="py-8 text-center">Loading...</div>
   {:else}
-    <form on:submit|preventDefault={handleSubmit} class="space-y-4 max-w-2xl">
+    <form on:submit|preventDefault={handleSubmit} class="max-w-2xl space-y-4">
       <FormInput
         id="facebook"
         title="Facebook"

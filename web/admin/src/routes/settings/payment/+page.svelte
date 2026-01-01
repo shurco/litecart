@@ -1,84 +1,87 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import Main from '$lib/layouts/Main.svelte';
-  import Drawer from '$lib/components/Drawer.svelte';
-  import Stripe from '$lib/components/payment/Stripe.svelte';
-  import Paypal from '$lib/components/payment/Paypal.svelte';
-  import Spectrocoin from '$lib/components/payment/Spectrocoin.svelte';
-  import FormButton from '$lib/components/form/Button.svelte';
-  import FormSelect from '$lib/components/form/Select.svelte';
-  import { systemStore } from '$lib/stores/system';
-  import { loadSettings as loadSettingsHelper, saveSettings } from '$lib/utils/settingsHelpers';
-  import { loadData } from '$lib/utils/apiHelpers';
-  import type { PaymentSettings } from '$lib/types/models';
+  import { onMount, onDestroy } from 'svelte'
+  import Main from '$lib/layouts/Main.svelte'
+  import Drawer from '$lib/components/Drawer.svelte'
+  import Stripe from '$lib/components/payment/Stripe.svelte'
+  import Paypal from '$lib/components/payment/Paypal.svelte'
+  import Spectrocoin from '$lib/components/payment/Spectrocoin.svelte'
+  import FormButton from '$lib/components/form/Button.svelte'
+  import FormSelect from '$lib/components/form/Select.svelte'
+  import { systemStore } from '$lib/stores/system'
+  import { loadSettings as loadSettingsHelper, saveSettings } from '$lib/utils/settingsHelpers'
+  import { loadData } from '$lib/utils/apiHelpers'
+  import type { PaymentSettings } from '$lib/types/models'
 
-  let drawerOpen = false;
-  let drawerMode: 'stripe' | 'paypal' | 'spectrocoin' | null = null;
-  let payments: Record<string, boolean> = {};
+  let drawerOpen = false
+  let drawerMode: 'stripe' | 'paypal' | 'spectrocoin' | null = null
+  let payments: Record<string, boolean> = {}
   let payment: PaymentSettings = {
     currency: ''
-  };
-  let formErrors: Record<string, string> = {};
+  }
+  let formErrors: Record<string, string> = {}
 
-  const currencyOptions = ['EUR', 'USD', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'SEK'];
+  const currencyOptions = ['EUR', 'USD', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'SEK']
 
-  let unsubscribe: (() => void) | null = null;
+  let unsubscribe: (() => void) | null = null
 
   onMount(async () => {
-    await loadPaymentSettings();
-    
+    await loadPaymentSettings()
+
     // Subscribe to store updates only on client side
-    unsubscribe = systemStore.subscribe(store => {
-      payments = store.payments || {};
-    });
-  });
+    unsubscribe = systemStore.subscribe((store) => {
+      payments = store.payments || {}
+    })
+  })
 
   onDestroy(() => {
     if (unsubscribe) {
-      unsubscribe();
+      unsubscribe()
     }
-  });
+  })
 
   async function loadPaymentSettings() {
-    const paymentProviders = await loadData<Record<string, boolean>>('/api/cart/payment', 'Failed to load payment settings');
+    const paymentProviders = await loadData<Record<string, boolean>>(
+      '/api/cart/payment',
+      'Failed to load payment settings'
+    )
     if (paymentProviders) {
-      payments = paymentProviders;
-      systemStore.update(store => ({
+      payments = paymentProviders
+      systemStore.update((store) => ({
         ...store,
         payments: payments
-      }));
+      }))
     }
-    
-    const paymentSettings = await loadSettingsHelper<PaymentSettings>('payment', payment);
-    payment.currency = paymentSettings.currency;
+
+    const paymentSettings = await loadSettingsHelper<PaymentSettings>('payment', payment)
+    payment.currency = paymentSettings.currency
   }
 
   async function handleCurrencySubmit() {
-    formErrors = {};
+    formErrors = {}
 
     if (!payment.currency) {
-      formErrors.currency = 'Currency is required';
-      return;
+      formErrors.currency = 'Currency is required'
+      return
     }
 
     if (!currencyOptions.includes(payment.currency)) {
-      formErrors.currency = 'Currency must be one of: ' + currencyOptions.join(', ');
-      return;
+      formErrors.currency = 'Currency must be one of: ' + currencyOptions.join(', ')
+      return
     }
 
-    await saveSettings('payment', payment, 'Currency saved');
+    await saveSettings('payment', payment, 'Currency saved')
   }
 
   function openDrawer(mode: 'stripe' | 'paypal' | 'spectrocoin') {
-    drawerMode = mode;
-    drawerOpen = true;
+    drawerMode = mode
+    drawerOpen = true
   }
 
   function closeDrawer() {
-    drawerOpen = false;
+    drawerOpen = false
     setTimeout(() => {
-      drawerMode = null;
-    }, 200);
+      drawerMode = null
+    }, 200)
   }
 </script>
 
@@ -106,34 +109,49 @@
     <div class="mt-5">
       <h2 class="mb-5">Payment providers</h2>
       <div class="flex">
-      <div 
-        class="cursor-pointer rounded p-2 {payments.stripe ? 'bg-green-200' : 'bg-gray-200'}" 
-        on:click={() => openDrawer('stripe')}
-        role="button"
-        tabindex="0"
-        on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer('stripe'); } }}
-      >
-        Stripe
+        <div
+          class="cursor-pointer rounded p-2 {payments.stripe ? 'bg-green-200' : 'bg-gray-200'}"
+          on:click={() => openDrawer('stripe')}
+          role="button"
+          tabindex="0"
+          on:keydown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              openDrawer('stripe')
+            }
+          }}
+        >
+          Stripe
+        </div>
+        <div
+          class="ml-5 cursor-pointer rounded p-2 {payments.paypal ? 'bg-green-200' : 'bg-gray-200'}"
+          on:click={() => openDrawer('paypal')}
+          role="button"
+          tabindex="0"
+          on:keydown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              openDrawer('paypal')
+            }
+          }}
+        >
+          Paypal
+        </div>
+        <div
+          class="ml-5 cursor-pointer rounded p-2 {payments.spectrocoin ? 'bg-green-200' : 'bg-gray-200'}"
+          on:click={() => openDrawer('spectrocoin')}
+          role="button"
+          tabindex="0"
+          on:keydown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              openDrawer('spectrocoin')
+            }
+          }}
+        >
+          Spectrocoin
+        </div>
       </div>
-      <div 
-        class="cursor-pointer rounded p-2 ml-5 {payments.paypal ? 'bg-green-200' : 'bg-gray-200'}" 
-        on:click={() => openDrawer('paypal')}
-        role="button"
-        tabindex="0"
-        on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer('paypal'); } }}
-      >
-        Paypal
-      </div>
-      <div 
-        class="cursor-pointer rounded p-2 ml-5 {payments.spectrocoin ? 'bg-green-200' : 'bg-gray-200'}" 
-        on:click={() => openDrawer('spectrocoin')}
-        role="button"
-        tabindex="0"
-        on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer('spectrocoin'); } }}
-      >
-        Spectrocoin
-      </div>
-    </div>
     </div>
   </div>
 </svelte:component>
@@ -149,4 +167,3 @@
     {/if}
   </Drawer>
 {/if}
-

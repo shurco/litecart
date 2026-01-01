@@ -1,34 +1,34 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import Main from '$lib/layouts/Main.svelte';
-  import FormButton from '$lib/components/form/Button.svelte';
-  import FormInput from '$lib/components/form/Input.svelte';
-  import { loadSettings, saveSettings } from '$lib/utils/settingsHelpers';
+  import { onMount } from 'svelte'
+  import Main from '$lib/layouts/Main.svelte'
+  import FormButton from '$lib/components/form/Button.svelte'
+  import FormInput from '$lib/components/form/Input.svelte'
+  import { loadSettings, saveSettings } from '$lib/utils/settingsHelpers'
 
   interface WebhookSettings {
-    url: string;
+    url: string
   }
 
   let formData: WebhookSettings = {
     url: ''
-  };
-  let formErrors: Record<string, string> = {};
-  let loading = true;
+  }
+  let formErrors: Record<string, string> = {}
+  let loading = true
 
   onMount(async () => {
-    formData = await loadSettings<WebhookSettings>('webhook', formData);
-    loading = false;
-  });
+    formData = await loadSettings<WebhookSettings>('webhook', formData)
+    loading = false
+  })
 
   async function handleSubmit() {
-    formErrors = {};
+    formErrors = {}
 
     if (formData.url && !/^https?:\/\/.+/.test(formData.url)) {
-      formErrors.url = 'Valid URL is required (e.g., https://example.com/webhook)';
-      return;
+      formErrors.url = 'Valid URL is required (e.g., https://example.com/webhook)'
+      return
     }
 
-    await saveSettings('webhook', formData);
+    await saveSettings('webhook', formData)
   }
 </script>
 
@@ -36,9 +36,9 @@
   <h1 class="mb-5">Webhook Settings</h1>
 
   {#if loading}
-    <div class="text-center py-8">Loading...</div>
+    <div class="py-8 text-center">Loading...</div>
   {:else}
-    <form on:submit|preventDefault={handleSubmit} class="space-y-4 max-w-2xl">
+    <form on:submit|preventDefault={handleSubmit} class="max-w-2xl space-y-4">
       <FormInput
         id="url"
         type="url"

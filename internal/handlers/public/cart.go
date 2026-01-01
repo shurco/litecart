@@ -454,7 +454,7 @@ func PaymentSuccess(c *fiber.Ctx) error {
 		}
 	}
 
-	// send hook (не блокируем процесс при ошибке webhook)
+	// send hook (don't block process on webhook error)
 	sendPaymentWebhook(webhook.PAYMENT_SUCCESS, payment.PaymentSystem, payment.Status, payment.CartID, log, false)
 
 	// After processing payment, pass control to SPA handler
@@ -489,7 +489,7 @@ func PaymentCancel(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
-	// send hook (не блокируем процесс при ошибке webhook)
+	// send hook (don't block process on webhook error)
 	sendPaymentWebhook(webhook.PAYMENT_CANCEL, payment.PaymentSystem, litepay.CANCELED, payment.CartID, log, false)
 
 	// Redirect to SPA cancel page with query parameters

@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@plugin "@tailwindcss/forms";
+@plugin '@tailwindcss/forms';
 
 /* Global link and button cursor */
 a {
@@ -9,8 +9,8 @@ a {
 /* Hide header and footer on error pages */
 body.error-page header,
 body.error-page footer,
-body.error-page [role="banner"],
-body.error-page [role="contentinfo"] {
+body.error-page [role='banner'],
+body.error-page [role='contentinfo'] {
   display: none !important;
 }
 

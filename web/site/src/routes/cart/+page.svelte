@@ -1,114 +1,110 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { cartStore } from "$lib/stores/cart";
-  import { settingsStore } from "$lib/stores/settings";
-  import { apiGet, apiPost } from "$lib/utils/api";
-  import { costFormat } from "$lib/utils/costFormat";
-  import { getProductImageUrl } from "$lib/utils/imageUrl";
-  import {
-    hasPaymentProviders,
-    autoSelectProvider,
-    getAvailableProviders,
-  } from "$lib/utils/payment";
-  import { getLocalStorage, setLocalStorage, removeLocalStorage } from "$lib/utils/browser";
-  import type { PaymentMethods } from "$lib/types/models";
-  import { goto } from "$app/navigation";
-  import Overlay from "$lib/components/Overlay.svelte";
-  import { handleNavigation } from "$lib/utils/navigation";
+  import { onMount } from 'svelte'
+  import { cartStore } from '$lib/stores/cart'
+  import { settingsStore } from '$lib/stores/settings'
+  import { apiGet, apiPost } from '$lib/utils/api'
+  import { costFormat } from '$lib/utils/costFormat'
+  import { getProductImageUrl } from '$lib/utils/imageUrl'
+  import { hasPaymentProviders, autoSelectProvider, getAvailableProviders } from '$lib/utils/payment'
+  import { getLocalStorage, setLocalStorage, removeLocalStorage } from '$lib/utils/browser'
+  import type { PaymentMethods } from '$lib/types/models'
+  import { goto } from '$app/navigation'
+  import Overlay from '$lib/components/Overlay.svelte'
+  import { handleNavigation } from '$lib/utils/navigation'
 
-  let email = $state("");
-  let provider = $state("");
-  let payments = $state<PaymentMethods>({});
-  let showOverlay = $state(false);
-  let error = $state<string | undefined>(undefined);
+  let email = $state('')
+  let provider = $state('')
+  let payments = $state<PaymentMethods>({})
+  let showOverlay = $state(false)
+  let error = $state<string | undefined>(undefined)
 
-  let cart = $derived($cartStore);
-  let currency = $derived($settingsStore?.main.currency || "");
+  let cart = $derived($cartStore)
+  let currency = $derived($settingsStore?.main.currency || '')
 
   onMount(async () => {
-    email = getLocalStorage("email");
-    provider = getLocalStorage("provider");
+    email = getLocalStorage('email')
+    provider = getLocalStorage('provider')
 
-    const res = await apiGet<PaymentMethods>("/api/cart/payment");
+    const res = await apiGet<PaymentMethods>('/api/cart/payment')
     if (res.success && res.result) {
-      payments = res.result;
+      payments = res.result
 
       // Auto-select provider if only one is available
-      const autoProvider = autoSelectProvider(payments);
+      const autoProvider = autoSelectProvider(payments)
       if (autoProvider) {
-        provider = autoProvider;
-        setLocalStorage("provider", provider);
+        provider = autoProvider
+        setLocalStorage('provider', provider)
       } else if (!hasPaymentProviders(payments)) {
-        removeLocalStorage("provider");
-        provider = "";
+        removeLocalStorage('provider')
+        provider = ''
       }
     }
-  });
+  })
 
   function showPayments(): boolean {
-    return hasPaymentProviders(payments);
+    return hasPaymentProviders(payments)
   }
 
   function showSelectPayments(): boolean {
-    return getAvailableProviders(payments).length > 1;
+    return getAvailableProviders(payments).length > 1
   }
 
   function totalCartAmount(): string {
-    const total = cart.reduce((sum, item) => sum + item.amount, 0);
-    return costFormat(total);
+    const total = cart.reduce((sum, item) => sum + item.amount, 0)
+    return costFormat(total)
   }
 
   async function checkOut(e: Event) {
-    e.preventDefault();
+    e.preventDefault()
 
-    setLocalStorage("email", email);
-    setLocalStorage("provider", provider);
+    setLocalStorage('email', email)
+    setLocalStorage('provider', provider)
 
-    error = undefined;
+    error = undefined
 
     const cartData = {
       email,
       provider,
-      products: cart.map((item) => ({ id: item.id, quantity: 1 })),
-    };
+      products: cart.map((item) => ({ id: item.id, quantity: 1 }))
+    }
 
-    const res = await apiPost<{ url?: string }>("/cart/payment", cartData);
+    const res = await apiPost<{ url?: string }>('/cart/payment', cartData)
     if (res.success && res.result?.url) {
-      window.location.href = res.result.url;
+      window.location.href = res.result.url
     } else {
-      error = res.message || "Payment failed";
-      showOverlay = true;
+      error = res.message || 'Payment failed'
+      showOverlay = true
     }
   }
 
   function closeOverlay() {
-    showOverlay = false;
-    error = undefined;
+    showOverlay = false
+    error = undefined
   }
 </script>
 
-<section class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-screen-xl mx-auto">
+<section class="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-screen-xl">
     <div class="mx-auto max-w-4xl">
       <!-- Header -->
-      <header class="text-center mb-12">
-        <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-black mb-4">
-          {cart.length > 0 ? "YOUR CART" : "CART IS EMPTY"}
+      <header class="mb-12 text-center">
+        <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">
+          {cart.length > 0 ? 'YOUR CART' : 'CART IS EMPTY'}
         </h1>
-        <div class="w-32 h-1 bg-black mx-auto"></div>
+        <div class="mx-auto h-1 w-32 bg-black"></div>
       </header>
 
       {#if cart.length === 0}
-        <div class="brutal-card p-8 mb-8 text-center">
-          <p class="text-xl font-bold uppercase tracking-wide text-black mb-8">
+        <div class="brutal-card mb-8 p-8 text-center">
+          <p class="mb-8 text-xl font-bold tracking-wide text-black uppercase">
             Your cart is empty. Add some products to continue shopping.
           </p>
 
           <div class="flex justify-center">
             <a
               href="/"
-              onclick={(e) => handleNavigation(e, "/")}
-              class="inline-block border-4 border-black bg-yellow-300 text-black px-8 py-4 font-black text-lg uppercase tracking-wider hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 cursor-pointer"
+              onclick={(e) => handleNavigation(e, '/')}
+              class="inline-block cursor-pointer border-4 border-black bg-yellow-300 px-8 py-4 text-lg font-black tracking-wider text-black uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
             >
               GO TO HOME
             </a>
@@ -120,35 +116,32 @@
         {#if cart.length > 0}
           <!-- Cart Items -->
           <div class="mb-8">
-            <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6">
+            <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">
               ITEMS ({cart.length})
             </h2>
             <ul class="space-y-4">
               {#each cart as item}
                 <li class="border-4 border-black bg-white p-4">
                   <div class="flex items-center gap-4">
-                    <div class="border-4 border-black overflow-hidden">
-                      <img
-                        src={getProductImageUrl(item.image, "sm")}
-                        alt={item.name}
-                        class="h-20 w-20 object-cover"
-                      />
+                    <div class="overflow-hidden border-4 border-black">
+                      <img src={getProductImageUrl(item.image, 'sm')} alt={item.name} class="h-20 w-20 object-cover" />
                     </div>
                     <div class="flex-1">
-                      <a 
-                        href="/products/{item.slug}" 
+                      <a
+                        href="/products/{item.slug}"
                         target="_blank"
-                        class="text-xl font-black uppercase tracking-tight text-black hover:underline decoration-4 decoration-yellow-300 underline-offset-4 cursor-pointer"
+                        class="cursor-pointer text-xl font-black tracking-tight text-black uppercase decoration-yellow-300 decoration-4 underline-offset-4 hover:underline"
                       >
                         {item.name}
                       </a>
                     </div>
                     <div class="flex items-center gap-4">
                       <span class="text-2xl font-black text-black">
-                        {costFormat(item.amount)} {currency}
+                        {costFormat(item.amount)}
+                        {currency}
                       </span>
                       <button
-                        class="border-4 border-black bg-red-500 text-white p-2 font-black text-sm uppercase hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 cursor-pointer"
+                        class="cursor-pointer border-4 border-black bg-red-500 p-2 text-sm font-black text-white uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
                         onclick={() => cartStore.remove(item.id)}
                         aria-label="Remove item"
                       >
@@ -164,24 +157,21 @@
           </div>
 
           <!-- Total -->
-          <div class="brutal-card p-8 mb-8 bg-yellow-300">
-            <div class="flex justify-between items-center">
-              <span class="text-3xl font-black uppercase tracking-tighter text-black">
-                TOTAL
-              </span>
+          <div class="brutal-card mb-8 bg-yellow-300 p-8">
+            <div class="flex items-center justify-between">
+              <span class="text-3xl font-black tracking-tighter text-black uppercase"> TOTAL </span>
               <span class="text-4xl font-black text-black">
-                {totalCartAmount()} {currency}
+                {totalCartAmount()}
+                {currency}
               </span>
             </div>
           </div>
 
           {#if showPayments()}
             <!-- Email Input -->
-            <div class="mb-8 mt-16">
-              <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6">
-                ENTER EMAIL
-              </h2>
-              <p class="text-sm font-bold uppercase tracking-wide text-black mb-4">
+            <div class="mt-16 mb-8">
+              <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">ENTER EMAIL</h2>
+              <p class="mb-4 text-sm font-bold tracking-wide text-black uppercase">
                 Enter the email address to which the item will be sent after payment.
                 {#if showSelectPayments()}
                   Also, choose the payment system.
@@ -193,7 +183,7 @@
                   bind:value={email}
                   id="email"
                   required
-                  class="w-full border-4 border-black bg-white px-6 py-4 font-black text-lg uppercase tracking-wider text-black focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                  class="w-full border-4 border-black bg-white px-6 py-4 text-lg font-black tracking-wider text-black uppercase focus:ring-4 focus:ring-yellow-300 focus:outline-none"
                   placeholder="EMAIL@EXAMPLE.COM"
                 />
               </label>
@@ -201,49 +191,31 @@
 
             <!-- Payment Provider Selection -->
             {#if showSelectPayments()}
-              <div class="mb-8 mt-16">
-                <h2 class="text-3xl font-black uppercase tracking-tighter text-black mb-6">
-                  SELECT PAYMENT SYSTEM
-                </h2>
+              <div class="mt-16 mb-8">
+                <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">SELECT PAYMENT SYSTEM</h2>
                 <fieldset class="space-y-4">
                   {#if payments.stripe}
                     <div>
-                      <input
-                        type="radio"
-                        bind:group={provider}
-                        value="stripe"
-                        id="stripe"
-                        class="peer hidden"
-                      />
+                      <input type="radio" bind:group={provider} value="stripe" id="stripe" class="peer hidden" />
                       <label
                         for="stripe"
-                        class="block border-4 border-black bg-white p-6 cursor-pointer peer-checked:bg-yellow-300 peer-checked:border-yellow-300"
+                        class="block cursor-pointer border-4 border-black bg-white p-6 peer-checked:border-yellow-300 peer-checked:bg-yellow-300"
                       >
-                        <p class="text-xl font-black uppercase tracking-tight text-black mb-2">Stripe</p>
-                        <p class="text-sm font-bold text-black">
-                          Popular payment system for cards and other methods
-                        </p>
+                        <p class="mb-2 text-xl font-black tracking-tight text-black uppercase">Stripe</p>
+                        <p class="text-sm font-bold text-black">Popular payment system for cards and other methods</p>
                       </label>
                     </div>
                   {/if}
 
                   {#if payments.paypal}
                     <div>
-                      <input
-                        type="radio"
-                        bind:group={provider}
-                        value="paypal"
-                        id="paypal"
-                        class="peer hidden"
-                      />
+                      <input type="radio" bind:group={provider} value="paypal" id="paypal" class="peer hidden" />
                       <label
                         for="paypal"
-                        class="block border-4 border-black bg-white p-6 cursor-pointer peer-checked:bg-yellow-300 peer-checked:border-yellow-300"
+                        class="block cursor-pointer border-4 border-black bg-white p-6 peer-checked:border-yellow-300 peer-checked:bg-yellow-300"
                       >
-                        <p class="text-xl font-black uppercase tracking-tight text-black mb-2">PayPal</p>
-                        <p class="text-sm font-bold text-black">
-                          Payment system for cards and PayPal account funds
-                        </p>
+                        <p class="mb-2 text-xl font-black tracking-tight text-black uppercase">PayPal</p>
+                        <p class="text-sm font-bold text-black">Payment system for cards and PayPal account funds</p>
                       </label>
                     </div>
                   {/if}
@@ -259,12 +231,10 @@
                       />
                       <label
                         for="spectrocoin"
-                        class="block border-4 border-black bg-white p-6 cursor-pointer peer-checked:bg-yellow-300 peer-checked:border-yellow-300"
+                        class="block cursor-pointer border-4 border-black bg-white p-6 peer-checked:border-yellow-300 peer-checked:bg-yellow-300"
                       >
-                        <p class="text-xl font-black uppercase tracking-tight text-black mb-2">Spectrocoin</p>
-                        <p class="text-sm font-bold text-black">
-                          Payment system allowing payments with cryptocurrency
-                        </p>
+                        <p class="mb-2 text-xl font-black tracking-tight text-black uppercase">Spectrocoin</p>
+                        <p class="text-sm font-bold text-black">Payment system allowing payments with cryptocurrency</p>
                       </label>
                     </div>
                   {/if}
@@ -277,14 +247,14 @@
               <button
                 type="submit"
                 disabled={!email || (showSelectPayments() && !provider)}
-                class="border-4 border-black bg-green-500 text-white px-12 py-4 font-black text-xl uppercase tracking-wider transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer enabled:hover:shadow-[14px_14px_0px_0px_rgba(0,0,0,1)] enabled:hover:-translate-x-1 enabled:hover:-translate-y-1"
+                class="cursor-pointer border-4 border-black bg-green-500 px-12 py-4 text-xl font-black tracking-wider text-white uppercase transition-all duration-200 enabled:hover:-translate-x-1 enabled:hover:-translate-y-1 enabled:hover:shadow-[14px_14px_0px_0px_rgba(0,0,0,1)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 CHECKOUT
               </button>
             </div>
           {:else}
-            <div class="brutal-card p-8 bg-red-300">
-              <p class="text-xl font-black uppercase tracking-wider text-black text-center">
+            <div class="brutal-card bg-red-300 p-8">
+              <p class="text-center text-xl font-black tracking-wider text-black uppercase">
                 NO PAYMENT SYSTEMS AVAILABLE. CONTACT ADMINISTRATOR.
               </p>
             </div>

@@ -53,3 +53,4 @@ litecart.db
 .svelte-kit/
 web/*/build/
 .shared/
+docker/docker-compose_private.yml

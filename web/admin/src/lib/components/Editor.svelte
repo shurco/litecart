@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { Editor } from '@tiptap/core';
-  import StarterKit from '@tiptap/starter-kit';
-  import Placeholder from '@tiptap/extension-placeholder';
-  import SvgIcon from './SvgIcon.svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy } from 'svelte'
+  import { Editor } from '@tiptap/core'
+  import StarterKit from '@tiptap/starter-kit'
+  import Placeholder from '@tiptap/extension-placeholder'
+  import SvgIcon from './SvgIcon.svelte'
+  import { createEventDispatcher } from 'svelte'
 
-  export let modelValue: string = '';
-  export let placeholder: string = '';
-  export let id: string | undefined = undefined;
+  export let modelValue: string = ''
+  export let placeholder: string = ''
+  export let id: string | undefined = undefined
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher()
 
-  let editor: Editor | null = null;
-  let editorElement: HTMLElement;
+  let editor: Editor | null = null
+  let editorElement: HTMLElement
 
   const editorActions = [
     { name: 'undo', method: 'undo', icon: 'undo', stroke: 'currentColor', activeCondition: {} },
@@ -27,42 +27,42 @@
     { name: 'h3', method: 'toggleHeading', icon: 'h3', activeCondition: { type: 'heading', options: { level: 3 } } },
     { name: 'bulletlist', method: 'toggleBulletList', icon: 'bulletlist', activeCondition: { type: 'bulletList' } },
     { name: 'orderedList', method: 'toggleOrderedList', icon: 'orderedlist', activeCondition: { type: 'orderedList' } },
-    { name: 'blockquote', method: 'toggleBlockquote', icon: 'blockquote', activeCondition: { type: 'blockquote' } },
-  ];
+    { name: 'blockquote', method: 'toggleBlockquote', icon: 'blockquote', activeCondition: { type: 'blockquote' } }
+  ]
 
   interface EditorOptions {
-    level?: number;
-    [key: string]: unknown;
+    level?: number
+    [key: string]: unknown
   }
 
   function performEditorAction(method: string, options?: EditorOptions) {
-    if (!editor) return;
-    const chain = editor.chain().focus();
+    if (!editor) return
+    const chain = editor.chain().focus()
     if (options) {
-      (chain[method as keyof typeof chain] as (options: EditorOptions) => typeof chain)(options).run();
+      ;(chain[method as keyof typeof chain] as (options: EditorOptions) => typeof chain)(options).run()
     } else {
-      (chain[method as keyof typeof chain] as () => typeof chain)().run();
+      ;(chain[method as keyof typeof chain] as () => typeof chain)().run()
     }
   }
 
   function canPerformEditorAction(method: string): boolean {
-    if (!editor) return false;
-    if (method === "undo" || method === "redo") {
-      const canMethod = editor.can().chain().focus()[method as 'undo' | 'redo'];
-      return !canMethod().run();
+    if (!editor) return false
+    if (method === 'undo' || method === 'redo') {
+      const canMethod = editor.can().chain().focus()[method as 'undo' | 'redo']
+      return !canMethod().run()
     }
-    return false;
+    return false
   }
 
   function isActive(type: string, options?: EditorOptions): boolean {
-    if (!editor) return false;
-    return editor.isActive(type, options);
+    if (!editor) return false
+    return editor.isActive(type, options)
   }
 
   $: if (editor && modelValue !== editor.getHTML()) {
-    const isSame = editor.getHTML() === modelValue;
+    const isSame = editor.getHTML() === modelValue
     if (!isSame) {
-      editor.commands.setContent(modelValue, false);
+      editor.commands.setContent(modelValue, false)
     }
   }
 
@@ -72,23 +72,23 @@
       extensions: [
         StarterKit,
         Placeholder.configure({
-          placeholder: placeholder,
+          placeholder: placeholder
         })
       ],
       content: modelValue,
       onUpdate: ({ editor }) => {
-        const html = editor.getHTML();
-        modelValue = html;
-        dispatch('update:modelValue', html);
-      },
-    });
-  });
+        const html = editor.getHTML()
+        modelValue = html
+        dispatch('update:modelValue', html)
+      }
+    })
+  })
 
   onDestroy(() => {
     if (editor) {
-      editor.destroy();
+      editor.destroy()
     }
-  });
+  })
 </script>
 
 {#if editor}
@@ -97,7 +97,11 @@
       <button
         on:click={() => performEditorAction(action.method, action.activeCondition.options)}
         disabled={canPerformEditorAction(action.method)}
-        class={action.stroke ? '' : (isActive(action.activeCondition.type, action.activeCondition.options) ? 'is-active' : '')}
+        class={action.stroke
+          ? ''
+          : isActive(action.activeCondition.type, action.activeCondition.options)
+            ? 'is-active'
+            : ''}
       >
         <SvgIcon name={action.icon} stroke={action.stroke || 'currentColor'} />
       </button>
@@ -109,7 +113,7 @@
 
 <style>
   @reference "tailwindcss";
-  
+
   :global(.tiptap p.is-editor-empty:first-child::before) {
     @apply text-gray-400;
     content: attr(data-placeholder);
@@ -163,6 +167,6 @@
   }
 
   :global(.tiptap hr) {
-    @apply border-0 border-t-2 border-gray-200 my-8;
+    @apply my-8 border-0 border-t-2 border-gray-200;
   }
 </style>

@@ -1,29 +1,25 @@
 <script lang="ts">
-  import SvgIcon from '../SvgIcon.svelte';
+  import SvgIcon from '../SvgIcon.svelte'
 
-  export let id: string = 'name';
-  export let title: string = 'Name';
-  export let ico: string | undefined = undefined;
-  export let error: string | undefined = undefined;
-  export let value: string = '';
-  export let placeholder: string = '';
-  export let rows: number = 4;
+  export let id: string = 'name'
+  export let title: string = 'Name'
+  export let ico: string | undefined = undefined
+  export let error: string | undefined = undefined
+  export let value: string = ''
+  export let placeholder: string = ''
+  export let rows: number = 4
 
-  $: computedPlaceholder = placeholder || `Enter ${id}`;
+  $: computedPlaceholder = placeholder || `Enter ${id}`
 </script>
 
 <div>
   <label for={id} class={error ? 'border-red-500' : ''}>
-    <textarea
-      {id}
-      bind:value
-      {rows}
-      class="form-textarea field peer"
-      placeholder={computedPlaceholder}
-      on:focusout
+    <textarea {id} bind:value {rows} class="form-textarea field peer" placeholder={computedPlaceholder} on:focusout
     ></textarea>
     {#if title}
-      <span class="peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:text-xs peer-placeholder-shown:text-gray-400 peer-focus:text-gray-700 title">
+      <span
+        class="title peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-gray-700"
+      >
         {title}
       </span>
     {/if}

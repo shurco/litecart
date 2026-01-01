@@ -1,13 +1,19 @@
 version: '3'
 services:
+  litecart:
+    image: shurco/litecart:latest
+    container_name: litecart
+    restart: always
+    volumes:
+      - ./lc_base:/lc_base
+      - ./lc_digitals:/lc_digitals
+      - ./lc_uploads:/lc_uploads
+      - ./site:/site
+
   nginx:
     image: nginx:alpine
     restart: always
-    network_mode: host
+    ports:
+      - 80:80
     volumes:
-      - "./nginx.conf:/etc/nginx/conf.d/default.conf"
-
-  mailhog:
-    image: jcalonso/mailhog
-    restart: always
-    network_mode: host
+      - "./nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
