@@ -199,7 +199,8 @@
     const url = isUpdate ? `/api/_/products/${drawerProduct!.product.id}` : '/api/_/products'
     const submitData: Partial<Product> = {
       ...formData,
-      amount: parseFloat(amountDisplay) || 0
+      // Цены в базе хранятся в центах, поэтому умножаем на 100 при сохранении
+      amount: Math.round((parseFloat(amountDisplay) || 0) * 100)
     }
 
     const result = await saveData<Product>(url, submitData, isUpdate, 'Product saved', 'Failed to save product')
