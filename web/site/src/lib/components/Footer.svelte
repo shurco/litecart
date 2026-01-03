@@ -2,6 +2,7 @@
   import { settingsStore } from '$lib/stores/settings'
   import { socialUrl } from '$lib/utils/socialUrl'
   import { handleNavigation } from '$lib/utils/navigation'
+  import { page } from '$app/stores'
 
   const SOCIALS_SVG_PATH = '/assets/img/socials.svg#'
 
@@ -9,6 +10,11 @@
   let pages = $derived(settings?.pages || [])
   let socials = $derived(settings?.socials || {})
   let footerPages = $derived(pages.filter((p) => p.position === 'footer'))
+
+  // Проверяет, активна ли страница по текущему URL
+  function isActive(slug: string): boolean {
+    return $page.url.pathname === `/${slug}`
+  }
 </script>
 
 <footer class="border-t-4 border-yellow-300 bg-black text-white">
@@ -20,7 +26,9 @@
             <a
               href="/{page.slug}"
               onclick={(e) => handleNavigation(e, `/${page.slug}`)}
-              class="inline-block cursor-pointer border-2 border-transparent px-4 py-2 text-sm font-black uppercase transition-all duration-200 hover:border-yellow-300 hover:bg-yellow-300 hover:text-black"
+              class="inline-block cursor-pointer border-2 px-4 py-2 text-sm font-black uppercase transition-all duration-200 {isActive(page.slug)
+                ? 'border-yellow-300 bg-yellow-300 text-black'
+                : 'border-transparent hover:border-yellow-300 hover:bg-yellow-300 hover:text-black'}"
             >
               {page.name}
             </a>
