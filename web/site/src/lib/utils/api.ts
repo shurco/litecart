@@ -1,4 +1,5 @@
 import type { ApiResponse, RequestOptions } from '$lib/types/api'
+import { extractErrorMessage } from './errorExtractor'
 
 export async function apiGet<T = any>(url: string): Promise<ApiResponse<T>> {
   return handleRequest<T>(url, {
@@ -24,21 +25,7 @@ async function handleRequest<T = any>(url: string, options: RequestOptions): Pro
     const data = text ? JSON.parse(text) : {}
 
     if (!response.ok) {
-      let errorMessage = 'Request failed'
-      if (data.result && typeof data.result === 'string' && data.result.trim()) {
-        errorMessage = data.result
-      } else if (data.result && typeof data.result === 'object') {
-        if (data.result.message && typeof data.result.message === 'string') {
-          errorMessage = data.result.message
-        } else if (data.result.error && typeof data.result.error === 'string') {
-          errorMessage = data.result.error
-        } else if (data.message && typeof data.message === 'string') {
-          errorMessage = data.message
-        }
-      } else if (data.message && typeof data.message === 'string') {
-        errorMessage = data.message
-      }
-
+      const errorMessage = extractErrorMessage(data)
       return {
         success: false,
         message: errorMessage,

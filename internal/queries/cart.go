@@ -74,6 +74,7 @@ func (q *CartQueries) Carts(ctx context.Context, limit, offset int) ([]*models.C
 		strftime('%s', created),
 		strftime('%s', updated)
 	FROM cart
+	ORDER BY created DESC
 `
 
 	// Add pagination

@@ -9,11 +9,11 @@
     url: string
   }
 
-  let formData: WebhookSettings = {
+  let formData = $state<WebhookSettings>({
     url: ''
-  }
-  let formErrors: Record<string, string> = {}
-  let loading = true
+  })
+  let formErrors = $state<Record<string, string>>({})
+  let loading = $state(true)
 
   onMount(async () => {
     formData = await loadSettings<WebhookSettings>('webhook', formData)
@@ -32,13 +32,13 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <h1 class="mb-5">Webhook Settings</h1>
 
   {#if loading}
     <div class="py-8 text-center">Loading...</div>
   {:else}
-    <form on:submit|preventDefault={handleSubmit} class="max-w-2xl space-y-4">
+    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="max-w-2xl space-y-4">
       <FormInput
         id="url"
         type="url"
@@ -53,4 +53,4 @@
       </div>
     </form>
   {/if}
-</svelte:component>
+</Main>

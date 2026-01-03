@@ -7,9 +7,15 @@
   import { apiGet, apiPost } from '$lib/utils/api'
   import SvgIcon from '$lib/components/SvgIcon.svelte'
 
-  let version: Record<string, any> = {}
+  interface Props {
+    children?: import('svelte').Snippet
+  }
 
-  $: currentRoute = $page.url.pathname
+  let { children }: Props = $props()
+
+  let version = $state<Record<string, any>>({})
+
+  let currentRoute = $derived($page.url.pathname)
 
   const loadVersionInfo = async () => {
     const res = await apiGet(`/api/_/version`)
@@ -34,21 +40,22 @@
     window.open(releaseUrl, '_blank')
   }
 
-  const signOut = async () => {
+  const signOut = async (event: MouseEvent) => {
+    event.preventDefault()
     const res = await apiPost('/api/sign/out')
     if (res?.success) {
       goto(`${base}/signin`)
     }
   }
 
-  $: mainMenu = [
+  let mainMenu = $derived([
     { name: 'products', path: `${base}/products`, meta: { ico: 'cube' } },
     { name: 'carts', path: `${base}/carts`, meta: { ico: 'cart' } },
     { name: 'pages', path: `${base}/pages`, meta: { ico: 'docs' } },
     { name: 'settings', path: `${base}/settings`, meta: { ico: 'booth', divider: true } }
-  ]
+  ])
 
-  $: mainMenuSections = (() => {
+  let mainMenuSections = $derived.by(() => {
     if (currentRoute?.includes('/settings')) {
       return [
         { name: 'settingsMain', path: `${base}/settings/main`, meta: { ico: 'home', title: 'Main' } },
@@ -64,7 +71,14 @@
       ]
     }
     return []
-  })()
+  })
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      goToRelease()
+    }
+  }
 </script>
 
 <div class="relative flex h-screen overflow-hidden">
@@ -83,7 +97,7 @@
 
       <div class="border-t border-gray-100 px-2">
         <ul class="py-4">
-          {#each mainMenu as item}
+          {#each mainMenu as item (item.name)}
             <li class="pb-2 {item.meta.divider ? 'space-y-1 border-t border-gray-100 pt-2' : ''}">
               <a
                 href={item.path}
@@ -113,7 +127,7 @@
           </a>
         </li>
         <li class="pb-2">
-          <a href={`${base}/signin`} on:click|preventDefault={signOut} class="block" aria-label="Sign out">
+          <a href={`${base}/signin`} onclick={signOut} class="block" aria-label="Sign out">
             <div
               class="group relative flex justify-center rounded px-2 py-1.5 text-gray-500 hover:bg-red-100 hover:text-red-700"
             >
@@ -131,7 +145,7 @@
         <h1><span class="text-gray-300">Settings</span></h1>
       </div>
       <ul class="mt-1.5 space-y-1">
-        {#each mainMenuSections as item}
+        {#each mainMenuSections as item (item.name)}
           <li>
             <a
               href={item.path}
@@ -151,7 +165,9 @@
 
   <div class="flex flex-grow flex-col overflow-x-hidden overflow-y-auto">
     <div class="relative block w-full grow px-5 pt-5">
-      <slot />
+      {#if children}
+        {@render children()}
+      {/if}
     </div>
 
     <div class="sticky right-0 bottom-0 left-0 flex h-12 border-t border-t-gray-200 bg-zinc-50">
@@ -160,13 +176,8 @@
       <div
         role="button"
         tabindex="0"
-        on:click={goToRelease}
-        on:keydown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            goToRelease()
-          }
-        }}
+        onclick={goToRelease}
+        onkeydown={handleKeydown}
         class="flex-none cursor-pointer p-4 text-xs {version.new
           ? 'border-gray-300 bg-yellow-200 text-gray-500'
           : 'border-gray-100 text-gray-300'}"

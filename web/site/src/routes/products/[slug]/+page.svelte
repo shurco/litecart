@@ -99,7 +99,7 @@
                 class="flex h-full w-full transition-transform duration-500 ease-in-out"
                 style="transform: translateX(-{currentSlide * 100}%)"
               >
-                {#each product.images as image}
+                {#each product.images as image (image.id || image.name)}
                   <div class="h-full w-full flex-shrink-0">
                     <img
                       src={getProductImageUrl(image, 'md')}
@@ -132,7 +132,7 @@
           <div class="brutal-card p-8">
             {#if product.attributes && product.attributes.length > 0}
               <div class="mb-6 flex flex-wrap gap-2">
-                {#each product.attributes as attr}
+                {#each product.attributes as attr (attr)}
                   <span class="bg-blue-300 px-4 py-2 text-sm font-black tracking-wider text-black uppercase">
                     {attr}
                   </span>

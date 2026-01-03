@@ -1,15 +1,31 @@
 <script lang="ts">
   import SvgIcon from '../SvgIcon.svelte'
 
-  export let id: string = 'name'
-  export let type: string = 'text'
-  export let title: string = 'Name'
-  export let ico: string | undefined = undefined
-  export let error: string | undefined = undefined
-  export let value: string = ''
-  export let placeholder: string = ''
+  interface Props {
+    id?: string
+    type?: string
+    title?: string
+    ico?: string
+    error?: string
+    value?: string
+    placeholder?: string
+    onfocusout?: (event: FocusEvent) => void
+    oninput?: (event: Event) => void
+  }
 
-  $: computedPlaceholder = placeholder || `Enter ${id}`
+  let {
+    id = 'name',
+    type = 'text',
+    title = 'Name',
+    ico = undefined,
+    error = undefined,
+    value = $bindable(''),
+    placeholder = '',
+    onfocusout,
+    oninput
+  }: Props = $props()
+
+  let computedPlaceholder = $derived(placeholder || `Enter ${id}`)
 </script>
 
 <div>
@@ -21,8 +37,8 @@
       class="form-input field peer"
       placeholder={computedPlaceholder}
       autocomplete="on"
-      on:focusout
-      on:input
+      onfocusout={onfocusout}
+      oninput={oninput}
     />
     {#if title}
       <span

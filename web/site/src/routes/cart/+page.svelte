@@ -97,48 +97,40 @@
     // Don't auto-set provider for free carts on mount to prevent accidental checkout
   })
 
-  function showPayments(): boolean {
-    // Hide payment systems if cart is free (will use dummy automatically)
-    if (isFree) {
-      return false
-    }
-    return hasPaymentProviders(payments)
-  }
+  // Computed values instead of functions - more efficient
+  let showPayments = $derived(!isFree && hasPaymentProviders(payments))
+  let showSelectPayments = $derived(!isFree && hasPaymentProviders(payments))
 
-  function showSelectPayments(): boolean {
-    // Never show payment selection for free carts
-    if (isFree) {
-      return false
-    }
-    // Always show payment selection for paid carts (even if only one option)
-    return hasPaymentProviders(payments)
-  }
-
-  function totalCartAmount(): string {
-    return costFormat(cartTotal)
-  }
+  // Computed value instead of function
+  let totalCartAmount = $derived(costFormat(cartTotal))
 
   async function checkOut(e: Event) {
     e.preventDefault()
 
     setLocalStorage('email', email)
-
     error = undefined
 
-    // Ensure provider is set correctly based on cart total
-    let finalProvider = provider
-    if (isFree) {
-      // Force dummy provider for free carts
-      finalProvider = 'dummy'
-      setLocalStorage('provider', finalProvider)
-    } else if (!finalProvider) {
-      // If cart is paid but no provider selected, show error
+    // Recalculate cart total right before checkout to ensure accuracy
+    const currentCartTotal = cart.reduce((sum, item) => sum + item.amount, 0)
+    const currentIsFree = currentCartTotal === 0
+
+    // Determine final provider based on current cart state
+    const finalProvider = currentIsFree ? 'dummy' : provider
+    
+    // Validate: don't allow dummy provider for paid carts
+    if (!currentIsFree && finalProvider === 'dummy') {
+      error = 'Please select a payment system for paid items'
+      showOverlay = true
+      return
+    }
+    
+    if (!currentIsFree && !finalProvider) {
       error = 'Please select a payment system'
       showOverlay = true
       return
-    } else {
-      setLocalStorage('provider', finalProvider)
     }
+
+    setLocalStorage('provider', finalProvider)
 
     const cartData = {
       email,
@@ -198,7 +190,7 @@
               ITEMS ({cart.length})
             </h2>
             <ul class="list-none space-y-4">
-              {#each cart as item}
+              {#each cart as item (item.id)}
                 <li class="border-4 border-black bg-white p-4">
                   <div class="flex items-center gap-4">
                     <div class="overflow-hidden border-4 border-black">
@@ -245,8 +237,8 @@
           <div class="brutal-card mb-8 bg-yellow-300 p-8">
             <div class="flex items-center justify-between">
               <span class="text-3xl font-black tracking-tighter text-black uppercase"> TOTAL </span>
-              <span class="text-4xl font-black {totalCartAmount() === 'free' ? 'text-green-500' : 'text-black'}">
-                {totalCartAmount()}
+              <span class="text-4xl font-black {totalCartAmount === 'free' ? 'text-green-500' : 'text-black'}">
+                {totalCartAmount}
                 {#if cart.length > 0 && cartTotal !== 0}
                   {currency}
                 {/if}
@@ -254,7 +246,7 @@
             </div>
           </div>
 
-          {#if isFree || showPayments()}
+          {#if isFree || showPayments}
             <!-- Email Input -->
             <div class="mt-16 mb-8">
               <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">ENTER EMAIL</h2>
@@ -278,7 +270,7 @@
             </div>
 
             <!-- Payment Provider Selection -->
-            {#if showSelectPayments()}
+            {#if showSelectPayments}
               <div class="mt-16 mb-8">
                 <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">SELECT PAYMENT SYSTEM</h2>
                 <fieldset class="space-y-4">

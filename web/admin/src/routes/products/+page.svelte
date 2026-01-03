@@ -17,6 +17,10 @@
   import { costFormat, formatPrice, formatDate, sortByDate, confirmDelete, showMessage } from '$lib/utils'
   import { apiDelete, apiUpdate } from '$lib/utils/api'
   import { validators, validateFields } from '$lib/utils/validation'
+  import { MIN_NAME_LENGTH, MIN_SLUG_LENGTH, ERROR_MESSAGES } from '$lib/constants/validation'
+  import { CENTS_PER_UNIT, DEFAULT_AMOUNT } from '$lib/constants/pricing'
+  import { DEFAULT_PAGE_SIZE } from '$lib/constants/pagination'
+  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
   import type { Product } from '$lib/types/models'
 
   interface ProductsResponse {
@@ -39,7 +43,7 @@
   let drawerProduct = $state<DrawerProduct | null>(null)
   let drawerIndex = $state(-1)
   let currentPage = $state(1)
-  let limit = $state(20)
+  let limit = $state(DEFAULT_PAGE_SIZE)
   let total = $state(0)
 
   interface ProductFormData {
@@ -61,7 +65,7 @@
     slug: '',
     brief: '',
     description: '',
-    amount: '0',
+    amount: DEFAULT_AMOUNT,
     active: true,
     metadata: [],
     attributes: [],
@@ -69,31 +73,33 @@
       type: ''
     }
   })
-  let amountDisplay = $state('0')
   let formErrors = $state<Record<string, string>>({})
   let productImages = $state<Product['images']>([])
   let fullProductData = $state<Product | null>(null)
+
+  // Отображаемое значение цены (в обычных единицах, не в центах)
+  let amountDisplay = $state('0')
 
   function handleAmountInput(event: Event) {
     const target = event.target as HTMLInputElement
     let value = target.value
 
-    // Удаляем минус и другие недопустимые символы (кроме цифр, точки и пустой строки)
+    // Remove invalid characters (keep only digits and dot)
     value = value.replace(/[^0-9.]/g, '')
 
-    // Если значение начинается с точки, добавляем 0 перед точкой
+    // Add leading zero if starts with dot
     if (value.startsWith('.')) {
       value = '0' + value
     }
 
-    // Ограничиваем одну точку
+    // Limit to single dot
     const parts = value.split('.')
     if (parts.length > 2) {
       value = parts[0] + '.' + parts.slice(1).join('')
     }
 
-    // Обновляем значение
     amountDisplay = value
+    formData.amount = value
     target.value = value
   }
 
@@ -156,18 +162,22 @@
     const result = await loadData<Product>(`/api/_/products/${product.id}`, 'Failed to load product')
     if (result) {
       fullProductData = result
+      // Конвертируем цену из центов в обычное число для формы
+      const amountValue = typeof result.amount === 'string' ? parseFloat(result.amount) : (result.amount || 0)
+      const amountInUnits = amountValue / CENTS_PER_UNIT
+      const amountStr = amountInUnits.toFixed(2)
       formData = {
         name: result.name || '',
         slug: result.slug || '',
         brief: result.brief || '',
         description: result.description || '',
-        amount: result.amount || 0,
+        amount: amountStr,
         active: result.active !== undefined ? result.active : true,
         metadata: result.metadata || [],
         attributes: result.attributes || [],
         digital: result.digital || { type: '' }
       }
-      amountDisplay = costFormat(result.amount)
+      amountDisplay = amountStr
       productImages = result.images || []
       drawerOpen = true
     }
@@ -195,19 +205,36 @@
       setTimeout(() => {
         drawerProduct = null
         drawerMode = 'view'
-      }, 200)
+      }, DRAWER_CLOSE_DELAY_MS)
     }
   }
 
   function updateProductInList(product: Product) {
-    const productIndex = products.findIndex((p) => p.id === product.id)
-    if (productIndex !== -1) {
-      products = products.map((p, i) => (i === productIndex ? product : p))
+    const index = products.findIndex((p) => p.id === product.id)
+    if (index !== -1) {
+      // Сохраняем digital.filled из оригинального продукта, если он не пришел в ответе
+      const originalProduct = products[index]
+      if (originalProduct.digital?.filled !== undefined && (!product.digital || product.digital.filled === undefined)) {
+        if (!product.digital) {
+          product.digital = { type: originalProduct.digital?.type || '', filled: originalProduct.digital.filled }
+        } else {
+          product.digital = { ...product.digital, filled: originalProduct.digital.filled }
+        }
+      }
+      products[index] = product
     }
-    if (drawerProduct && drawerProduct.product.id === product.id) {
+    if (drawerProduct?.product.id === product.id) {
+      // Сохраняем digital.filled из оригинального продукта, если он не пришел в ответе
+      if (drawerProduct.product.digital?.filled !== undefined && (!product.digital || product.digital.filled === undefined)) {
+        if (!product.digital) {
+          product.digital = { type: drawerProduct.product.digital?.type || '', filled: drawerProduct.product.digital.filled }
+        } else {
+          product.digital = { ...product.digital, filled: drawerProduct.product.digital.filled }
+        }
+      }
       drawerProduct.product = product
     }
-    if (fullProductData && fullProductData.id === product.id) {
+    if (fullProductData?.id === product.id) {
       fullProductData = product
       formData.active = product.active
     }
@@ -215,17 +242,17 @@
 
   async function handleSubmit() {
     formErrors = validateFields(formData, [
-      { field: 'name', ...validators.minLength(3, 'Name must be at least 3 characters') },
-      { field: 'slug', ...validators.minLength(3, 'Slug must be at least 3 characters') }
+      { field: 'name', ...validators.minLength(MIN_NAME_LENGTH, ERROR_MESSAGES.NAME_TOO_SHORT) },
+      { field: 'slug', ...validators.minLength(MIN_SLUG_LENGTH, ERROR_MESSAGES.SLUG_TOO_SHORT) }
     ])
 
-    const amountNum = parseFloat(amountDisplay)
-    if (isNaN(amountNum) || amountNum < 0) {
-      formErrors.amount = 'Amount must be a non-negative number'
+    const amountValue = typeof formData.amount === 'string' ? parseFloat(formData.amount) : formData.amount
+    if (isNaN(amountValue) || amountValue < 0) {
+      formErrors.amount = ERROR_MESSAGES.AMOUNT_INVALID
     }
 
     if (drawerMode === 'add' && (!formData.digital?.type || formData.digital.type.trim() === '')) {
-      formErrors.digital_type = 'Digital type is required'
+      formErrors.digital_type = ERROR_MESSAGES.DIGITAL_TYPE_REQUIRED
     }
 
     if (Object.keys(formErrors).length > 0) {
@@ -234,10 +261,10 @@
 
     const isUpdate = drawerMode === 'edit' && drawerProduct !== null
     const url = isUpdate ? `/api/_/products/${drawerProduct!.product.id}` : '/api/_/products'
+    const amountInCents = Math.round((amountValue || 0) * CENTS_PER_UNIT)
     const submitData: Partial<Product> = {
       ...formData,
-      // Цены в базе хранятся в центах, поэтому умножаем на 100 при сохранении
-      amount: Math.round((parseFloat(amountDisplay) || 0) * 100)
+      amount: amountInCents
     }
 
     const result = await saveData<Product>(url, submitData, isUpdate, 'Product saved', 'Failed to save product')
@@ -345,18 +372,22 @@
   async function toggleActive(product: Product, index: number) {
     const originalActive = product.active
     const newActive = !product.active
-    products = products.map((p, i) => (i === index ? { ...p, active: newActive } : p))
+    
+    // Optimistic update - update directly instead of map
+    products[index] = { ...products[index], active: newActive }
 
     try {
       const res = await apiUpdate(`/api/_/products/${product.id}/active`, {})
       if (!res.success) {
-        products = products.map((p, i) => (i === index ? { ...p, active: originalActive } : p))
+        // Revert on failure
+        products[index] = { ...products[index], active: originalActive }
         showMessage(res.message || 'Failed to update product', 'connextError')
       } else {
         showMessage(res.message || 'Product status updated', 'connextSuccess')
       }
     } catch (error) {
-      products = products.map((p, i) => (i === index ? { ...p, active: originalActive } : p))
+      // Revert on error
+      products[index] = { ...products[index], active: originalActive }
       showMessage('Network error', 'connextError')
     }
   }
@@ -377,15 +408,15 @@
     await toggleActive(products[index], index)
   }
 
-  function handleEditorUpdate(event: CustomEvent) {
-    formData.description = event.detail
+  function handleEditorUpdate(value: string) {
+    formData.description = value
   }
 
-  function handleUpload(event: CustomEvent) {
-    if (event.detail.success) {
+  function handleUpload(result: any) {
+    if (result?.success) {
       showMessage('File uploaded', 'connextSuccess')
-      if (event.detail.result && fullProductData) {
-        productImages = [...(productImages || []), event.detail.result]
+      if (result?.result && fullProductData) {
+        productImages = [...(productImages || []), result.result]
       }
       loadProducts()
     }
@@ -417,7 +448,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each products as product, index}
+        {#each products as product, index (product.id)}
           <tr class:opacity-30={!product.active}>
             <td>
               {#if product.images && product.images.length > 0}
@@ -486,7 +517,7 @@
                   <SvgIcon
                     name={product.active ? 'eye' : 'eye-slash'}
                     className="h-5 w-5 cursor-pointer"
-                    on:click={() => toggleActive(product, index)}
+                    onclick={() => toggleActive(product, index)}
                     stroke="currentColor"
                   />
                 </div>
@@ -504,17 +535,17 @@
         onPageChange={handlePageChange}
       />
     {/if}
-  {/if}
+    {/if}
 </Main>
 
 {#if drawerOpen}
-  <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="710px">
+  <Drawer isOpen={drawerOpen} onclose={closeDrawer} maxWidth="710px">
     {#if drawerMode === 'view' && drawerProduct}
-      <ProductView drawer={drawerProduct} {updateActive} on:close={closeDrawer} />
+      <ProductView drawer={drawerProduct} {updateActive} onclose={closeDrawer} />
     {:else if drawerMode === 'seo' && drawerProduct}
-      <ProductSeo drawer={drawerProduct} on:close={closeDrawer} />
+      <ProductSeo drawer={drawerProduct} onclose={closeDrawer} />
     {:else if drawerMode === 'digital' && drawerProduct}
-      <ProductDigital drawer={drawerProduct} onContentUpdate={handleDigitalContentUpdate} on:close={closeDrawer} />
+      <ProductDigital drawer={drawerProduct} onContentUpdate={handleDigitalContentUpdate} onclose={closeDrawer} />
     {:else}
       <div>
         <div class="pb-8">
@@ -527,7 +558,7 @@
                 <SvgIcon
                   name={fullProductData.active ? 'eye' : 'eye-slash'}
                   className="h-5 w-5 cursor-pointer"
-                  on:click={toggleActiveInEdit}
+                  onclick={toggleActiveInEdit}
                   stroke="currentColor"
                 />
               </div>
@@ -546,6 +577,7 @@
                     type="text"
                     title="Amount"
                     bind:value={amountDisplay}
+                    oninput={handleAmountInput}
                     error={formErrors.amount}
                     ico="money"
                   />
@@ -587,7 +619,7 @@
 
               <hr />
               <p class="font-semibold">Metadata</p>
-              {#each formData.metadata || [] as metadata, index}
+              {#each formData.metadata || [] as metadata, index (index)}
                 <div class="flex">
                   <div class="grow pr-3">
                     <FormInput id="mtd-key-{index}" type="text" title="Key" bind:value={metadata.key} />
@@ -626,7 +658,7 @@
 
               <hr />
               <p class="font-semibold">Attributes</p>
-              {#each formData.attributes || [] as attribute, index}
+              {#each formData.attributes || [] as attribute, index (index)}
                 <div class="flex">
                   <div class="grow">
                     <FormInput id="atr-key-{index}" type="text" title="" bind:value={formData.attributes[index]} />
@@ -665,7 +697,7 @@
                 <p class="font-semibold">Images</p>
                 {#if productImages && productImages.length > 0}
                   <div class="grid grid-cols-4 content-start gap-4">
-                    {#each productImages as image, index}
+                    {#each productImages as image, index (image.id || index)}
                       <div class="relative" style="width: 100%; max-width: 150px">
                         <a href="/uploads/{image.name}.{image.ext}" target="_blank">
                           <img src="/uploads/{image.name}_sm.{image.ext}" alt="" />
@@ -692,7 +724,7 @@
                   section="image"
                   productId={fullProductData.id}
                   accept=".jpg,.jpeg,.png"
-                  on:added={handleUpload}
+                  onadded={handleUpload}
                 />
               {/if}
 
@@ -705,7 +737,7 @@
               <Editor
                 bind:modelValue={formData.description}
                 placeholder="type description here"
-                on:update:modelValue={handleEditorUpdate}
+                onupdateModelValue={handleEditorUpdate}
               />
             </dl>
           </div>

@@ -1,14 +1,20 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  interface Props {
+    id?: string
+    value?: boolean
+    disabled?: boolean
+    onchange?: () => void
+  }
 
-  export let id: string = 'name'
-  export let value: boolean = false
-  export let disabled: boolean = false
-
-  const dispatch = createEventDispatcher()
+  let {
+    id = 'name',
+    value = $bindable(false),
+    disabled = false,
+    onchange
+  }: Props = $props()
 
   function handleChange() {
-    dispatch('change')
+    onchange?.()
   }
 </script>
 
@@ -22,7 +28,7 @@
     id="toggle_{id}"
     bind:checked={value}
     {disabled}
-    on:change={handleChange}
+    onchange={handleChange}
     class="peer sr-only [&:checked_+_span_svg[data-checked-icon]]:block [&:checked_+_span_svg[data-unchecked-icon]]:hidden"
   />
 

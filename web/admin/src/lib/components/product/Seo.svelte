@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormButton from '../form/Button.svelte'
   import FormInput from '../form/Input.svelte'
   import FormTextarea from '../form/Textarea.svelte'
@@ -13,15 +12,18 @@
     currency?: string
   }
 
-  export let drawer: DrawerProduct
+  interface Props {
+    drawer: DrawerProduct
+    onclose?: () => void
+  }
 
-  const dispatch = createEventDispatcher()
+  let { drawer, onclose }: Props = $props()
 
-  let seoData = {
+  let seoData = $state({
     title: '',
     keywords: '',
     description: ''
-  }
+  })
 
   onMount(async () => {
     await loadProduct()
@@ -38,7 +40,8 @@
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault()
     await saveData<Product>(
       `/api/_/products/${drawer.product.id}`,
       { seo: seoData },
@@ -49,7 +52,7 @@
   }
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 </script>
 
@@ -62,7 +65,7 @@
     </div>
   </div>
 
-  <form on:submit|preventDefault={handleSubmit}>
+  <form onsubmit={handleSubmit}>
     <div class="flow-root">
       <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
         <FormInput id="seo-title" title="Title" bind:value={seoData.title} ico="glob-alt" />
@@ -76,7 +79,7 @@
       <div class="flex">
         <div class="flex-none">
           <FormButton type="submit" name="Save" color="green" />
-          <FormButton type="button" name="Close" color="gray" on:click={close} />
+          <FormButton type="button" name="Close" color="gray" onclick={close} />
         </div>
         <div class="grow"></div>
       </div>

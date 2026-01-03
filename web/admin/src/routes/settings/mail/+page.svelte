@@ -8,17 +8,17 @@
   import FormSelect from '$lib/components/form/Select.svelte'
   import { apiGet, apiUpdate, showMessage } from '$lib/utils'
 
-  let smtp = {
+  let smtp = $state({
     host: '',
     port: '',
     encryption: '',
     username: '',
     password: ''
-  }
-  let formErrors: Record<string, string> = {}
-  let loading = true
-  let drawerOpen = false
-  let drawerMode: 'mail_letter_payment' | 'mail_letter_purchase' | null = null
+  })
+  let formErrors = $state<Record<string, string>>({})
+  let loading = $state(true)
+  let drawerOpen = $state(false)
+  let drawerMode = $state<'mail_letter_payment' | 'mail_letter_purchase' | null>(null)
 
   const letterLegend = {
     mail_letter_payment: {
@@ -117,15 +117,17 @@
     drawerOpen = true
   }
 
+  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
+
   function closeDrawer() {
     drawerOpen = false
     setTimeout(() => {
       drawerMode = null
-    }, 200)
+    }, DRAWER_CLOSE_DELAY_MS)
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <div class="pb-10">
     <header class="mb-4">
       <h1>Mail</h1>
@@ -136,10 +138,10 @@
       <div class="flex">
         <div
           class="cursor-pointer rounded bg-gray-200 p-2"
-          on:click={() => openDrawer('mail_letter_payment')}
+          onclick={() => openDrawer('mail_letter_payment')}
           role="button"
           tabindex="0"
-          on:keydown={(e) => {
+          onkeydown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
               openDrawer('mail_letter_payment')
@@ -150,10 +152,10 @@
         </div>
         <div
           class="ml-5 cursor-pointer rounded bg-gray-200 p-2"
-          on:click={() => openDrawer('mail_letter_purchase')}
+          onclick={() => openDrawer('mail_letter_purchase')}
           role="button"
           tabindex="0"
-          on:keydown={(e) => {
+          onkeydown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
               openDrawer('mail_letter_purchase')
@@ -174,7 +176,7 @@
         </div>
       {/if}
 
-      <form on:submit|preventDefault={handleSubmit}>
+      <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
         <div class="flex">
           <div class="w-64 pr-3">
             <FormInput
@@ -233,11 +235,11 @@
           <FormButton type="submit" name="Save" color="green" />
           <div class="mt-3 ml-5">
             <span
-              on:click={() => sendTestLetter('smtp')}
+              onclick={() => sendTestLetter('smtp')}
               class="cursor-pointer text-red-700"
               role="button"
               tabindex="0"
-              on:keydown={(e) => {
+              onkeydown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
                   sendTestLetter('smtp')
@@ -251,25 +253,25 @@
       </form>
     </div>
   </div>
-</svelte:component>
+</Main>
 
 {#if drawerOpen}
-  <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="725px">
+  <Drawer isOpen={drawerOpen} onclose={closeDrawer} maxWidth="725px">
     {#if drawerMode === 'mail_letter_payment'}
       <Letter
         key="mail_letter_payment"
         name="mail_letter_payment"
         legend={letterLegend.mail_letter_payment}
-        on:close={closeDrawer}
-        on:send={(e) => sendTestLetter(e.detail)}
+        onclose={closeDrawer}
+        onsend={(name) => sendTestLetter(name)}
       />
     {:else if drawerMode === 'mail_letter_purchase'}
       <Letter
         key="mail_letter_purchase"
         name="mail_letter_purchase"
         legend={letterLegend.mail_letter_purchase}
-        on:close={closeDrawer}
-        on:send={(e) => sendTestLetter(e.detail)}
+        onclose={closeDrawer}
+        onsend={(name) => sendTestLetter(name)}
       />
     {/if}
   </Drawer>

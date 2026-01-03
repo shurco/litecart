@@ -21,7 +21,8 @@ type ProductQueries struct {
 }
 
 // ListProducts retrieves a list of products from the database.
-func (q *ProductQueries) ListProducts(ctx context.Context, private bool, limit, offset int, idList ...models.CartProduct) (*models.Products, error) {
+// If cartID is provided, it will also include digital products that were purchased in that cart.
+func (q *ProductQueries) ListProducts(ctx context.Context, private bool, limit, offset int, cartID string, idList ...models.CartProduct) (*models.Products, error) {
 	currency, err := db.GetSettingByKey(ctx, "currency")
 	if err != nil {
 		return nil, err
@@ -47,16 +48,43 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, limit, 
 			FROM product
 		`
 
-	queryPublic := ` 
-			LEFT JOIN digital_data ON digital_data.product_id = product.id
-			LEFT JOIN digital_file ON digital_file.product_id = product.id
-			WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) 
-			AND product.deleted = 0 AND product.active = 1
-		`
-
+	// For public queries, filter by available digital products
+	// If cartID is provided, also include products purchased in that cart
+	var queryPublic string
 	var params []any
 	var countParams []any
+	
+	if !private {
+		if cartID != "" {
+			// Include products with available digital data OR products purchased in this cart
+			queryPublic = ` 
+				LEFT JOIN digital_data ON digital_data.product_id = product.id
+				LEFT JOIN digital_file ON digital_file.product_id = product.id
+				WHERE (
+					(digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL) OR 
+					(digital_data.content IS NOT NULL AND digital_data.cart_id = ?) OR
+					digital_file.orig_name IS NOT NULL
+				) 
+				AND product.deleted = 0 AND product.active = 1
+			`
+			params = append(params, cartID)
+			countParams = append(countParams, cartID)
+		} else {
+			// Only include products with available digital data
+			queryPublic = ` 
+				LEFT JOIN digital_data ON digital_data.product_id = product.id
+				LEFT JOIN digital_file ON digital_file.product_id = product.id
+				WHERE (
+					(digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL) OR
+					digital_file.orig_name IS NOT NULL
+				) 
+				AND product.deleted = 0 AND product.active = 1
+			`
+		}
+	}
+	
 	var queryAddon string
+	
 	if len(idList) > 0 {
 		for _, item := range idList {
 			params = append(params, item.ProductID)
@@ -160,38 +188,52 @@ func (q *ProductQueries) Product(ctx context.Context, private bool, id string) (
 				json_group_array(json_object('id', pi.id, 'name', pi.name, 'ext', pi.ext)) as images,
 				strftime('%s', product.created), 
 				strftime('%s', product.updated)
+	`
+
+	// Добавляем вычисление digital_filled для приватных запросов
+	if private {
+		query += `, EXISTS(SELECT 1 FROM digital_data WHERE digital_data.product_id = product.id AND digital_data.cart_id IS NULL) OR
+				EXISTS(SELECT 1 FROM digital_file WHERE digital_file.product_id = product.id) AS digital_filled
 			FROM product 
 			LEFT JOIN product_image pi ON product.id = pi.product_id
-	`
-	if private {
-		query += ` WHERE product.id = ?`
+			WHERE product.id = ?`
 	} else {
-		query += ` LEFT JOIN digital_data ON digital_data.product_id = product.id   
-										 LEFT JOIN digital_file ON digital_file.product_id = product.id 
-										 WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) AND
-										 product.slug = ? AND product.active = 1`
+		query += `
+			FROM product 
+			LEFT JOIN product_image pi ON product.id = pi.product_id
+			LEFT JOIN digital_data ON digital_data.product_id = product.id   
+			LEFT JOIN digital_file ON digital_file.product_id = product.id 
+			WHERE (digital_data.content IS NOT NULL AND digital_data.cart_id IS NULL OR digital_file.orig_name IS NOT NULL) AND
+			product.slug = ? AND product.active = 1`
 	}
 
 	var images, metadata, attributes, digitalType, seo sql.NullString
 	var updated sql.NullInt64
+	var digitalFilled sql.NullBool
 
-	err := q.DB.QueryRowContext(ctx, query, id).
-		Scan(
-			&product.ID,
-			&product.Name,
-			&product.Brief,
-			&product.Description,
-			&product.Slug,
-			&product.Amount,
-			&product.Active,
-			&metadata,
-			&attributes,
-			&digitalType,
-			&seo,
-			&images,
-			&product.Created,
-			&updated,
-		)
+	scanArgs := []any{
+		&product.ID,
+		&product.Name,
+		&product.Brief,
+		&product.Description,
+		&product.Slug,
+		&product.Amount,
+		&product.Active,
+		&metadata,
+		&attributes,
+		&digitalType,
+		&seo,
+		&images,
+		&product.Created,
+		&updated,
+	}
+
+	// Добавляем digital_filled в scanArgs для приватных запросов
+	if private {
+		scanArgs = append(scanArgs, &digitalFilled)
+	}
+
+	err := q.DB.QueryRowContext(ctx, query, id).Scan(scanArgs...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.ErrProductNotFound
@@ -222,6 +264,15 @@ func (q *ProductQueries) Product(ctx context.Context, private bool, id string) (
 	}
 
 	product.Digital.Type = digitalType.String
+
+	// Устанавливаем digital.filled для приватных запросов
+	if private && digitalType.Valid {
+		if digitalFilled.Valid {
+			product.Digital.Filled = digitalFilled.Bool
+		} else {
+			product.Digital.Filled = false
+		}
+	}
 
 	if seo.Valid {
 		if err := json.Unmarshal([]byte(seo.String), &product.Seo); err != nil {

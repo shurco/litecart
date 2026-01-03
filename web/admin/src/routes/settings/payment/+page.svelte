@@ -12,13 +12,13 @@
   import { loadData } from '$lib/utils/apiHelpers'
   import type { PaymentSettings } from '$lib/types/models'
 
-  let drawerOpen = false
-  let drawerMode: 'stripe' | 'paypal' | 'spectrocoin' | null = null
-  let payments: Record<string, boolean> = {}
-  let payment: PaymentSettings = {
+  let drawerOpen = $state(false)
+  let drawerMode = $state<'stripe' | 'paypal' | 'spectrocoin' | null>(null)
+  let payments = $state<Record<string, boolean>>({})
+  let payment = $state<PaymentSettings>({
     currency: ''
-  }
-  let formErrors: Record<string, string> = {}
+  })
+  let formErrors = $state<Record<string, string>>({})
 
   const currencyOptions = ['EUR', 'USD', 'JPY', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'SEK']
 
@@ -77,21 +77,23 @@
     drawerOpen = true
   }
 
+  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
+
   function closeDrawer() {
     drawerOpen = false
     setTimeout(() => {
       drawerMode = null
-    }, 200)
+    }, DRAWER_CLOSE_DELAY_MS)
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <div class="pb-10">
     <header class="mb-4">
       <h1>Payment</h1>
     </header>
 
-    <form on:submit|preventDefault={handleCurrencySubmit} class="max-w-2xl">
+    <form onsubmit={(e) => { e.preventDefault(); handleCurrencySubmit(); }} class="max-w-2xl">
       <FormSelect
         id="currency"
         title="Currency"
@@ -111,10 +113,10 @@
       <div class="flex">
         <div
           class="cursor-pointer rounded p-2 {payments.stripe ? 'bg-green-200' : 'bg-gray-200'}"
-          on:click={() => openDrawer('stripe')}
+          onclick={() => openDrawer('stripe')}
           role="button"
           tabindex="0"
-          on:keydown={(e) => {
+          onkeydown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
               openDrawer('stripe')
@@ -125,10 +127,10 @@
         </div>
         <div
           class="ml-5 cursor-pointer rounded p-2 {payments.paypal ? 'bg-green-200' : 'bg-gray-200'}"
-          on:click={() => openDrawer('paypal')}
+          onclick={() => openDrawer('paypal')}
           role="button"
           tabindex="0"
-          on:keydown={(e) => {
+          onkeydown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
               openDrawer('paypal')
@@ -139,10 +141,10 @@
         </div>
         <div
           class="ml-5 cursor-pointer rounded p-2 {payments.spectrocoin ? 'bg-green-200' : 'bg-gray-200'}"
-          on:click={() => openDrawer('spectrocoin')}
+          onclick={() => openDrawer('spectrocoin')}
           role="button"
           tabindex="0"
-          on:keydown={(e) => {
+          onkeydown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
               openDrawer('spectrocoin')
@@ -154,16 +156,16 @@
       </div>
     </div>
   </div>
-</svelte:component>
+</Main>
 
 {#if drawerOpen}
-  <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="725px">
+  <Drawer isOpen={drawerOpen} onclose={closeDrawer} maxWidth="725px">
     {#if drawerMode === 'stripe'}
-      <Stripe on:close={closeDrawer} />
+      <Stripe onclose={closeDrawer} />
     {:else if drawerMode === 'paypal'}
-      <Paypal on:close={closeDrawer} />
+      <Paypal onclose={closeDrawer} />
     {:else if drawerMode === 'spectrocoin'}
-      <Spectrocoin on:close={closeDrawer} />
+      <Spectrocoin onclose={closeDrawer} />
     {/if}
   </Drawer>
 {/if}

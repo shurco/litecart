@@ -27,7 +27,7 @@ func Products(c *fiber.Ctx) error {
 	}
 	offset := (page - 1) * limit
 
-	products, err := db.ListProducts(c.Context(), false, limit, offset)
+	products, err := db.ListProducts(c.Context(), false, limit, offset, "")
 	if err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormButton from '../form/Button.svelte'
   import DetailList from '../DetailList.svelte'
   import SvgIcon from '../SvgIcon.svelte'
@@ -14,14 +13,17 @@
     currency?: string
   }
 
-  export let drawer: DrawerProduct
-  export let updateActive: ((index: number) => void) | undefined
+  interface Props {
+    drawer: DrawerProduct
+    updateActive?: ((index: number) => void) | undefined
+    onclose?: () => void
+  }
 
-  let product: Product | null = null
-  let loading = true
-  let lastProductId: string | null = null
+  let { drawer, updateActive, onclose }: Props = $props()
 
-  const dispatch = createEventDispatcher()
+  let product = $state<Product | null>(null)
+  let loading = $state(true)
+  let lastProductId = $state<string | null>(null)
 
   async function loadProduct() {
     if (!drawer?.product?.id) return
@@ -40,12 +42,14 @@
   })
 
   // Reload product when drawer.product.id changes
-  $: if (drawer?.product?.id && drawer.product.id !== lastProductId) {
-    loadProduct()
-  }
+  $effect(() => {
+    if (drawer?.product?.id && drawer.product.id !== lastProductId) {
+      loadProduct()
+    }
+  })
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 
   async function active() {
@@ -70,7 +74,7 @@
           <SvgIcon
             name={product.active ? 'eye' : 'eye-slash'}
             className="h-5 w-5 cursor-pointer"
-            on:click={active}
+            onclick={active}
             stroke="currentColor"
           />
         {/if}
@@ -94,12 +98,12 @@
         </DetailList>
         <DetailList name="Slug">{product.slug}</DetailList>
         <DetailList name="Metadata">
-          {#each product.metadata || [] as data}
+          {#each product.metadata || [] as data (data.key)}
             <div>{data.key}: {data.value}</div>
           {/each}
         </DetailList>
         <DetailList name="Attributes">
-          {#each product.attributes || [] as item}
+          {#each product.attributes || [] as item (item)}
             <div>{item}</div>
           {/each}
         </DetailList>
@@ -109,7 +113,7 @@
         {/if}
         {#if product.images}
           <DetailList name="Images" grid={true}>
-            {#each product.images as item}
+            {#each product.images as item (item.id)}
               <div>
                 <a href="/uploads/{item.name}.{item.ext}" target="_blank" aria-label="View full size image">
                   <img
@@ -133,6 +137,6 @@
   {/if}
 
   <div class="pt-5">
-    <FormButton type="button" name="Close" color="green" on:click={close} />
+    <FormButton type="button" name="Close" color="green" onclick={close} />
   </div>
 </div>

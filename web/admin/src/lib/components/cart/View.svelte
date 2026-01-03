@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormButton from '../form/Button.svelte'
   import DetailList from '../DetailList.svelte'
   import SvgIcon from '../SvgIcon.svelte'
@@ -22,13 +21,16 @@
     }
   }
 
-  export let drawer: DrawerCart
+  interface Props {
+    drawer: DrawerCart
+    onclose?: () => void
+  }
 
-  let cart: CartDetail | null = null
-  let loading = true
-  let lastCartId: string | null = null
+  let { drawer, onclose }: Props = $props()
 
-  const dispatch = createEventDispatcher()
+  let cart = $state<CartDetail | null>(null)
+  let loading = $state(true)
+  let lastCartId = $state<string | null>(null)
 
   async function loadCart() {
     if (!drawer?.cart?.id) return
@@ -47,12 +49,14 @@
   })
 
   // Reload cart when drawer.cart.id changes
-  $: if (drawer?.cart?.id && drawer.cart.id !== lastCartId) {
-    loadCart()
-  }
+  $effect(() => {
+    if (drawer?.cart?.id && drawer.cart.id !== lastCartId) {
+      loadCart()
+    }
+  })
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 
   function getPaymentStatusColor(status: string) {
@@ -142,7 +146,7 @@
         {#if cart.items && cart.items.length > 0}
           <DetailList name="Items" grid={false}>
             <div class="space-y-4">
-              {#each cart.items as item}
+              {#each cart.items as item (item.id)}
                 <div class="flex items-start gap-4 border-b border-gray-200 pb-4 last:border-0">
                   {#if item.image}
                     <div class="flex-shrink-0">
@@ -189,6 +193,6 @@
   {/if}
 
   <div class="pt-5">
-    <FormButton type="button" name="Close" color="green" on:click={close} />
+    <FormButton type="button" name="Close" color="green" onclick={close} />
   </div>
 </div>

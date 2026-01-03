@@ -87,13 +87,13 @@
   })
 </script>
 
-<svelte:component this={Blank}>
+<Blank>
   <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-lg text-center">
       <h1 class="text-2xl font-bold sm:text-3xl">🛒 Install Litecart</h1>
       <p class="mt-4 text-gray-600">Configure your shopping cart</p>
     </div>
-    <form on:submit|preventDefault={handleSubmit} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
+    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
       <FormInput id="email" type="email" title="Email" ico="at-symbol" error={emailError} bind:value={email} />
       <FormInput
         id="password"
@@ -115,4 +115,4 @@
       <FormButton type="submit" name="Install" color="green" ico="arrow-right" />
     </form>
   </div>
-</svelte:component>
+</Blank>

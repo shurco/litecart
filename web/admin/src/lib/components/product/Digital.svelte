@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormInput from '../form/Input.svelte'
   import FormButton from '../form/Button.svelte'
   import Upload from '../form/Upload.svelte'
@@ -31,17 +30,20 @@
     currency?: string
   }
 
-  export let drawer: DrawerProduct
-  export let onContentUpdate: (() => void) | undefined = undefined
+  interface Props {
+    drawer: DrawerProduct
+    onContentUpdate?: (() => void) | undefined
+    onclose?: () => void
+  }
 
-  const dispatch = createEventDispatcher()
+  let { drawer, onContentUpdate, onclose }: Props = $props()
 
-  let digital: Digital = {
+  let digital = $state<Digital>({
     type: '',
     files: [],
     data: []
-  }
-  let loading = true
+  })
+  let loading = $state(true)
 
   onMount(async () => {
     await loadDigital()
@@ -64,7 +66,7 @@
   }
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 
   async function handleUpload(event: CustomEvent) {
@@ -75,6 +77,12 @@
         onContentUpdate()
       }
     }
+  }
+
+  function isCodeSold(cartId: string | null | undefined): boolean {
+    if (!cartId || cartId === null) return false
+    const trimmed = String(cartId).trim()
+    return trimmed !== '' && trimmed !== 'null' && trimmed !== 'undefined'
   }
 
   async function addDigitalData() {
@@ -92,7 +100,8 @@
 
   async function saveData(index: number) {
     const dataItem = digital.data[index]
-    if (!dataItem || dataItem.cart_id !== null) return
+    // Don't allow saving if code is sold (has cart_id)
+    if (!dataItem || isCodeSold(dataItem.cart_id)) return
 
     const update = {
       content: dataItem.content
@@ -153,7 +162,7 @@
       <div class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
         {#if digital.files && digital.files.length > 0}
           <div class="grid content-start">
-            {#each digital.files as file, index}
+            {#each digital.files as file, index (file.id)}
               <div class="relative mt-4 flex first:mt-0">
                 <a
                   href="/secrets/{file.name}.{file.ext}"
@@ -167,8 +176,8 @@
                   class="mt-3 ml-3 cursor-pointer"
                   role="button"
                   tabindex="0"
-                  on:click={() => deleteDigital('file', index)}
-                  on:keydown={(e) => {
+                  onclick={() => deleteDigital('file', index)}
+                  onkeydown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
                       deleteDigital('file', index)
@@ -181,7 +190,7 @@
             {/each}
           </div>
         {/if}
-        <Upload section="digital" productId={drawer.product.id} on:added={handleUpload} />
+        <Upload section="digital" productId={drawer.product.id} onadded={handleUpload} />
       </div>
     </div>
   {:else if digital.type === 'data'}
@@ -189,24 +198,25 @@
     <div class="flow-root">
       <div class="mx-auto -my-3 mt-4 mb-0 space-y-4 text-sm">
         {#if digital.data && digital.data.length > 0}
-          {#each digital.data as dataItem, index}
+          {#each digital.data as dataItem, index (dataItem.id)}
             <div class="flex">
-              {#if dataItem.cart_id === null || dataItem.cart_id === ''}
+              {#if !isCodeSold(dataItem.cart_id)}
+                <!-- Not sold - editable with delete button -->
                 <div class="grow">
                   <FormInput
                     id="data-{dataItem.id}"
                     type="text"
                     title=""
                     bind:value={dataItem.content}
-                    on:blur={() => saveData(index)}
+                    onfocusout={() => saveData(index)}
                   />
                 </div>
                 <div
                   class="flex-none cursor-pointer pt-3 pl-3"
                   role="button"
                   tabindex="0"
-                  on:click={() => deleteDigital('data', index)}
-                  on:keydown={(e) => {
+                  onclick={() => deleteDigital('data', index)}
+                  onkeydown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
                       deleteDigital('data', index)
@@ -216,9 +226,16 @@
                   <SvgIcon name="trash" className="h-5 w-5" stroke="currentColor" />
                 </div>
               {:else}
+                <!-- Sold - read-only with badge -->
                 <div class="grow">
-                  <div class="rounded-lg bg-gray-200 px-3 py-3">
-                    {dataItem.content}
+                  <div class="flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-3">
+                    <span class="flex-1">{dataItem.content}</span>
+                    <span
+                      class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800"
+                      title="This code has been sold (cart_id: {dataItem.cart_id})"
+                    >
+                      Sold
+                    </span>
                   </div>
                 </div>
               {/if}
@@ -231,7 +248,7 @@
             <button
               type="button"
               class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
-              on:click={addDigitalData}
+              onclick={addDigitalData}
             >
               Add data
             </button>
@@ -244,6 +261,6 @@
   {/if}
 
   <div class="pt-5">
-    <FormButton type="button" name="Close" color="green" on:click={close} />
+    <FormButton type="button" name="Close" color="green" onclick={close} />
   </div>
 </div>

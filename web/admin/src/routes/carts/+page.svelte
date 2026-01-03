@@ -22,12 +22,15 @@
     limit: number
   }
 
+  import { DEFAULT_PAGE_SIZE } from '$lib/constants/pagination'
+  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
+
   let carts = $state<Cart[]>([])
   let loading = $state(true)
   let drawerOpen = $state(false)
   let drawerCart = $state<DrawerCart | null>(null)
   let currentPage = $state(1)
-  let limit = $state(20)
+  let limit = $state(DEFAULT_PAGE_SIZE)
   let total = $state(0)
 
   onMount(async () => {
@@ -62,7 +65,7 @@
       drawerOpen = false
       setTimeout(() => {
         drawerCart = null
-      }, 200)
+      }, DRAWER_CLOSE_DELAY_MS)
     }
   }
 
@@ -99,7 +102,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each carts as cart, index}
+        {#each carts as cart, index (cart.id)}
           <tr
             class:bg-green-50={cart.payment_status === 'paid'}
             class="cursor-pointer hover:bg-gray-50"
@@ -155,9 +158,9 @@
 </Main>
 
 {#if drawerOpen}
-  <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="710px">
+  <Drawer isOpen={drawerOpen} onclose={closeDrawer} maxWidth="710px">
     {#if drawerCart}
-      <CartView drawer={drawerCart} on:close={closeDrawer} />
+      <CartView drawer={drawerCart} onclose={closeDrawer} />
     {/if}
   </Drawer>
 {/if}

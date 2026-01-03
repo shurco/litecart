@@ -1,15 +1,25 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  interface Props {
+    prefix?: string
+    name: string
+    className?: string
+    stroke?: string
+    onclick?: (event: MouseEvent) => void
+    onmouseenter?: (event: MouseEvent) => void
+    onmouseleave?: (event: MouseEvent) => void
+  }
 
-  export let prefix: string = 'icon'
-  export let name: string
-  export let className: string = 'h-6 w-6'
-  export let stroke: string | undefined = undefined
+  let {
+    prefix = 'icon',
+    name,
+    className = 'h-6 w-6',
+    stroke = undefined,
+    onclick,
+    onmouseenter,
+    onmouseleave
+  }: Props = $props()
 
-  const dispatch = createEventDispatcher()
-
-  // Check if click handler is provided
-  $: hasClickHandler = $$props.onclick !== undefined
+  let hasClickHandler = $derived(onclick !== undefined)
 </script>
 
 <svg
@@ -20,11 +30,11 @@
   stroke-width={stroke ? '1.5' : '0'}
   viewBox="0 0 24 24"
   xmlns="http://www.w3.org/2000/svg"
-  on:click={(e) => dispatch('click', e)}
-  on:mouseenter={(e) => dispatch('mouseenter', e)}
-  on:mouseleave={(e) => dispatch('mouseleave', e)}
+  onclick={onclick}
+  onmouseenter={onmouseenter}
+  onmouseleave={onmouseleave}
   role={hasClickHandler ? 'button' : 'img'}
-  {...hasClickHandler ? { tabindex: 0 } : {}}
+  {...(hasClickHandler ? { tabindex: 0 } : {})}
   style={hasClickHandler ? 'cursor: pointer;' : ''}
 >
   <use href={`#${prefix}-${name}`} />

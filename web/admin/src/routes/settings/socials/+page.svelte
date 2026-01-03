@@ -15,7 +15,7 @@
     other: string
   }
 
-  let formData: SocialSettings = {
+  let formData = $state<SocialSettings>({
     facebook: '',
     instagram: '',
     twitter: '',
@@ -23,12 +23,23 @@
     github: '',
     youtube: '',
     other: ''
-  }
-  let formErrors: Record<string, string> = {}
-  let loading = true
+  })
+  let formErrors = $state<Record<string, string>>({})
+  let loading = $state(true)
 
   onMount(async () => {
-    formData = await loadSettings<SocialSettings>('social', formData)
+    const loaded = await loadSettings<SocialSettings>('social', formData)
+    if (loaded) {
+      formData = {
+        facebook: loaded.facebook || '',
+        instagram: loaded.instagram || '',
+        twitter: loaded.twitter || '',
+        dribbble: loaded.dribbble || '',
+        github: loaded.github || '',
+        youtube: loaded.youtube || '',
+        other: loaded.other || ''
+      }
+    }
     loading = false
   })
 
@@ -44,13 +55,13 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <h1 class="mb-5">Social Settings</h1>
 
   {#if loading}
     <div class="py-8 text-center">Loading...</div>
   {:else}
-    <form on:submit|preventDefault={handleSubmit} class="max-w-2xl space-y-4">
+    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="max-w-2xl space-y-4">
       <FormInput
         id="facebook"
         title="Facebook"
@@ -113,4 +124,4 @@
       </div>
     </form>
   {/if}
-</svelte:component>
+</Main>

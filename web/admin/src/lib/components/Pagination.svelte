@@ -50,7 +50,7 @@
       Previous
     </button>
 
-    {#each getVisiblePages() as page}
+    {#each getVisiblePages() as page (page)}
       {#if page === -1}
         <span class="px-2">...</span>
       {:else}

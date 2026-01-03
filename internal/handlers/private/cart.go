@@ -63,9 +63,10 @@ func Cart(c *fiber.Ctx) error {
 	}
 
 	// Load full product information for cart items
+	// Pass cartID to include digital products purchased in this cart
 	var cartItems []map[string]interface{}
 	if len(cart.Cart) > 0 {
-		products, err := db.ListProducts(c.Context(), false, 0, 0, cart.Cart...)
+		products, err := db.ListProducts(c.Context(), false, 0, 0, cartID, cart.Cart...)
 		if err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)

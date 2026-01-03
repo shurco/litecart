@@ -16,16 +16,16 @@
     new: string
   }
 
-  let formData: AuthSettings = {
+  let formData = $state<AuthSettings>({
     email: ''
-  }
-  let passwordData: PasswordData = {
+  })
+  let passwordData = $state<PasswordData>({
     old: '',
     new: ''
-  }
-  let formErrors: Record<string, string> = {}
-  let passwordErrors: Record<string, string> = {}
-  let loading = true
+  })
+  let formErrors = $state<Record<string, string>>({})
+  let passwordErrors = $state<Record<string, string>>({})
+  let loading = $state(true)
 
   onMount(async () => {
     formData = await loadSettings<AuthSettings>('auth', formData)
@@ -66,13 +66,13 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <h1 class="mb-5">Authentication Settings</h1>
 
   {#if loading}
     <div class="py-8 text-center">Loading...</div>
   {:else}
-    <form on:submit|preventDefault={handleSubmit} class="max-w-2xl space-y-4">
+    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="max-w-2xl space-y-4">
       <h2 class="mb-4 text-xl font-bold">Email</h2>
       <FormInput
         id="email"
@@ -89,7 +89,7 @@
 
     <hr class="mt-5" />
 
-    <form on:submit|preventDefault={handlePasswordSubmit} class="max-w-2xl space-y-4">
+    <form onsubmit={(e) => { e.preventDefault(); handlePasswordSubmit(); }} class="max-w-2xl space-y-4">
       <h2 class="mb-4 text-xl font-bold">Change Password</h2>
       <FormInput
         id="old_password"
@@ -112,4 +112,4 @@
       </div>
     </form>
   {/if}
-</svelte:component>
+</Main>

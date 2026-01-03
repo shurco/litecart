@@ -16,7 +16,7 @@
     <div class="mb-8 flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
       {#if footerPages.length > 0}
         <nav class="flex flex-wrap gap-4">
-          {#each footerPages as page}
+          {#each footerPages as page (page.id)}
             <a
               href="/{page.slug}"
               onclick={(e) => handleNavigation(e, `/${page.slug}`)}
@@ -32,7 +32,7 @@
         <div class="flex items-center gap-3">
           <span class="mr-2 text-xs font-black tracking-wider text-yellow-300 uppercase">Follow:</span>
           <ul class="flex items-center gap-2">
-            {#each Object.entries(socials) as [key, value], i}
+            {#each Object.entries(socials) as [key, value], i (key)}
               {#if value}
                 <li>
                   <a

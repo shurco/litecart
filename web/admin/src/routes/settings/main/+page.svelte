@@ -12,20 +12,24 @@
     email: string
   }
 
-  let formData: MainSettings = {
+  let formData = $state<MainSettings>({
     site_name: '',
     domain: '',
     email: ''
-  }
-  let formErrors: Record<string, string> = {}
-  let loading = true
+  })
+  let formErrors = $state<Record<string, string>>({})
+  let loading = $state(true)
 
   onMount(async () => {
-    formData = await loadSettings<MainSettings>('main', formData)
+    const loaded = await loadSettings<MainSettings>('main', formData)
+    if (loaded) {
+      formData = loaded
+    }
     loading = false
   })
 
-  async function handleSubmit() {
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault()
     formErrors = validateFields(formData, [
       { field: 'site_name', ...validators.minLength(6, 'Site name must be at least 6 characters') },
       { field: 'domain', ...validators.required('Domain is required') },
@@ -40,13 +44,13 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <h1 class="mb-5">Main Settings</h1>
 
   {#if loading}
     <div class="py-8 text-center">Loading...</div>
   {:else}
-    <form on:submit|preventDefault={handleSubmit} class="max-w-2xl space-y-4">
+    <form onsubmit={handleSubmit} class="max-w-2xl space-y-4">
       <FormInput
         id="site_name"
         title="Site Name"
@@ -68,4 +72,4 @@
       </div>
     </form>
   {/if}
-</svelte:component>
+</Main>

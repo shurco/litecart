@@ -1,24 +1,42 @@
-import { writable } from 'svelte/store'
+import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
 
-export function useDrawer<T extends string = string>(defaultMode: T) {
-  const isOpen = writable(false)
-  const mode = writable<T | null>(null)
+export interface DrawerState<T = unknown> {
+  isOpen: boolean
+  mode: string
+  data: T | null
+}
 
-  const open = (newMode: T) => {
-    mode.set(newMode)
-    isOpen.set(true)
+export function useDrawer<T = unknown>(initialMode = 'view') {
+  const isOpen = $state(false)
+  const mode = $state(initialMode)
+  const data = $state<T | null>(null)
+
+  function open(newMode: string, newData: T | null = null) {
+    mode = newMode
+    data = newData
+    isOpen = true
   }
 
-  const close = () => {
-    isOpen.set(false)
-    setTimeout(() => {
-      mode.set(null)
-    }, 200)
+  function close() {
+    if (isOpen) {
+      isOpen = false
+      setTimeout(() => {
+        data = null
+        mode = initialMode
+      }, DRAWER_CLOSE_DELAY_MS)
+    }
   }
 
   return {
-    isOpen: { subscribe: isOpen.subscribe },
-    mode: { subscribe: mode.subscribe },
+    get isOpen() {
+      return isOpen
+    },
+    get mode() {
+      return mode
+    },
+    get data() {
+      return data
+    },
     open,
     close
   }

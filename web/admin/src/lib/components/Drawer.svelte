@@ -1,34 +1,46 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
+  import { onDestroy } from 'svelte'
 
-  export let isOpen: boolean = false
-  export let maxWidth: string = '500px'
-  export let backgroundColor: string = '#fafafa'
-
-  const dispatch = createEventDispatcher()
-  let isVisible = false
-  let isTransitioning = false
-  let drawerContent: HTMLElement
-
-  $: if (isOpen) {
-    if (drawerContent) {
-      drawerContent.scrollTop = 0
-    }
-    toggleBackgroundScrolling(true)
-    isVisible = true
-    // Force reflow for animation
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        // Animation will trigger via class binding
-      })
-    })
-  } else {
-    toggleBackgroundScrolling(false)
-    setTimeout(() => {
-      isVisible = false
-    }, 200)
+  interface Props {
+    isOpen?: boolean
+    maxWidth?: string
+    backgroundColor?: string
+    onclose?: () => void
+    children?: import('svelte').Snippet
   }
+
+  let {
+    isOpen = $bindable(false),
+    maxWidth = '500px',
+    backgroundColor = '#fafafa',
+    onclose,
+    children
+  }: Props = $props()
+
+  let isVisible = $state(false)
+  let isTransitioning = $state(false)
+  let drawerContent: HTMLElement | undefined = $state()
+
+  $effect(() => {
+    if (isOpen) {
+      if (drawerContent) {
+        drawerContent.scrollTop = 0
+      }
+      toggleBackgroundScrolling(true)
+      isVisible = true
+      // Force reflow for animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Animation will trigger via class binding
+        })
+      })
+    } else {
+      toggleBackgroundScrolling(false)
+      setTimeout(() => {
+        isVisible = false
+      }, 200)
+    }
+  })
 
   function toggleBackgroundScrolling(enable: boolean) {
     const body = document.querySelector('body')
@@ -41,45 +53,18 @@
     if (!isTransitioning && event.target === event.currentTarget) {
       isTransitioning = true
       setTimeout(() => {
-        dispatch('close')
+        onclose?.()
         isTransitioning = false
       }, 200)
     }
   }
 
-  function handleClickOutside(event: MouseEvent) {
-    // Only close if clicking on the overlay, not on drawer content
-    const target = event.target as HTMLElement
-    if (drawerContent && target) {
-      // Check if click was on the overlay (has overlay class)
-      const overlay = target.closest('.overlay')
-      if (overlay && !drawerContent.contains(target)) {
-        if (!isTransitioning) {
-          isTransitioning = true
-          setTimeout(() => {
-            dispatch('close')
-            isTransitioning = false
-          }, 200)
-        }
-      }
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      closeDrawer(event as unknown as MouseEvent)
     }
   }
-
-  function handleClose() {
-    if (!isTransitioning) {
-      isTransitioning = true
-      // Don't modify isOpen directly, let parent handle it
-      setTimeout(() => {
-        dispatch('close')
-        isTransitioning = false
-      }, 200)
-    }
-  }
-
-  onMount(() => {
-    // Remove handleClickOutside as we use closeDrawer on overlay directly
-    // document.addEventListener('click', handleClickOutside);
-  })
 
   onDestroy(() => {
     // document.removeEventListener('click', handleClickOutside);
@@ -97,13 +82,8 @@
       role="button"
       tabindex="0"
       aria-label="Close drawer"
-      on:click={closeDrawer}
-      on:keydown={(e) => {
-        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          closeDrawer(e)
-        }
-      }}
+      onclick={closeDrawer}
+      onkeydown={handleKeydown}
     ></div>
 
     <div
@@ -112,7 +92,9 @@
       class="content {isOpen ? 'translate-x-0' : 'translate-x-full'}"
       style="max-width: {maxWidth}; transition-duration: 200ms; background-color: {backgroundColor};"
     >
-      <slot />
+      {#if children}
+        {@render children()}
+      {/if}
     </div>
   </div>
 {/if}

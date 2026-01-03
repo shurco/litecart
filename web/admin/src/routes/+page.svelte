@@ -9,6 +9,6 @@
   })
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <div>Redirecting...</div>
-</svelte:component>
+</Main>

@@ -1,15 +1,26 @@
 <script lang="ts">
   import SvgIcon from '../SvgIcon.svelte'
-  import { createEventDispatcher } from 'svelte'
+  import { DEFAULT_BUTTON_NAME } from '$lib/constants/ui'
 
-  export let color: string
-  export let name: string = 'Name'
-  export let ico: string | undefined = undefined
-  export let type: 'button' | 'submit' | 'reset' = 'button'
+  interface Props {
+    color: string
+    name?: string
+    ico?: string
+    type?: 'button' | 'submit' | 'reset'
+    onclick?: (event: MouseEvent) => void
+    class?: string
+  }
 
-  const dispatch = createEventDispatcher()
+  let {
+    color,
+    name = DEFAULT_BUTTON_NAME,
+    ico = undefined,
+    type = 'button',
+    onclick,
+    class: className = ''
+  }: Props = $props()
 
-  const colors: Record<string, string[]> = {
+  const COLOR_CLASSES: Record<string, string[]> = {
     gray: ['bg-gray-600', 'bg-gray-500'],
     gray_lite: ['bg-gray-400', 'bg-gray-300'],
     green: ['bg-green-600', 'bg-green-500'],
@@ -18,19 +29,16 @@
     cyan: ['bg-cyan-600', 'bg-cyan-500']
   }
 
-  $: colorClasses = color && colors[color] ? `${colors[color][0]} active:${colors[color][1]}` : ''
-  $: icoClasses = ico ? 'focus:outline-none focus:ring' : ''
-
-  function handleClick(event: MouseEvent) {
-    dispatch('click', event)
-  }
+  let colorClasses = $derived(
+    color && COLOR_CLASSES[color] ? `${COLOR_CLASSES[color][0]} active:${COLOR_CLASSES[color][1]}` : ''
+  )
+  let icoClasses = $derived(ico ? 'focus:outline-none focus:ring' : '')
 </script>
 
 <button
-  class="group relative inline-flex cursor-pointer items-center overflow-hidden rounded px-8 py-2 text-white {colorClasses} {icoClasses}"
+  class="group relative inline-flex cursor-pointer items-center overflow-hidden rounded px-8 py-2 text-white {colorClasses} {icoClasses} {className}"
   {type}
-  on:click={handleClick}
-  {...$$restProps}
+  onclick={onclick}
 >
   {#if ico}
     <SvgIcon

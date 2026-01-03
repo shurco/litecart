@@ -96,7 +96,7 @@
             ORDER DETAILS
           </h2>
           <ul class="mb-8 space-y-4">
-            {#each cart.items as item}
+            {#each cart.items as item (item.id)}
               <li class="border-4 border-black bg-white p-4">
                 <div class="flex items-center gap-4">
                   <div class="overflow-hidden border-4 border-black">

@@ -4,16 +4,23 @@
   import StarterKit from '@tiptap/starter-kit'
   import Placeholder from '@tiptap/extension-placeholder'
   import SvgIcon from './SvgIcon.svelte'
-  import { createEventDispatcher } from 'svelte'
 
-  export let modelValue: string = ''
-  export let placeholder: string = ''
-  export let id: string | undefined = undefined
+  interface Props {
+    modelValue?: string
+    placeholder?: string
+    id?: string
+    onupdateModelValue?: (value: string) => void
+  }
 
-  const dispatch = createEventDispatcher()
+  let {
+    modelValue = $bindable(''),
+    placeholder = '',
+    id = undefined,
+    onupdateModelValue
+  }: Props = $props()
 
-  let editor: Editor | null = null
-  let editorElement: HTMLElement
+  let editor: Editor | null = $state(null)
+  let editorElement: HTMLElement | undefined = $state()
 
   const editorActions = [
     { name: 'undo', method: 'undo', icon: 'undo', stroke: 'currentColor', activeCondition: {} },
@@ -55,18 +62,21 @@
   }
 
   function isActive(type: string, options?: EditorOptions): boolean {
-    if (!editor) return false
+    if (!editor || !type) return false
     return editor.isActive(type, options)
   }
 
-  $: if (editor && modelValue !== editor.getHTML()) {
-    const isSame = editor.getHTML() === modelValue
-    if (!isSame) {
-      editor.commands.setContent(modelValue, false)
+  $effect(() => {
+    if (editor && modelValue !== editor.getHTML()) {
+      const isSame = editor.getHTML() === modelValue
+      if (!isSame) {
+        editor.commands.setContent(modelValue, false)
+      }
     }
-  }
+  })
 
   onMount(() => {
+    if (!editorElement) return
     editor = new Editor({
       element: editorElement,
       extensions: [
@@ -79,7 +89,7 @@
       onUpdate: ({ editor }) => {
         const html = editor.getHTML()
         modelValue = html
-        dispatch('update:modelValue', html)
+        onupdateModelValue?.(html)
       }
     })
   })
@@ -93,13 +103,13 @@
 
 {#if editor}
   <div class="editor">
-    {#each editorActions as action}
+    {#each editorActions as action (action.name)}
       <button
-        on:click={() => performEditorAction(action.method, action.activeCondition.options)}
+        onclick={() => performEditorAction(action.method, action.activeCondition.options)}
         disabled={canPerformEditorAction(action.method)}
         class={action.stroke
           ? ''
-          : isActive(action.activeCondition.type, action.activeCondition.options)
+          : isActive(action.activeCondition.type || '', action.activeCondition.options)
             ? 'is-active'
             : ''}
       >

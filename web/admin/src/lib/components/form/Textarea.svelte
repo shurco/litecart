@@ -1,20 +1,34 @@
 <script lang="ts">
   import SvgIcon from '../SvgIcon.svelte'
 
-  export let id: string = 'name'
-  export let title: string = 'Name'
-  export let ico: string | undefined = undefined
-  export let error: string | undefined = undefined
-  export let value: string = ''
-  export let placeholder: string = ''
-  export let rows: number = 4
+  interface Props {
+    id?: string
+    title?: string
+    ico?: string
+    error?: string
+    value?: string
+    placeholder?: string
+    rows?: number
+    onfocusout?: (event: FocusEvent) => void
+  }
 
-  $: computedPlaceholder = placeholder || `Enter ${id}`
+  let {
+    id = 'name',
+    title = 'Name',
+    ico = undefined,
+    error = undefined,
+    value = $bindable(''),
+    placeholder = '',
+    rows = 4,
+    onfocusout
+  }: Props = $props()
+
+  let computedPlaceholder = $derived(placeholder || `Enter ${id}`)
 </script>
 
 <div>
   <label for={id} class={error ? 'border-red-500' : ''}>
-    <textarea {id} bind:value {rows} class="form-textarea field peer" placeholder={computedPlaceholder} on:focusout
+    <textarea {id} bind:value {rows} class="form-textarea field peer" placeholder={computedPlaceholder} onfocusout={onfocusout}
     ></textarea>
     {#if title}
       <span

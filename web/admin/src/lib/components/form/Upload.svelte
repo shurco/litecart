@@ -1,16 +1,18 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
   import SvgIcon from '../SvgIcon.svelte'
   import { apiPost } from '$lib/utils/api'
 
-  export let section: string
-  export let accept: string | undefined = undefined
-  export let productId: string | undefined = undefined
+  interface Props {
+    section: string
+    accept?: string
+    productId?: string
+    onadded?: (res: any) => void
+  }
 
-  const dispatch = createEventDispatcher()
+  let { section, accept = undefined, productId = undefined, onadded }: Props = $props()
 
-  let fileInput: HTMLInputElement
-  let isDragging = false
+  let fileInput: HTMLInputElement | undefined = $state()
+  let isDragging = $state(false)
 
   const onChange = async () => {
     if (!fileInput?.files) return
@@ -19,7 +21,7 @@
       const formData = new FormData()
       formData.append('document', file)
       const res = await apiPost(`/api/_/products/${productId}/${section}`, formData)
-      dispatch('added', res)
+      onadded?.(res)
     }
   }
 
@@ -41,6 +43,13 @@
     }
     isDragging = false
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      fileInput?.click()
+    }
+  }
 </script>
 
 <div
@@ -48,22 +57,17 @@
   role="button"
   tabindex="0"
   aria-label="Upload file"
-  on:dragover={dragover}
-  on:dragleave={dragleave}
-  on:drop={drop}
-  on:keydown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      fileInput?.click()
-    }
-  }}
+  ondragover={dragover}
+  ondragleave={dragleave}
+  ondrop={drop}
+  onkeydown={handleKeydown}
 >
   <input
     type="file"
     multiple
     name="fields[assetsFieldHandle][]"
     id="assetsFieldHandle"
-    on:change={onChange}
+    onchange={onChange}
     bind:this={fileInput}
     {accept}
   />

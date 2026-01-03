@@ -12,6 +12,7 @@
   import { loadData, saveData, deleteData, toggleActive as toggleActiveApi } from '$lib/utils/apiHelpers'
   import { formatDate, confirmDelete } from '$lib/utils'
   import { validators, validateFields } from '$lib/utils/validation'
+  import { MIN_NAME_LENGTH, MIN_SLUG_LENGTH, ERROR_MESSAGES } from '$lib/constants/validation'
   import type { Page } from '$lib/types/models'
 
   interface PagesResponse {
@@ -21,25 +22,28 @@
     limit: number
   }
 
-  let pages: Page[] = []
-  let loading = true
-  let drawerOpen = false
-  let drawerMode: 'add' | 'edit' | 'seo' | 'view' = 'add'
-  let drawerPage: Page | null = null
+  import { DEFAULT_PAGE_SIZE } from '$lib/constants/pagination'
+  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
+
+  let pages = $state<Page[]>([])
+  let loading = $state(true)
+  let drawerOpen = $state(false)
+  let drawerMode = $state<'add' | 'edit' | 'seo' | 'view'>('add')
+  let drawerPage = $state<Page | null>(null)
   let currentPage = $state(1)
-  let limit = $state(20)
+  let limit = $state(DEFAULT_PAGE_SIZE)
   let total = $state(0)
 
-  let formData: Omit<Page, 'id' | 'created' | 'updated' | 'seo'> = {
+  let formData = $state<Omit<Page, 'id' | 'created' | 'updated' | 'seo'>>({
     name: '',
     slug: '',
     position: 'header',
     content: '',
     active: true
-  }
+  })
 
   const positionOptions = ['header', 'footer']
-  let formErrors: Record<string, string> = {}
+  let formErrors = $state<Record<string, string>>({})
 
   onMount(async () => {
     await loadPages()
@@ -103,14 +107,15 @@
       setTimeout(() => {
         drawerPage = null
         drawerMode = 'add'
-      }, 200)
+      }, DRAWER_CLOSE_DELAY_MS)
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault()
     formErrors = validateFields(formData, [
-      { field: 'name', ...validators.minLength(3, 'Name must be at least 3 characters') },
-      { field: 'slug', ...validators.minLength(3, 'Slug must be at least 3 characters') }
+      { field: 'name', ...validators.minLength(MIN_NAME_LENGTH, ERROR_MESSAGES.NAME_TOO_SHORT) },
+      { field: 'slug', ...validators.minLength(MIN_SLUG_LENGTH, ERROR_MESSAGES.SLUG_TOO_SHORT) }
     ])
 
     if (Object.keys(formErrors).length > 0) {
@@ -149,9 +154,11 @@
   }
 
   async function toggleActive(page: Page, index: number) {
-    // Optimistically update UI first
+    const originalActive = page.active
     const newActive = !page.active
-    pages = pages.map((p, i) => (i === index ? { ...p, active: newActive } : p))
+    
+    // Optimistic update - update directly instead of map
+    pages[index] = { ...pages[index], active: newActive }
 
     // Then make API call
     const updatedPage = await toggleActiveApi<Page>(
@@ -162,15 +169,15 @@
 
     // If API call failed, revert the change
     if (!updatedPage) {
-      pages = pages.map((p, i) => (i === index ? { ...p, active: page.active } : p))
+      pages[index] = { ...pages[index], active: originalActive }
     } else {
       // Update with the response from server including updated timestamp
-      pages = pages.map((p, i) => (i === index ? { ...updatedPage } : p))
+      pages[index] = updatedPage
     }
   }
 
-  function handleEditorUpdate(event: CustomEvent<string>) {
-    formData.content = event.detail
+  function handleEditorUpdate(value: string) {
+    formData.content = value
   }
 
   function openSeo(page: Page) {
@@ -180,10 +187,10 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <div class="mb-5 flex items-center justify-between">
     <h1>Pages</h1>
-    <FormButton name="Add Page" color="green" ico="plus" on:click={openAdd} />
+    <FormButton name="Add Page" color="green" ico="plus" onclick={openAdd} />
   </div>
 
   {#if loading}
@@ -203,7 +210,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each pages as page, index}
+        {#each pages as page, index (page.id)}
           <tr class:opacity-30={!page.active}>
             <td>{page.name}</td>
             <td>{page.position || '-'}</td>
@@ -224,7 +231,7 @@
                   <SvgIcon
                     name="pencil-square"
                     className="h-5 w-5 cursor-pointer"
-                    on:click={() => openEdit(page)}
+                    onclick={() => openEdit(page)}
                     stroke="currentColor"
                   />
                 </div>
@@ -232,7 +239,7 @@
                   <SvgIcon
                     name="rocket"
                     className="h-5 w-5 cursor-pointer"
-                    on:click={() => openSeo(page)}
+                    onclick={() => openSeo(page)}
                     stroke="currentColor"
                   />
                 </div>
@@ -240,7 +247,7 @@
                   <SvgIcon
                     name={page.active ? 'eye' : 'eye-slash'}
                     className="h-5 w-5 cursor-pointer"
-                    on:click={() => toggleActive(page, index)}
+                    onclick={() => toggleActive(page, index)}
                     stroke="currentColor"
                   />
                 </div>
@@ -258,13 +265,13 @@
         onPageChange={handlePageChange}
       />
     {/if}
-  {/if}
-</svelte:component>
+    {/if}
+</Main>
 
 {#if drawerOpen}
-  <Drawer isOpen={drawerOpen} on:close={() => closeDrawer()} maxWidth="710px">
+  <Drawer isOpen={drawerOpen} onclose={closeDrawer} maxWidth="710px">
     {#if drawerMode === 'seo' && drawerPage}
-      <PageSeo page={drawerPage} on:close={closeDrawer} />
+      <PageSeo page={drawerPage} onclose={closeDrawer} />
     {:else}
       <div class="pb-8">
         <div class="flex items-center">
@@ -274,7 +281,7 @@
         </div>
       </div>
 
-      <form on:submit|preventDefault={handleSubmit}>
+      <form onsubmit={handleSubmit}>
         <div class="flow-root">
           <dl class="mx-auto -my-3 mt-4 mb-0 space-y-4 text-sm">
             <FormInput id="name" title="name" bind:value={formData.name} error={formErrors.name} ico="at-symbol" />
@@ -298,7 +305,7 @@
             <Editor
               bind:modelValue={formData.content}
               placeholder="type content here"
-              on:update:modelValue={handleEditorUpdate}
+              onupdateModelValue={handleEditorUpdate}
             />
           </dl>
         </div>
@@ -307,7 +314,7 @@
           <div class="flex">
             <div class="flex-none">
               <FormButton type="submit" name={drawerMode === 'add' ? 'Add' : 'Save'} color="green" />
-              <FormButton type="button" name="Close" color="gray" on:click={closeDrawer} />
+              <FormButton type="button" name="Close" color="gray" onclick={closeDrawer} />
             </div>
             <div class="grow"></div>
             {#if drawerMode === 'edit' && drawerPage}
@@ -315,8 +322,8 @@
                 <span
                   role="button"
                   tabindex="0"
-                  on:click={() => drawerPage && handleDelete(drawerPage)}
-                  on:keydown={(e) => {
+                  onclick={() => drawerPage && handleDelete(drawerPage)}
+                  onkeydown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
                       drawerPage && handleDelete(drawerPage)

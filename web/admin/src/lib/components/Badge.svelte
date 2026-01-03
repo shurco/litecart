@@ -15,7 +15,9 @@
     <SvgIcon name={ico} stroke="currentColor" className={ico ? `-ms-0.5 me-1.5 ${svgClass}` : 'h-0 w-0'} />
   {/if}
   <p>
-    <slot />
+    {#if children}
+      {@render children()}
+    {/if}
   </p>
 </span>
 

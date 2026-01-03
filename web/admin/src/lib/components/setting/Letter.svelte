@@ -1,16 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormButton from '../form/Button.svelte'
   import FormInput from '../form/Input.svelte'
   import FormTextarea from '../form/Textarea.svelte'
   import { loadData, saveData } from '$lib/utils/apiHelpers'
   import type { LetterData, LetterContent } from '$lib/types/models'
 
-  export let name: string
-  export let legend: Record<string, string>
+  interface Props {
+    name: string
+    legend: Record<string, string>
+    onsend?: (name: string) => void
+    onclose?: () => void
+  }
 
-  const dispatch = createEventDispatcher()
+  let { name, legend, onsend, onclose }: Props = $props()
 
   interface SettingResponse {
     id?: string
@@ -19,14 +22,14 @@
     [key: string]: unknown
   }
 
-  let letter: LetterData & LetterContent = {
+  let letter = $state<LetterData & LetterContent>({
     id: '',
     key: '',
     subject: '',
     text: '',
     html: ''
-  }
-  let loading = true
+  })
+  let loading = $state(true)
 
   onMount(async () => {
     await loadLetter()
@@ -80,11 +83,11 @@
   }
 
   function handleSend() {
-    dispatch('send', name)
+    onsend?.(name)
   }
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 
   function getTemplateKey(key: string): string {
@@ -107,12 +110,12 @@
     <div class="flow-root">
       <div class="flow-root">
         <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
-          <FormInput id="subject" type="text" title="Subject" bind:value={letter.subject} on:focusout={updateLetter} />
+          <FormInput id="subject" type="text" title="Subject" bind:value={letter.subject} onfocusout={updateLetter} />
         </dl>
       </div>
 
       <dl class="mx-auto -my-3 mt-5 mb-0 space-y-4 text-sm">
-        <FormTextarea id="textarea" title="Message" bind:value={letter.text} rows={15} on:focusout={updateLetter} />
+        <FormTextarea id="textarea" title="Message" bind:value={letter.text} rows={15} onfocusout={updateLetter} />
       </dl>
     </div>
   {/if}
@@ -120,18 +123,18 @@
   <div class="pt-8">
     <div class="flex">
       <div class="flex-none">
-        <FormButton type="button" name="Close" color="gray" on:click={close} />
+        <FormButton type="button" name="Close" color="gray" onclick={close} />
       </div>
       <div class="grow"></div>
       <div class="flex-none">
-        <FormButton type="button" name="Test letter" color="cyan" on:click={handleSend} />
+        <FormButton type="button" name="Test letter" color="cyan" onclick={handleSend} />
       </div>
     </div>
   </div>
 
   <table class="mt-8 text-base">
     <tbody>
-      {#each Object.entries(legend) as [key, value]}
+      {#each Object.entries(legend) as [key, value] (key)}
         <tr class="cursor-default">
           <td class="w-32 font-bold">{getTemplateKey(key)}</td>
           <td>{value}</td>

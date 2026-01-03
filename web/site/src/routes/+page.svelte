@@ -48,17 +48,13 @@
       </div>
 
       <ul class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {#each products as product, i}
+        {#each products as product, i (product.id)}
           <ProductCard {product} index={i} />
         {/each}
       </ul>
 
       {#if total > 0}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(total / limit)}
-          onPageChange={handlePageChange}
-        />
+        <Pagination {currentPage} totalPages={Math.ceil(total / limit)} onPageChange={handlePageChange} />
       {/if}
     {:else if load}
       <div class="py-20 text-center">

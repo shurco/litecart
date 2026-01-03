@@ -1,29 +1,37 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormButton from '../form/Button.svelte'
   import FormInput from '../form/Input.svelte'
   import FormTextarea from '../form/Textarea.svelte'
   import FormToggle from '../form/Toggle.svelte'
   import { loadPaymentSettings, savePaymentSettings, togglePaymentActive } from '$lib/composables/usePaymentSettings'
   import { systemStore } from '$lib/stores/system'
+  import {
+    MIN_MERCHANT_ID_LENGTH,
+    MIN_PROJECT_ID_LENGTH,
+    MIN_PRIVATE_KEY_LENGTH,
+    ERROR_MESSAGES
+  } from '$lib/constants/validation'
   import type { SpectrocoinSettings } from '$lib/types/models'
 
-  const dispatch = createEventDispatcher()
+  interface Props {
+    onclose?: () => void
+  }
 
-  let settings: SpectrocoinSettings = {
+  let { onclose }: Props = $props()
+
+  let settings = $state<SpectrocoinSettings>({
     active: false,
     merchant_id: '',
     project_id: '',
     private_key: ''
-  }
-  let formErrors: Record<string, string> = {}
+  })
+  let formErrors = $state<Record<string, string>>({})
   let unsubscribe: (() => void) | null = null
 
   onMount(async () => {
     settings = await loadPaymentSettings<SpectrocoinSettings>('spectrocoin', settings)
 
-    // Subscribe to store updates to keep settings.active in sync
     unsubscribe = systemStore.subscribe((store) => {
       if (store.payments?.spectrocoin !== undefined) {
         settings.active = store.payments.spectrocoin
@@ -32,42 +40,40 @@
   })
 
   onDestroy(() => {
-    if (unsubscribe) {
-      unsubscribe()
-    }
+    unsubscribe?.()
   })
 
-  async function handleSubmit() {
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault()
     formErrors = {}
 
-    if (!settings.merchant_id || settings.merchant_id.length < 36) {
-      formErrors.merchant_id = 'Merchant ID must be at least 36 characters'
+    if (!settings.merchant_id || settings.merchant_id.length < MIN_MERCHANT_ID_LENGTH) {
+      formErrors.merchant_id = ERROR_MESSAGES.MERCHANT_ID_TOO_SHORT
       return
     }
-    if (!settings.project_id || settings.project_id.length < 36) {
-      formErrors.project_id = 'Project ID must be at least 36 characters'
+    if (!settings.project_id || settings.project_id.length < MIN_PROJECT_ID_LENGTH) {
+      formErrors.project_id = ERROR_MESSAGES.PROJECT_ID_TOO_SHORT
       return
     }
-    if (!settings.private_key || settings.private_key.length < 1500) {
-      formErrors.private_key = 'Private key must be at least 1500 characters'
+    if (!settings.private_key || settings.private_key.length < MIN_PRIVATE_KEY_LENGTH) {
+      formErrors.private_key = ERROR_MESSAGES.PRIVATE_KEY_TOO_SHORT
       return
     }
 
     await savePaymentSettings('spectrocoin', settings, 'spectrocoin')
   }
 
-  async function toggleActive() {
+  async function handleToggleActive() {
     const previousValue = settings.active
     const success = await togglePaymentActive('spectrocoin', settings.active)
 
-    // If request failed, revert the change
     if (!success) {
       settings.active = previousValue
     }
   }
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 </script>
 
@@ -82,13 +88,13 @@
           id="spectrocoin-active"
           bind:value={settings.active}
           disabled={Object.keys(formErrors).length > 0}
-          on:change={toggleActive}
+          onchange={handleToggleActive}
         />
       </div>
     </div>
   </div>
 
-  <form on:submit|preventDefault={handleSubmit}>
+  <form onsubmit={handleSubmit}>
     <div class="flow-root">
       <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
         <FormInput
@@ -125,7 +131,7 @@
         </div>
         <div class="grow"></div>
         <div class="flex-none">
-          <FormButton type="button" name="Close" color="gray" on:click={close} />
+          <FormButton type="button" name="Close" color="gray" onclick={close} />
         </div>
       </div>
     </div>

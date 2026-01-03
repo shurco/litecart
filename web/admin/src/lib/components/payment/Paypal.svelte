@@ -1,27 +1,30 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte'
-  import { createEventDispatcher } from 'svelte'
   import FormButton from '../form/Button.svelte'
   import FormInput from '../form/Input.svelte'
   import FormToggle from '../form/Toggle.svelte'
   import { loadPaymentSettings, savePaymentSettings, togglePaymentActive } from '$lib/composables/usePaymentSettings'
   import { systemStore } from '$lib/stores/system'
+  import { MIN_CLIENT_ID_LENGTH, MIN_PAYPAL_SECRET_KEY_LENGTH, ERROR_MESSAGES } from '$lib/constants/validation'
   import type { PaypalSettings } from '$lib/types/models'
 
-  const dispatch = createEventDispatcher()
+  interface Props {
+    onclose?: () => void
+  }
 
-  let settings: PaypalSettings = {
+  let { onclose }: Props = $props()
+
+  let settings = $state<PaypalSettings>({
     active: false,
     client_id: '',
     secret_key: ''
-  }
-  let formErrors: Record<string, string> = {}
+  })
+  let formErrors = $state<Record<string, string>>({})
   let unsubscribe: (() => void) | null = null
 
   onMount(async () => {
     settings = await loadPaymentSettings<PaypalSettings>('paypal', settings)
 
-    // Subscribe to store updates to keep settings.active in sync
     unsubscribe = systemStore.subscribe((store) => {
       if (store.payments?.paypal !== undefined) {
         settings.active = store.payments.paypal
@@ -30,38 +33,36 @@
   })
 
   onDestroy(() => {
-    if (unsubscribe) {
-      unsubscribe()
-    }
+    unsubscribe?.()
   })
 
-  async function handleSubmit() {
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault()
     formErrors = {}
 
-    if (!settings.client_id || settings.client_id.length < 80) {
-      formErrors.client_id = 'Client ID must be at least 80 characters'
+    if (!settings.client_id || settings.client_id.length < MIN_CLIENT_ID_LENGTH) {
+      formErrors.client_id = ERROR_MESSAGES.CLIENT_ID_TOO_SHORT
       return
     }
-    if (!settings.secret_key || settings.secret_key.length < 80) {
-      formErrors.secret_key = 'Secret key must be at least 80 characters'
+    if (!settings.secret_key || settings.secret_key.length < MIN_PAYPAL_SECRET_KEY_LENGTH) {
+      formErrors.secret_key = ERROR_MESSAGES.PAYPAL_SECRET_KEY_TOO_SHORT
       return
     }
 
     await savePaymentSettings('paypal', settings, 'paypal')
   }
 
-  async function toggleActive() {
+  async function handleToggleActive() {
     const previousValue = settings.active
     const success = await togglePaymentActive('paypal', settings.active)
 
-    // If request failed, revert the change
     if (!success) {
       settings.active = previousValue
     }
   }
 
   function close() {
-    dispatch('close')
+    onclose?.()
   }
 </script>
 
@@ -76,13 +77,13 @@
           id="paypal-active"
           bind:value={settings.active}
           disabled={Object.keys(formErrors).length > 0}
-          on:change={toggleActive}
+          onchange={handleToggleActive}
         />
       </div>
     </div>
   </div>
 
-  <form on:submit|preventDefault={handleSubmit}>
+  <form onsubmit={handleSubmit}>
     <div class="flow-root">
       <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
         <FormInput
@@ -114,7 +115,7 @@
         </div>
         <div class="grow"></div>
         <div class="flex-none">
-          <FormButton type="button" name="Close" color="gray" on:click={close} />
+          <FormButton type="button" name="Close" color="gray" onclick={close} />
         </div>
       </div>
     </div>

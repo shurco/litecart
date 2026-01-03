@@ -52,12 +52,13 @@
       Previous
     </button>
 
-    {#each getVisiblePages() as page}
+    {#each getVisiblePages() as page (page)}
       {#if page === -1}
         <span class="px-2 font-bold">...</span>
       {:else}
         <button
-          class="rounded border-2 border-black px-4 py-2 font-bold uppercase transition-colors cursor-pointer {page === currentPage
+          class="cursor-pointer rounded border-2 border-black px-4 py-2 font-bold uppercase transition-colors {page ===
+          currentPage
             ? 'bg-black text-white'
             : 'bg-white hover:bg-black hover:text-white'}"
           onclick={() => goToPage(page)}
@@ -68,7 +69,8 @@
     {/each}
 
     <button
-      class="rounded border-2 border-black bg-white px-4 py-2 font-bold uppercase transition-colors {currentPage === totalPages
+      class="rounded border-2 border-black bg-white px-4 py-2 font-bold uppercase transition-colors {currentPage ===
+      totalPages
         ? 'cursor-not-allowed opacity-50'
         : 'cursor-pointer hover:bg-black hover:text-white'}"
       disabled={currentPage === totalPages}
