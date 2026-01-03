@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
   import { apiGet } from '$lib/utils/api'
   import type { Product } from '$lib/types/models'
   import { cartStore } from '$lib/stores/cart'
@@ -22,7 +22,7 @@
   let inCart = $derived(product ? cart.some((item) => item.id === product.id) : false)
 
   $effect(() => {
-    const slug = $page.params.slug
+    const slug = page.params.slug
     if (slug) {
       // Reset state when slug changes
       product = null

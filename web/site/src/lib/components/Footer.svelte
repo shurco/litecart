@@ -2,7 +2,7 @@
   import { settingsStore } from '$lib/stores/settings'
   import { socialUrl } from '$lib/utils/socialUrl'
   import { handleNavigation } from '$lib/utils/navigation'
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
 
   const SOCIALS_SVG_PATH = '/assets/img/socials.svg#'
 
@@ -10,10 +10,13 @@
   let pages = $derived(settings?.pages || [])
   let socials = $derived(settings?.socials || {})
   let footerPages = $derived(pages.filter((p) => p.position === 'footer'))
+  
+  // Reactive current pathname
+  let currentPathname = $derived(page.url.pathname)
 
-  // Проверяет, активна ли страница по текущему URL
+  // Checks if page is active by current URL
   function isActive(slug: string): boolean {
-    return $page.url.pathname === `/${slug}`
+    return currentPathname === `/${slug}`
   }
 </script>
 

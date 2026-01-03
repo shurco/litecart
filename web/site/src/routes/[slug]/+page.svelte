@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
   import { apiGet } from '$lib/utils/api'
   import type { Page } from '$lib/types/models'
   import { updateSEOTags } from '$lib/utils/seo'
@@ -11,7 +11,7 @@
   let loading = $state(true)
 
   $effect(() => {
-    const slug = $page.params.slug
+    const slug = page.params.slug
     if (slug) {
       // Reset state when slug changes
       content = null

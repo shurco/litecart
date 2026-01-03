@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
   import { goto } from '$app/navigation'
   import { base } from '$app/paths'
   import { systemStore } from '$lib/stores/system'
@@ -15,7 +15,7 @@
 
   let version = $state<Record<string, any>>({})
 
-  let currentRoute = $derived($page.url.pathname)
+  let currentRoute = $derived(page.url.pathname)
 
   const loadVersionInfo = async () => {
     const res = await apiGet(`/api/_/version`)

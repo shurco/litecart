@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
   import { cartStore } from '$lib/stores/cart'
   import { settingsStore } from '$lib/stores/settings'
   import { apiGet } from '$lib/utils/api'
@@ -32,12 +32,13 @@
   let error = $state<string | undefined>(undefined)
   let currency = $derived($settingsStore?.main.currency || '')
 
+  // Get cart_id from query parameters reactively
+  let cartId = $derived(page.url.searchParams.get('cart_id'))
+
   onMount(async () => {
     // Clear local cart
     cartStore.clear()
 
-    // Get cart_id from query parameters
-    const cartId = $page.url.searchParams.get('cart_id')
     if (!cartId) {
       error = 'Cart ID is missing'
       loading = false
@@ -45,6 +46,7 @@
     }
 
     // Load cart information from API
+    loading = true
     const res = await apiGet<CartData>(`/api/cart/${cartId}`)
     if (res.success && res.result) {
       cart = res.result

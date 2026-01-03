@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { page as pageStore } from '$app/stores'
+  import { page } from '$app/state'
   import { handleNavigation } from '$lib/utils/navigation'
   import { isBrowser } from '$lib/utils/browser'
   import { onDestroy } from 'svelte'
 
-  const status = $derived($pageStore.status || 404)
+  const status = $derived(page.status || 404)
   const isNotFound = $derived(status === 404)
 
   // Add error-page class to body

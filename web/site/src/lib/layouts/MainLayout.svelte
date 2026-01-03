@@ -6,7 +6,7 @@
   import { apiGet } from '$lib/utils/api'
   import { updateSEOTags } from '$lib/utils/seo'
   import { isBrowser } from '$lib/utils/browser'
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
   import { onMount } from 'svelte'
 
   interface Props {
@@ -24,7 +24,7 @@
   $effect.pre(() => {
     if (isBrowser()) {
       isErrorPageState =
-        $page.error !== null || ($page.status && $page.status >= 400) || document.body.classList.contains('error-page')
+        page.error !== null || (page.status && page.status >= 400) || document.body.classList.contains('error-page')
     }
   })
 
@@ -34,7 +34,7 @@
 
     const checkErrorPage = () => {
       isErrorPageState =
-        $page.error !== null || ($page.status && $page.status >= 400) || document.body.classList.contains('error-page')
+        page.error !== null || (page.status && page.status >= 400) || document.body.classList.contains('error-page')
     }
 
     checkErrorPage()
@@ -92,5 +92,5 @@
       <Footer />
     </footer>
   {/if}
-  <Overlay show={showOverlay} {error} onClose={closeOverlay} />
+  <Overlay show={showOverlay} error={error} onClose={closeOverlay} />
 </div>
