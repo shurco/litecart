@@ -21,7 +21,7 @@ type ProductQueries struct {
 }
 
 // ListProducts retrieves a list of products from the database.
-func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList ...models.CartProduct) (*models.Products, error) {
+func (q *ProductQueries) ListProducts(ctx context.Context, private bool, limit, offset int, idList ...models.CartProduct) (*models.Products, error) {
 	currency, err := db.GetSettingByKey(ctx, "currency")
 	if err != nil {
 		return nil, err
@@ -55,16 +55,28 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 		`
 
 	var params []any
+	var countParams []any
 	var queryAddon string
 	if len(idList) > 0 {
 		for _, item := range idList {
 			params = append(params, item.ProductID)
+			countParams = append(countParams, item.ProductID)
 		}
 		queryAddon = fmt.Sprintf("AND product.id IN (%s)", strings.Repeat("?, ", len(idList)-1)+"?")
 	}
 
 	if !private {
 		query += queryPublic
+	}
+
+	// Add pagination
+	if limit > 0 {
+		query += " LIMIT ?"
+		params = append(params, limit)
+		if offset > 0 {
+			query += " OFFSET ?"
+			params = append(params, offset)
+		}
 	}
 
 	rows, err := q.DB.QueryContext(ctx, query+queryAddon, params...)
@@ -115,12 +127,12 @@ func (q *ProductQueries) ListProducts(ctx context.Context, private bool, idList 
 		return nil, err
 	}
 
-	// Count total records
-	query = `SELECT COUNT(DISTINCT product.id) FROM product`
+	// Count total records (without pagination params)
+	countQuery := `SELECT COUNT(DISTINCT product.id) FROM product`
 	if !private {
-		query += queryPublic
+		countQuery += queryPublic
 	}
-	err = q.DB.QueryRowContext(ctx, query+queryAddon, params...).Scan(&products.Total)
+	err = q.DB.QueryRowContext(ctx, countQuery+queryAddon, countParams...).Scan(&products.Total)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}

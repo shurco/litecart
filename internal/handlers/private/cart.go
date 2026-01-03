@@ -15,13 +15,31 @@ func Carts(c *fiber.Ctx) error {
 	db := queries.DB()
 	log := logging.New()
 
-	products, err := db.Carts(c.Context())
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 20)
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	offset := (page - 1) * limit
+
+	carts, total, err := db.Carts(c.Context(), limit, offset)
 	if err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Carts", products)
+	return webutil.Response(c, fiber.StatusOK, "Carts", map[string]any{
+		"carts": carts,
+		"total": total,
+		"page":  page,
+		"limit": limit,
+	})
 }
 
 // Cart returns detailed cart information by cart_id.
@@ -47,7 +65,7 @@ func Cart(c *fiber.Ctx) error {
 	// Load full product information for cart items
 	var cartItems []map[string]interface{}
 	if len(cart.Cart) > 0 {
-		products, err := db.ListProducts(c.Context(), false, cart.Cart...)
+		products, err := db.ListProducts(c.Context(), false, 0, 0, cart.Cart...)
 		if err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)

@@ -4,6 +4,7 @@
   import Drawer from '$lib/components/Drawer.svelte'
   import CartView from '$lib/components/cart/View.svelte'
   import SvgIcon from '$lib/components/SvgIcon.svelte'
+  import Pagination from '$lib/components/Pagination.svelte'
   import { loadData, handleApiCall } from '$lib/utils/apiHelpers'
   import { apiPost } from '$lib/utils'
   import { costFormat, formatDate } from '$lib/utils'
@@ -14,22 +15,41 @@
     cart: Cart
   }
 
-  let carts: Cart[] = []
-  let loading = true
-  let drawerOpen = false
-  let drawerCart: DrawerCart | null = null
+  interface CartsResponse {
+    carts: Cart[]
+    total: number
+    page: number
+    limit: number
+  }
+
+  let carts = $state<Cart[]>([])
+  let loading = $state(true)
+  let drawerOpen = $state(false)
+  let drawerCart = $state<DrawerCart | null>(null)
+  let currentPage = $state(1)
+  let limit = $state(20)
+  let total = $state(0)
 
   onMount(async () => {
     await loadCarts()
   })
 
-  async function loadCarts() {
+  async function loadCarts(page = currentPage) {
     loading = true
-    const result = await loadData<Cart[]>('/api/_/carts', 'Failed to load carts')
+    currentPage = page
+    const result = await loadData<CartsResponse>(
+      `/api/_/carts?page=${page}&limit=${limit}`,
+      'Failed to load carts'
+    )
     if (result) {
-      carts = result
+      carts = result.carts || []
+      total = result.total || 0
     }
     loading = false
+  }
+
+  function handlePageChange(page: number) {
+    loadCarts(page)
   }
 
   function openView(cart: Cart) {
@@ -56,7 +76,7 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <div class="mb-5 flex items-center justify-between">
     <h1>Carts</h1>
   </div>
@@ -123,8 +143,16 @@
         {/each}
       </tbody>
     </table>
+
+    {#if total > 0}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(total / limit)}
+        onPageChange={handlePageChange}
+      />
+    {/if}
   {/if}
-</svelte:component>
+</Main>
 
 {#if drawerOpen}
   <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="710px">

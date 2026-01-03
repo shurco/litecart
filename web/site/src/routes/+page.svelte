@@ -3,16 +3,38 @@
   import { apiGet } from '$lib/utils/api'
   import type { Product } from '$lib/types/models'
   import ProductCard from '$lib/components/ProductCard.svelte'
+  import Pagination from '$lib/components/Pagination.svelte'
+
+  interface ProductsResponse {
+    products: Product[]
+    currency: string
+    total: number
+  }
 
   let products = $state<Product[]>([])
   let load = $state(false)
+  let currentPage = $state(1)
+  let limit = $state(20)
+  let total = $state(0)
 
-  onMount(async () => {
-    const res = await apiGet<{ products: Product[] }>('/api/products')
+  async function loadProducts(page = currentPage) {
+    load = false
+    currentPage = page
+    const res = await apiGet<ProductsResponse>(`/api/products?page=${page}&limit=${limit}`)
     if (res.success && res.result) {
       products = res.result.products || []
+      total = res.result.total || 0
       load = true
     }
+  }
+
+  function handlePageChange(page: number) {
+    loadProducts(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  onMount(async () => {
+    await loadProducts()
   })
 </script>
 
@@ -30,6 +52,14 @@
           <ProductCard {product} index={i} />
         {/each}
       </ul>
+
+      {#if total > 0}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(total / limit)}
+          onPageChange={handlePageChange}
+        />
+      {/if}
     {:else if load}
       <div class="py-20 text-center">
         <div class="inline-block border-4 border-black bg-white px-8 py-6">

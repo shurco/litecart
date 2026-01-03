@@ -16,13 +16,31 @@ func Pages(c *fiber.Ctx) error {
 	db := queries.DB()
 	log := logging.New()
 
-	pages, err := db.ListPages(c.Context(), true)
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 20)
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	offset := (page - 1) * limit
+
+	pages, total, err := db.ListPages(c.Context(), true, limit, offset)
 	if err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)
 	}
 
-	return webutil.Response(c, fiber.StatusOK, "Pages", pages)
+	return webutil.Response(c, fiber.StatusOK, "Pages", map[string]any{
+		"pages": pages,
+		"total":  total,
+		"page":   page,
+		"limit":  limit,
+	})
 }
 
 // GetPage returns a single page by ID.

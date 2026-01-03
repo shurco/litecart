@@ -1,8 +1,13 @@
 <script lang="ts">
   import SvgIcon from './SvgIcon.svelte'
 
-  export let ico: string | undefined = undefined
-  export let svgClass: string = '-ms-0.5 me-5.5 h-5 w-5'
+  interface Props {
+    ico?: string
+    svgClass?: string
+    children?: import('svelte').Snippet
+  }
+
+  let { ico = undefined, svgClass = '-ms-0.5 me-5.5 h-5 w-5', children }: Props = $props()
 </script>
 
 <span class="badge">

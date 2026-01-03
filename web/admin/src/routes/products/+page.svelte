@@ -12,6 +12,7 @@
   import Editor from '$lib/components/Editor.svelte'
   import Upload from '$lib/components/form/Upload.svelte'
   import SvgIcon from '$lib/components/SvgIcon.svelte'
+  import Pagination from '$lib/components/Pagination.svelte'
   import { loadData, saveData, deleteData, toggleActive as toggleActiveApi } from '$lib/utils/apiHelpers'
   import { costFormat, formatPrice, formatDate, sortByDate, confirmDelete, showMessage } from '$lib/utils'
   import { apiDelete, apiUpdate } from '$lib/utils/api'
@@ -21,6 +22,7 @@
   interface ProductsResponse {
     products: Product[]
     currency: string
+    total: number
   }
 
   interface DrawerProduct {
@@ -29,13 +31,16 @@
     currency?: string
   }
 
-  let products: Product[] = []
-  let currency = ''
-  let loading = true
-  let drawerOpen = false
-  let drawerMode: 'view' | 'add' | 'edit' | 'seo' | 'digital' = 'view'
-  let drawerProduct: DrawerProduct | null = null
-  let drawerIndex = -1
+  let products = $state<Product[]>([])
+  let currency = $state('')
+  let loading = $state(true)
+  let drawerOpen = $state(false)
+  let drawerMode = $state<'view' | 'add' | 'edit' | 'seo' | 'digital'>('view')
+  let drawerProduct = $state<DrawerProduct | null>(null)
+  let drawerIndex = $state(-1)
+  let currentPage = $state(1)
+  let limit = $state(20)
+  let total = $state(0)
 
   interface ProductFormData {
     name: string
@@ -51,7 +56,7 @@
     }
   }
 
-  let formData: ProductFormData = {
+  let formData = $state<ProductFormData>({
     name: '',
     slug: '',
     brief: '',
@@ -63,11 +68,11 @@
     digital: {
       type: ''
     }
-  }
-  let amountDisplay = '0'
-  let formErrors: Record<string, string> = {}
-  let productImages: Product['images'] = []
-  let fullProductData: Product | null = null
+  })
+  let amountDisplay = $state('0')
+  let formErrors = $state<Record<string, string>>({})
+  let productImages = $state<Product['images']>([])
+  let fullProductData = $state<Product | null>(null)
 
   function handleAmountInput(event: Event) {
     const target = event.target as HTMLInputElement
@@ -96,14 +101,23 @@
     await loadProducts()
   })
 
-  async function loadProducts() {
+  async function loadProducts(page = currentPage) {
     loading = true
-    const result = await loadData<ProductsResponse>('/api/_/products', 'Failed to load products')
+    currentPage = page
+    const result = await loadData<ProductsResponse>(
+      `/api/_/products?page=${page}&limit=${limit}`,
+      'Failed to load products'
+    )
     if (result) {
       products = sortByDate(result.products || [])
       currency = result.currency || ''
+      total = result.total || 0
     }
     loading = false
+  }
+
+  function handlePageChange(page: number) {
+    loadProducts(page)
   }
 
   function openView(product: Product, index: number) {
@@ -378,10 +392,10 @@
   }
 </script>
 
-<svelte:component this={Main}>
+<Main>
   <div class="mb-5 flex items-center justify-between">
     <h1>Products</h1>
-    <FormButton name="Add Product" color="green" ico="plus" on:click={openAdd} />
+    <FormButton name="Add Product" color="green" ico="plus" onclick={openAdd} />
   </div>
 
   {#if loading}
@@ -419,7 +433,7 @@
                 <img style="width: 100%; max-width: 80px" src="/assets/img/noimage.png" alt="" loading="lazy" />
               {/if}
             </td>
-            <td on:click={() => openView(product, index)}>
+            <td onclick={() => openView(product, index)}>
               <div class="font-bold">{product.name}</div>
               {#if product.brief}
                 <span class="hidden text-gray-400 xl:block">{product.brief}</span>
@@ -432,7 +446,7 @@
                 <span>{product.slug}</span>
               {/if}
             </td>
-            <td on:click={() => openView(product, index)}>
+            <td onclick={() => openView(product, index)}>
               {#if !product.amount || parseFloat(String(product.amount)) === 0}
                 <span class="font-bold text-green-600">free</span>
               {:else}
@@ -445,7 +459,7 @@
                 <SvgIcon
                   name={digitalTypeIco(product.digital.type)}
                   className="h-5 w-5 cursor-pointer {product.digital.filled === true ? 'text-black' : 'text-red-600'}"
-                  on:click={() => openDigital(product, index)}
+                  onclick={() => openDigital(product, index)}
                   stroke="currentColor"
                 />
               {/if}
@@ -456,7 +470,7 @@
                   <SvgIcon
                     name="pencil-square"
                     className="h-5 w-5 cursor-pointer"
-                    on:click={() => openEdit(product, index)}
+                    onclick={() => openEdit(product, index)}
                     stroke="currentColor"
                   />
                 </div>
@@ -464,7 +478,7 @@
                   <SvgIcon
                     name="rocket"
                     className="h-5 w-5 cursor-pointer"
-                    on:click={() => openSeo(product, index)}
+                    onclick={() => openSeo(product, index)}
                     stroke="currentColor"
                   />
                 </div>
@@ -482,8 +496,16 @@
         {/each}
       </tbody>
     </table>
+
+    {#if total > 0}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(total / limit)}
+        onPageChange={handlePageChange}
+      />
+    {/if}
   {/if}
-</svelte:component>
+</Main>
 
 {#if drawerOpen}
   <Drawer isOpen={drawerOpen} on:close={closeDrawer} maxWidth="710px">
@@ -513,7 +535,7 @@
           </div>
         </div>
 
-        <form on:submit|preventDefault={handleSubmit}>
+        <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div class="flow-root">
             <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
               <FormInput id="name" title="Name" bind:value={formData.name} error={formErrors.name} ico="at-symbol" />
@@ -526,7 +548,6 @@
                     bind:value={amountDisplay}
                     error={formErrors.amount}
                     ico="money"
-                    on:input={handleAmountInput}
                   />
                 </div>
                 <div class="mt-3">
@@ -578,8 +599,8 @@
                     class="flex-none cursor-pointer pt-3 pl-3"
                     role="button"
                     tabindex="0"
-                    on:click={() => deleteMetadataRecord(index)}
-                    on:keydown={(e) => {
+                    onclick={() => deleteMetadataRecord(index)}
+                    onkeydown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
                         deleteMetadataRecord(index)
@@ -596,7 +617,7 @@
                   <button
                     type="button"
                     class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
-                    on:click={addMetadataRecord}
+                    onclick={addMetadataRecord}
                   >
                     Add metadata record
                   </button>
@@ -614,8 +635,8 @@
                     class="flex-none cursor-pointer pt-3 pl-3"
                     role="button"
                     tabindex="0"
-                    on:click={() => deleteAttributeRecord(index)}
-                    on:keydown={(e) => {
+                    onclick={() => deleteAttributeRecord(index)}
+                    onkeydown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
                         deleteAttributeRecord(index)
@@ -632,7 +653,7 @@
                   <button
                     type="button"
                     class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
-                    on:click={addAttributeRecord}
+                    onclick={addAttributeRecord}
                   >
                     Add attribute record
                   </button>
@@ -653,8 +674,8 @@
                           role="button"
                           tabindex="0"
                           class="absolute end-4 top-4 cursor-pointer bg-white p-2"
-                          on:click={() => deleteProductImage(index)}
-                          on:keydown={(e) => {
+                          onclick={() => deleteProductImage(index)}
+                          onkeydown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault()
                               deleteProductImage(index)
@@ -693,14 +714,14 @@
             <div class="flex">
               <div class="flex-none">
                 <FormButton type="submit" name={drawerMode === 'add' ? 'Add' : 'Save'} color="green" />
-                <FormButton type="button" name="Close" color="gray" on:click={closeDrawer} />
+                <FormButton type="button" name="Close" color="gray" onclick={closeDrawer} />
               </div>
               <div class="grow"></div>
               {#if drawerMode === 'edit' && fullProductData}
                 <div class="mt-2 flex-none">
                   <span
-                    on:click={handleDeleteProduct}
-                    on:keydown={(e) => {
+                    onclick={handleDeleteProduct}
+                    onkeydown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
                         handleDeleteProduct()

@@ -7,20 +7,25 @@
   import { loadData, saveData } from '$lib/utils/apiHelpers'
   import type { Page } from '$lib/types/models'
 
-  export let page: Page
+  interface Props {
+    page: Page
+    onclose?: () => void
+  }
 
-  const dispatch = createEventDispatcher()
+  let { page, onclose }: Props = $props()
 
-  let seoData = {
+  let seoData = $state({
     title: '',
     keywords: '',
     description: ''
-  }
+  })
 
   // Reactively load data when page.id changes
-  $: if (page?.id) {
-    loadPage()
-  }
+  $effect(() => {
+    if (page?.id) {
+      loadPage()
+    }
+  })
 
   async function loadPage() {
     if (!page?.id) return

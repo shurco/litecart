@@ -62,7 +62,7 @@ func Test_queries_page_crud(t *testing.T) {
 		t.Fatalf("expected created timestamp")
 	}
 
-	list, err := db.ListPages(ctx, true)
+	list, _, err := db.ListPages(ctx, true, 0, 0)
 	if err != nil {
 		t.Fatalf("list pages: %v", err)
 	}
