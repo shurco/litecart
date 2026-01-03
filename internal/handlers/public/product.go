@@ -14,7 +14,20 @@ func Products(c *fiber.Ctx) error {
 	db := queries.DB()
 	log := logging.New()
 
-	products, err := db.ListProducts(c.Context(), false)
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 20)
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	offset := (page - 1) * limit
+
+	products, err := db.ListProducts(c.Context(), false, limit, offset)
 	if err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)

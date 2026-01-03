@@ -39,7 +39,7 @@ func Settings(c *fiber.Ctx) error {
 		return webutil.StatusInternalServerError(c)
 	}
 
-	pages, err := db.ListPages(c.Context(), false)
+	pages, _, err := db.ListPages(c.Context(), false, 0, 0)
 	if err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)

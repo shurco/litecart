@@ -59,13 +59,13 @@ func (q *CartQueries) PaymentList(ctx context.Context) (map[string]bool, error) 
 }
 
 // Carts retrieves a list of carts from the database.
-func (q *CartQueries) Carts(ctx context.Context) ([]*models.Cart, error) {
+func (q *CartQueries) Carts(ctx context.Context, limit, offset int) ([]*models.Cart, int, error) {
 	carts := []*models.Cart{}
 
 	query := `
-	SELECT 
-		id, 
-		email, 
+	SELECT
+		id,
+		email,
 		amount_total,
 		currency,
 		payment_id,
@@ -76,9 +76,20 @@ func (q *CartQueries) Carts(ctx context.Context) ([]*models.Cart, error) {
 	FROM cart
 `
 
-	rows, err := q.DB.QueryContext(ctx, query)
+	// Add pagination
+	var params []any
+	if limit > 0 {
+		query += " LIMIT ?"
+		params = append(params, limit)
+		if offset > 0 {
+			query += " OFFSET ?"
+			params = append(params, offset)
+		}
+	}
+
+	rows, err := q.DB.QueryContext(ctx, query, params...)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer func() { _ = rows.Close() }()
 
@@ -99,7 +110,7 @@ func (q *CartQueries) Carts(ctx context.Context) ([]*models.Cart, error) {
 			&updated,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		cart.Email = email.String
@@ -112,10 +123,17 @@ func (q *CartQueries) Carts(ctx context.Context) ([]*models.Cart, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return carts, nil
+	// Count total records
+	var total int
+	err = q.DB.QueryRowContext(ctx, `SELECT COUNT(*) FROM cart`).Scan(&total)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, 0, err
+	}
+
+	return carts, total, nil
 }
 
 // Cart retrieves a cart from the database using the provided cartId.

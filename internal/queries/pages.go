@@ -28,7 +28,7 @@ func (q *PageQueries) IsPage(ctx context.Context, slug string) bool {
 // ListPages retrieves a list of pages from the database.
 // It filters out private pages unless `private` is set to true,
 // and can also filter by a list of page IDs if provided.
-func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...string) ([]models.Page, error) {
+func (q *PageQueries) ListPages(ctx context.Context, private bool, limit, offset int, idList ...string) ([]models.Page, int, error) {
 	pages := []models.Page{}
 
 	query := `SELECT id, name, slug, position, active, seo, strftime('%s', created), strftime('%s', updated) FROM page`
@@ -36,15 +36,26 @@ func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...str
 		query = query + ` WHERE active = 1`
 	}
 
+	// Add pagination
+	var params []any
+	if limit > 0 {
+		query += " LIMIT ?"
+		params = append(params, limit)
+		if offset > 0 {
+			query += " OFFSET ?"
+			params = append(params, offset)
+		}
+	}
+
 	stmt, err := q.DB.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer func() { _ = stmt.Close() }()
 
-	rows, err := stmt.QueryContext(ctx)
+	rows, err := stmt.QueryContext(ctx, params...)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer func() { _ = rows.Close() }()
 
@@ -55,7 +66,7 @@ func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...str
 
 		err := rows.Scan(&page.ID, &page.Name, &page.Slug, &page.Position, &page.Active, &seo, &page.Created, &updated)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		if updated.Valid {
@@ -64,7 +75,7 @@ func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...str
 
 		if seo.Valid {
 			if err = json.Unmarshal([]byte(seo.String), &page.Seo); err != nil {
-				return nil, err
+				return nil, 0, err
 			}
 		}
 
@@ -72,10 +83,21 @@ func (q *PageQueries) ListPages(ctx context.Context, private bool, idList ...str
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return pages, nil
+	// Count total records
+	countQuery := `SELECT COUNT(*) FROM page`
+	if !private {
+		countQuery += ` WHERE active = 1`
+	}
+	var total int
+	err = q.DB.QueryRowContext(ctx, countQuery).Scan(&total)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, 0, err
+	}
+
+	return pages, total, nil
 }
 
 // Page retrieves a single page from the database based on its slug.

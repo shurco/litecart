@@ -77,7 +77,7 @@ func GetCart(c *fiber.Ctx) error {
 	// Load full product information for cart items
 	var cartItems []map[string]interface{}
 	if len(cart.Cart) > 0 {
-		products, err := db.ListProducts(c.Context(), false, cart.Cart...)
+		products, err := db.ListProducts(c.Context(), false, 0, 0, cart.Cart...)
 		if err != nil {
 			log.ErrorStack(err)
 			return webutil.StatusInternalServerError(c)
@@ -116,7 +116,7 @@ func Payment(c *fiber.Ctx) error {
 	domain := setting["domain"].Value.(string)
 	currency := setting["currency"].Value.(string)
 
-	products, err := db.ListProducts(c.Context(), false, payment.Products...)
+	products, err := db.ListProducts(c.Context(), false, 0, 0, payment.Products...)
 	if err != nil {
 		log.ErrorStack(err)
 		return webutil.StatusInternalServerError(c)

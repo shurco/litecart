@@ -8,16 +8,27 @@
   import FormSelect from '$lib/components/form/Select.svelte'
   import Editor from '$lib/components/Editor.svelte'
   import SvgIcon from '$lib/components/SvgIcon.svelte'
+  import Pagination from '$lib/components/Pagination.svelte'
   import { loadData, saveData, deleteData, toggleActive as toggleActiveApi } from '$lib/utils/apiHelpers'
   import { formatDate, confirmDelete } from '$lib/utils'
   import { validators, validateFields } from '$lib/utils/validation'
   import type { Page } from '$lib/types/models'
+
+  interface PagesResponse {
+    pages: Page[]
+    total: number
+    page: number
+    limit: number
+  }
 
   let pages: Page[] = []
   let loading = true
   let drawerOpen = false
   let drawerMode: 'add' | 'edit' | 'seo' | 'view' = 'add'
   let drawerPage: Page | null = null
+  let currentPage = $state(1)
+  let limit = $state(20)
+  let total = $state(0)
 
   let formData: Omit<Page, 'id' | 'created' | 'updated' | 'seo'> = {
     name: '',
@@ -34,13 +45,22 @@
     await loadPages()
   })
 
-  async function loadPages() {
+  async function loadPages(page = currentPage) {
     loading = true
-    const result = await loadData<Page[]>('/api/_/pages', 'Failed to load pages')
+    currentPage = page
+    const result = await loadData<PagesResponse>(
+      `/api/_/pages?page=${page}&limit=${limit}`,
+      'Failed to load pages'
+    )
     if (result) {
-      pages = result
+      pages = result.pages || []
+      total = result.total || 0
     }
     loading = false
+  }
+
+  function handlePageChange(page: number) {
+    loadPages(page)
   }
 
   function openAdd() {
@@ -230,6 +250,14 @@
         {/each}
       </tbody>
     </table>
+
+    {#if total > 0}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(total / limit)}
+        onPageChange={handlePageChange}
+      />
+    {/if}
   {/if}
 </svelte:component>
 
