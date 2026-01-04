@@ -13,12 +13,12 @@
   // Reactive translation function
   let t = $derived($translate)
 
-  let email = ''
-  let password = ''
-  let domain = ''
-  let emailError = ''
-  let passwordError = ''
-  let domainError = ''
+  let email = $state('')
+  let password = $state('')
+  let domain = $state('')
+  let emailError = $state('')
+  let passwordError = $state('')
+  let domainError = $state('')
 
   function validateEmail(value: string) {
     if (!value) {
@@ -55,8 +55,8 @@
     return ''
   }
 
-  async function handleSubmit(event: Event) {
-    event.preventDefault()
+  async function handleSubmit(event?: Event) {
+    event?.preventDefault()
 
     emailError = validateEmail(email)
     passwordError = validatePassword(password)
@@ -97,7 +97,7 @@
       <h1 class="text-2xl font-bold sm:text-3xl">🛒 {t('install.title')} Litecart</h1>
       <p class="mt-4 text-gray-600">{t('install.configureCart')}</p>
     </div>
-    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
+    <form onsubmit={(e) => handleSubmit(e)} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
       <FormInput id="email" type="email" title={t('install.email')} ico="at-symbol" error={emailError} bind:value={email} />
       <FormInput
         id="password"

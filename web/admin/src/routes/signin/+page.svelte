@@ -12,10 +12,10 @@
   // Reactive translation function
   let t = $derived($translate)
 
-  let email = ''
-  let password = ''
-  let emailError = ''
-  let passwordError = ''
+  let email = $state('')
+  let password = $state('')
+  let emailError = $state('')
+  let passwordError = $state('')
 
   function validateEmail(value) {
     if (!value) {
@@ -37,8 +37,8 @@
     return ''
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
+  async function handleSubmit(event?: Event) {
+    event?.preventDefault()
 
     emailError = validateEmail(email)
     passwordError = validatePassword(password)
@@ -77,7 +77,7 @@
     <div class="mx-auto max-w-lg text-center">
       <h1 class="text-2xl font-bold sm:text-3xl">👨‍🎨 {t('auth.adminSignIn')}</h1>
     </div>
-    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
+    <form onsubmit={(e) => handleSubmit(e)} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
       <FormInput id="email" type="email" title={t('auth.email')} ico="at-symbol" error={emailError} bind:value={email} />
       <FormInput
         id="password"
