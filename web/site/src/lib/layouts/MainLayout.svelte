@@ -2,6 +2,7 @@
   import Header from '$lib/components/Header.svelte'
   import Footer from '$lib/components/Footer.svelte'
   import Overlay from '$lib/components/Overlay.svelte'
+  import CookieConsent from '$lib/components/CookieConsent.svelte'
   import { settingsStore } from '$lib/stores/settings'
   import { apiGet } from '$lib/utils/api'
   import { updateSEOTags } from '$lib/utils/seo'
@@ -93,4 +94,7 @@
     </footer>
   {/if}
   <Overlay show={showOverlay} error={error} onClose={closeOverlay} />
+  {#if !isErrorPage}
+    <CookieConsent />
+  {/if}
 </div>

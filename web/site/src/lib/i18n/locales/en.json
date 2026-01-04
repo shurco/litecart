@@ -89,5 +89,12 @@
   },
   "overlay": {
     "close": "CLOSE"
+  },
+  "cookies": {
+    "title": "COOKIE CONSENT",
+    "description": "We use cookies to enhance your browsing experience and analyze site traffic. By clicking 'Accept', you consent to our use of cookies. ",
+    "privacyLink": "Learn more in our Privacy Policy",
+    "accept": "ACCEPT",
+    "reject": "REJECT"
   }
 }

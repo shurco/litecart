@@ -37,6 +37,7 @@ Main components are located in `web/site/src/lib/components/`:
 - **Header.svelte** - site header with logo, social networks, and cart
 - **Footer.svelte** - site footer with page links
 - **ProductCard.svelte** - product card
+- **CookieConsent.svelte** - GDPR-compliant cookie consent banner
 - **NotFoundPage.svelte** - 404 error page component
 - **Overlay.svelte** - overlay component for loading and errors
 

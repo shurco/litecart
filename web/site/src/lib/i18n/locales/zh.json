@@ -89,5 +89,12 @@
   },
   "overlay": {
     "close": "关闭"
+  },
+  "cookies": {
+    "title": "Cookie 同意",
+    "description": "我们使用 Cookie 来改善您的浏览体验并分析网站流量。点击「接受」即表示您同意我们使用 Cookie。",
+    "privacyLink": "在我们的隐私政策中了解更多",
+    "accept": "接受",
+    "reject": "拒绝"
   }
 }

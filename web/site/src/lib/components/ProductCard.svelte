@@ -74,7 +74,7 @@
 
       <button
         onclick={handleToggleCart}
-        class="relative z-[9999] cursor-pointer border-4 border-black px-6 py-3 text-sm font-black tracking-wider uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] whitespace-nowrap {inCart
+        class="relative z-10 cursor-pointer border-4 border-black px-6 py-3 text-sm font-black tracking-wider uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] whitespace-nowrap {inCart
           ? 'bg-red-500 text-white'
           : 'bg-green-500 text-white'}"
       >
