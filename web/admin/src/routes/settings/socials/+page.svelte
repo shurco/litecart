@@ -4,6 +4,10 @@
   import FormButton from '$lib/components/form/Button.svelte'
   import FormInput from '$lib/components/form/Input.svelte'
   import { loadSettings, saveSettings } from '$lib/utils/settingsHelpers'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface SocialSettings {
     facebook: string
@@ -47,7 +51,7 @@
     formErrors = {}
 
     if (formData.other && !/^https?:\/\/.+/.test(formData.other)) {
-      formErrors.other = 'Valid URL is required'
+      formErrors.other = t('settings.validUrlRequired')
       return
     }
 
@@ -56,15 +60,15 @@
 </script>
 
 <Main>
-  <h1 class="mb-5">Social Settings</h1>
+  <h1 class="mb-5">{t('settings.socialSettings')}</h1>
 
   {#if loading}
-    <div class="py-8 text-center">Loading...</div>
+    <div class="py-8 text-center">{t('common.loading')}</div>
   {:else}
     <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="max-w-2xl space-y-4">
       <FormInput
         id="facebook"
-        title="Facebook"
+        title={t('settings.facebook')}
         bind:value={formData.facebook}
         error={formErrors.facebook}
         ico="user-group"
@@ -72,7 +76,7 @@
       />
       <FormInput
         id="instagram"
-        title="Instagram"
+        title={t('settings.instagram')}
         bind:value={formData.instagram}
         error={formErrors.instagram}
         ico="user-group"
@@ -80,7 +84,7 @@
       />
       <FormInput
         id="twitter"
-        title="Twitter"
+        title={t('settings.twitter')}
         bind:value={formData.twitter}
         error={formErrors.twitter}
         ico="user-group"
@@ -88,7 +92,7 @@
       />
       <FormInput
         id="dribbble"
-        title="Dribbble"
+        title={t('settings.dribbble')}
         bind:value={formData.dribbble}
         error={formErrors.dribbble}
         ico="user-group"
@@ -96,7 +100,7 @@
       />
       <FormInput
         id="github"
-        title="GitHub"
+        title={t('settings.github')}
         bind:value={formData.github}
         error={formErrors.github}
         ico="user-group"
@@ -104,7 +108,7 @@
       />
       <FormInput
         id="youtube"
-        title="YouTube"
+        title={t('settings.youtube')}
         bind:value={formData.youtube}
         error={formErrors.youtube}
         ico="user-group"
@@ -113,14 +117,14 @@
       <FormInput
         id="other"
         type="url"
-        title="Other (URL)"
+        title={t('settings.otherUrl')}
         bind:value={formData.other}
         error={formErrors.other}
         ico="link"
         placeholder="https://example.com"
       />
       <div class="pt-4">
-        <FormButton type="submit" name="Save" color="green" />
+        <FormButton type="submit" name={t('common.save')} color="green" />
       </div>
     </form>
   {/if}

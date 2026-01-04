@@ -3,6 +3,10 @@
   import { handleNavigation } from '$lib/utils/navigation'
   import { isBrowser } from '$lib/utils/browser'
   import { onDestroy } from 'svelte'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   const status = $derived(page.status || 404)
   const isNotFound = $derived(status === 404)
@@ -29,15 +33,15 @@
         {status}
       </h1>
       <p class="text-3xl font-black tracking-wider text-black uppercase">
-        {isNotFound ? 'NOT FOUND' : 'ERROR'}
+        {isNotFound ? t('error.notFound') : t('error.errorOccurred')}
       </p>
     </div>
 
     <div class="brutal-card mb-8 p-8">
       <p class="mb-8 text-lg tracking-wide text-black">
         {isNotFound
-          ? "The page you're looking for doesn't exist or has been moved."
-          : 'Something went wrong. Please try again later.'}
+          ? t('error.notFound')
+          : t('error.errorOccurred')}
       </p>
 
       <div class="flex justify-center">
@@ -46,7 +50,7 @@
           onclick={(e) => handleNavigation(e, '/')}
           class="inline-block cursor-pointer border-4 border-black bg-yellow-300 px-8 py-4 text-lg font-black tracking-wider text-black uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
         >
-          GO TO HOME
+          {t('cart.goToHome')}
         </a>
       </div>
     </div>
@@ -54,7 +58,7 @@
     {#if isNotFound}
       <div class="brutal-card bg-white p-6">
         <p class="text-lg tracking-wide text-black">
-          Try checking the URL for typos, or return to the homepage to browse our products.
+          {t('error.checkUrl')}
         </p>
       </div>
     {/if}

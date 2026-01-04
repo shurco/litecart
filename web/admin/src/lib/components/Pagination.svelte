@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
+
   interface Props {
     currentPage: number
     totalPages: number
@@ -47,7 +52,7 @@
       disabled={currentPage === 1}
       onclick={() => goToPage(currentPage - 1)}
     >
-      Previous
+      {t('pagination.previous')}
     </button>
 
     {#each getVisiblePages() as page (page)}
@@ -72,7 +77,7 @@
       disabled={currentPage === totalPages}
       onclick={() => goToPage(currentPage + 1)}
     >
-      Next
+      {t('pagination.next')}
     </button>
   </div>
 {/if}

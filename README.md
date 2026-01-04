@@ -51,6 +51,8 @@ Litecart is an open source shopping-cart in 1 file of embedded database (SQLite)
 
 🆓 **Free Products Support**: Offer free products to your customers by setting the product price to 0. Free products are automatically processed without requiring payment system integration, making it perfect for free downloads, samples, or promotional content.
 
+🌐 **Multi-language Support**: Built-in internationalization (i18n) support allows you to create multilingual stores. By default, litecart includes support for English and Chinese languages. The language switcher is available in both the admin panel and the public site, making it easy to manage content in multiple languages and provide a localized shopping experience for your customers.
+
 
 ## ⬇️&nbsp;&nbsp;Installation
 

@@ -6,6 +6,10 @@
   import { getFirstImageUrl } from '$lib/utils/imageUrl'
   import { toggleCartItem } from '$lib/utils/cart'
   import { handleNavigation } from '$lib/utils/navigation'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Props {
     product: Product
@@ -38,7 +42,7 @@
         loading="lazy"
       />
       <div class="absolute top-4 right-4">
-        <div class="border-4 border-black bg-yellow-300 px-3 py-1 text-xs font-black tracking-wider uppercase">NEW</div>
+        <div class="border-4 border-black bg-yellow-300 px-3 py-1 text-xs font-black tracking-wider uppercase">{t('product.new')}</div>
       </div>
     </div>
   </a>
@@ -61,7 +65,7 @@
     <div class="mt-auto flex items-center justify-between gap-4">
       <div class="flex items-baseline gap-2">
         <span class="text-3xl font-black tracking-tight text-black">
-          {costFormat(product.amount)}
+          {costFormat(product.amount) === 'free' ? t('product.free') : costFormat(product.amount)}
         </span>
         {#if product.amount !== 0 && product.amount}
           <span class="text-lg font-bold text-gray-600 uppercase">{currency}</span>
@@ -70,7 +74,7 @@
 
       <button
         onclick={handleToggleCart}
-        class="cursor-pointer border-4 border-black px-6 py-3 text-sm font-black tracking-wider uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] {inCart
+        class="relative z-[9999] cursor-pointer border-4 border-black px-6 py-3 text-sm font-black tracking-wider uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] whitespace-nowrap {inCart
           ? 'bg-red-500 text-white'
           : 'bg-green-500 text-white'}"
       >
@@ -79,14 +83,14 @@
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="/assets/img/sprite.svg#plus" />
             </svg>
-            <span>ADD</span>
+            <span>{t('product.addToCartShort')}</span>
           </span>
         {:else}
           <span class="flex items-center gap-2">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="/assets/img/sprite.svg#minus" />
             </svg>
-            <span>REMOVE</span>
+            <span>{t('product.removeFromCartShort')}</span>
           </span>
         {/if}
       </button>

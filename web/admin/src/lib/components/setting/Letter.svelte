@@ -4,7 +4,11 @@
   import FormInput from '../form/Input.svelte'
   import FormTextarea from '../form/Textarea.svelte'
   import { loadData, saveData } from '$lib/utils/apiHelpers'
+  import { translate } from '$lib/i18n'
   import type { LetterData, LetterContent } from '$lib/types/models'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Props {
     name: string
@@ -22,7 +26,12 @@
     [key: string]: unknown
   }
 
-  let letter = $state<LetterData & LetterContent>({
+  interface LetterState extends LetterContent {
+    id: string
+    key: string
+  }
+
+  let letter = $state<LetterState>({
     id: '',
     key: '',
     subject: '',
@@ -41,7 +50,7 @@
     loading = true
     const result = await loadData<SettingResponse | Record<string, SettingResponse>>(
       `/api/_/settings/${name}`,
-      'Failed to load letter'
+      t('letter.failedToLoadLetter')
     )
 
     if (result) {
@@ -79,7 +88,7 @@
       value: JSON.stringify(value)
     }
 
-    await saveData<LetterData>(`/api/_/settings/${name}`, update, true, 'Letter updated', 'Failed to update letter')
+    await saveData<LetterData>(`/api/_/settings/${name}`, update, true, t('letter.letterUpdated'), t('letter.failedToUpdateLetter'))
   }
 
   function handleSend() {
@@ -99,23 +108,23 @@
   <div class="pb-8">
     <div class="flex items-center">
       <div class="pr-3">
-        <h1>Update letter</h1>
+        <h1>{t('letter.updateLetter')}</h1>
       </div>
     </div>
   </div>
 
   {#if loading}
-    <div class="py-8 text-center">Loading...</div>
+    <div class="py-8 text-center">{t('common.loading')}</div>
   {:else}
     <div class="flow-root">
       <div class="flow-root">
         <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
-          <FormInput id="subject" type="text" title="Subject" bind:value={letter.subject} onfocusout={updateLetter} />
+          <FormInput id="subject" type="text" title={t('letter.subject')} bind:value={letter.subject} onfocusout={updateLetter} />
         </dl>
       </div>
 
       <dl class="mx-auto -my-3 mt-5 mb-0 space-y-4 text-sm">
-        <FormTextarea id="textarea" title="Message" bind:value={letter.text} rows={15} onfocusout={updateLetter} />
+        <FormTextarea id="textarea" title={t('letter.message')} bind:value={letter.text} rows={15} onfocusout={updateLetter} />
       </dl>
     </div>
   {/if}
@@ -123,11 +132,11 @@
   <div class="pt-8">
     <div class="flex">
       <div class="flex-none">
-        <FormButton type="button" name="Close" color="gray" onclick={close} />
+        <FormButton type="button" name={t('common.close')} color="gray" onclick={close} />
       </div>
       <div class="grow"></div>
       <div class="flex-none">
-        <FormButton type="button" name="Test letter" color="cyan" onclick={handleSend} />
+        <FormButton type="button" name={t('letter.testLetter')} color="cyan" onclick={handleSend} />
       </div>
     </div>
   </div>

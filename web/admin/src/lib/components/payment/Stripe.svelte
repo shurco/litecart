@@ -7,6 +7,10 @@
   import { systemStore } from '$lib/stores/system'
   import { MIN_SECRET_KEY_LENGTH, ERROR_MESSAGES } from '$lib/constants/validation'
   import type { StripeSettings } from '$lib/types/models'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Props {
     onclose?: () => void
@@ -84,7 +88,7 @@
         <FormInput
           id="secret_key"
           type="text"
-          title="Secret key"
+          title={t('payment.secretKey')}
           bind:value={settings.secret_key}
           error={formErrors.secret_key}
           ico="key"
@@ -95,11 +99,11 @@
     <div class="pt-8">
       <div class="flex">
         <div class="flex-none">
-          <FormButton type="submit" name="Save" color="green" />
+          <FormButton type="submit" name={t('common.save')} color="green" />
         </div>
         <div class="grow"></div>
         <div class="flex-none">
-          <FormButton type="button" name="Close" color="gray" onclick={close} />
+          <FormButton type="button" name={t('common.close')} color="gray" onclick={close} />
         </div>
       </div>
     </div>

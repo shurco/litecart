@@ -22,6 +22,10 @@
   import { DEFAULT_PAGE_SIZE } from '$lib/constants/pagination'
   import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
   import type { Product } from '$lib/types/models'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface ProductsResponse {
     products: Product[]
@@ -77,7 +81,7 @@
   let productImages = $state<Product['images']>([])
   let fullProductData = $state<Product | null>(null)
 
-  // Отображаемое значение цены (в обычных единицах, не в центах)
+  // Display value for price (in regular units, not cents)
   let amountDisplay = $state('0')
 
   function handleAmountInput(event: Event) {
@@ -112,7 +116,7 @@
     currentPage = page
     const result = await loadData<ProductsResponse>(
       `/api/_/products?page=${page}&limit=${limit}`,
-      'Failed to load products'
+      t('products.failedToLoad')
     )
     if (result) {
       products = sortByDate(result.products || [])
@@ -162,7 +166,7 @@
     const result = await loadData<Product>(`/api/_/products/${product.id}`, 'Failed to load product')
     if (result) {
       fullProductData = result
-      // Конвертируем цену из центов в обычное число для формы
+      // Convert price from cents to regular number for form
       const amountValue = typeof result.amount === 'string' ? parseFloat(result.amount) : (result.amount || 0)
       const amountInUnits = amountValue / CENTS_PER_UNIT
       const amountStr = amountInUnits.toFixed(2)
@@ -212,7 +216,7 @@
   function updateProductInList(product: Product) {
     const index = products.findIndex((p) => p.id === product.id)
     if (index !== -1) {
-      // Сохраняем digital.filled из оригинального продукта, если он не пришел в ответе
+      // Preserve digital.filled from original product if it wasn't in response
       const originalProduct = products[index]
       if (originalProduct.digital?.filled !== undefined && (!product.digital || product.digital.filled === undefined)) {
         if (!product.digital) {
@@ -224,7 +228,7 @@
       products[index] = product
     }
     if (drawerProduct?.product.id === product.id) {
-      // Сохраняем digital.filled из оригинального продукта, если он не пришел в ответе
+      // Preserve digital.filled from original product if it wasn't in response
       if (drawerProduct.product.digital?.filled !== undefined && (!product.digital || product.digital.filled === undefined)) {
         if (!product.digital) {
           product.digital = { type: drawerProduct.product.digital?.type || '', filled: drawerProduct.product.digital.filled }
@@ -267,7 +271,7 @@
       amount: amountInCents
     }
 
-    const result = await saveData<Product>(url, submitData, isUpdate, 'Product saved', 'Failed to save product')
+    const result = await saveData<Product>(url, submitData, isUpdate, t('products.failedToSave'), t('products.failedToSave'))
     if (result) {
       if (isUpdate) {
         updateProductInList(result)
@@ -293,8 +297,8 @@
 
     const success = await deleteData(
       `/api/_/products/${fullProductData.id}`,
-      'Product deleted',
-      'Failed to delete product'
+      t('products.failedToDelete'),
+      t('products.failedToDelete')
     )
     if (success) {
       await loadProducts()
@@ -311,8 +315,8 @@
 
     const result = await toggleActiveApi(
       `/api/_/products/${fullProductData.id}/active`,
-      'Product status updated',
-      'Failed to update product'
+      t('products.productStatusUpdated'),
+      t('products.failedToUpdateProduct')
     )
 
     if (result === null) {
@@ -349,12 +353,12 @@
       const res = await apiDelete(`/api/_/products/${fullProductData.id}/image/${imageId}`)
       if (res.success && productImages) {
         productImages = productImages.filter((_, i) => i !== index)
-        showMessage('Image deleted', 'connextSuccess')
+        showMessage(t('products.imageDeleted'), 'connextSuccess')
       } else {
-        showMessage(res.message || 'Failed to delete image', 'connextError')
+        showMessage(res.message || t('products.failedToDeleteImage'), 'connextError')
       }
     } catch (error) {
-      showMessage('Network error', 'connextError')
+      showMessage(t('common.networkError'), 'connextError')
     }
   }
 
@@ -363,7 +367,7 @@
       return
     }
 
-    const success = await deleteData(`/api/_/products/${product.id}`, 'Product deleted', 'Failed to delete product')
+    const success = await deleteData(`/api/_/products/${product.id}`, t('products.failedToDelete'), t('products.failedToDelete'))
     if (success) {
       await loadProducts()
     }
@@ -381,14 +385,14 @@
       if (!res.success) {
         // Revert on failure
         products[index] = { ...products[index], active: originalActive }
-        showMessage(res.message || 'Failed to update product', 'connextError')
+        showMessage(res.message || t('products.failedToUpdateProduct'), 'connextError')
       } else {
-        showMessage(res.message || 'Product status updated', 'connextSuccess')
+        showMessage(t('products.productStatusUpdated') || res.message, 'connextSuccess')
       }
     } catch (error) {
       // Revert on error
       products[index] = { ...products[index], active: originalActive }
-      showMessage('Network error', 'connextError')
+      showMessage(t('common.networkError'), 'connextError')
     }
   }
 
@@ -425,22 +429,22 @@
 
 <Main>
   <div class="mb-5 flex items-center justify-between">
-    <h1>Products</h1>
-    <FormButton name="Add Product" color="green" ico="plus" onclick={openAdd} />
+    <h1>{t('products.title')}</h1>
+    <FormButton name={t('products.addProduct')} color="green" ico="plus" onclick={openAdd} />
   </div>
 
   {#if loading}
-    <div class="py-8 text-center">Loading...</div>
+    <div class="py-8 text-center">{t('common.loading')}</div>
   {:else if products.length === 0}
-    <div class="py-8 text-center text-gray-500">No products found</div>
+    <div class="py-8 text-center text-gray-500">{t('products.noProducts')}</div>
   {:else}
     <table>
       <thead>
         <tr>
           <th class="w-28"></th>
-          <th>Name</th>
-          <th class="w-32">Slug</th>
-          <th class="w-32">Price</th>
+          <th>{t('products.name')}</th>
+          <th class="w-32">{t('products.slug')}</th>
+          <th class="w-32">{t('products.price')}</th>
           <th class="w-12 px-4 py-2">
             <SvgIcon name="cube" className="h-5 w-5" stroke="currentColor" />
           </th>
@@ -551,7 +555,7 @@
         <div class="pb-8">
           <div class="flex items-center">
             <div class="pr-3">
-              <h1>{drawerMode === 'add' ? 'Add' : `Edit ${formData.name || ''}`}</h1>
+              <h1>{drawerMode === 'add' ? t('products.addProduct') : `${t('products.editProduct')} ${formData.name || ''}`}</h1>
             </div>
             {#if drawerMode === 'edit' && fullProductData}
               <div>
@@ -569,13 +573,13 @@
         <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div class="flow-root">
             <dl class="mx-auto -my-3 mt-2 mb-0 space-y-4 text-sm">
-              <FormInput id="name" title="Name" bind:value={formData.name} error={formErrors.name} ico="at-symbol" />
+              <FormInput id="name" title={t('products.name')} bind:value={formData.name} error={formErrors.name} ico="at-symbol" />
               <div class="flex flex-row">
                 <div class="pr-3">
                   <FormInput
                     id="amount"
                     type="text"
-                    title="Amount"
+                    title={t('products.amount')}
                     bind:value={amountDisplay}
                     oninput={handleAmountInput}
                     error={formErrors.amount}
@@ -587,7 +591,7 @@
                   {#if parseFloat(amountDisplay) === 0}
                     <span class="ml-2 font-bold text-green-600">free</span>
                   {/if}
-                  <span class="ml-2 text-xs text-gray-500">(if 0, the price will be free)</span>
+                  <span class="ml-2 text-xs text-gray-500">{t('products.ifZeroPriceFree')}</span>
                 </div>
               </div>
 
@@ -596,7 +600,7 @@
                   <div class="grow pr-3">
                     <FormInput
                       id="slug"
-                      title="Slug"
+                      title={t('products.slug')}
                       bind:value={formData.slug}
                       error={formErrors.slug}
                       ico="glob-alt"
@@ -605,7 +609,7 @@
                   <div class="grow">
                     <FormSelect
                       id="digital_type"
-                      title="Digital type"
+                      title={t('products.digitalType')}
                       options={['file', 'data', 'api']}
                       bind:value={formData.digital.type}
                       error={formErrors.digital_type}
@@ -614,18 +618,18 @@
                   </div>
                 </div>
               {:else}
-                <FormInput id="slug" title="Slug" bind:value={formData.slug} error={formErrors.slug} ico="glob-alt" />
+                <FormInput id="slug" title={t('products.slug')} bind:value={formData.slug} error={formErrors.slug} ico="glob-alt" />
               {/if}
 
               <hr />
-              <p class="font-semibold">Metadata</p>
+              <p class="font-semibold">{t('products.metadata')}</p>
               {#each formData.metadata || [] as metadata, index (index)}
                 <div class="flex">
                   <div class="grow pr-3">
-                    <FormInput id="mtd-key-{index}" type="text" title="Key" bind:value={metadata.key} />
+                    <FormInput id="mtd-key-{index}" type="text" title={t('products.key')} bind:value={metadata.key} />
                   </div>
                   <div class="grow">
-                    <FormInput id="mtd-value-{index}" type="text" title="Value" bind:value={metadata.value} />
+                    <FormInput id="mtd-value-{index}" type="text" title={t('products.value')} bind:value={metadata.value} />
                   </div>
                   <div
                     class="flex-none cursor-pointer pt-3 pl-3"
@@ -651,13 +655,13 @@
                     class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
                     onclick={addMetadataRecord}
                   >
-                    Add metadata record
+                    {t('products.addMetadataRecord')}
                   </button>
                 </div>
               </div>
 
               <hr />
-              <p class="font-semibold">Attributes</p>
+              <p class="font-semibold">{t('products.attributes')}</p>
               {#each formData.attributes || [] as attribute, index (index)}
                 <div class="flex">
                   <div class="grow">
@@ -687,14 +691,14 @@
                     class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
                     onclick={addAttributeRecord}
                   >
-                    Add attribute record
+                    {t('products.addAttributeRecord')}
                   </button>
                 </div>
               </div>
 
               {#if drawerMode === 'edit' && fullProductData}
                 <hr />
-                <p class="font-semibold">Images</p>
+                <p class="font-semibold">{t('products.images')}</p>
                 {#if productImages && productImages.length > 0}
                   <div class="grid grid-cols-4 content-start gap-4">
                     {#each productImages as image, index (image.id || index)}
@@ -729,14 +733,14 @@
               {/if}
 
               <hr />
-              <p class="font-semibold">Short description</p>
-              <FormTextarea id="brief" title="Brief" bind:value={formData.brief} />
+              <p class="font-semibold">{t('products.shortDescription')}</p>
+              <FormTextarea id="brief" title={t('products.brief')} bind:value={formData.brief} />
 
               <hr />
-              <p class="font-semibold">Description</p>
+              <p class="font-semibold">{t('products.description')}</p>
               <Editor
                 bind:modelValue={formData.description}
-                placeholder="type description here"
+                placeholder={t('products.typeDescriptionHere')}
                 onupdateModelValue={handleEditorUpdate}
               />
             </dl>
@@ -745,8 +749,8 @@
           <div class="pt-8">
             <div class="flex">
               <div class="flex-none">
-                <FormButton type="submit" name={drawerMode === 'add' ? 'Add' : 'Save'} color="green" />
-                <FormButton type="button" name="Close" color="gray" onclick={closeDrawer} />
+                <FormButton type="submit" name={drawerMode === 'add' ? t('common.add') : t('common.save')} color="green" />
+                <FormButton type="button" name={t('common.close')} color="gray" onclick={closeDrawer} />
               </div>
               <div class="grow"></div>
               {#if drawerMode === 'edit' && fullProductData}
@@ -761,7 +765,7 @@
                     }}
                     role="button"
                     tabindex="0"
-                    class="cursor-pointer text-red-700">Delete</span
+                    class="cursor-pointer text-red-700">{t('common.delete')}</span
                   >
                 </div>
               {/if}

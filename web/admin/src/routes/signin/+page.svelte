@@ -7,6 +7,10 @@
   import FormButton from '$lib/components/form/Button.svelte'
   import { apiPost, apiGet } from '$lib/utils/api'
   import { showMessage } from '$lib/utils/message'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   let email = ''
   let password = ''
@@ -15,20 +19,20 @@
 
   function validateEmail(value) {
     if (!value) {
-      return 'Email is required'
+      return t('auth.emailRequired')
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Email is not valid'
+      return t('auth.emailInvalid')
     }
     return ''
   }
 
   function validatePassword(value) {
     if (!value) {
-      return 'Password is required'
+      return t('auth.passwordRequired')
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters'
+      return t('auth.passwordMinLength')
     }
     return ''
   }
@@ -48,10 +52,10 @@
       if (res?.success) {
         goto(`${base}/products`)
       } else {
-        showMessage(res?.result || res?.message || 'Login failed', 'connextError')
+        showMessage(res?.result || res?.message || t('auth.loginFailed'), 'connextError')
       }
     } catch (error) {
-      showMessage('Network error. Please try again.', 'connextError')
+      showMessage(t('auth.networkError'), 'connextError')
     }
   }
 
@@ -71,19 +75,19 @@
 <Blank>
   <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-lg text-center">
-      <h1 class="text-2xl font-bold sm:text-3xl">👨‍🎨 Admin sign in</h1>
+      <h1 class="text-2xl font-bold sm:text-3xl">👨‍🎨 {t('auth.adminSignIn')}</h1>
     </div>
     <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="mx-auto mt-8 mb-0 max-w-md space-y-4">
-      <FormInput id="email" type="email" title="Email" ico="at-symbol" error={emailError} bind:value={email} />
+      <FormInput id="email" type="email" title={t('auth.email')} ico="at-symbol" error={emailError} bind:value={email} />
       <FormInput
         id="password"
         type="password"
-        title="Password"
+        title={t('auth.password')}
         ico="finger-print"
         error={passwordError}
         bind:value={password}
       />
-      <FormButton type="submit" name="Login" color="green" ico="arrow-right" />
+      <FormButton type="submit" name={t('auth.login')} color="green" ico="arrow-right" />
     </form>
   </div>
 </Blank>

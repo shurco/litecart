@@ -13,6 +13,10 @@
     ERROR_MESSAGES
   } from '$lib/constants/validation'
   import type { SpectrocoinSettings } from '$lib/types/models'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Props {
     onclose?: () => void
@@ -100,7 +104,7 @@
         <FormInput
           id="merchant_id"
           type="text"
-          title="Merchant ID"
+          title={t('payment.merchantId')}
           bind:value={settings.merchant_id}
           error={formErrors.merchant_id}
           ico="key"
@@ -109,14 +113,14 @@
           <FormInput
             id="project_id"
             type="text"
-            title="Project ID"
+            title={t('payment.projectId')}
             bind:value={settings.project_id}
             error={formErrors.project_id}
             ico="key"
           />
         </div>
         <div class="mt-5">
-          <FormTextarea id="private_key" title="Private key" bind:value={settings.private_key} rows={15} />
+          <FormTextarea id="private_key" title={t('payment.privateKey')} bind:value={settings.private_key} rows={15} />
           {#if formErrors.private_key}
             <span class="pl-4 text-sm text-red-500">{formErrors.private_key}</span>
           {/if}
@@ -127,11 +131,11 @@
     <div class="pt-8">
       <div class="flex">
         <div class="flex-none">
-          <FormButton type="submit" name="Save" color="green" />
+          <FormButton type="submit" name={t('common.save')} color="green" />
         </div>
         <div class="grow"></div>
         <div class="flex-none">
-          <FormButton type="button" name="Close" color="gray" onclick={close} />
+          <FormButton type="button" name={t('common.close')} color="gray" onclick={close} />
         </div>
       </div>
     </div>

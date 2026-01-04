@@ -3,6 +3,10 @@
   import { socialUrl } from '$lib/utils/socialUrl'
   import { handleNavigation } from '$lib/utils/navigation'
   import { page } from '$app/state'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   const SOCIALS_SVG_PATH = '/assets/img/socials.svg#'
 
@@ -41,7 +45,7 @@
 
       {#if Object.keys(socials).length > 0}
         <div class="flex items-center gap-3">
-          <span class="mr-2 text-xs font-black tracking-wider text-yellow-300 uppercase">Follow:</span>
+          <span class="mr-2 text-xs font-black tracking-wider text-yellow-300 uppercase">{t('footer.follow')}</span>
           <ul class="flex items-center gap-2">
             {#each Object.entries(socials) as [key, value], i (key)}
               {#if value}
@@ -68,7 +72,7 @@
     <div class="border-t-4 border-yellow-300 pt-6">
       <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
         <p class="text-xs font-black tracking-widest text-yellow-300 uppercase">
-          © {new Date().getFullYear()} All Rights Reserved
+          © {new Date().getFullYear()} {t('footer.allRightsReserved')}
         </p>
         <a
           target="_blank"
@@ -76,7 +80,7 @@
           href="https://github.com/shurco/litecart"
           class="cursor-pointer text-xs font-black tracking-wider text-yellow-300 uppercase transition-colors duration-200 hover:text-white"
         >
-          Powered by Litecart
+          {t('footer.poweredBy')}
         </a>
       </div>
     </div>

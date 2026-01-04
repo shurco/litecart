@@ -10,7 +10,7 @@ export async function handleApiCall<T>(
     const res = await apiCall()
     if (res.success) {
       if (successMessage) {
-        showMessage(res.message || successMessage, 'connextSuccess')
+        showMessage(successMessage || res.message, 'connextSuccess')
       }
       return res.result || null
     } else {
@@ -56,7 +56,7 @@ export async function toggleActive<T = any>(
     const res = await apiUpdate<T>(url, {})
     if (res.success) {
       if (successMessage) {
-        showMessage(res.message || successMessage, 'connextSuccess')
+        showMessage(successMessage || res.message, 'connextSuccess')
       }
       return res.result || null
     } else {

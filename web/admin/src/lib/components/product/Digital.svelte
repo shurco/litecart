@@ -8,6 +8,10 @@
   import { apiPost, apiUpdate, apiDelete } from '$lib/utils/api'
   import { showMessage } from '$lib/utils'
   import type { Product } from '$lib/types/models'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Digital {
     type: string
@@ -89,12 +93,12 @@
     const result = await apiPost(`/api/_/products/${drawer.product.id}/digital`)
     if (result.success && result.result) {
       digital.data = [...digital.data, result.result]
-      showMessage('Data added', 'connextSuccess')
+      showMessage(t('digital.dataAdded'), 'connextSuccess')
       if (onContentUpdate) {
         onContentUpdate()
       }
     } else {
-      showMessage(result.message || 'Failed to add data', 'connextError')
+      showMessage(result.message || t('digital.failedToAddData'), 'connextError')
     }
   }
 
@@ -108,9 +112,9 @@
     }
     const result = await apiUpdate(`/api/_/products/${drawer.product.id}/digital/${dataItem.id}`, update)
     if (result.success) {
-      showMessage('Data saved', 'connextSuccess')
+      showMessage(t('common.dataSaved'), 'connextSuccess')
     } else {
-      showMessage(result.message || 'Failed to save data', 'connextError')
+      showMessage(result.message || t('common.failedToSaveData'), 'connextError')
     }
   }
 
@@ -124,7 +128,7 @@
       } else {
         digital.data = digital.data.filter((_, i) => i !== index)
       }
-      showMessage('Deleted', 'connextSuccess')
+      showMessage(t('common.deleted'), 'connextSuccess')
       if (onContentUpdate) {
         onContentUpdate()
       }
@@ -138,16 +142,15 @@
   <div class="pb-8">
     <div class="flex items-center">
       <div class="pr-3">
-        <h1>Digital {digital.type}</h1>
+        <h1>{t('digital.digitalType', { type: digital.type })}</h1>
         {#if digital.type === 'file'}
           <p class="mt-4">
-            This is the product that the user purchases. Upload the files that will be sent to the buyer after payment
-            to the email address provided during checkout.
+            {t('digital.fileDescription')}
           </p>
         {/if}
         {#if digital.type === 'data'}
           <p class="mt-4">
-            Enter the digital product that you intend to sell. It can be a unique item, such as a license key.
+            {t('digital.dataDescription')}
           </p>
         {/if}
       </div>
@@ -155,7 +158,7 @@
   </div>
 
   {#if loading}
-    <div class="py-8 text-center">Loading...</div>
+    <div class="py-8 text-center">{t('common.loading')}</div>
   {:else if digital.type === 'file'}
     <!-- File section -->
     <div class="flow-root">
@@ -232,9 +235,9 @@
                     <span class="flex-1">{dataItem.content}</span>
                     <span
                       class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800"
-                      title="This code has been sold (cart_id: {dataItem.cart_id})"
+                      title={t('digital.codeSold', { cart_id: dataItem.cart_id })}
                     >
-                      Sold
+                      {t('digital.sold')}
                     </span>
                   </div>
                 </div>
@@ -250,7 +253,7 @@
               class="shrink-0 rounded-lg bg-gray-200 p-2 text-sm font-medium text-gray-700"
               onclick={addDigitalData}
             >
-              Add data
+              {t('digital.addData')}
             </button>
           </div>
         </div>
@@ -261,6 +264,6 @@
   {/if}
 
   <div class="pt-5">
-    <FormButton type="button" name="Close" color="green" onclick={close} />
+    <FormButton type="button" name={t('common.close')} color="green" onclick={close} />
   </div>
 </div>

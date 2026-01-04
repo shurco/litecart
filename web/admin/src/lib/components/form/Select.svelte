@@ -1,5 +1,9 @@
 <script lang="ts">
   import SvgIcon from '../SvgIcon.svelte'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Props {
     id?: string
@@ -29,7 +33,7 @@
 <div>
   <label for={id} class={error ? 'border-red-500' : ''}>
     <select {id} bind:value class="form-select field peer">
-      <option value="" disabled>Please select</option>
+      <option value="" disabled>{t('form.pleaseSelect')}</option>
       {#each optionList as option (option.key)}
         <option value={option.key}>{option.value}</option>
       {/each}

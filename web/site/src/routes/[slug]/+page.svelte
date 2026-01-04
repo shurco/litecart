@@ -5,6 +5,10 @@
   import { updateSEOTags } from '$lib/utils/seo'
   import { isBrowser } from '$lib/utils/browser'
   import NotFoundPage from '$lib/components/NotFoundPage.svelte'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   let content = $state<Page | null>(null)
   let notFound = $state(false)
@@ -41,7 +45,7 @@
 {#if loading}
   <div class="flex min-h-screen items-center justify-center bg-white">
     <div class="inline-block border-4 border-black bg-yellow-300 px-8 py-6">
-      <p class="text-xl font-black tracking-wider text-black uppercase">LOADING...</p>
+      <p class="text-xl font-black tracking-wider text-black uppercase">{t('common.loading')}</p>
     </div>
   </div>
 {:else if notFound}

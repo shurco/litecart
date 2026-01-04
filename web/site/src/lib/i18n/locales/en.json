@@ -1,0 +1,93 @@
+{
+  "common": {
+    "loading": "LOADING...",
+    "poweredBy": "Powered by Litecart"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文"
+  },
+  "header": {
+    "cart": "CART"
+  },
+  "footer": {
+    "follow": "Follow:",
+    "allRightsReserved": "All Rights Reserved",
+    "poweredBy": "Powered by Litecart"
+  },
+  "home": {
+    "products": "PRODUCTS",
+    "noProductsFound": "NO PRODUCTS FOUND",
+    "loading": "LOADING..."
+  },
+  "cart": {
+    "yourCart": "YOUR CART",
+    "cartIsEmpty": "CART IS EMPTY",
+    "emptyMessage": "Your cart is empty. Add some products to continue shopping.",
+    "goToHome": "GO TO HOME",
+    "itemsCount": "ITEMS ({{count}})",
+    "total": "TOTAL",
+    "enterEmail": "ENTER EMAIL",
+    "emailFreeDescription": "Enter the email address to which the item will be sent.",
+    "emailPaidDescription": "Enter the email address to which the item will be sent after payment. Also, choose the payment system.",
+    "emailPlaceholder": "EMAIL@EXAMPLE.COM",
+    "selectPaymentSystem": "SELECT PAYMENT SYSTEM",
+    "stripe": "Stripe",
+    "stripeDescription": "Popular payment system for cards and other methods",
+    "paypal": "PayPal",
+    "paypalDescription": "Payment system for cards and PayPal account funds",
+    "spectrocoin": "Spectrocoin",
+    "spectrocoinDescription": "Payment system allowing payments with cryptocurrency",
+    "getForFree": "GET FOR FREE",
+    "checkout": "CHECKOUT",
+    "noPaymentSystems": "NO PAYMENT SYSTEMS AVAILABLE. CONTACT ADMINISTRATOR.",
+    "selectPaymentError": "Please select a payment system",
+    "selectPaymentErrorPaid": "Please select a payment system for paid items",
+    "removeItem": "Remove item"
+  },
+  "product": {
+    "addToCart": "ADD TO CART",
+    "addToCartShort": "ADD",
+    "removeFromCart": "REMOVE FROM CART",
+    "removeFromCartShort": "REMOVE",
+    "free": "FREE",
+    "new": "NEW",
+    "description": "DESCRIPTION",
+    "previousImage": "Previous image",
+    "nextImage": "Next image"
+  },
+  "error": {
+    "notFound": "Page not found",
+    "notFoundTitle": "NOT FOUND",
+    "notFoundMessage": "The page you're looking for doesn't exist or has been moved.",
+    "errorOccurred": "An error occurred",
+    "checkUrl": "Try checking the URL for typos, or return to the homepage to browse our products.",
+    "errorTitle": "ERROR",
+    "contactAdmin": "Try again in a little while, if the error doesn't go away - contact the administrator."
+  },
+  "payment": {
+    "success": {
+      "title": "PAYMENT SUCCESSFUL!",
+      "message": "Thank you for your purchase. Your order has been processed successfully.",
+      "orderDetails": "ORDER DETAILS",
+      "quantity": "Quantity:",
+      "each": "each",
+      "redirecting": "Redirecting to home page in a few seconds...",
+      "cartIdMissing": "Cart ID is missing",
+      "loadFailed": "Failed to load cart information"
+    },
+    "cancel": {
+      "title": "PAYMENT CANCELLED",
+      "message": "Your payment has been cancelled. You can return to your cart to try again.",
+      "returnToCart": "RETURN TO CART"
+    },
+    "failed": "Payment failed"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "overlay": {
+    "close": "CLOSE"
+  }
+}

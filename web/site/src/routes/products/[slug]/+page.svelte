@@ -10,6 +10,10 @@
   import { updateSEOTags } from '$lib/utils/seo'
   import { isBrowser } from '$lib/utils/browser'
   import NotFoundPage from '$lib/components/NotFoundPage.svelte'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   let product = $state<Product | null>(null)
   let load = $state(false)
@@ -67,7 +71,7 @@
 {#if loading}
   <div class="flex min-h-screen items-center justify-center bg-white">
     <div class="inline-block border-4 border-black bg-yellow-300 px-8 py-6">
-      <p class="text-xl font-black tracking-wider text-black uppercase">LOADING...</p>
+      <p class="text-xl font-black tracking-wider text-black uppercase">{t('common.loading')}</p>
     </div>
   </div>
 {:else if notFound}
@@ -112,14 +116,14 @@
               <button
                 onclick={() => prevSlide(product.images.length)}
                 class="absolute top-1/2 left-4 cursor-pointer border-4 border-black bg-yellow-300 p-3 text-xl font-black text-black transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-                aria-label="Previous image"
+                aria-label={t('product.previousImage')}
               >
                 ←
               </button>
               <button
                 onclick={() => nextSlide(product.images.length)}
                 class="absolute top-1/2 right-4 cursor-pointer border-4 border-black bg-yellow-300 p-3 text-xl font-black text-black transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-                aria-label="Next image"
+                aria-label={t('product.nextImage')}
               >
                 →
               </button>
@@ -150,7 +154,7 @@
 
             <div class="mb-6 flex items-baseline gap-3">
               <span class="text-5xl font-black tracking-tight text-black">
-                {costFormat(product.amount)}
+                {costFormat(product.amount) === 'free' ? t('product.free') : costFormat(product.amount)}
               </span>
               {#if product.amount !== 0 && product.amount}
                 <span class="text-2xl font-bold text-gray-700 uppercase">{currency}</span>
@@ -168,14 +172,14 @@
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="/assets/img/sprite.svg#plus" />
                   </svg>
-                  <span>ADD TO CART</span>
+                  <span>{t('product.addToCart')}</span>
                 </span>
               {:else}
                 <span class="flex items-center justify-center gap-3">
                   <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="/assets/img/sprite.svg#minus" />
                   </svg>
-                  <span>REMOVE FROM CART</span>
+                  <span>{t('product.removeFromCart')}</span>
                 </span>
               {/if}
             </button>
@@ -185,7 +189,7 @@
 
       {#if product.description}
         <div class="mt-12">
-          <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">DESCRIPTION</h2>
+          <h2 class="mb-6 text-3xl font-black tracking-tighter text-black uppercase">{t('product.description')}</h2>
           <div class="prod_desc text-lg leading-relaxed text-black">
             {@html product.description}
           </div>

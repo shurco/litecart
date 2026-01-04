@@ -1,0 +1,93 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "poweredBy": "由 Litecart 提供支持"
+  },
+  "languages": {
+    "en": "English",
+    "zh": "中文"
+  },
+  "header": {
+    "cart": "购物车"
+  },
+  "footer": {
+    "follow": "关注：",
+    "allRightsReserved": "版权所有",
+    "poweredBy": "由 Litecart 提供支持"
+  },
+  "home": {
+    "products": "商品",
+    "noProductsFound": "未找到商品",
+    "loading": "加载中..."
+  },
+  "cart": {
+    "yourCart": "您的购物车",
+    "cartIsEmpty": "购物车为空",
+    "emptyMessage": "您的购物车是空的。添加一些商品以继续购物。",
+    "goToHome": "返回首页",
+    "itemsCount": "商品 ({{count}})",
+    "total": "总计",
+    "enterEmail": "输入邮箱",
+    "emailFreeDescription": "输入将发送商品的电子邮件地址。",
+    "emailPaidDescription": "输入付款后将发送商品的电子邮件地址。同时，选择支付系统。",
+    "emailPlaceholder": "EMAIL@EXAMPLE.COM",
+    "selectPaymentSystem": "选择支付系统",
+    "stripe": "Stripe",
+    "stripeDescription": "流行的卡片和其他支付方式系统",
+    "paypal": "PayPal",
+    "paypalDescription": "用于卡片和 PayPal 账户资金的支付系统",
+    "spectrocoin": "Spectrocoin",
+    "spectrocoinDescription": "允许使用加密货币支付的支付系统",
+    "getForFree": "免费获取",
+    "checkout": "结账",
+    "noPaymentSystems": "支付系统不可用。请联系管理员。",
+    "selectPaymentError": "请选择支付系统",
+    "selectPaymentErrorPaid": "请为付费商品选择支付系统",
+    "removeItem": "删除商品"
+  },
+  "product": {
+    "addToCart": "加入购物车",
+    "addToCartShort": "加入",
+    "removeFromCart": "从购物车移除",
+    "removeFromCartShort": "移除",
+    "free": "免费",
+    "new": "新品",
+    "description": "描述",
+    "previousImage": "上一张图片",
+    "nextImage": "下一张图片"
+  },
+  "error": {
+    "notFound": "页面未找到",
+    "notFoundTitle": "未找到",
+    "notFoundMessage": "您要查找的页面不存在或已被移动。",
+    "errorOccurred": "发生错误",
+    "checkUrl": "请检查 URL 是否有拼写错误，或返回首页浏览我们的商品。",
+    "errorTitle": "错误",
+    "contactAdmin": "请稍后再试，如果错误仍然存在，请联系管理员。"
+  },
+  "payment": {
+    "success": {
+      "title": "支付成功！",
+      "message": "感谢您的购买。您的订单已成功处理。",
+      "orderDetails": "订单详情",
+      "quantity": "数量：",
+      "each": "每件",
+      "redirecting": "几秒钟后将重定向到首页...",
+      "cartIdMissing": "购物车 ID 缺失",
+      "loadFailed": "加载购物车信息失败"
+    },
+    "cancel": {
+      "title": "支付已取消",
+      "message": "您的支付已取消。您可以返回购物车重试。",
+      "returnToCart": "返回购物车"
+    },
+    "failed": "支付失败"
+  },
+  "pagination": {
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "overlay": {
+    "close": "关闭"
+  }
+}
