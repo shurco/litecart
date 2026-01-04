@@ -1,8 +1,12 @@
 <script lang="ts">
   import { cartStore } from '$lib/stores/cart'
   import { handleNavigation } from '$lib/utils/navigation'
+  import { translate, locale } from '$lib/i18n'
+  import LanguageSwitcher from './LanguageSwitcher.svelte'
 
   let cartCount = $derived($cartStore.length)
+  // Reactive translation function
+  let t = $derived($translate)
 </script>
 
 <header class="sticky top-0 z-50 border-b-4 border-black bg-yellow-300">
@@ -20,6 +24,7 @@
     </a>
 
     <div class="flex flex-1 items-center justify-end gap-4">
+      <LanguageSwitcher />
       <a href="/cart" onclick={(e) => handleNavigation(e, '/cart')} class="cursor-pointer">
         <button
           class="cursor-pointer border-4 border-black bg-red-500 px-6 py-3 text-sm font-black tracking-wider text-white uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
@@ -28,7 +33,7 @@
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="/assets/img/sprite.svg#cart" />
             </svg>
-            <span>CART ({cartCount})</span>
+            <span>{t('header.cart')} ({cartCount})</span>
           </span>
         </button>
       </a>

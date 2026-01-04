@@ -1,5 +1,6 @@
 import { apiGet, apiUpdate, showMessage } from '$lib/utils'
 import { systemStore } from '$lib/stores/system'
+import { t } from '$lib/i18n'
 import type { StripeSettings, PaypalSettings, SpectrocoinSettings } from '$lib/types/models'
 
 export async function loadPaymentSettings<T extends StripeSettings | PaypalSettings | SpectrocoinSettings>(
@@ -11,10 +12,10 @@ export async function loadPaymentSettings<T extends StripeSettings | PaypalSetti
     if (res.success && res.result) {
       return { ...defaultSettings, ...res.result }
     }
-    showMessage(res.message || 'Failed to load settings', 'connextError')
+    showMessage(res.message || t('settings.failedToLoadSettings'), 'connextError')
     return defaultSettings
   } catch (error) {
-    showMessage('Network error', 'connextError')
+    showMessage(t('common.networkError'), 'connextError')
     return defaultSettings
   }
 }
@@ -28,13 +29,13 @@ export async function savePaymentSettings<T extends StripeSettings | PaypalSetti
     const update = { [providerName]: settings }
     const res = await apiUpdate(`/api/_/settings/${endpoint}`, update)
     if (res.success) {
-      showMessage(res.message || 'Settings saved', 'connextSuccess')
+      showMessage(res.message || t('settings.settingsSaved'), 'connextSuccess')
       return true
     }
-    showMessage(res.message || 'Failed to save settings', 'connextError')
+    showMessage(res.message || t('settings.failedToSaveSettings'), 'connextError')
     return false
   } catch (error) {
-    showMessage('Network error', 'connextError')
+    showMessage(t('common.networkError'), 'connextError')
     return false
   }
 }
@@ -55,13 +56,13 @@ export async function togglePaymentActive(
           [providerName]: active
         }
       }))
-      showMessage(res.message || 'Status updated', 'connextSuccess')
+      showMessage(res.message || t('common.statusUpdated'), 'connextSuccess')
       return true
     }
-    showMessage(res.message || 'Failed to update status', 'connextError')
+    showMessage(res.message || t('common.failedToUpdateStatus'), 'connextError')
     return false
   } catch (error) {
-    showMessage('Network error', 'connextError')
+    showMessage(t('common.networkError'), 'connextError')
     return false
   }
 }

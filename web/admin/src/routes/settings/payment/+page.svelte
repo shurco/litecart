@@ -10,7 +10,12 @@
   import { systemStore } from '$lib/stores/system'
   import { loadSettings as loadSettingsHelper, saveSettings } from '$lib/utils/settingsHelpers'
   import { loadData } from '$lib/utils/apiHelpers'
+  import { translate } from '$lib/i18n'
+  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
   import type { PaymentSettings } from '$lib/types/models'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   let drawerOpen = $state(false)
   let drawerMode = $state<'stripe' | 'paypal' | 'spectrocoin' | null>(null)
@@ -77,8 +82,6 @@
     drawerOpen = true
   }
 
-  import { DRAWER_CLOSE_DELAY_MS } from '$lib/constants/ui'
-
   function closeDrawer() {
     drawerOpen = false
     setTimeout(() => {
@@ -96,14 +99,14 @@
     <form onsubmit={(e) => { e.preventDefault(); handleCurrencySubmit(); }} class="max-w-2xl">
       <FormSelect
         id="currency"
-        title="Currency"
+        title={t('settings.currency')}
         options={currencyOptions}
         bind:value={payment.currency}
         error={formErrors.currency}
         ico="money"
       />
       <div class="pt-5">
-        <FormButton type="submit" name="Save" color="green" />
+        <FormButton type="submit" name={t('common.save')} color="green" />
       </div>
     </form>
     <hr class="mt-5" />

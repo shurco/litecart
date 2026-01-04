@@ -14,6 +14,10 @@
   import { validators, validateFields } from '$lib/utils/validation'
   import { MIN_NAME_LENGTH, MIN_SLUG_LENGTH, ERROR_MESSAGES } from '$lib/constants/validation'
   import type { Page } from '$lib/types/models'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface PagesResponse {
     pages: Page[]
@@ -54,7 +58,7 @@
     currentPage = page
     const result = await loadData<PagesResponse>(
       `/api/_/pages?page=${page}&limit=${limit}`,
-      'Failed to load pages'
+      t('pages.failedToLoad')
     )
     if (result) {
       pages = result.pages || []
@@ -83,7 +87,7 @@
 
   async function openEdit(page: Page) {
     // Load full page data including content
-    const fullPage = await loadData<Page>(`/api/_/pages/${page.id}`, 'Failed to load page')
+    const fullPage = await loadData<Page>(`/api/_/pages/${page.id}`, t('pages.failedToLoadPage'))
     if (!fullPage) {
       return
     }
@@ -125,7 +129,7 @@
     const isUpdate = drawerMode === 'edit' && drawerPage !== null
     const url = isUpdate && drawerPage ? `/api/_/pages/${drawerPage.id}` : '/api/_/pages'
 
-    const result = await saveData<Page>(url, formData, isUpdate, 'Page saved', 'Failed to save page')
+    const result = await saveData<Page>(url, formData, isUpdate, t('pages.pageSaved'), t('pages.failedToSavePage'))
     if (result) {
       if (isUpdate && drawerPage) {
         // Find and update the specific page in the list reactively
@@ -147,7 +151,7 @@
       return
     }
 
-    const success = await deleteData(`/api/_/pages/${page.id}`, 'Page deleted', 'Failed to delete page')
+    const success = await deleteData(`/api/_/pages/${page.id}`, t('pages.failedToDelete'), t('pages.failedToDelete'))
     if (success) {
       await loadPages()
     }
@@ -163,8 +167,8 @@
     // Then make API call
     const updatedPage = await toggleActiveApi<Page>(
       `/api/_/pages/${page.id}/active`,
-      'Page status updated',
-      'Failed to update page'
+      t('pages.pageStatusUpdated'),
+      t('pages.failedToUpdatePage')
     )
 
     // If API call failed, revert the change
@@ -189,23 +193,23 @@
 
 <Main>
   <div class="mb-5 flex items-center justify-between">
-    <h1>Pages</h1>
-    <FormButton name="Add Page" color="green" ico="plus" onclick={openAdd} />
+    <h1>{t('pages.title')}</h1>
+    <FormButton name={t('pages.addPage')} color="green" ico="plus" onclick={openAdd} />
   </div>
 
   {#if loading}
-    <div class="py-8 text-center">Loading...</div>
+    <div class="py-8 text-center">{t('common.loading')}</div>
   {:else if pages.length === 0}
-    <div class="py-8 text-center text-gray-500">No pages found</div>
+    <div class="py-8 text-center text-gray-500">{t('pages.noPages')}</div>
   {:else}
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th class="w-32">Position</th>
-          <th class="w-32">Slug</th>
-          <th class="w-48">Created</th>
-          <th class="w-48">Updated</th>
+          <th>{t('pages.name')}</th>
+          <th class="w-32">{t('pages.position')}</th>
+          <th class="w-32">{t('pages.slug')}</th>
+          <th class="w-48">{t('common.created')}</th>
+          <th class="w-48">{t('common.updated')}</th>
           <th class="w-24 px-4 py-2"></th>
         </tr>
       </thead>
@@ -276,7 +280,7 @@
       <div class="pb-8">
         <div class="flex items-center">
           <div class="pr-3">
-            <h1>{drawerMode === 'add' ? 'New page' : 'Page setup'}</h1>
+            <h1>{drawerMode === 'add' ? t('pages.addPage') : t('pages.editPage')}</h1>
           </div>
         </div>
       </div>
@@ -284,27 +288,27 @@
       <form onsubmit={handleSubmit}>
         <div class="flow-root">
           <dl class="mx-auto -my-3 mt-4 mb-0 space-y-4 text-sm">
-            <FormInput id="name" title="name" bind:value={formData.name} error={formErrors.name} ico="at-symbol" />
+            <FormInput id="name" title={t('pages.name')} bind:value={formData.name} error={formErrors.name} ico="at-symbol" />
             <div class="flex">
               <div class="pr-3">
                 <FormSelect
                   id="position"
-                  title="Position"
+                  title={t('pages.position')}
                   options={positionOptions}
                   bind:value={formData.position}
                   error={formErrors.position}
                 />
               </div>
               <div>
-                <FormInput id="slug" title="Slug" bind:value={formData.slug} error={formErrors.slug} ico="glob-alt" />
+                <FormInput id="slug" title={t('pages.slug')} bind:value={formData.slug} error={formErrors.slug} ico="glob-alt" />
               </div>
             </div>
 
             <hr />
-            <p class="font-semibold">Content</p>
+            <p class="font-semibold">{t('pages.content')}</p>
             <Editor
               bind:modelValue={formData.content}
-              placeholder="type content here"
+              placeholder={t('pages.typeContentHere')}
               onupdateModelValue={handleEditorUpdate}
             />
           </dl>
@@ -313,8 +317,8 @@
         <div class="pt-8">
           <div class="flex">
             <div class="flex-none">
-              <FormButton type="submit" name={drawerMode === 'add' ? 'Add' : 'Save'} color="green" />
-              <FormButton type="button" name="Close" color="gray" onclick={closeDrawer} />
+              <FormButton type="submit" name={drawerMode === 'add' ? t('common.add') : t('common.save')} color="green" />
+              <FormButton type="button" name={t('common.close')} color="gray" onclick={closeDrawer} />
             </div>
             <div class="grow"></div>
             {#if drawerMode === 'edit' && drawerPage}
@@ -331,7 +335,7 @@
                   }}
                   class="cursor-pointer text-red-700"
                 >
-                  Delete
+                  {t('common.delete')}
                 </span>
               </div>
             {/if}

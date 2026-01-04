@@ -10,6 +10,10 @@
   import { costFormat, formatDate } from '$lib/utils'
   import { STRIPE_DASHBOARD_URL } from '$lib/utils/constants'
   import type { Cart } from '$lib/types/models'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface DrawerCart {
     cart: Cart
@@ -42,7 +46,7 @@
     currentPage = page
     const result = await loadData<CartsResponse>(
       `/api/_/carts?page=${page}&limit=${limit}`,
-      'Failed to load carts'
+      t('carts.failedToLoad')
     )
     if (result) {
       carts = result.carts || []
@@ -73,31 +77,31 @@
     event.stopPropagation()
     await handleApiCall(
       () => apiPost(`/api/_/carts/${cartId}/mail`, {}),
-      'Mail sent successfully',
-      'Failed to send mail'
+      t('carts.mailSentSuccessfully'),
+      t('carts.failedToSendMailMessage')
     )
   }
 </script>
 
 <Main>
   <div class="mb-5 flex items-center justify-between">
-    <h1>Carts</h1>
+    <h1>{t('carts.title')}</h1>
   </div>
 
   {#if loading}
-    <div class="py-8 text-center">Loading...</div>
+    <div class="py-8 text-center">{t('common.loading')}</div>
   {:else if carts.length === 0}
-    <div class="py-8 text-center text-gray-500">No carts found</div>
+    <div class="py-8 text-center text-gray-500">{t('carts.noCarts')}</div>
   {:else}
     <table>
       <thead>
         <tr>
-          <th>Email</th>
-          <th>Price</th>
-          <th>Status</th>
-          <th>Payment</th>
-          <th class="w-48">Created</th>
-          <th class="w-48">Updated</th>
+          <th>{t('carts.email')}</th>
+          <th>{t('carts.priceColumn')}</th>
+          <th>{t('carts.statusColumn')}</th>
+          <th>{t('carts.paymentColumn')}</th>
+          <th class="w-48">{t('common.created')}</th>
+          <th class="w-48">{t('common.updated')}</th>
           <th class="w-12"></th>
         </tr>
       </thead>

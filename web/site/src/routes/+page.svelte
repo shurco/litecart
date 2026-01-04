@@ -4,6 +4,10 @@
   import type { Product } from '$lib/types/models'
   import ProductCard from '$lib/components/ProductCard.svelte'
   import Pagination from '$lib/components/Pagination.svelte'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface ProductsResponse {
     products: Product[]
@@ -43,7 +47,7 @@
   <div class="mx-auto max-w-screen-xl">
     {#if load && products.length > 0}
       <div class="mb-12 text-center">
-        <h2 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">PRODUCTS</h2>
+        <h2 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">{t('home.products')}</h2>
         <div class="mx-auto h-1 w-32 bg-black"></div>
       </div>
 
@@ -59,13 +63,13 @@
     {:else if load}
       <div class="py-20 text-center">
         <div class="inline-block border-4 border-black bg-white px-8 py-6">
-          <p class="text-2xl font-black tracking-wider text-black uppercase">NO PRODUCTS FOUND</p>
+          <p class="text-2xl font-black tracking-wider text-black uppercase">{t('home.noProductsFound')}</p>
         </div>
       </div>
     {:else}
       <div class="py-20 text-center">
         <div class="inline-block border-4 border-black bg-yellow-300 px-8 py-6">
-          <p class="text-xl font-black tracking-wider text-black uppercase">LOADING...</p>
+          <p class="text-xl font-black tracking-wider text-black uppercase">{t('home.loading')}</p>
         </div>
       </div>
     {/if}

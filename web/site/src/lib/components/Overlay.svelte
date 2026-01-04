@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
+
   interface Props {
     show: boolean
     error?: string
@@ -32,14 +37,14 @@
           </strong>
         </div>
         <p class="mb-6 text-lg tracking-wide text-black">
-          Try again in a little while, if the error doesn't go away - contact the administrator.
+          {t('error.contactAdmin')}
         </p>
         {#if onClose}
           <button
             onclick={onClose}
             class="cursor-pointer border-4 border-black bg-red-500 px-6 py-3 text-sm font-black tracking-wider text-white uppercase transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
           >
-            CLOSE
+            {t('overlay.close')}
           </button>
         {/if}
       </div>
@@ -53,7 +58,7 @@
         </div>
         <!-- Loading Text -->
         <div class="border-4 border-black bg-yellow-300 px-8 py-4">
-          <p class="text-xl font-black tracking-wider text-black uppercase">LOADING...</p>
+          <p class="text-xl font-black tracking-wider text-black uppercase">{t('common.loading')}</p>
         </div>
       </div>
     {/if}

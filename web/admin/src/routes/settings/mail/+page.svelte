@@ -7,6 +7,10 @@
   import FormInput from '$lib/components/form/Input.svelte'
   import FormSelect from '$lib/components/form/Select.svelte'
   import { apiGet, apiUpdate, showMessage } from '$lib/utils'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   let smtp = $state({
     host: '',
@@ -20,17 +24,17 @@
   let drawerOpen = $state(false)
   let drawerMode = $state<'mail_letter_payment' | 'mail_letter_purchase' | null>(null)
 
-  const letterLegend = {
+  const letterLegend = $derived({
     mail_letter_payment: {
-      Site_Name: 'Site name',
-      Amount_Payment: 'Amount of payment',
-      Payment_URL: 'Payment link'
+      Site_Name: t('letter.siteName'),
+      Amount_Payment: t('letter.amountOfPayment'),
+      Payment_URL: t('letter.paymentLink')
     },
     mail_letter_purchase: {
-      Purchases: 'Purchases',
-      Admin_Email: 'Admin email'
+      Purchases: t('letter.purchases'),
+      Admin_Email: t('letter.adminEmail')
     }
-  }
+  })
 
   onMount(async () => {
     await loadSettings()
@@ -49,10 +53,10 @@
           password: res.result.smtp?.password || ''
         }
       } else {
-        showMessage(res.message || 'Failed to load settings', 'connextError')
+        showMessage(res.message || t('settings.failedToLoadSettings'), 'connextError')
       }
     } catch (error) {
-      showMessage('Network error', 'connextError')
+      showMessage(t('settings.networkError'), 'connextError')
     } finally {
       loading = false
     }
@@ -62,19 +66,19 @@
     formErrors = {}
 
     if (!smtp.host || smtp.host.length < 4) {
-      formErrors.smtp_host = 'SMTP host must be at least 4 characters'
+      formErrors.smtp_host = t('settings.smtpHostMinLength')
     }
     if (!smtp.port || isNaN(Number(smtp.port))) {
-      formErrors.smtp_port = 'SMTP port must be a number'
+      formErrors.smtp_port = t('settings.smtpPortNumber')
     }
     if (!smtp.encryption) {
-      formErrors.smtp_encryption = 'Encryption is required'
+      formErrors.smtp_encryption = t('settings.encryptionRequired')
     }
     if (!smtp.username) {
-      formErrors.smtp_username = 'Username is required'
+      formErrors.smtp_username = t('settings.usernameRequired')
     }
     if (!smtp.password || smtp.password.length < 6) {
-      formErrors.smtp_password = 'Password must be at least 6 characters'
+      formErrors.smtp_password = t('settings.passwordMinLength')
     }
 
     if (Object.keys(formErrors).length > 0) {
@@ -90,12 +94,12 @@
       }
       const res = await apiUpdate('/api/_/settings/mail', update)
       if (res.success) {
-        showMessage(res.message || 'Settings saved', 'connextSuccess')
+        showMessage(res.message || t('settings.settingsSaved'), 'connextSuccess')
       } else {
-        showMessage(res.message || 'Failed to save settings', 'connextError')
+        showMessage(res.message || t('settings.failedToSaveSettings'), 'connextError')
       }
     } catch (error) {
-      showMessage('Network error', 'connextError')
+      showMessage(t('settings.networkError'), 'connextError')
     }
   }
 
@@ -103,12 +107,12 @@
     try {
       const res = await apiGet(`/api/_/test/letter/${letterName}`)
       if (res.success) {
-        showMessage(res.message || 'Test letter sent', 'connextSuccess')
+        showMessage(res.message || t('settings.testLetterSent'), 'connextSuccess')
       } else {
-        showMessage(res.message || 'Failed to send test letter', 'connextError')
+        showMessage(res.message || t('settings.failedToSendTestLetter'), 'connextError')
       }
     } catch (error) {
-      showMessage('Network error', 'connextError')
+      showMessage(t('settings.networkError'), 'connextError')
     }
   }
 
@@ -130,11 +134,11 @@
 <Main>
   <div class="pb-10">
     <header class="mb-4">
-      <h1>Mail</h1>
+      <h1>{t('settings.mailSettings')}</h1>
     </header>
 
     <div>
-      <h2 class="mb-5">Mail letters</h2>
+      <h2 class="mb-5">{t('settings.mailLetters')}</h2>
       <div class="flex">
         <div
           class="cursor-pointer rounded bg-gray-200 p-2"
@@ -148,7 +152,7 @@
             }
           }}
         >
-          Letter of payment
+          {t('settings.letterOfPayment')}
         </div>
         <div
           class="ml-5 cursor-pointer rounded bg-gray-200 p-2"
@@ -162,17 +166,17 @@
             }
           }}
         >
-          Letter of purchase
+          {t('settings.letterOfPurchase')}
         </div>
       </div>
       <hr class="mt-5" />
     </div>
 
     <div class="mt-5">
-      <h2 class="mb-5">SMTP settings</h2>
+      <h2 class="mb-5">{t('settings.smtpSettings')}</h2>
       {#if !smtp.host || !smtp.port || !smtp.username || !smtp.password}
         <div class="mb-5 flex items-center justify-between bg-red-600 px-2 py-3 text-white">
-          <p class="text-sm font-medium">This section is required!</p>
+          <p class="text-sm font-medium">{t('settings.thisSectionRequired')}</p>
         </div>
       {/if}
 
@@ -182,7 +186,7 @@
             <FormInput
               id="smtp_host"
               type="text"
-              title="SMTP host"
+              title={t('settings.smtpHost')}
               bind:value={smtp.host}
               error={formErrors.smtp_host}
               ico="server"
@@ -192,7 +196,7 @@
             <FormInput
               id="smtp_port"
               type="text"
-              title="SMTP port"
+              title={t('settings.smtpPort')}
               bind:value={smtp.port}
               error={formErrors.smtp_port}
               ico="arrow-left-on-rectangle"
@@ -201,7 +205,7 @@
           <div>
             <FormSelect
               id="smtp_encryption"
-              title="Encryption"
+              title={t('settings.encryption')}
               options={['None', 'SSL/TLS', 'STARTTLS']}
               bind:value={smtp.encryption}
               error={formErrors.smtp_encryption}
@@ -214,7 +218,7 @@
             <FormInput
               id="smtp_username"
               type="text"
-              title="Username"
+              title={t('settings.username')}
               bind:value={smtp.username}
               error={formErrors.smtp_username}
               ico="user"
@@ -224,7 +228,7 @@
             <FormInput
               id="smtp_password"
               type="password"
-              title="Password"
+              title={t('settings.password')}
               bind:value={smtp.password}
               error={formErrors.smtp_password}
               ico="finger-print"
@@ -232,7 +236,7 @@
           </div>
         </div>
         <div class="flex pt-8">
-          <FormButton type="submit" name="Save" color="green" />
+          <FormButton type="submit" name={t('common.save')} color="green" />
           <div class="mt-3 ml-5">
             <span
               onclick={() => sendTestLetter('smtp')}
@@ -246,7 +250,7 @@
                 }
               }}
             >
-              Test smtp
+              {t('settings.testSmtp')}
             </span>
           </div>
         </div>

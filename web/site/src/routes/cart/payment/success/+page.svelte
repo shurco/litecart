@@ -7,6 +7,10 @@
   import { costFormat } from '$lib/utils/costFormat'
   import { getProductImageUrl } from '$lib/utils/imageUrl'
   import { goto } from '$app/navigation'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface CartItem {
     id: string
@@ -40,7 +44,7 @@
     cartStore.clear()
 
     if (!cartId) {
-      error = 'Cart ID is missing'
+      error = t('payment.success.cartIdMissing')
       loading = false
       return
     }
@@ -51,7 +55,7 @@
     if (res.success && res.result) {
       cart = res.result
     } else {
-      error = res.message || 'Failed to load cart information'
+      error = res.message || t('payment.success.loadFailed')
     }
     loading = false
 
@@ -73,29 +77,29 @@
       {#if loading}
         <div class="brutal-card p-12 text-center">
           <div class="inline-block border-4 border-black bg-yellow-300 px-8 py-6">
-            <p class="text-2xl font-black tracking-wider text-black uppercase">LOADING...</p>
+            <p class="text-2xl font-black tracking-wider text-black uppercase">{t('common.loading')}</p>
           </div>
         </div>
       {:else if error}
         <div class="brutal-card bg-red-300 p-12">
-          <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase">ERROR</h1>
+          <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase">{t('error.errorTitle')}</h1>
           <p class="text-lg text-black">{error}</p>
         </div>
       {:else if cart}
         <div class="brutal-card mb-8 bg-green-300 p-8 sm:p-12">
           <header class="text-center">
             <h1 class="mb-4 text-4xl font-black tracking-tighter text-black uppercase sm:text-5xl">
-              PAYMENT SUCCESSFUL!
+              {t('payment.success.title')}
             </h1>
             <p class="text-lg tracking-wide text-black">
-              Thank you for your purchase. Your order has been processed successfully.
+              {t('payment.success.message')}
             </p>
           </header>
         </div>
 
         <div class="brutal-card p-8 sm:p-12">
           <h2 class="mb-6 border-b-4 border-black pb-4 text-3xl font-black tracking-tighter text-black uppercase">
-            ORDER DETAILS
+            {t('payment.success.orderDetails')}
           </h2>
           <ul class="mb-8 space-y-4">
             {#each cart.items as item (item.id)}
@@ -112,7 +116,7 @@
                       {item.name}
                     </a>
                     {#if item.quantity > 1}
-                      <p class="mt-1 text-lg text-gray-700">Quantity: {item.quantity}</p>
+                      <p class="mt-1 text-lg text-gray-700">{t('payment.success.quantity')} {item.quantity}</p>
                     {/if}
                   </div>
                   <div class="text-right">
@@ -126,7 +130,7 @@
                       <p class="text-lg text-gray-600">
                         {costFormat(item.amount)}
                         {#if item.amount !== 0 && item.amount}
-                          {' each'}
+                          {' ' + t('payment.success.each')}
                         {/if}
                       </p>
                     {/if}
@@ -138,7 +142,7 @@
 
           <div class="border-t-4 border-black pt-6">
             <div class="flex items-center justify-between">
-              <span class="text-3xl font-black tracking-tighter text-black uppercase"> TOTAL </span>
+              <span class="text-3xl font-black tracking-tighter text-black uppercase"> {t('cart.total')} </span>
               <span class="text-4xl font-black text-black">
                 {totalAmount()}
                 {#if cart && cart.amount_total !== 0}
@@ -151,7 +155,7 @@
           <div class="mt-8 text-center">
             <div class="inline-block border-4 border-black bg-yellow-300 px-6 py-4">
               <p class="text-lg font-black tracking-wider text-black uppercase">
-                Redirecting to home page in a few seconds...
+                {t('payment.success.redirecting')}
               </p>
             </div>
           </div>

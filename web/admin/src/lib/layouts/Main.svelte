@@ -6,6 +6,10 @@
   import { systemStore } from '$lib/stores/system'
   import { apiGet, apiPost } from '$lib/utils/api'
   import SvgIcon from '$lib/components/SvgIcon.svelte'
+  import { translate } from '$lib/i18n'
+
+  // Reactive translation function
+  let t = $derived($translate)
 
   interface Props {
     children?: import('svelte').Snippet
@@ -49,25 +53,25 @@
   }
 
   let mainMenu = $derived([
-    { name: 'products', path: `${base}/products`, meta: { ico: 'cube' } },
-    { name: 'carts', path: `${base}/carts`, meta: { ico: 'cart' } },
-    { name: 'pages', path: `${base}/pages`, meta: { ico: 'docs' } },
-    { name: 'settings', path: `${base}/settings`, meta: { ico: 'booth', divider: true } }
+    { name: 'products', path: `${base}/products`, meta: { ico: 'cube', label: () => t('menu.products') } },
+    { name: 'carts', path: `${base}/carts`, meta: { ico: 'cart', label: () => t('menu.carts') } },
+    { name: 'pages', path: `${base}/pages`, meta: { ico: 'docs', label: () => t('menu.pages') } },
+    { name: 'settings', path: `${base}/settings`, meta: { ico: 'booth', divider: true, label: () => t('menu.settings') } }
   ])
 
   let mainMenuSections = $derived.by(() => {
     if (currentRoute?.includes('/settings')) {
       return [
-        { name: 'settingsMain', path: `${base}/settings/main`, meta: { ico: 'home', title: 'Main' } },
-        { name: 'settingsAuth', path: `${base}/settings/auth`, meta: { ico: 'finger-print', title: 'Authentication' } },
-        { name: 'settingsPayment', path: `${base}/settings/payment`, meta: { ico: 'money', title: 'Payment' } },
+        { name: 'settingsMain', path: `${base}/settings/main`, meta: { ico: 'home', title: () => t('settings.main') } },
+        { name: 'settingsAuth', path: `${base}/settings/auth`, meta: { ico: 'finger-print', title: () => t('settings.auth') } },
+        { name: 'settingsPayment', path: `${base}/settings/payment`, meta: { ico: 'money', title: () => t('settings.payment') } },
         {
           name: 'settingsWebhook',
           path: `${base}/settings/webhook`,
-          meta: { ico: 'webhook', title: 'Webhook events' }
+          meta: { ico: 'webhook', title: () => t('settings.webhook') }
         },
-        { name: 'settingsSocials', path: `${base}/settings/socials`, meta: { ico: 'user-group', title: 'Social' } },
-        { name: 'settingsMail', path: `${base}/settings/mail`, meta: { ico: 'at-symbol', title: 'Mail setting' } }
+        { name: 'settingsSocials', path: `${base}/settings/socials`, meta: { ico: 'user-group', title: () => t('settings.social') } },
+        { name: 'settingsMail', path: `${base}/settings/mail`, meta: { ico: 'at-symbol', title: () => t('settings.mail') } }
       ]
     }
     return []
@@ -116,7 +120,7 @@
     </div>
 
     <div class="sticky right-0 bottom-0 left-0 border-t border-gray-100 bg-white px-2">
-      <ul class="pt-2">
+      <ul class="py-2">
         <li class="pb-2">
           <a href="/" target="_blank" class="bg-white hover:bg-green-50 hover:text-green-500">
             <div
@@ -142,7 +146,7 @@
   {#if mainMenuSections.length}
     <div class="h-screen w-52 flex-col justify-between border-e border-e-gray-200 bg-white px-2">
       <div class="px-2 py-5">
-        <h1><span class="text-gray-300">Settings</span></h1>
+        <h1><span class="text-gray-300">{t('settings.title')}</span></h1>
       </div>
       <ul class="mt-1.5 space-y-1">
         {#each mainMenuSections as item (item.name)}
@@ -155,7 +159,7 @@
                 : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'}"
             >
               <SvgIcon name={item.meta.ico} stroke="currentColor" className="h-5 w-5" />
-              <span class="text-sm whitespace-nowrap">{item.meta.title}</span>
+              <span class="text-sm whitespace-nowrap">{item.meta.title()}</span>
             </a>
           </li>
         {/each}
@@ -183,7 +187,7 @@
           : 'border-gray-100 text-gray-300'}"
         aria-label="View release information"
       >
-        Powered by litecart
+        {t('common.poweredBy')}
         {#if version.new}
           <span>({version.current_version}→<span class="pl-1 text-red-500">{version.new}</span>)</span>
         {:else}
