@@ -10,21 +10,24 @@ import (
 	"strings"
 )
 
+// CallbackSpectrocoin represents the webhook callback data from SpectroCoin.
+// This structure is used to parse webhook notifications sent by SpectroCoin
+// when a payment status changes.
 type CallbackSpectrocoin struct {
-	MerchantID      int     `json:"merchantId" form:"merchantId"`
-	ApiID           int     `json:"apiId" form:"apiId"`
-	UserID          string  `json:"userId" form:"userId"`
-	MerchantApiID   string  `json:"merchantApiId" form:"merchantApiId"`
-	OrderID         string  `json:"orderId" form:"orderId"`
-	PayCurrency     string  `json:"payCurrency" form:"payCurrency"`
-	PayAmount       float64 `json:"payAmount" form:"payAmount"`
-	ReceiveCurrency string  `json:"receiveCurrency" form:"receiveCurrency"`
-	ReceiveAmount   float64 `json:"receiveAmount" form:"receiveAmount"`
-	ReceivedAmount  int     `json:"receivedAmount" form:"receivedAmount"`
-	Description     string  `json:"description" form:"description"`
-	OrderRequestID  int     `json:"orderRequestId" form:"orderRequestId"`
-	Status          int     `json:"status" form:"status"`
-	Sign            string  `json:"sign" form:"sign"`
+	MerchantID      int     `json:"merchantId" form:"merchantId"`           // SpectroCoin merchant ID
+	ApiID           int     `json:"apiId" form:"apiId"`                     // API ID
+	UserID          string  `json:"userId" form:"userId"`                   // User identifier
+	MerchantApiID   string  `json:"merchantApiId" form:"merchantApiId"`     // Merchant API ID
+	OrderID         string  `json:"orderId" form:"orderId"`                 // Order/Cart ID
+	PayCurrency     string  `json:"payCurrency" form:"payCurrency"`         // Cryptocurrency used for payment
+	PayAmount       float64 `json:"payAmount" form:"payAmount"`             // Amount paid in cryptocurrency
+	ReceiveCurrency string  `json:"receiveCurrency" form:"receiveCurrency"` // Fiat currency to receive
+	ReceiveAmount   float64 `json:"receiveAmount" form:"receiveAmount"`     // Amount to receive in fiat
+	ReceivedAmount  int     `json:"receivedAmount" form:"receivedAmount"`   // Actual received amount
+	Description     string  `json:"description" form:"description"`         // Order description
+	OrderRequestID  int     `json:"orderRequestId" form:"orderRequestId"`   // Request ID
+	Status          int     `json:"status" form:"status"`                   // Payment status (1=new, 2=pending, 3=paid, 4=failed, 5=expired, 6=test)
+	Sign            string  `json:"sign" form:"sign"`                       // RSA signature for verification
 }
 
 type spectrocoin struct {
@@ -34,6 +37,25 @@ type spectrocoin struct {
 	privateKey string
 }
 
+// Spectrocoin initializes a SpectroCoin cryptocurrency payment provider.
+//
+// Parameters:
+//   - merchantID: Your SpectroCoin merchant ID (UUID format)
+//   - projectID: Your SpectroCoin project/API ID (UUID format)
+//   - privateKey: Your RSA private key in PEM format (PKCS#8) for signing requests
+//
+// Returns:
+//   - LitePay: A configured SpectroCoin payment provider
+//
+// Supported currencies: EUR, USD, GBP, AUD, CAD, JPY, CNY, SEK
+//
+// Note: SpectroCoin accepts cryptocurrency payments (BTC, ETH, etc.) and converts to fiat.
+//
+// Example:
+//
+//	pay := litepay.New(callbackURL, successURL, cancelURL)
+//	spectrocoin := pay.Spectrocoin(merchantID, projectID, privateKey)
+//	payment, err := spectrocoin.Pay(cart)
 func (c Cfg) Spectrocoin(merchantID, projectID, privateKey string) LitePay {
 	c.paymentSystem = SPECTROCOIN
 	c.api = "https://spectrocoin.com"

@@ -10,6 +10,27 @@ type dummy struct {
 	successURL string
 }
 
+// Dummy initializes a dummy payment provider for testing purposes.
+// This provider always returns successful payments immediately without
+// any actual payment processing.
+//
+// WARNING: This provider should ONLY be used for:
+//   - Testing and development
+//   - Free items (amount = 0)
+//
+// The application should validate that the cart total is 0 before
+// allowing the use of this provider in production.
+//
+// Returns:
+//   - LitePay: A configured dummy payment provider
+//
+// Supported currencies: EUR, USD, GBP, AUD, CAD, JPY, CNY, SEK
+//
+// Example:
+//
+//	pay := litepay.New(callbackURL, successURL, cancelURL)
+//	dummy := pay.Dummy()
+//	payment, err := dummy.Pay(cart) // Always succeeds with status PAID
 func (c Cfg) Dummy() LitePay {
 	c.paymentSystem = DUMMY
 	c.currency = []string{"EUR", "USD", "GBP", "AUD", "CAD", "JPY", "CNY", "SEK"}

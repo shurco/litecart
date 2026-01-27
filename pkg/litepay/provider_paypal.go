@@ -15,6 +15,24 @@ type paypal struct {
 	secretKey string
 }
 
+// Paypal initializes a PayPal payment provider.
+//
+// Parameters:
+//   - clientID: Your PayPal REST API client ID
+//   - secretKey: Your PayPal REST API secret key
+//
+// Returns:
+//   - LitePay: A configured PayPal payment provider
+//
+// Supported currencies: EUR, USD, GBP, AUD, CAD, JPY, CNY, SEK
+//
+// Note: Currently configured for sandbox mode. Change c.api to "https://api.paypal.com" for production.
+//
+// Example:
+//
+//	pay := litepay.New(callbackURL, successURL, cancelURL)
+//	paypal := pay.Paypal("client_id", "secret_key")
+//	payment, err := paypal.Pay(cart)
 func (c Cfg) Paypal(clientID, secretKey string) LitePay {
 	c.paymentSystem = PAYPAL
 	c.api = "https://api.sandbox.paypal.com" // https://api.paypal.com

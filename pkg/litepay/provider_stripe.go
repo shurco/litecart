@@ -16,6 +16,21 @@ type stripe struct {
 	cancelURL  string
 }
 
+// Stripe initializes a Stripe payment provider.
+//
+// Parameters:
+//   - apiToken: Your Stripe secret API key (starts with "sk_test_" for test mode or "sk_live_" for production)
+//
+// Returns:
+//   - LitePay: A configured Stripe payment provider
+//
+// Supported currencies: EUR, USD, GBP, AUD, CAD, JPY, CNY, SEK
+//
+// Example:
+//
+//	pay := litepay.New(callbackURL, successURL, cancelURL)
+//	stripe := pay.Stripe("sk_test_...")
+//	payment, err := stripe.Pay(cart)
 func (c Cfg) Stripe(apiToken string) LitePay {
 	c.paymentSystem = STRIPE
 	c.api = "https://api.stripe.com"

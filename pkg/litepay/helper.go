@@ -64,7 +64,24 @@ func parseBody(r io.Reader) (map[string]any, error) {
 	return data, nil
 }
 
-// StatusPayment is ...
+// StatusPayment maps provider-specific payment statuses to internal Status values.
+// Each payment provider has its own status codes, and this function normalizes them
+// to the internal status system (NEW, UNPAID, PAID, CANCELED, FAILED, PROCESSED, TEST).
+//
+// Parameters:
+//   - system: The payment provider (STRIPE, PAYPAL, SPECTROCOIN, DUMMY)
+//   - status: The status string from the provider
+//
+// Returns:
+//   - Status: The normalized internal status (defaults to FAILED for unknown statuses)
+//
+// Example:
+//
+//	status := StatusPayment(STRIPE, "succeeded")
+//	// Returns: PAID
+//
+//	status := StatusPayment(PAYPAL, "COMPLETED")
+//	// Returns: PAID
 func StatusPayment(system PaymentSystem, status string) Status {
 	statusBase := map[string]Status{}
 
