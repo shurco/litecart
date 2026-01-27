@@ -37,10 +37,6 @@ export const load: LayoutLoad = async ({ url, fetch }) => {
       if (versionData?.success) {
         isAuthenticated = true
       }
-    } else if (versionResponse.status === 500) {
-      // Server error - likely means app is not installed
-      // Backend should handle this, but for client-side navigation, redirect to install
-      throw redirect(302, `${base}/install`)
     } else if (versionResponse.status === 400 || versionResponse.status === 401 || versionResponse.status === 403) {
       // 400 = missing/malformed token (app installed but not authenticated)
       // 401/403 = unauthorized (app installed but not authenticated)
@@ -72,9 +68,6 @@ export const load: LayoutLoad = async ({ url, fetch }) => {
         // 400 = missing/malformed token (app installed but not authenticated)
         // 401/403 = unauthorized (app installed but not authenticated)
         throw redirect(302, `${base}/signin`)
-      } else if (productsResponse.status === 500) {
-        // Server error - likely means app is not installed
-        throw redirect(302, `${base}/install`)
       }
     } catch (error) {
       // If it's already a redirect, rethrow it
