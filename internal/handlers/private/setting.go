@@ -33,13 +33,13 @@ func Version(c *fiber.Ctx) error {
 	if err == sql.ErrNoRows {
 		version = update.VersionInfo()
 
+		// Try to fetch latest release, but don't fail if GitHub API is unavailable
 		release, err := update.FetchLatestRelease(context.Background(), "shurco", "litecart")
 		if err != nil {
+			// Log the error but continue without update information
+			// This prevents blocking access when GitHub API is unavailable
 			log.ErrorStack(err)
-			return webutil.StatusInternalServerError(c)
-		}
-
-		if version.CurrentVersion != release.Name {
+		} else if version.CurrentVersion != release.Name {
 			version.NewVersion = release.Name
 			version.ReleaseURL = release.GetUrl()
 		}
