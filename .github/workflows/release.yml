@@ -36,7 +36,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - uses: crazy-max/ghaction-upx@v3
+      - uses: crazy-max/ghaction-upx@v4
         with:
           install-only: true
           version: latest
